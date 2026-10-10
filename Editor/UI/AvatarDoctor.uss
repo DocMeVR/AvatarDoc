@@ -318,5 +318,5 @@
 .ad-menu-list { flex-shrink: 1; min-height: 22px; }
 .ad-menu-searchable .ad-menu-column { min-width: 0; overflow: hidden; }
 .ad-menu-searchable .ad-menu-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ad-menu-note { flex-shrink: 1; max-width: 50%; margin: 0 0 0 6px; padding: 0; font-size: 11px; color: var(--ad-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -unity-text-overflow-position: start; }
+.ad-menu-note { flex-shrink: 0; max-width: 150px; margin: 0 0 0 6px; padding: 0; font-size: 11px; color: var(--ad-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -unity-text-overflow-position: start; }
 .ad-menu-searchable .ad-menu-info .ad-menu-label { white-space: normal; color: var(--ad-muted); }
