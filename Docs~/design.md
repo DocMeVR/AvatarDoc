@@ -24,7 +24,7 @@ AvatarDoctor is a non-destructive toggle and menu builder for VRChat avatars:
   blendshape being animated anywhere on the avatar;
 - edit-mode preview of any toggle state on NDMF proxy renderers.
 
-It is written for a later public release (VPM package). It lives in `Packages/dev.docme.avatar-doctor` as an embedded package with its own private git repo (moved from `Assets/DocMe/AvatarDoctor` on 2026-10-10, asset ids kept).
+It lives in `Packages/dev.docme.avatar-doctor` (moved from `Assets/DocMe/AvatarDoctor` on 2026-10-10, asset ids kept), released through the DocMe VCC listing from the public repo github.com/DocMeVR/AvatarDoc.
 
 ## Non-goals for version 1
 
@@ -370,7 +370,7 @@ Live in the inspector (warning icon on the row plus a box in the detail) and at 
 
 ```
 Packages/dev.docme.avatar-doctor/   (Assets/DocMe/AvatarDoctor/ until 2026-10-10)
-  package.json                      (for a later VPM release; name dev.docme.avatar-doctor)
+  package.json                      (name dev.docme.avatar-doctor)
   README.md
   Docs~/design.md, translating.md, glossary.md (plan notes kept on disk only)
   Runtime/DocMe.AvatarDoctor.asmdef, AvatarDoctorMenu.cs, MenuEntry.cs, Targets.cs
@@ -2509,10 +2509,28 @@ the current language in its own name (NDMF's own name list, reached through its 
 .NET's names cannot tell `zh-Hans` from `zh-Hant`) and an arrow opening an `AdMenu` of NDMF's registered languages plus
 AvatarDoc's, filtered as NDMF's switcher filters them. A view listens to `L.LanguageChanged` while it is on a panel and
 builds every part again (`AvatarDoctorView.Rerender`), keeping the selection, the search, the Summary and its format,
-and the mode; a view that was off its panel catches up on its next poll. The Convert, outfit set, icon capture and
-Quick start windows and the AvatarDoc Shapes inspector rebuild themselves and their titles (the capture window keeps
-its background). `AvatarPlanCache` drops its plans and controller reads on the first request after a change, since
-they hold texts made while they were built; a full drop with the controller reads counts as that drop.
+and the mode; a view that was off its panel catches up on its next poll. A language chosen in the picker's own list
+leaves the focus on the picker built for the new language (`LanguagePicker.IsChoosing`, since the focus the closing list
+hands back is still pending while its key press is handled), so a creator who opened it with Enter goes on from there.
+The Convert, outfit set, icon capture and Quick start windows and the AvatarDoc Shapes inspector rebuild themselves and
+their titles (the capture window keeps its background). `AvatarPlanCache` drops its plans and controller reads on the
+first request after a change, since they hold texts made while they were built; a full drop with the controller reads
+counts as that drop.
+
+**Fonts.** In every language but English, AvatarDoc's panels take NDMF's font for the language through NDMF's public
+`LanguagePrefs.ApplyFontPreferences` (`LanguageFont`), as Modular Avatar does: Yu Gothic UI or Meiryo UI for Japanese,
+Microsoft YaHei UI for Simplified Chinese, after Verdana for Latin letters, so Han characters take the language's own
+forms whatever the system's fallback font. English keeps Unity's own font, exactly as before. NDMF keeps an element it
+was handed following every later language, English included (Verdana), and has no call to let go of one, so only
+elements built anew for each language are handed over: the parts a view builds in `BuildParts` (the mode row, the lock
+banner, the header and the content row, which is now made new each time too), every menu, the contents the Convert,
+outfit set and icon capture windows and the Shapes inspector build again, and the window's "nothing selected" note;
+never a root that outlives a change. A root that is not shown yet hands its children over when it first is, so nothing
+reaches NDMF's list for a panel that never appears. The Quick start window shows the README's English text and keeps
+Unity's font. NDMF hands out the font of its own language only, so while a test shows another language nothing is
+handed over unless the test replaces `LanguageFont.Applier`. Measured in NDMF's fonts at 300 and 360 px, every panel
+passes the audit in both languages and every text shows whole, an object field's caption (an object's name) aside. The
+Chinese preset On/Off, 开启 and 关闭, was cut in its 70 px switch in either font and now reads 开 and 关.
 
 **Text the code puts together.** A list, a note in brackets, a quoted name and a "label: text" pair come from
 `L.JoinList`, `L.Aside`, `L.Brackets`, `L.Quoted` and `L.Labelled`, which read their punctuation from the keys
@@ -2549,15 +2567,25 @@ the menu browses exactly as without search. With text, every enabled leaf whose 
 case insensitive, shows in one flat list in the groups' order, its `Note` (or, without one, its group: the submenus
 above it and the header over it) as dim text on the same row. At most `MaxResults` (100) rows are built, then one
 disabled row counts the rest (`ad.ui.pick.more`, `.one`); nothing matching shows `ad.ui.pick.no_match`. The search
-index (lower cased names, search texts, groups) is built once when the menu opens. A browsed list longer than two
-screens (every object of an avatar, every shape of one mesh) builds each row with its size at once but gives it its
-text only as it scrolls near, or when the keyboard reaches it: 800 rows open and lay out in about 20 ms instead of 200.
+index (folded names, search texts, groups) is built once when the menu opens. Folding, done the same way to the typed
+text on each keystroke, is NFKC (full width letters and digits become plain ones, half width katakana full width),
+lower case, then hiragana U+3041 to U+3096 moved onto katakana: ういんく and ｳｲﾝｸ find ウインク,
+ｂｌｉｎｋ finds blink, and Han characters are left as they are. An item whose text carries more than its name sets
+`SearchName`, which the search matches in place of `Text`: the object picker's "(inactive)" mark, in any language,
+finds nothing. A browsed list longer than two screens (every object of an avatar, every shape of one mesh) builds each
+row with its size at once but gives it its text only as it scrolls near, or when the keyboard reaches it: 800 rows open
+and lay out in about 20 ms instead of 200.
 
 **Keys.** A trickle down handler on the menu answers before the field: Down and Up move the highlight, Enter picks it or
 the first result, Escape clears the field or closes an empty one, Tab closes; with an empty field Right, Left and
 Backspace open and leave groups as before. Every other key, and every key while an input method is composing
-(`Input.compositionString`), goes to the field, except a leading space: Space on an object field opens the picker and
-Windows then sends the space itself. A press on a row is kept from moving the focus, so typing goes on.
+(`Input.compositionString`, read through the replaceable `AdMenu.CompositionText`), goes to the field, except a
+leading space: Space on an object field opens the picker and Windows then sends the space itself. The placeholder hides
+while the field has text or an input method is composing, looked at again on every key down and key up the field
+gets, so the composed text never sits on top of the placeholder whichever of the two carries it. A press on a row is
+kept from moving the focus, so typing goes on. In every AdMenu, Enter that picks an item and closes the menu drops the
+character Windows sends after it, the next key press in the window if it is that character: the focus is back on the
+control by then, and the character would press it and open the menu again.
 
 **Press and release.** In every AdMenu a row, or the Back row, is picked only by a release that follows a press inside
 the card while the menu was open, so the release of the press that opened a menu never picks the row that lies under
@@ -2565,9 +2593,12 @@ the pointer by then. The object field's selector, which has to claim the press t
 the avatar picker on the release, as a button does.
 
 **Size.** The card is `SearchWidth` (260) wide, or the control's width up to `MaxWidth`, and its list is as tall as the
-most rows it can show (up to `MaxRows`), so it keeps one size and place while the results change. Rows keep to one line:
-a long name ends in an ellipsis and the row's tooltip shows it whole; the note gives way from its start, so the end of a
-path stays readable.
+most rows it can show (up to `MaxRows`), so it keeps one size and place while the results change. Rows keep to one line,
+and the item's own name wins over the note: a row with a note (`ad-menu-noted`) shows the name whole up to 60% of the
+row (`max-width: 60%`, no shrinking), and a longer one ends in an ellipsis with the row's tooltip showing it whole. The
+note takes what is left, right aligned, and gives way from its start, so the end of a path stays readable: LeftShoulder
+beside a long armature path shows whole at both inspector widths, and a short property name keeps a 100 px shader name
+whole beside it.
 
 **Pickers.** Each keeps its public entry point and test seam. Every AvatarDoc control hands itself to an internal
 `Show(VisualElement anchor, ...)`, so the menu is opened on it, held by its view and closed with it; `TargetListView.OnAdd`

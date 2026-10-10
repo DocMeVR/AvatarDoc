@@ -18,6 +18,12 @@ namespace DocMe.AvatarDoctor.Editor
     {
         public readonly Label Label;
 
+        /// <summary>
+        /// True while a language chosen in this picker's own list is being applied. The list gives the focus back to the
+        /// picker as it closes, so the picker built in its place for the new language takes it over (AvatarDoctorView.Rerender).
+        /// </summary>
+        public bool IsChoosing { get; private set; }
+
         public LanguagePicker()
         {
             name = "ad-language";
@@ -26,7 +32,21 @@ namespace DocMe.AvatarDoctor.Editor
             Label = new Label(DisplayName(L.Language, Choices())) { name = "ad-language-label", pickingMode = PickingMode.Ignore };
             Add(Label);
             MenuTreeView.AddDropdownArrow(this);
-            clicked += () => AdMenu.Open(worldBound, this, Items());
+            clicked += () =>
+            {
+                var items = Items();
+                foreach (var item in items)
+                {
+                    var choose = item.Action;
+                    item.Action = () =>
+                    {
+                        IsChoosing = true;
+                        try { choose(); }
+                        finally { IsChoosing = false; }
+                    };
+                }
+                AdMenu.Open(worldBound, this, items);
+            };
         }
 
         /// <summary>One item per language, each in its own name, the current one ticked.</summary>

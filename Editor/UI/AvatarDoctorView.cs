@@ -47,8 +47,9 @@ namespace DocMe.AvatarDoctor.Editor
         public readonly AvatarDoc Menu;
         public AvatarPlan Plan { get; private set; }
         public HeaderView Header { get; private set; }
-        public readonly VisualElement Content = new VisualElement();
-        public readonly VisualElement Left = new VisualElement();
+        /// <summary>The row of the tree and the detail panel, built again with every other part on a language change.</summary>
+        public VisualElement Content { get; private set; }
+        public VisualElement Left { get; private set; }
         public readonly List<VisualElement> Refreshables = new List<VisualElement>();
         public MenuTreeView Tree { get; private set; }
         public EntryDetailView Detail { get; private set; }
@@ -170,10 +171,12 @@ namespace DocMe.AvatarDoctor.Editor
             Refresh();
         }
 
-        /// <summary>Builds every part of the view, each reading its texts in the current language.</summary>
+        /// <summary>Builds every part of the view, each reading its texts in the current language and, except in English, in NDMF's font for it.</summary>
         void BuildParts()
         {
             builtLanguage = L.LanguageVersion;
+            Content = new VisualElement();
+            Left = new VisualElement();
             var modeRow = new VisualElement { name = "ad-mode-row" };
             modeRow.AddToClassList("ad-mode-row");
             ModeChoice = new SegmentedChoice(new List<string> { L.Text("ad.ui.mode.simple"), L.Text("ad.ui.mode.advanced") }, Simple ? 0 : 1)
@@ -212,6 +215,7 @@ namespace DocMe.AvatarDoctor.Editor
             Tree.SelectionChanged += Detail.Show;
             Tree.SelectionChanged += _ => UpdateWheel();
             Tree.SelectionChanged += _ => CloseSummary();
+            LanguageFont.ApplyToChildren(this);
         }
 
         void OnLanguageChanged()
@@ -225,7 +229,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// Builds every part again, so each label, tooltip and note reads in the current language. What the creator was
         /// looking at stays: the selected row, the search, the Summary and its format, the mode, and the folds and open rows
-        /// the view's store keeps. A menu of this view is closed first, since its rows were made in the old language.
+        /// the view's store keeps. A menu of this view is closed first, since its rows were made in the old language. A
+        /// language chosen with the keyboard leaves the focus on the new picker, so the keyboard can go on from there.
         /// </summary>
         public void Rerender()
         {
@@ -235,16 +240,18 @@ namespace DocMe.AvatarDoctor.Editor
             var search = Tree.Q<TextField>("ad-search")?.value ?? "";
             bool summaryOpen = SummaryOpen;
             var summaryFormat = Summary.Format;
+            // The focus a closing menu hands back is still on its way while that menu's key press is being handled, so a
+            // picker whose own list is choosing the language counts as focused.
+            bool pickerFocused = LanguagePicker != null && LanguagePicker.IsChoosing;
             if (panel != null)
             {
                 foreach (var menu in panel.visualTree.Query<AdMenu>().ToList())
                     if (menu.Owner == this) menu.Close(false);
                 var focused = panel.focusController?.focusedElement as VisualElement;
+                pickerFocused |= focused != null && LanguagePicker != null && (focused == LanguagePicker || LanguagePicker.Contains(focused));
                 if (focused != null && Contains(focused)) focused.Blur();
             }
             Clear();
-            Content.Clear();
-            Left.Clear();
             Refreshables.Clear();
             wheel = null;
             SummaryOpen = false;
@@ -259,6 +266,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (selectedKey != null && Tree.RowForKey(selectedKey) != null) Tree.SelectKey(selectedKey);
             if (summaryFormat != Summary.Format) Summary.SetFormat(summaryFormat);
             if (summaryOpen) OpenSummary();
+            if (pickerFocused) LanguagePicker.Focus();
         }
 
         /// <summary>

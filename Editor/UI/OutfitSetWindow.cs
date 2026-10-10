@@ -370,6 +370,7 @@ namespace DocMe.AvatarDoctor.Editor
             var status = new Label(lastStatus) { name = "ad-outfit-status" };
             status.AddToClassList("ad-note");
             root.Add(status);
+            LanguageFont.ApplyToChildren(root);
         }
 
         VisualElement BuildEmptyDrop()

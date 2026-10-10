@@ -116,6 +116,22 @@ namespace DocMe.AvatarDoctor.Editor
 
         static bool ShowsLabel(VisualElement root, string text) => root.Query<Label>().ToList().Any(l => l.text == text);
 
+        /// <summary>One key down with no target of its own, so the panel sends it to the element that has the focus, as it does a real key press.</summary>
+        static void SendKey(VisualElement inPanel, KeyCode code, char character = '\0')
+        {
+            using (var e = KeyDownEvent.GetPooled(new Event { type = EventType.KeyDown, keyCode = code, character = character }))
+                inPanel.SendEvent(e);
+        }
+
+        /// <summary>Enter as Windows sends it: the key, then its character, which is what presses a focused button.</summary>
+        static void PressEnter(VisualElement inPanel)
+        {
+            SendKey(inPanel, KeyCode.Return);
+            SendKey(inPanel, KeyCode.None, '\n');
+        }
+
+        static VisualElement Focused(VisualElement inPanel) => inPanel.focusController?.focusedElement as VisualElement;
+
         // ---- the texts -----------------------------------------------------------------------------------------
 
         [Test]
@@ -326,6 +342,46 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void ChoosingALanguageWithTheKeyboardKeepsTheFocusOnThePicker()
+        {
+            var menu = avatar.AddMenu();
+            Toggle(menu, "Hat");
+            using (L.UseTestLanguage("ja-JP", Japanese))
+            {
+                L.SetLanguage("en-us");
+                var view = View(menu);
+                LayoutProbe.Measure(view, () =>
+                {
+                    var root = view.panel.visualTree;
+                    try
+                    {
+                        view.LanguagePicker.Focus();
+                        Assert.That(Focused(view), Is.SameAs(view.LanguagePicker), "the picker takes the keyboard focus");
+                        PressEnter(view);
+                        var list = root.Q<AdMenu>();
+                        Assert.That(list, Is.Not.Null, "Enter on the picker opens the language list");
+                        int japanese = LanguagePicker.Choices().IndexOf("ja-jp");
+                        Assert.That(japanese, Is.GreaterThanOrEqualTo(0));
+                        for (int i = 0; i <= japanese; i++) SendKey(view, KeyCode.DownArrow);
+                        Assert.That(list.SelectedIndex, Is.EqualTo(japanese), "Down walks to Japanese");
+
+                        PressEnter(view);
+                        Assert.That(list.IsClosed, Is.True);
+                        Assert.That(L.Language, Is.EqualTo("ja-jp"), "Enter chose Japanese");
+                        Assert.That(view.ModeChoice.Items[0].text, Is.EqualTo("シンプル"), "and the view is shown in it");
+                        Assert.That(Focused(view), Is.SameAs(view.LanguagePicker), "the rebuilt picker has the focus, so the keyboard can go on from it");
+                        Assert.That(root.Q<AdMenu>(), Is.Null, "the character Windows sends after that Enter does not open the list again");
+
+                        PressEnter(view);
+                        Assert.That(root.Q<AdMenu>(), Is.Not.Null, "a new Enter opens it again");
+                    }
+                    finally { foreach (var left in root.Query<AdMenu>().ToList()) left.Close(false); }
+                });
+            }
+            AssertRealLanguageUntouched();
+        }
+
+        [Test]
         public void ALanguageChangeKeepsWhatTheCreatorWasLookingAt()
         {
             var menu = avatar.AddMenu();
@@ -511,6 +567,113 @@ namespace DocMe.AvatarDoctor.Editor
                 Object.DestroyImmediate(pieceMeshAsset);
             }
             Assert.That(L.LanguageListenerCount, Is.EqualTo(listeners), "closed windows and a destroyed inspector let go");
+            AssertRealLanguageUntouched();
+        }
+
+        // ---- NDMF's font -----------------------------------------------------------------------------------------
+
+        [Test]
+        public void EveryNewPartOfAViewGetsNdmfsFontExceptInEnglish()
+        {
+            var menu = avatar.AddMenu();
+            Toggle(menu, "Hat");
+            var real = LanguageFont.Applier;
+            var given = new List<VisualElement>();
+            LanguageFont.Applier = given.Add;
+            try
+            {
+                using (L.UseTestLanguage("ja-JP", Japanese))
+                {
+                    var view = View(menu);
+                    Assert.That(given, Is.Empty, "nothing goes to NDMF for a view that is not shown yet");
+                    LayoutProbe.Measure(view, () =>
+                    {
+                        var parts = view.Children().ToList();
+                        Assert.That(parts.Where(p => !given.Contains(p)).Select(p => p.name), Is.Empty, "every part of a view shown in Japanese gets NDMF's font");
+                        Assert.That(given, Has.No.Member(view), "never the view itself, which outlives a language change");
+                        var list = AdMenu.Open(view.LanguagePicker.worldBound, view.LanguagePicker, LanguagePicker.Items());
+                        Assert.That(given, Has.Member(list), "a menu gets it too");
+                        list.Close(false);
+
+                        given.Clear();
+                        L.SetLanguage("en-us");
+                        Assert.That(parts.Any(view.Contains), Is.False, "the parts that had the font are gone");
+                        Assert.That(given, Is.Empty, "and the parts built for English keep Unity's own font");
+                        var english = AdMenu.Open(view.LanguagePicker.worldBound, view.LanguagePicker, LanguagePicker.Items());
+                        Assert.That(given, Is.Empty, "as does a menu opened in English");
+                        english.Close(false);
+
+                        L.SetLanguage("zh-hans");
+                        Assert.That(view.Children().All(given.Contains), Is.True, "another language builds the parts again with the font");
+                    });
+                }
+            }
+            finally { LanguageFont.Applier = real; }
+            AssertRealLanguageUntouched();
+        }
+
+        [Test]
+        public void TheWindowsAndTheShapesInspectorGetNdmfsFontExceptInEnglish()
+        {
+            var menu = avatar.AddMenu();
+            var hat = Toggle(menu, "Hat");
+            var piece = new GameObject("Piece");
+            piece.transform.SetParent(avatar.Root.transform);
+            var pieceMesh = piece.AddComponent<SkinnedMeshRenderer>();
+            var pieceMeshAsset = TestAvatar.QuadWithShapes("Blush");
+            pieceMesh.sharedMesh = pieceMeshAsset;
+            var shapes = piece.AddComponent<AvatarDocShapes>();
+            var real = LanguageFont.Applier;
+            var given = new List<VisualElement>();
+            LanguageFont.Applier = given.Add;
+            var import = ScriptableObject.CreateInstance<ImportWindow>();
+            var outfits = ScriptableObject.CreateInstance<OutfitSetWindow>();
+            var capture = ScriptableObject.CreateInstance<IconCaptureWindow>();
+            UnityEditor.Editor editor = null;
+            try
+            {
+                using (L.UseTestLanguage("ja-JP", null))
+                {
+                    import.Init(menu);
+                    import.CreateGUI();
+                    outfits.Init(menu);
+                    outfits.CreateGUI();
+                    capture.Init(menu, hat.id);
+                    editor = UnityEditor.Editor.CreateEditor(shapes);
+                    var shapesRoot = ((AvatarDocShapesEditor)editor).CreateInspectorGUI();
+                    Assert.That(given, Is.Empty, "nothing goes to NDMF before they are shown");
+                    var roots = new[]
+                    {
+                        ("the Convert window", import.rootVisualElement), ("the outfit set window", outfits.rootVisualElement),
+                        ("the icon capture window", capture.rootVisualElement), ("the AvatarDoc Shapes inspector", shapesRoot),
+                    };
+                    foreach (var (what, root) in roots)
+                    {
+                        LayoutProbe.Measure(root, () =>
+                        {
+                            Assert.That(root.childCount, Is.GreaterThan(0));
+                            Assert.That(root.Children().All(given.Contains), Is.True, what + " shown in Japanese gives NDMF's font to everything it holds");
+                            Assert.That(given, Has.No.Member(root), what + ": never to its root, which outlives a language change");
+                            var before = root.Children().ToList();
+                            given.Clear();
+                            L.SetLanguage("en-us");
+                            Assert.That(before.Any(root.Contains), Is.False, what + " is built again");
+                            Assert.That(root.Children().Any(given.Contains), Is.False, what + " in English keeps Unity's own font");
+                            L.SetLanguage("ja-jp");
+                            Assert.That(root.Children().All(given.Contains), Is.True, what + " in Japanese again gets it again");
+                        });
+                    }
+                }
+            }
+            finally
+            {
+                LanguageFont.Applier = real;
+                Object.DestroyImmediate(import);
+                Object.DestroyImmediate(outfits);
+                Object.DestroyImmediate(capture);
+                if (editor != null) Object.DestroyImmediate(editor);
+                Object.DestroyImmediate(pieceMeshAsset);
+            }
             AssertRealLanguageUntouched();
         }
     }

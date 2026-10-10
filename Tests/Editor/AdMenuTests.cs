@@ -353,6 +353,53 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheCharacterAfterEnterDoesNotPressTheControlAgain()
+        {
+            foreach (var search in new[] { false, true })
+            {
+                InWindow(opener =>
+                {
+                    var log = new List<string>();
+                    int opened = 0;
+                    var root = RootOf(opener);
+                    opener.clicked += () =>
+                    {
+                        opened++;
+                        AdMenu.Open(opener.worldBound, opener, Sample(log), search: search);
+                    };
+                    try
+                    {
+                        opener.Focus();
+                        SendToFocus(opener, KeyCode.Return);
+                        SendToFocus(opener, KeyCode.None, '\n');
+                        var menu = root.Q<AdMenu>();
+                        Assert.That(menu, Is.Not.Null, "Enter on the focused button opens its menu (search " + search + ")");
+                        Assert.That(opened, Is.EqualTo(1));
+                        SendToFocus(opener, KeyCode.DownArrow);
+                        SendToFocus(opener, KeyCode.Return);
+                        Assert.That(log, Is.EqualTo(new[] { "Alpha" }), "Enter runs the highlighted item");
+                        Assert.That(menu.IsClosed, Is.True);
+                        Assert.That(opener.focusController.focusedElement, Is.SameAs(opener), "the focus is back on the button");
+                        SendToFocus(opener, KeyCode.None, '\n');
+                        Assert.That(root.Q<AdMenu>(), Is.Null, "the character Windows sends after that Enter does not press the button again");
+                        Assert.That(opened, Is.EqualTo(1));
+                        SendToFocus(opener, KeyCode.Return);
+                        SendToFocus(opener, KeyCode.None, '\n');
+                        Assert.That(opened, Is.EqualTo(2), "a new Enter presses it");
+                    }
+                    finally { foreach (var left in root.Query<AdMenu>().ToList()) left.Close(false); }
+                });
+            }
+        }
+
+        /// <summary>One key down with no target of its own, so the panel sends it to the element that has the focus, as it does a real key press.</summary>
+        static void SendToFocus(VisualElement inPanel, KeyCode code, char character = '\0')
+        {
+            using (var e = KeyDownEvent.GetPooled(new Event { type = EventType.KeyDown, keyCode = code, character = character }))
+                inPanel.SendEvent(e);
+        }
+
+        [Test]
         public void AdMenuTypeToSearchSelectsTheFirstMatch()
         {
             InWindow(opener =>

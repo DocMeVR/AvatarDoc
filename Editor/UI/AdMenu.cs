@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -32,6 +33,8 @@ namespace DocMe.AvatarDoctor.Editor
             public List<Item> Children;
             /// <summary>Text a search also finds the item by, besides its own: a shader property's name, an object's path.</summary>
             public string SearchText;
+            /// <summary>The name a search matches in place of Text, when Text carries more than the name: an object's name without its "(inactive)" mark.</summary>
+            public string SearchName;
             /// <summary>Dim text after the item's own on the same row. A search result without one shows its group there instead; an empty one shows nothing.</summary>
             public string Note;
             /// <summary>A line that says something about the results (nothing matches, how many more): never chosen, and wrapped rather than cut off.</summary>
@@ -44,7 +47,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>How a menu closed: an item was chosen, the user closed it (Escape, Tab, a click beside it, another menu opening, code), it closed by itself, or its view left the panel.</summary>
         enum CloseKind { Chosen, User, ByItself, ViewGone }
 
-        /// <summary>One item a search can find, lower cased once when the menu opens.</summary>
+        /// <summary>One item a search can find, folded once when the menu opens.</summary>
         readonly struct Entry
         {
             public readonly Item Item;
@@ -55,10 +58,27 @@ namespace DocMe.AvatarDoctor.Editor
             public Entry(Item item, string group)
             {
                 Item = item;
-                Name = (item.Text ?? "").ToLowerInvariant();
-                Extra = string.IsNullOrEmpty(item.SearchText) ? null : item.SearchText.ToLowerInvariant();
+                Name = Fold(item.SearchName ?? item.Text);
+                Extra = string.IsNullOrEmpty(item.SearchText) ? null : Fold(item.SearchText);
                 Group = group;
             }
+        }
+
+        /// <summary>
+        /// The form a search compares: full width letters and digits as plain ones, half width katakana as full width
+        /// (NFKC), lower case, and hiragana as katakana, so ういんく finds ウインク and ｂｌｉｎｋ finds blink. Han
+        /// characters stay as they are.
+        /// </summary>
+        static string Fold(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            string normal;
+            try { normal = text.Normalize(NormalizationForm.FormKC); }
+            catch (ArgumentException) { normal = text; }
+            var chars = normal.ToLowerInvariant().ToCharArray();
+            for (int i = 0; i < chars.Length; i++)
+                if (chars[i] >= (char)0x3041 && chars[i] <= (char)0x3096) chars[i] = (char)(chars[i] + 0x60);
+            return new string(chars);
         }
 
         public const float RowHeight = 22f;
@@ -101,6 +121,9 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>Where the line about a menu that closed by itself goes. Replaceable by a test that reads it.</summary>
         public static Action<string> Log = message => Debug.Log(message);
+
+        /// <summary>The text an input method is composing (Japanese, Chinese), not yet in the field. Replaceable by a test, which cannot drive an input method.</summary>
+        public static Func<string> CompositionText = () => Input.compositionString;
 
         readonly List<VisualElement> rows = new List<VisualElement>();
         readonly Stack<Item[]> parents = new Stack<Item[]>();
@@ -280,6 +303,7 @@ namespace DocMe.AvatarDoctor.Editor
             card.contentContainer.RegisterCallback<GeometryChangedEvent>(_ => FillNearby());
             panelRoot.RegisterCallback<GeometryChangedEvent>(OnPanelGeometry);
             RegisterCallback<DetachFromPanelEvent>(OnOwnDetached);
+            LanguageFont.Apply(this);
         }
 
         /// <summary>A plain TextField with the tree search's look: the magnifier and the placeholder inside its one input box.</summary>
@@ -299,11 +323,16 @@ namespace DocMe.AvatarDoctor.Editor
             var placeholder = new Label(L.Text("ad.ui.search.placeholder")) { pickingMode = PickingMode.Ignore };
             placeholder.AddToClassList("ad-search-placeholder");
             input.Add(placeholder);
+            // The placeholder hides while the field holds text or an input method is composing, whichever of the two
+            // carries the composed text. Every key pressed or let go while it composes reaches the field, so each one looks again.
+            void ShowPlaceholder() => placeholder.EnableInClassList("ad-hidden", field.value.Length > 0 || !string.IsNullOrEmpty(CompositionText()));
+            field.RegisterCallback<KeyDownEvent>(_ => ShowPlaceholder());
+            field.RegisterCallback<KeyUpEvent>(_ => ShowPlaceholder());
             field.RegisterValueChangedCallback(e =>
             {
                 // The text is the menu's own business: nothing in the window it sits in hears it change.
                 e.StopPropagation();
-                placeholder.EnableInClassList("ad-hidden", e.newValue.Length > 0);
+                ShowPlaceholder();
                 Filter(e.newValue, false);
             });
             return field;
@@ -358,7 +387,7 @@ namespace DocMe.AvatarDoctor.Editor
                 return;
             }
             if (browseItems == null) browseItems = items;
-            var needle = query.ToLowerInvariant();
+            var needle = Fold(query);
             var shown = new List<Item>();
             var shownNotes = new List<string>();
             int count = 0;
@@ -456,6 +485,8 @@ namespace DocMe.AvatarDoctor.Editor
 
         static void AddCells(VisualElement row, Item item, string note)
         {
+            // A row with a note keeps the item's own name whole up to the stylesheet's share of the row, and the note takes the rest.
+            row.EnableInClassList("ad-menu-noted", !string.IsNullOrEmpty(note));
             row.Add(Cell("ad-menu-check", item.Checked ? "✓" : ""));
             var column = new VisualElement();
             column.AddToClassList("ad-menu-column");
@@ -671,7 +702,10 @@ namespace DocMe.AvatarDoctor.Editor
                 case KeyCode.LeftArrow:
                 case KeyCode.Backspace: Back(); break;
                 case KeyCode.Return:
-                case KeyCode.KeypadEnter: Commit(selected); break;
+                case KeyCode.KeypadEnter:
+                    Commit(selected);
+                    if (closed) DropEnterCharacter();
+                    break;
                 case KeyCode.Escape: Close(); break;
                 case KeyCode.Tab: Close(false); break;
                 default:
@@ -691,7 +725,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         void OnSearchKeyDown(KeyDownEvent e)
         {
-            if (closed || !string.IsNullOrEmpty(Input.compositionString)) return;
+            if (closed || !string.IsNullOrEmpty(CompositionText())) return;
             bool empty = searchField.value.Length == 0;
             switch (e.keyCode)
             {
@@ -700,6 +734,7 @@ namespace DocMe.AvatarDoctor.Editor
                 case KeyCode.Return:
                 case KeyCode.KeypadEnter:
                     Commit(selected < 0 && browseItems != null ? Array.FindIndex(items, Enabled) : selected);
+                    if (closed) DropEnterCharacter();
                     break;
                 case KeyCode.Escape:
                     if (empty) Close();
@@ -724,6 +759,26 @@ namespace DocMe.AvatarDoctor.Editor
             }
             e.PreventDefault();
             e.StopPropagation();
+        }
+
+        /// <summary>
+        /// Windows follows Enter with its character as a key press of its own, which would press the control the focus
+        /// went back to and open its menu again. The next key press in the window is dropped when it is that character.
+        /// </summary>
+        void DropEnterCharacter()
+        {
+            var root = panelRoot;
+            EventCallback<KeyDownEvent> drop = null;
+            drop = e =>
+            {
+                root.UnregisterCallback(drop, TrickleDown.TrickleDown);
+                if (e.keyCode != KeyCode.None || (e.character != '\n' && e.character != '\r')) return;
+                // A used key press is one Unity sends no submit for, and the submit is what presses a focused button.
+                e.imguiEvent?.Use();
+                e.StopImmediatePropagation();
+                e.PreventDefault();
+            };
+            root.RegisterCallback(drop, TrickleDown.TrickleDown);
         }
 
         void Move(int direction)

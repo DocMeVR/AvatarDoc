@@ -1,5 +1,8 @@
 #if DOCME_NDMF && DOCME_VRCSDK3A
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using nadena.dev.ndmf.localization;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -513,6 +516,151 @@ namespace DocMe.AvatarDoctor.Editor
                 LayoutProbe.Validate(view);
                 PanelAudit.Audit(fold, view.Detail.worldBound.xMax, allow);
             });
+        }
+
+        /// <summary>
+        /// Plan 16: in Japanese and Chinese every panel takes NDMF's font for the language (LanguageFont), which draws
+        /// Latin letters wider than Unity's own font. Each panel is measured in the real language files at both ends
+        /// of the default inspector width, in NDMF's font: the audit passes and every text shows whole. An object
+        /// field's caption is left out: it shows an object's name, which Unity ends in an ellipsis whenever the field
+        /// is narrower, in any language and font.
+        /// </summary>
+        [Test]
+        public void NdmfsFontKeepsEveryPanelFittingInJapaneseAndChinese()
+        {
+            var menu = avatar.AddMenu();
+            avatar.AddBodyShapes("Blush");
+            var toggle = menu.AddEntry(EntryKind.Toggle, "Face");
+            toggle.objects.Add(new ObjectTarget { target = avatar.Hat });
+            toggle.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", minWeight = 0f, maxWeight = 100f });
+            toggle.materials.Add(new MaterialTarget { renderer = avatar.Body, slot = 0, material = avatar.MaterialA });
+            toggle.properties.Add(new MaterialPropertyTarget { renderer = avatar.Body, property = "_Glossiness", type = PropertyValueType.Float, value = 0.5f });
+            toggle.follows.Add(new FollowTarget { target = avatar.Glasses, follows = avatar.Hat.transform, keepOffset = true });
+            toggle.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Default });
+            var radial = menu.AddEntry(EntryKind.Radial, "Eyes");
+            radial.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", minWeight = 0f, maxWeight = 100f });
+            var submenu = menu.AddEntry(EntryKind.Submenu, "Outfits");
+            var hold = ContactTriggerOn(menu, "Poke", avatar.Root.transform);
+            hold.touchMode = TouchMode.Hold;
+            var fade = ContactTriggerOn(menu, "Fade", avatar.Root.transform);
+            fade.touchMode = TouchMode.FollowDistance;
+            var physBone = TriggerOn(menu, "Squeeze");
+            physBone.source = TriggerSource.PhysBone;
+            physBone.physBone = avatar.Hat.AddComponent<VRCPhysBone>();
+            var linked = TriggerOn(menu, "Pout");
+            linked.source = TriggerSource.Toggle;
+            linked.sourceToggleId = toggle.id;
+            var over = menu.AddEntry(EntryKind.Override, "Silence");
+            over.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 50f });
+            var preset = menu.AddEntry(EntryKind.Preset, "Casual");
+            preset.presetStates.Add(new PresetState { entryId = toggle.id, on = true });
+            var grab = menu.AddEntry(EntryKind.Grabbable, "Sword");
+            grab.grabObject = avatar.Hat;
+            var entries = new[] { toggle, radial, submenu, hold, fade, physBone, linked, over, preset, grab };
+
+            var real = LanguageFont.Applier;
+            var report = new List<string>();
+            try
+            {
+                foreach (var language in new[] { "ja-JP", "zh-Hans" })
+                {
+                    var font = NdmfFont(language);
+                    LanguageFont.Applier = element => element.style.unityFontDefinition = font;
+                    using (L.UseTestLanguage(language, null))
+                    {
+                        foreach (var width in new[] { 300f, 360f })
+                        {
+                            var measured = MeasurePanels(menu, entries, width);
+                            string where = language + " at " + width + " px";
+                            Assert.That(measured.FontsSet, Is.True, where + ": the panels were measured in NDMF's font");
+                            foreach (var failure in measured.Failures) report.Add(where + ", " + failure.Key + ": " + failure.Value);
+                            foreach (var cut in measured.Cut) report.Add(where + ": " + cut + " is cut short");
+                        }
+                    }
+                }
+            }
+            finally { LanguageFont.Applier = real; }
+            Assert.That(report, Is.Empty, "does not fit in NDMF's font:\n" + string.Join("\n", report));
+        }
+
+        sealed class Measured
+        {
+            public readonly Dictionary<string, string> Failures = new Dictionary<string, string>();
+            public readonly HashSet<string> Cut = new HashSet<string>();
+            public bool FontsSet;
+        }
+
+        /// <summary>A fresh view at this width, every entry's panel, the header with its settings open and the mode row: what the audit finds, and every text cut short.</summary>
+        Measured MeasurePanels(AvatarDoc menu, MenuEntry[] entries, float width)
+        {
+            var result = new Measured();
+            var allow = StandardAllowList()
+                .Allow(e => e.name == "ad-problems-arrow" || e.name == "ad-status-glyph", "the status row's own leading arrow and icon")
+                .Allow(e => e.name == "ad-ready-show" || e.name == "ad-summary-toggle", "the status row's own trailing actions")
+                .Allow(e => e.name == "ad-settings-fold-dot" || e.name == "ad-advanced-fold-dot", "a fold's own non default dot");
+            var view = View(menu);
+            LayoutProbe.Measure(view, () =>
+            {
+                result.FontsSet = view.Children().All(part => part.style.unityFontDefinition.keyword != StyleKeyword.Null);
+                if (!view.Header.SettingsFoldOpen) view.Header.ToggleSettingsFold();
+                LayoutProbe.Validate(view);
+                Audit(result, "the header", () => PanelAudit.Audit(view.Header, view.Header.worldBound.xMax, allow));
+                Audit(result, "the mode row", () => PanelAudit.Audit(view.ElementAt(0), view.worldBound.xMax, new PanelAudit.AllowList()));
+                CollectCut(result, view);
+                foreach (var entry in entries)
+                {
+                    view.Tree.SelectEntry(entry.id);
+                    LayoutProbe.Validate(view);
+                    Audit(result, entry.name + "'s panel", () => PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow));
+                    CollectCut(result, view.Detail, entry.name + "'s panel");
+                }
+            }, width);
+            return result;
+        }
+
+        static void Audit(Measured result, string panel, System.Action audit)
+        {
+            try { audit(); }
+            catch (AssertionException e) { result.Failures[panel] = e.Message.Split('\n')[0]; }
+        }
+
+        /// <summary>
+        /// Every visible text that does not show whole: a single line wider than its box, or wrapped text taller than it.
+        /// Text inside an input field scrolls instead, and an object field's caption is an object's name: both are left out.
+        /// </summary>
+        static void CollectCut(Measured result, VisualElement root, string panel = "the view")
+        {
+            foreach (var text in root.Query<TextElement>().ToList())
+            {
+                if (string.IsNullOrEmpty(text.text) || !(text.worldBound.width > 0f) || text.resolvedStyle.display == DisplayStyle.None) continue;
+                if (text.parent != null && (text.parent.ClassListContains("unity-text-field__input") || text.parent.ClassListContains("unity-base-text-field__input"))) continue;
+                if (text.ClassListContains("unity-object-field-display__label")) continue;
+                var box = text.contentRect;
+                var natural = text.MeasureTextSize(text.text, 0f, VisualElement.MeasureMode.Undefined, 0f, VisualElement.MeasureMode.Undefined);
+                bool cut = text.resolvedStyle.whiteSpace == WhiteSpace.NoWrap
+                    ? natural.x > box.width + 0.5f
+                    : text.MeasureTextSize(text.text, box.width, VisualElement.MeasureMode.Exactly, 0f, VisualElement.MeasureMode.Undefined).y > box.height + 1f;
+                if (cut) result.Cut.Add(panel + ": \"" + text.text + "\" (" + (string.IsNullOrEmpty(text.name) ? text.GetType().Name : "#" + text.name) + " in " + PathOf(text)
+                    + ", " + box.width.ToString("0.0") + " px wide for text that measures " + natural.x.ToString("0.0") + ")");
+            }
+        }
+
+        static string PathOf(VisualElement element)
+        {
+            var names = new List<string>();
+            for (var p = element.parent; p != null && names.Count < 4; p = p.parent)
+                names.Add(!string.IsNullOrEmpty(p.name) ? "#" + p.name : (p.GetClasses().FirstOrDefault() ?? p.GetType().Name));
+            return string.Join(" < ", names);
+        }
+
+        /// <summary>NDMF's font for a language through NDMF's own loader, which is private: its public call hands out only the font of the language NDMF shows, and a test cannot change that without saving it.</summary>
+        static StyleFontDefinition NdmfFont(string language)
+        {
+            var load = typeof(LanguagePrefs).GetMethod("TryLoadFontForLanguage", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.That(load, Is.Not.Null, "NDMF's font loader (LanguagePrefs.TryLoadFontForLanguage) was not found: this test needs updating for the NDMF version in use");
+            var font = (StyleFontDefinition)load.Invoke(null, new object[] { language.ToLowerInvariant() });
+            if (font.value.fontAsset == null) Assert.Ignore("NDMF finds no font for " + language + " on this system, so the fit in that font cannot be checked here");
+            return font;
         }
     }
 }

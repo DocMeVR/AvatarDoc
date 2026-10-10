@@ -153,6 +153,7 @@ namespace DocMe.AvatarDoctor.Editor
             status = new Label();
             status.AddToClassList("ad-note");
             root.Add(status);
+            LanguageFont.ApplyToChildren(root);
             RenderNow();
         }
 

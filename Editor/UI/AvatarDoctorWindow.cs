@@ -90,6 +90,8 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var note = new Label(L.Text("ad.ui.window.none"));
                 note.AddToClassList("ad-note");
+                // The view brings its own font; the note is built again on every language change.
+                LanguageFont.Apply(note);
                 rootVisualElement.Add(note);
                 return;
             }

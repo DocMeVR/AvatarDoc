@@ -101,6 +101,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             messages = new VisualElement { name = "ad-shapes-messages" };
             root.Add(messages);
+            LanguageFont.ApplyToChildren(root);
             ShowMessages();
         }
 

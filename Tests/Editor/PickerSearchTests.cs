@@ -294,6 +294,20 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void ANameWithABrokenCharacterStillOpensAndSearches()
+        {
+            InWindow(opener =>
+            {
+                var log = new List<string>();
+                var items = new List<AdMenu.Item> { Leaf("Bad\uD800Name", log, "Body"), Leaf("Smile", log, "Body") };
+                var menu = AdMenu.Open(opener.worldBound, opener, items, search: true);
+                Assert.That(menu, Is.Not.Null, "a lone surrogate in a name must not stop the menu opening");
+                Type(menu, "bad");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "Bad\uD800Name" }), "the name is still found by its other letters");
+            });
+        }
+
+        [Test]
         public void TypingFiltersAcrossGroupsWhateverTheCase()
         {
             InWindow(opener =>
@@ -1323,6 +1337,203 @@ namespace DocMe.AvatarDoctor.Editor
                 }
             }
         }
+
+        [Test]
+        public void TheInactiveMarkShowsButIsNotSearched()
+        {
+            var ring = new GameObject("Ring");
+            ring.transform.SetParent(avatar.Root.transform);
+            ring.SetActive(false);
+            foreach (var (language, word) in new[] { ("en-US", "inact"), ("ja-JP", "非アクティブ") })
+            {
+                using (L.UseTestLanguage(language, null))
+                {
+                    InWindow(opener =>
+                    {
+                        UnityEngine.Object picked = null;
+                        var menu = AvatarObjectPicker.Open(opener.worldBound, opener, avatar.Root.transform, PickKind.GameObject, o => picked = o);
+                        var marked = "Ring " + L.Text("ad.ui.pick.inactive");
+                        Assert.That(Texts(menu), Does.Contain(marked), language + ": the switched off object still shows its mark");
+                        Type(menu, word);
+                        Assert.That(menu.MatchCount, Is.Zero, language + ": typing the mark's own word \"" + word + "\" finds no object by it");
+                        Key(menu, KeyCode.Escape);
+                        Type(menu, "rin");
+                        Assert.That(Texts(menu), Is.EqualTo(new[] { marked }), language + ": the object's own name still finds it, mark and all");
+                        Key(menu, KeyCode.Return);
+                        Assert.That(picked, Is.SameAs(ring), language + ": and picks it");
+                    });
+                }
+            }
+        }
+
+        [Test]
+        public void ThePlaceholderHidesWhileAnInputMethodComposes()
+        {
+            var real = AdMenu.CompositionText;
+            string composition = "";
+            AdMenu.CompositionText = () => composition;
+            try
+            {
+                InWindow(opener =>
+                {
+                    var log = new List<string>();
+                    var menu = AdMenu.Open(opener.worldBound, opener, Grouped(log), search: true);
+                    var placeholder = menu.SearchField.Q<Label>(className: "ad-search-placeholder");
+                    Assert.That(placeholder.ClassListContains("ad-hidden"), Is.False, "the placeholder shows in an empty field");
+
+                    // A key pressed while an input method composes reaches the field with no character, and the field keeps its value.
+                    composition = "う";
+                    Key(menu, KeyCode.None);
+                    Assert.That(menu.SearchField.value, Is.Empty, "the field holds nothing yet");
+                    Assert.That(placeholder.ClassListContains("ad-hidden"), Is.True, "but the placeholder steps aside for the text being composed");
+                    Key(menu, KeyCode.Return);
+                    Assert.That(menu.IsClosed, Is.False, "Enter while composing belongs to the input method");
+                    Assert.That(log, Is.Empty);
+
+                    composition = "";
+                    using (var up = KeyUpEvent.GetPooled(new Event { type = EventType.KeyUp, keyCode = KeyCode.Escape }))
+                        menu.SendEvent(up);
+                    Assert.That(placeholder.ClassListContains("ad-hidden"), Is.False, "once the composition is gone, the empty field shows the placeholder again");
+
+                    Type(menu, "s");
+                    Assert.That(placeholder.ClassListContains("ad-hidden"), Is.True, "and typed text still hides it");
+                });
+            }
+            finally { AdMenu.CompositionText = real; }
+        }
+
+        [Test]
+        public void SearchFoldsKanaAndWidth()
+        {
+            InWindow(opener =>
+            {
+                var log = new List<string>();
+                var items = new List<AdMenu.Item>
+                {
+                    Leaf("ウインク", log, "Face"),
+                    Leaf("blink", log, "Face"),
+                    Leaf("ﾏﾊﾞﾀｷ", log, "Face"),
+                    Leaf("眨眼", log, "Face"),
+                    Leaf("Smile", log, "Face"),
+                };
+                var menu = AdMenu.Open(opener.worldBound, opener, items, search: true);
+                Type(menu, "ういんく");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "ウインク" }), "hiragana finds a name in katakana");
+                Key(menu, KeyCode.Escape);
+                Type(menu, "ｂｌｉｎｋ");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "blink" }), "full width letters find a name in plain letters");
+                Key(menu, KeyCode.Escape);
+                Type(menu, "ＢＬＩＮＫ");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "blink" }), "whatever their case");
+                Key(menu, KeyCode.Escape);
+                Type(menu, "ｳｲﾝｸ");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "ウインク" }), "half width katakana finds full width katakana");
+                Key(menu, KeyCode.Escape);
+                Type(menu, "まばたき");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "ﾏﾊﾞﾀｷ" }), "and a name in half width katakana is found too");
+                Key(menu, KeyCode.Escape);
+                Type(menu, "眨眼");
+                Assert.That(Texts(menu), Is.EqualTo(new[] { "眨眼" }), "a Chinese name is still found by its own characters");
+                Key(menu, KeyCode.Return);
+                Assert.That(log, Is.EqualTo(new[] { "Face/眨眼" }));
+            });
+        }
+
+        [Test]
+        public void AnObjectsNameShowsWholeBesideALongPath()
+        {
+            var parent = avatar.Root.transform;
+            foreach (var name in new[] { "Armature", "J_Bip_C_Hips", "J_Bip_C_Spine", "J_Bip_C_Chest", "J_Bip_C_UpperChest" })
+            {
+                var bone = new GameObject(name);
+                bone.transform.SetParent(parent);
+                parent = bone.transform;
+            }
+            new GameObject("LeftShoulder").transform.SetParent(parent);
+            foreach (var width in new[] { 300f, 360f })
+            {
+                InWindow(opener =>
+                {
+                    var menu = AvatarObjectPicker.Open(opener.worldBound, opener, avatar.Root.transform, PickKind.GameObject, _ => { });
+                    LayoutProbe.Validate(menu);
+                    int index = Texts(menu).IndexOf("LeftShoulder");
+                    Assert.That(index, Is.GreaterThanOrEqualTo(0));
+                    AssertNameWins(menu.Rows[index], "browsing at " + width + " px");
+                    Type(menu, "leftshoulder");
+                    LayoutProbe.Validate(menu);
+                    AssertNameWins(menu.Rows[0], "a result at " + width + " px");
+                }, width);
+            }
+        }
+
+        [Test]
+        public void AShortNameLeavesALongPropertyNameWhole()
+        {
+            foreach (var width in new[] { 300f, 360f })
+            {
+                InWindow(opener =>
+                {
+                    var items = new List<AdMenu.Item> { new AdMenu.Item { Text = "Metallic", SearchText = "_MetallicGlossMap", Note = "_MetallicGlossMap", Action = () => { } } };
+                    var menu = AdMenu.Open(opener.worldBound, opener, items, search: true);
+                    Type(menu, "metal");
+                    LayoutProbe.Validate(menu);
+                    var row = menu.Rows[0];
+                    var note = row.Q<Label>(className: "ad-menu-note");
+                    string where = "at " + width + " px";
+                    Assert.That(TextWidth(note), Is.InRange(85f, 125f), where + ": the note measures about 100 px, the case the earlier fix was for");
+                    Assert.That(ShownWidth(note), Is.GreaterThanOrEqualTo(TextWidth(note) - 0.5f), where + ": the property name shows whole beside a short display name");
+                    Assert.That(ShownWidth(row.Q<Label>(className: "ad-menu-label")), Is.GreaterThanOrEqualTo(TextWidth(row.Q<Label>(className: "ad-menu-label")) - 0.5f), where + ": and so does the display name");
+                }, width);
+            }
+        }
+
+        [Test]
+        public void ALongNameTakesAboutSixtyPercentAndThePathTheRest()
+        {
+            foreach (var width in new[] { 300f, 360f })
+            {
+                InWindow(opener =>
+                {
+                    var items = new List<AdMenu.Item>
+                    {
+                        new AdMenu.Item { Text = "VeryLongBlendShapeName_ForTheLeftEyeWideOpen", Note = "Armature/J_Bip_C_Hips/J_Bip_C_Spine/J_Bip_C_Chest", Action = () => { } },
+                    };
+                    var menu = AdMenu.Open(opener.worldBound, opener, items, search: true);
+                    Type(menu, "very");
+                    LayoutProbe.Validate(menu);
+                    var row = menu.Rows[0];
+                    var label = row.Q<Label>(className: "ad-menu-label");
+                    var note = row.Q<Label>(className: "ad-menu-note");
+                    float content = row.contentRect.width;
+                    string where = "at " + width + " px, a row of " + content.ToString("0.0") + " px";
+                    Assert.That(ShownWidth(label), Is.LessThan(TextWidth(label)), where + ": a name too long for the row ends in an ellipsis");
+                    Assert.That(label.worldBound.width / content, Is.InRange(0.5f, 0.62f), where + ": at about 60% of the row (" + label.worldBound.width.ToString("0.0") + " px)");
+                    Assert.That(note.worldBound.width / content, Is.GreaterThan(0.25f), where + ": the path keeps the rest (" + note.worldBound.width.ToString("0.0") + " px)");
+                    Assert.That(note.worldBound.x, Is.GreaterThanOrEqualTo(label.worldBound.xMax - 0.5f), where + ": after the name");
+                    Assert.That(note.worldBound.xMax, Is.LessThanOrEqualTo(row.LocalToWorld(row.contentRect).xMax + 0.5f), where + ": inside the row");
+                }, width);
+            }
+        }
+
+        /// <summary>The name beside a long path shows whole, and the path fills what is left of the row after it.</summary>
+        static void AssertNameWins(VisualElement row, string where)
+        {
+            var label = row.Q<Label>(className: "ad-menu-label");
+            var note = row.Q<Label>(className: "ad-menu-note");
+            Assert.That(note, Is.Not.Null, where + ": the row shows the path");
+            Assert.That(ShownWidth(label), Is.GreaterThanOrEqualTo(TextWidth(label) - 0.5f),
+                where + ": the name '" + label.text + "' shows whole (" + ShownWidth(label).ToString("0.0") + " px for text that measures " + TextWidth(label).ToString("0.0") + ")");
+            Assert.That(note.worldBound.x, Is.GreaterThanOrEqualTo(label.worldBound.xMax - 0.5f), where + ": the path starts after the name");
+            float rowEnd = row.LocalToWorld(row.contentRect).xMax;
+            Assert.That(note.worldBound.xMax, Is.LessThanOrEqualTo(rowEnd + 0.5f), where + ": and ends inside the row");
+            Assert.That(note.worldBound.xMax, Is.GreaterThanOrEqualTo(rowEnd - 0.5f), where + ": at the row's end, taking what is left");
+            Assert.That(ShownWidth(note), Is.LessThan(TextWidth(note)), where + ": a path longer than that is cut");
+        }
+
+        static float ShownWidth(Label label) => label.contentRect.width;
+
+        static float TextWidth(Label label) =>
+            label.MeasureTextSize(label.text, 0f, VisualElement.MeasureMode.Undefined, 0f, VisualElement.MeasureMode.Undefined).x;
 
         static void AssertFits(AdMenu menu, string where)
         {

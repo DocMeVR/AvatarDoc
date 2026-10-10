@@ -324,6 +324,7 @@ namespace DocMe.AvatarDoctor.Editor
                 }
             }
 
+            LanguageFont.ApplyToChildren(root);
             RefreshFooter();
         }
 

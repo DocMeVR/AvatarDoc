@@ -32,7 +32,7 @@ names go in “”, with a half-width space between Chinese and Latin words, num
 | Saved | 保存する | 保存 | Kept when you change avatars or rejoin. |
 | Default | 初期値 | 默认值 | The value a parameter or a toggle starts at. A short button meaning "back to its own default" is デフォルト in Japanese. |
 | Default on | 初期状態オン | 默认开启 | A toggle that starts on. |
-| On / Off | オン / オフ | 开启 / 关闭 | |
+| On / Off | オン / オフ | 开启 / 关闭 | On the preset's narrow two way switch (`ad.ui.preset.on`, `ad.ui.preset.off`) Chinese uses 开 / 关, because 开启 / 关闭 does not fit there. |
 | Bit | ビット | bits | The unit of VRChat's parameter memory: 256 per avatar. Chinese keeps the unit, as Modular Avatar does. |
 | Synced bits | 同期ビット | 同步参数（bits） | "Costs no synced bits" is 不占用同步参数. |
 | Upload | アップロード | 上传 | |

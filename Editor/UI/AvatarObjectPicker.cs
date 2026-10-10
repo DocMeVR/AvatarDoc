@@ -207,8 +207,8 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>
         /// The Choices as menu items: the object's name (marked when inactive) with its parent path as the dim text
-        /// beside it, found by its name or its path under the avatar. Humanoid bones go in one Bones group, where the
-        /// first of them would stand.
+        /// beside it, found by its name or its path under the avatar, never by the mark. Humanoid bones go in one Bones
+        /// group, where the first of them would stand.
         /// </summary>
         public static List<AdMenu.Item> Items(Transform avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick)
         {
@@ -220,6 +220,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var item = new AdMenu.Item
                 {
                     Text = choice.Inactive ? choice.Name + " " + L.Text("ad.ui.pick.inactive") : choice.Name,
+                    SearchName = choice.Name,
                     SearchText = choice.ParentPath.Length > 0 ? choice.ParentPath + "/" + choice.Name : choice.Name,
                     Note = choice.ParentPath,
                     Action = () => onPick(target),

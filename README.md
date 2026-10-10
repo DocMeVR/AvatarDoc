@@ -99,7 +99,8 @@ AvatarDoc speaks English, Japanese and Simplified Chinese. The language button a
 `Simple | Advanced` row, in both modes, shows the current language in its own name; click it and pick another. It is
 the same language setting NDMF and Modular Avatar use, so choosing it here changes theirs too, and choosing it in
 Modular Avatar or NDMF changes AvatarDoc. Every open AvatarDoc inspector and window switches at once, and anything a
-language has not translated yet shows in English. Switching changes only the editor: the names already in your menu
+language has not translated yet shows in English. Japanese and Chinese show in NDMF's font for the language, the same
+one Modular Avatar uses; English keeps Unity's own. Switching changes only the editor: the names already in your menu
 stay as they are. A name AvatarDoc writes for you, such as the `None` toggle of a new outfit set, is written in the
 language you use when you create it.
 
@@ -638,7 +639,8 @@ picker lists only the current avatar's own objects and their children.
 Every picker, for blend shapes, material properties and parameters as well as objects, has a search field at the top:
 type part of a name, an object's path or a shader property's name such as `_Color`, and it lists every match from
 every group, with its mesh, path, property name or type dimmed beside it; Up and Down move through the results, Enter
-picks one and Escape clears the search. The object picker only offers
+picks one and Escape clears the search. Kana typed in hiragana finds a name written in katakana, and letters typed full
+width, or katakana typed half width, find their usual forms. The object picker only offers
 what the field actually accepts (any GameObject, only objects with a renderer, only skinned meshes that have blend
 shapes, only PhysBones, or any Transform), and a Transform field, such as a contact's Anchor or a `Path root`, lists
 the avatar's own humanoid bones first under `Bones` when the avatar has a humanoid rig. An object switched off in
