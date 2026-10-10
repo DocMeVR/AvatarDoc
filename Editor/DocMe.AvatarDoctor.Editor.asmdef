@@ -1,0 +1,38 @@
+{
+    "name": "DocMe.AvatarDoctor.Editor",
+    "rootNamespace": "DocMe.AvatarDoctor.Editor",
+    "references": [
+        "DocMe.AvatarDoctor",
+        "nadena.dev.ndmf",
+        "nadena.dev.ndmf.vrchat",
+        "nadena.dev.ndmf.runtime",
+        "nadena.dev.modular-avatar.core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.8.0",
+            "define": "DOCME_NDMF"
+        },
+        {
+            "name": "com.vrchat.avatars",
+            "expression": "3.0.0",
+            "define": "DOCME_VRCSDK3A"
+        },
+        {
+            "name": "nadena.dev.modular-avatar",
+            "expression": "1.10.0",
+            "define": "DOCME_MA"
+        }
+    ],
+    "noEngineReferences": false
+}

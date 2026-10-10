@@ -1,0 +1,25 @@
+{
+    "name": "DocMe.AvatarDoctor",
+    "rootNamespace": "DocMe.AvatarDoctor",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.vrchat.base",
+            "expression": "3.0.0",
+            "define": "DOCME_VRCSDK_BASE"
+        },
+        {
+            "name": "com.vrchat.avatars",
+            "expression": "3.0.0",
+            "define": "DOCME_VRCSDK3A"
+        }
+    ],
+    "noEngineReferences": false
+}

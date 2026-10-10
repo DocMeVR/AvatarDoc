@@ -1,0 +1,5 @@
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp

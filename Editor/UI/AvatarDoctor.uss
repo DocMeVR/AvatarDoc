@@ -1,0 +1,301 @@
+.ad-root, .ad-menu { --ad-accent: #3FC9A8; --ad-accent-fg: #0F1F1A; --ad-warn: #E0A83A; --ad-error: #E5645A; --ad-muted: rgba(255, 255, 255, 0.72); --ad-faint: rgba(255, 255, 255, 0.5); --ad-panel: rgba(255, 255, 255, 0.04); --ad-field: rgba(0, 0, 0, 0.25); --ad-border: rgba(0, 0, 0, 0.35); --ad-track: rgba(0, 0, 0, 0.35); --ad-selection: rgba(63, 201, 168, 0.16); }
+.ad-root { padding-top: 4px; padding-bottom: 4px; }
+.ad-root.ad-light, .ad-menu.ad-light { --ad-accent: #128A6E; --ad-accent-fg: #FFFFFF; --ad-warn: #B7791F; --ad-error: #C4463C; --ad-muted: rgba(0, 0, 0, 0.72); --ad-faint: rgba(0, 0, 0, 0.5); --ad-panel: rgba(255, 255, 255, 0.35); --ad-field: rgba(255, 255, 255, 0.55); --ad-border: rgba(0, 0, 0, 0.2); --ad-track: rgba(0, 0, 0, 0.15); --ad-selection: rgba(18, 138, 110, 0.16); }
+
+/* Unity's own controls are left native: no background, text or border colour of theirs is overridden, so the panel
+   follows whatever skin and accent colour the Editor itself is using. Only structural sizing survives here (so rows
+   still line up), plus the two named exceptions: the one primary accent button and the chosen segment of a
+   SegmentedChoice. Scoped under .ad-root so nothing leaks into the rest of the editor. */
+.ad-root .unity-button.ad-primary { background-color: var(--ad-accent); color: var(--ad-accent-fg); -unity-font-style: bold; border-width: 0; }
+.ad-root .unity-button.ad-primary:hover { opacity: 0.9; }
+.ad-root .unity-button.ad-seg-item { flex-grow: 1; flex-shrink: 1; margin: 0; padding: 2px 8px; border-width: 0; border-radius: 0; font-size: 10.5px; height: auto; min-height: 18px; -unity-text-align: middle-center; min-width: 20px; }
+.ad-root .unity-button.ad-seg-item.ad-seg-on { background-color: var(--ad-accent); color: var(--ad-accent-fg); -unity-font-style: bold; }
+.ad-root .unity-button.ad-seg-item.ad-seg-on:hover { background-color: var(--ad-accent); }
+.ad-root .unity-button.ad-seg-item.ad-seg-on:active { background-color: var(--ad-accent); }
+.ad-root .unity-button.ad-seg-item.ad-seg-on:focus { border-color: var(--ad-accent-fg); }
+.ad-root .unity-base-field__label { color: var(--ad-muted); font-size: 11px; min-width: 112px; }
+/* The app-wide 112px label column is meant for a field's own OUTER caption, never for the tiny "X", "Y", "Z"
+   captions a Vector3Field draws in front of each of its own three inputs: those also carry the same Unity class,
+   so without this the whole field balloons past the panel's own width (Contact anchor's offset row measured
+   466px wide against a 360px panel before this fix). Scoped to the composite field's own input container, which
+   never holds the field's own outer label, so that one keeps its 112px column exactly as before. */
+.ad-root .unity-vector3-field__input .unity-base-field__label { min-width: auto; flex-basis: auto; }
+/* Unity's own per-axis numeric input keeps its full desktop width by default, which is the other half of the same
+   overflow: three of them side by side still ran past a 360px panel even with their own X/Y/Z captions already
+   compact. Letting each one shrink is what actually lets the whole field fit next to a real caption column. */
+.ad-root .unity-vector3-field__input { flex-shrink: 1; min-width: 0; }
+.ad-root .unity-vector3-field__input .unity-composite-field__field { flex-shrink: 1; min-width: 0; }
+.ad-root .unity-base-text-field__input, .ad-root .unity-text-field__input { min-height: 20px; padding: 2px 6px; }
+.ad-root .unity-object-field__input, .ad-root .unity-object-field-display { min-height: 20px; }
+.ad-root .unity-color-field__input { min-height: 20px; }
+.ad-root .unity-popup-field__input, .ad-root .unity-base-popup-field__input { min-height: 20px; padding: 2px 6px; }
+.ad-root .unity-base-field__input { min-height: 20px; }
+.ad-root .unity-collection-view__item { border-left-width: 2px; border-left-color: transparent; }
+.ad-root .unity-collection-view__item:hover { background-color: var(--ad-field); }
+.ad-root .unity-collection-view__item--selected { background-color: var(--ad-selection); border-left-color: var(--ad-accent); }
+.ad-root .unity-collection-view__item--selected:hover { background-color: var(--ad-selection); }
+.ad-root .unity-tree-view__item-toggle { color: var(--ad-muted); }
+.ad-root .unity-tree-view__item-toggle .unity-toggle__checkmark { -unity-background-image-tint-color: var(--ad-muted); }
+.ad-root .ad-tree:focus { border-width: 1px; border-color: var(--ad-accent); }
+/* Every open and close section (Component settings, an entry panel's Advanced fold, the grab panel's More
+   options) is a real Foldout, left native for its arrow, its label and its indent; only its outer group spacing
+   is set here. */
+.ad-fold { margin-bottom: 4px; }
+/* Inside the Inspector, Unity marks a Foldout's toggle as an inspector toggle, and its theme gives that toggle a
+   negative left margin (-12 px measured) that pulls the arrow into the inspector's gutter, outside AvatarDoc's panel
+   box. Here the arrow starts at the panel's content edge, level with the problems arrow above it. */
+.ad-root .unity-foldout__toggle.unity-foldout__toggle--inspector { margin-left: 0; }
+
+/* Segmented choice: a small pill of flat buttons standing in for a two or three way dropdown. The buttons
+   themselves are styled above (.ad-root .unity-button.ad-seg-item), this is just the pill's outer frame. */
+.ad-seg { flex-direction: row; border-width: 1px; border-color: var(--ad-border); border-radius: 3px; overflow: hidden; height: 20px; }
+/* The Simple and Advanced switch above everything else: a pill that fills the row up to a modest width, so it reads
+   as one control at an inspector's default width and does not stretch across a wide window. */
+.ad-mode-row { flex-direction: row; margin-bottom: 6px; }
+.ad-mode-row > .ad-seg { flex-grow: 1; max-width: 200px; }
+
+.ad-panel { background-color: var(--ad-panel); border-color: var(--ad-border); border-width: 1px; border-radius: 3px; margin-bottom: 6px; }
+.ad-panel-title { flex-direction: row; align-items: center; height: 22px; padding: 0 8px; border-bottom-width: 1px; border-bottom-color: var(--ad-border); -unity-font-style: bold; font-size: 11px; color: var(--ad-muted); letter-spacing: 1px; }
+.ad-panel-title > .ad-spacer { flex-grow: 1; }
+.ad-panel-body { padding: 6px 8px; }
+.ad-row { flex-direction: row; align-items: center; margin-bottom: 4px; min-height: 22px; }
+.ad-row .unity-base-field { flex-grow: 1; flex-shrink: 1; min-width: 0; margin: 0; }
+.ad-row > Button { flex-shrink: 0; min-width: 24px; margin: 0 0 0 4px; }
+/* A Button used as a row's own field, right after its caption label with nothing else between, starts at the
+   112px column exactly like every other field; the general rule above is meant for a button that follows ANOTHER
+   field with some breathing room, not for the field itself. Unity's USS has no sibling combinator to key this off
+   the label automatically, so a builder opts a button into this by adding the class itself. */
+.ad-row > .ad-field-button { margin-left: 0; }
+.ad-row .unity-base-field__label, .ad-row .ad-label { min-width: 112px; flex-basis: 112px; flex-grow: 0; flex-shrink: 0; color: var(--ad-muted); font-size: 11px; }
+.ad-label { color: var(--ad-muted); font-size: 11px; }
+.ad-row > .ad-spacer { flex-grow: 1; }
+.ad-row .ad-compact { flex-grow: 0; flex-shrink: 0; }
+.ad-row .ad-compact .unity-base-field__label { min-width: auto; flex-basis: auto; margin-right: 6px; }
+.ad-flags { flex-wrap: wrap; }
+.ad-flags { align-items: center; }
+.ad-flags .unity-toggle { flex-grow: 0; margin: 0 8px 0 0; align-items: center; }
+.ad-flags .unity-toggle .unity-base-field__label { padding-top: 0; padding-bottom: 0; align-self: center; -unity-text-align: middle-left; }
+.ad-flags .unity-toggle.ad-compact .unity-base-field__label { margin-right: 4px; }
+.ad-flags .unity-toggle .unity-toggle__input { margin: 0; padding: 0; align-self: center; flex-grow: 0; }
+.ad-flags .unity-toggle .unity-toggle__checkmark { margin: 0; }
+.ad-flags-note { flex-grow: 0; margin-left: 8px; }
+.ad-note-indent { margin-left: 112px; }
+.ad-section { -unity-font-style: bold; font-size: 10px; letter-spacing: 1px; color: var(--ad-muted); }
+.ad-chip { flex-direction: row; align-items: center; font-size: 10px; padding: 0 4px; border-radius: 3px; border-width: 1px; border-color: var(--ad-border); color: var(--ad-muted); margin-left: 4px; height: 16px; -unity-text-align: middle-center; flex-shrink: 0; }
+.ad-chip-on { color: var(--ad-accent); border-color: var(--ad-accent); }
+.ad-chip-warn { color: var(--ad-warn); border-color: var(--ad-warn); }
+.ad-chip-error { color: var(--ad-error); border-color: var(--ad-error); }
+.ad-chip-warn-icon { width: 10px; height: 10px; margin: 0 2px 0 0; flex-shrink: 0; }
+.ad-text-warn { color: var(--ad-warn); }
+.ad-text-error { color: var(--ad-error); -unity-font-style: bold; }
+.ad-text-ok { color: var(--ad-accent); -unity-font-style: bold; }
+#ad-status-row { align-items: center; }
+#ad-ready-label { font-size: 12px; }
+#ad-status-glyph { margin-right: 6px; }
+#ad-problems-arrow { margin: 0 4px 0 0; flex-grow: 0; flex-shrink: 0; width: auto; }
+.ad-root #ad-problems-arrow .unity-toggle__checkmark { -unity-background-image-tint-color: var(--ad-muted); }
+.ad-problem-line { flex-direction: row; align-items: flex-start; margin-bottom: 4px; }
+.ad-problem-line > .ad-warn-glyph { margin-top: 2px; margin-left: 0; }
+.ad-problem-line > .ad-message-text { flex-grow: 1; flex-shrink: 1; margin: 0 6px; }
+.ad-problem-line > Button { flex-shrink: 0; }
+.ad-warn-glyph.ad-text-error { color: var(--ad-error); }
+#ad-problems-list { margin-bottom: 4px; }
+#ad-problems-more { align-self: flex-start; }
+.ad-tree { flex-grow: 1; max-height: 320px; background-color: var(--ad-panel); }
+.ad-tree-row { flex-direction: row; align-items: center; height: 22px; padding-left: 2px; }
+.ad-tree-row > .ad-name { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-left: 4px; font-size: 12px; }
+.ad-tree-row.ad-dim > .ad-name { color: var(--ad-muted); }
+.ad-tree-row.ad-filter-dim > .ad-name { color: var(--ad-faint); }
+.ad-tree-row.ad-group > .ad-name { -unity-font-style: bold; font-size: 10px; color: var(--ad-muted); letter-spacing: 1px; }
+.ad-glyph { width: 13px; height: 13px; flex-shrink: 0; color: var(--ad-muted); }
+.ad-tree-row.ad-dim > .ad-glyph { color: var(--ad-muted); }
+.ad-slots { font-size: 10px; color: var(--ad-muted); margin-left: 4px; }
+.ad-slots.ad-full { color: var(--ad-warn); }
+.ad-dot { width: 6px; height: 6px; border-radius: 3px; background-color: var(--ad-accent); margin-left: 4px; flex-shrink: 0; }
+.ad-warn-glyph { width: 12px; height: 12px; margin-left: 4px; color: var(--ad-warn); flex-shrink: 0; }
+/* A real Unity Toolbar (24 px tall) holds these, so height is auto plus a floor rather than a fixed number: a
+   wrapped second line grows the bar instead of Unity's own fixed-height children clipping against ours. Every
+   item is a plain ToolbarButton now, the one control type, so every one of them carries the same box, the same
+   internal padding and the same text baseline; nothing here has to correct one control type's own drift from
+   another's any more. */
+.ad-toolbar { flex-direction: row; flex-wrap: wrap; height: auto; min-height: 24px; padding: 0; align-items: stretch; border-bottom-width: 1px; border-bottom-color: var(--ad-border); }
+.ad-toolbar > * { height: 22px; }
+.ad-toolbar > .ad-spacer { flex-grow: 1; flex-shrink: 1; min-width: 0; background-color: transparent; border-width: 0; }
+.ad-toolbar-actions { flex-wrap: nowrap; overflow: hidden; }
+.ad-toolbar-actions > * { flex-shrink: 0; }
+.ad-toolbar-actions.ad-toolbar-tight .unity-toolbar-button { padding: 0 4px; }
+.ad-toolbar-actions.ad-toolbar-tight .ad-dropdown-arrow { margin-left: 2px; }
+.ad-toolbar-actions.ad-toolbar-tight .unity-toolbar-button.ad-toolbar-compact { padding: 0 2px; }
+.ad-toolbar-icon { width: 12px; height: 12px; flex-shrink: 0; align-self: center; }
+/* Unity's own unity-toolbar-button lays its children out in a column by default (fine for a button with no
+   children of its own), which stacked our appended icon and arrow images above the text instead of beside it.
+   Row plus centred cross axis is what actually puts an icon, the text and an arrow on one line, all three on the
+   same vertical centre. */
+.ad-toolbar .unity-toolbar-button { font-size: 12px; padding: 0 6px; -unity-text-align: middle-left; flex-direction: row; align-items: center; }
+.ad-toolbarmenu-icon { width: 12px; height: 12px; margin-right: 2px; flex-shrink: 0; align-self: center; }
+.ad-dropdown-arrow { width: 12px; height: 12px; margin-left: 4px; flex-shrink: 0; align-self: center; }
+/* The wheel button's own "on" state: accent text instead of a border or a background, so it never changes the
+   button's own box or height and so never fights ToolbarItemsShareOneTopAndHeight. */
+.ad-toolbar-checked { color: var(--ad-accent); -unity-font-style: bold; }
+.ad-drag-target { min-height: 14px; margin: 4px 8px 0; font-size: 10px; color: var(--ad-accent); -unity-text-align: middle-center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-drop-hint { margin: 4px 8px 6px; border-width: 1px; border-color: var(--ad-faint); border-radius: 3px; color: var(--ad-faint); font-size: 10px; -unity-text-align: middle-center; padding: 6px; }
+.ad-drop-active { background-color: var(--ad-selection); border-color: var(--ad-accent); }
+.ad-welcome-card { padding: 6px 8px 0; }
+.ad-welcome-option { margin-bottom: 8px; }
+.ad-welcome-button { height: 26px; -unity-font-style: bold; margin: 0 0 2px; }
+.ad-link { background-color: transparent; border-width: 0; color: var(--ad-accent); -unity-font-style: italic; align-self: flex-start; padding: 2px 0; margin: 0 0 4px; }
+/* The ticked tags wrap in a list of their own; Clear sits outside it, at the row's right end, on the first line.
+   Chips sit at the top of their line, and Clear is a chip's height (18 px with the remove button's own margins), so
+   Clear's centre is the first chip's centre however many lines the chips take. */
+.ad-filter-chips { flex-direction: row; margin: 0 6px 4px; align-items: flex-start; }
+.ad-filter-chips.ad-hidden { display: none; }
+.ad-filter-chip-list { flex-direction: row; flex-wrap: wrap; flex-grow: 1; flex-shrink: 1; min-width: 0; align-items: flex-start; }
+.ad-root .unity-button.ad-filter-clear { flex-shrink: 0; height: 18px; min-height: 18px; margin: 0 0 0 4px; padding: 0 6px; border-width: 0; border-radius: 3px; background-color: transparent; color: var(--ad-accent); -unity-font-style: normal; font-size: 10px; -unity-text-align: middle-center; }
+.ad-root .unity-button.ad-filter-clear:hover { background-color: var(--ad-field); }
+.ad-filter-chip { flex-direction: row; align-items: center; margin-bottom: 4px; height: auto; min-height: 16px; }
+.ad-filter-chip > Label { margin: 0; padding: 0 2px 0 0; }
+.ad-chip-remove { margin-left: 2px; padding: 0 4px; height: 14px; font-size: 10px; }
+.ad-note { font-size: 11px; color: var(--ad-faint); white-space: normal; margin-bottom: 4px; }
+.ad-search-note { margin: 0 6px 4px; }
+.ad-warnbox { flex-direction: row; padding: 6px 8px; border-left-width: 3px; border-left-color: var(--ad-warn); background-color: var(--ad-field); border-radius: 3px; margin-bottom: 4px; }
+.ad-warnbox > Label { white-space: normal; font-size: 11px; flex-shrink: 1; }
+.ad-message-text { flex-shrink: 1; white-space: normal; }
+.ad-warnbox.ad-error { border-left-color: var(--ad-error); }
+.ad-warnbox.ad-info { border-left-color: var(--ad-faint); }
+.ad-membar { height: 4px; margin: 4px 0 2px; border-radius: 2px; overflow: hidden; }
+.ad-membar-legend { flex-direction: row; align-items: center; min-height: 14px; font-size: 10px; color: var(--ad-muted); }
+.ad-membar-legend > .ad-spacer { flex-grow: 1; }
+.ad-legend-swatch { width: 6px; height: 6px; border-radius: 2px; margin-right: 4px; flex-shrink: 0; }
+.ad-legend-swatch-avatar { background-color: var(--ad-muted); }
+.ad-legend-swatch-doctor { background-color: var(--ad-accent); margin-left: 8px; }
+.ad-legend-swatch-doctor.ad-legend-swatch-error { background-color: var(--ad-error); }
+.ad-primary { background-color: var(--ad-accent); color: var(--ad-accent-fg); -unity-font-style: bold; border-width: 0; }
+.ad-target { flex-direction: row; align-items: center; padding: 2px 6px; min-height: 22px; background-color: var(--ad-field); border-color: var(--ad-border); border-width: 1px; border-radius: 3px; margin-bottom: 4px; }
+.ad-target > .ad-target-value { flex-shrink: 0; }
+.ad-grow { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0; margin-right: 4px; }
+.ad-w-24 { flex-grow: 0; flex-shrink: 0; width: 24px; margin-right: 4px; }
+.ad-w-60 { flex-grow: 0; flex-shrink: 0; width: 60px; margin-right: 4px; }
+.ad-w-70 { flex-grow: 0; flex-shrink: 0; width: 70px; margin-right: 4px; }
+.ad-w-132 { flex-grow: 0; flex-shrink: 0; width: 132px; margin-right: 4px; }
+.ad-w-140 { flex-grow: 0; flex-shrink: 0; width: 140px; margin-right: 4px; }
+.ad-hidden { display: none; }
+.ad-preview { margin-top: 8px; padding-top: 6px; border-top-width: 1px; border-top-color: var(--ad-border); }
+.ad-preview-reset { align-self: flex-start; margin-top: 4px; }
+.ad-left { flex-direction: column; }
+.ad-wheel { align-items: center; margin-top: 8px; }
+.ad-wheel-header { flex-direction: column; width: 224px; margin-bottom: 4px; }
+.ad-wheel-controls { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.ad-wheel-mode { width: 112px; flex-shrink: 0; }
+.ad-wheel-reset { margin: 0; padding: 2px 8px; height: 20px; flex-shrink: 0; }
+.ad-crumbs { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.ad-crumb { margin: 0 2px 2px 2px; padding: 2px 6px; font-size: 11px; flex-shrink: 0; }
+.ad-ring { width: 224px; height: 224px; align-items: center; justify-content: center; }
+.ad-wheel-centre { position: absolute; width: 84px; height: 84px; left: 70px; top: 70px; align-items: center; justify-content: center; }
+.ad-wheel-title { -unity-font-style: bold; -unity-text-align: middle-center; white-space: normal; }
+.ad-wheel-count { color: var(--ad-muted); font-size: 10px; }
+.ad-wedge-icon { width: 20px; height: 20px; }
+.ad-wedge-label { width: 68px; font-size: 10px; -unity-text-align: upper-center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-wedge-label.ad-selected { color: var(--ad-accent-fg); -unity-font-style: bold; }
+.ad-wheel-radial { flex-direction: row; align-items: center; width: 224px; margin-top: 6px; }
+.ad-wheel-triggers { width: 224px; margin-top: 6px; }
+.ad-wheel-trigger-row { flex-direction: row; flex-wrap: wrap; margin-top: 2px; }
+.ad-wheel-trigger { margin: 2px 2px 0 0; padding: 2px 8px; font-size: 10px; height: auto; min-height: 18px; }
+.ad-window { padding: 6px; }
+.ad-wide > .ad-content { flex-direction: row; }
+.ad-wide .ad-tree { max-height: none; }
+.ad-wide .ad-left { width: 46%; min-width: 320px; margin-right: 8px; }
+.ad-wide .ad-panel { flex-grow: 1; }
+/* A plain TextField, not a ToolbarSearchField: the magnifier and the placeholder sit inside the field's own single
+   bordered input box (padding-left clears room for the icon, and the caret starts right after it) instead of a
+   second, nested box of the control's own, which used to read as a box inside a box with the caret pressed
+   against the icon. */
+.ad-search { flex-grow: 1; flex-shrink: 1; min-width: 40px; height: 22px; margin: 0 4px; align-self: center; }
+.ad-search > .unity-base-field__label { display: none; width: 0; min-width: 0; margin: 0; padding: 0; }
+/* The extra left inset that clears the magnifier is set from code (MenuTreeView), not here: it falls outside this
+   file's own 0/2/4/6/8 spacing scale (SpacingUsesTheScale), the same way a value the scale cannot express is
+   handled anywhere else a pixel-exact reading is worth more than a class name. */
+.ad-search .unity-text-field__input, .ad-search .unity-base-text-field__input { flex-grow: 1; height: 22px; margin: 0; padding: 2px 6px; position: relative; }
+.ad-search-icon { position: absolute; left: 4px; top: 5px; width: 12px; height: 12px; }
+.ad-search-placeholder { position: absolute; left: 20px; right: 6px; top: 0; bottom: 0; margin: 0; padding: 0; color: var(--ad-faint); font-size: 12px; -unity-text-align: middle-left; }
+.ad-tag-filter { flex-shrink: 0; min-width: 60px; }
+.ad-usage { margin-top: 6px; }
+.ad-usage-clip { padding: 2px 4px; color: var(--ad-accent); cursor: link; }
+.ad-usage-clip:hover { background-color: var(--ad-field); }
+.ad-chip-usage { background-color: var(--ad-field); color: var(--ad-muted); }
+.ad-chip-gap { margin-left: 6px; }
+#ad-parameter-name { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-property-target { flex-wrap: wrap; }
+.ad-target-wrap { flex-wrap: wrap; }
+.ad-target-off { flex-direction: row; align-items: center; flex-basis: 100%; width: 100%; margin-top: 4px; }
+.ad-target-off .unity-base-field__label { min-width: auto; flex-basis: auto; margin-right: 6px; }
+.ad-target-off > .unity-base-field, .ad-target-off > .ad-property-vector { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.ad-target-off > .unity-toggle.ad-compact { flex-grow: 0; flex-shrink: 0; margin-right: 8px; }
+.ad-target-sub-row { margin-left: 8px; }
+.ad-property-values { flex-direction: row; align-items: center; flex-grow: 1; flex-shrink: 1; flex-basis: 140px; min-width: 140px; margin-right: 4px; }
+.ad-property-vector { flex-direction: row; flex-grow: 1; }
+.ad-caption { flex-grow: 0; flex-shrink: 0; margin-right: 2px; }
+.ad-row > .ad-suffix { margin: 0 2px 0 6px; min-width: 12px; flex-shrink: 0; font-size: 11px; -unity-text-align: middle-left; }
+.ad-row > #ad-blend { flex-grow: 0; flex-shrink: 0; width: 200px; }
+.ad-preview .ad-row > .unity-button { min-width: 48px; flex-shrink: 1; }
+.ad-preview .ad-row > .ad-note { flex-shrink: 1; white-space: normal; }
+.ad-name-style .ad-row > .unity-button { min-width: 26px; }
+.ad-style-bold { -unity-font-style: bold; }
+.ad-style-italic { -unity-font-style: italic; }
+.ad-name-style { flex-grow: 1; }
+.ad-row .ad-style-color { flex-grow: 0; width: 64px; min-width: 64px; }
+.ad-name-preview { flex-grow: 1; padding: 4px 6px; background-color: var(--ad-field); border-radius: 3px; }
+.ad-capture { padding: 8px; }
+.ad-capture-preview { width: 256px; height: 256px; align-self: center; background-color: var(--ad-field); border-width: 1px; border-color: var(--ad-border); margin-bottom: 8px; }
+.ad-capture .ad-capture-save { flex-grow: 1; height: 26px; margin-left: 6px; border-radius: 3px; }
+.ad-capture .ad-capture-save:hover { opacity: 0.85; }
+.ad-import-row { margin-bottom: 6px; }
+.ad-import-row.ad-unsupported { opacity: 0.55; }
+.ad-import-path { flex-direction: row; flex-grow: 1; flex-shrink: 1; min-width: 0; overflow: hidden; margin: 0 6px; }
+.ad-import-path > .ad-note { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; }
+.ad-import-meta { flex-shrink: 0; margin-left: 6px; color: var(--ad-muted); font-size: 10px; }
+.ad-import-list { flex-grow: 1; }
+.ad-tag-chips { flex-direction: row; flex-wrap: wrap; }
+.ad-outfit-list { flex-grow: 1; }
+.ad-outfit-pieces { flex-direction: row; flex-wrap: wrap; margin-bottom: 4px; }
+.ad-piece-chip { flex-direction: row; align-items: center; max-width: 168px; padding: 2px 4px 2px 6px; margin: 0 4px 4px 0; }
+.ad-piece-chip-label { max-width: 128px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; color: var(--ad-muted); }
+.ad-root .ad-piece-chip-remove { flex-shrink: 0; width: 14px; height: 14px; min-width: 14px; min-height: 14px; margin: 0 0 0 4px; padding: 0; border-width: 0; border-radius: 99px; background-color: transparent; font-size: 10px; }
+.ad-root .ad-piece-chip-remove:hover { background-color: var(--ad-selection); }
+.ad-root .ad-outfit-default { height: 18px; min-height: 18px; padding: 2px 8px; margin-left: 4px; font-size: 10px; color: var(--ad-muted); }
+.ad-outfit-shrinks { margin-top: 4px; }
+.ad-outfit-shrinks .unity-toggle { margin-bottom: 2px; white-space: normal; }
+.ad-lock-banner { flex-direction: row; align-items: center; justify-content: space-between; padding: 6px 8px; margin-bottom: 6px; background-color: var(--ad-warn); border-radius: 3px; }
+.ad-lock-banner > Label { color: var(--ad-accent-fg); white-space: normal; flex-shrink: 1; margin-right: 8px; }
+.ad-summary-text { max-height: 320px; margin-bottom: 6px; }
+.ad-summary-text .unity-base-text-field__input { min-height: 200px; }
+.ad-mono .unity-base-text-field__input { -unity-font-style: normal; }
+.ad-tip { flex-direction: row; align-items: flex-start; align-self: stretch; padding: 6px 8px; margin-bottom: 6px; border-radius: 3px; background-color: var(--ad-field); border-left-width: 3px; border-left-color: var(--ad-accent); }
+.ad-tip-text { flex-grow: 1; flex-shrink: 1; white-space: normal; font-size: 11px; color: var(--ad-muted); margin: 0; }
+.ad-tip-close { flex-shrink: 0; margin-left: 6px; padding: 0 6px; height: 16px; font-size: 10px; }
+.ad-warnbox.ad-flash { border-left-color: var(--ad-accent); background-color: var(--ad-selection); }
+.ad-problem-line.ad-flash { background-color: var(--ad-selection); border-radius: 3px; }
+.ad-when-card { padding: 4px 6px 2px 6px; margin-bottom: 4px; border-width: 1px; border-color: var(--ad-border); border-radius: 3px; background-color: var(--ad-panel); }
+.ad-when-any { font-size: 10px; color: var(--ad-accent); -unity-text-align: middle-center; margin-bottom: 4px; }
+.ad-when-row { margin-bottom: 2px; }
+.ad-root .ad-when-card > .ad-row > #ad-when-remove-group { width: 18px; min-width: 18px; height: 16px; padding: 0; font-size: 10px; }
+.ad-when-row > .ad-row > #ad-when-remove { width: 18px; min-width: 18px; height: 16px; padding: 0; font-size: 10px; }
+.ad-row > .ad-shape-pick { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0; margin-left: 0; overflow: hidden; -unity-text-align: middle-left; }
+/* The popup menu AdMenu adds to the root of the window that hosts the control. It sits outside .ad-root, so it
+   carries its own copy of the accent and muted colours and its own opaque card in Unity's menu colours. */
+.ad-menu { position: absolute; left: 0; top: 0; right: 0; bottom: 0; --ad-menu-bg: rgb(56, 56, 56); --ad-menu-line: rgb(25, 25, 25); }
+.ad-menu.ad-light { --ad-menu-bg: rgb(203, 203, 203); --ad-menu-line: rgb(153, 153, 153); }
+.ad-menu-card { position: absolute; min-width: 120px; max-width: 320px; background-color: var(--ad-menu-bg); border-width: 1px; border-color: var(--ad-menu-line); border-radius: 3px; padding: 4px 0; }
+.ad-menu-item { flex-direction: row; align-items: center; min-height: 22px; padding: 2px 8px 2px 6px; border-left-width: 2px; border-left-color: transparent; }
+.ad-menu-item.ad-menu-selected { background-color: var(--ad-selection); border-left-color: var(--ad-accent); }
+.ad-menu-item.ad-menu-disabled .ad-menu-label { color: var(--ad-faint); }
+.ad-menu-item.ad-menu-disabled .ad-menu-description { color: var(--ad-faint); }
+.ad-menu-column { flex-grow: 1; flex-shrink: 1; }
+.ad-menu-label { font-size: 12px; margin: 0; padding: 0; white-space: normal; }
+.ad-menu-description { font-size: 10px; margin: 0; padding: 0; color: var(--ad-muted); white-space: normal; }
+.ad-menu-check { width: 12px; flex-shrink: 0; margin: 0 6px 0 0; padding: 0; font-size: 11px; -unity-font-style: bold; -unity-text-align: middle-center; color: var(--ad-accent); }
+.ad-menu-shortcut { flex-shrink: 0; margin: 0 0 0 8px; padding: 0; font-size: 11px; color: var(--ad-faint); }
+.ad-menu-arrow { flex-shrink: 0; margin: 0 0 0 8px; padding: 0; font-size: 12px; color: var(--ad-muted); }
+.ad-menu-separator { height: 1px; margin: 4px 8px; background-color: var(--ad-menu-line); }
+.ad-menu-header { padding: 4px 8px 2px 8px; }
+.ad-menu-header-text { font-size: 10px; margin: 0; padding: 0; -unity-font-style: bold; letter-spacing: 1px; color: var(--ad-muted); }
+.ad-menu-back .ad-menu-label { color: var(--ad-muted); }

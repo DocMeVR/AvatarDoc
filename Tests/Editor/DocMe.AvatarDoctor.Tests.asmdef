@@ -1,0 +1,53 @@
+{
+    "name": "DocMe.AvatarDoctor.Tests",
+    "rootNamespace": "DocMe.AvatarDoctor.Editor",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "DocMe.AvatarDoctor",
+        "DocMe.AvatarDoctor.Editor",
+        "nadena.dev.ndmf",
+        "nadena.dev.ndmf.vrchat",
+        "nadena.dev.ndmf.runtime",
+        "nadena.dev.modular-avatar.core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "VRCCore-Editor.dll",
+        "VRCSDKBase.dll",
+        "VRCSDK3A.dll",
+        "VRC.Dynamics.dll",
+        "VRC.SDK3.Dynamics.Contact.dll",
+        "VRC.SDK3.Dynamics.PhysBone.dll",
+        "VRC.SDK3.Dynamics.Constraint.dll",
+        "System.Collections.Immutable.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.8.0",
+            "define": "DOCME_NDMF"
+        },
+        {
+            "name": "com.vrchat.avatars",
+            "expression": "3.0.0",
+            "define": "DOCME_VRCSDK3A"
+        },
+        {
+            "name": "nadena.dev.modular-avatar",
+            "expression": "1.10.0",
+            "define": "DOCME_MA"
+        }
+    ],
+    "noEngineReferences": false
+}

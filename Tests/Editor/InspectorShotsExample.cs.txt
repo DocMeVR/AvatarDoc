@@ -1,0 +1,64 @@
+// Minimal starting point for a temporary design review test. Copy this into a new file such as
+// Tests/Editor/ZzDesignShots.cs, rename the class so it does not collide with anyone else's temporary file, run the
+// loop once, look at the PNGs, then delete your copy and its .meta again. This file is a .txt on purpose so it
+// never compiles on its own.
+//
+// Capture always hosts the WHOLE view, never a sub element such as view.Header pulled out on its own: the
+// AvatarDoctor.uss stylesheet is loaded onto the AvatarDoctorView itself, so a bare sub element added to its own
+// frame renders with none of it (confirmed the hard way: the "+More" menu's own hidden actions and the welcome
+// card both came back stuck visible). A short height crops the shot to roughly the header instead.
+
+#if DOCME_NDMF && DOCME_VRCSDK3A
+using System.IO;
+using NUnit.Framework;
+using UnityEditor;
+using UnityEngine;
+
+namespace DocMe.AvatarDoctor.Editor
+{
+    public class ZzDesignShots
+    {
+        TestAvatar avatar;
+
+        [SetUp]
+        public void SetUp()
+        {
+            avatar = TestAvatar.Create();
+            AvatarPlanCache.Invalidate();
+            PreviewState.ClearAll();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            avatar.Dispose();
+            AvatarPlanCache.Invalidate();
+            PreviewState.ClearAll();
+        }
+
+        [Test]
+        public void HeaderAt400And800()
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Hat });
+
+            // A fresh view per width: a reused view's tree keeps the first window's resolved Yoga sizes on a
+            // second, differently sized pass.
+            foreach (var width in new[] { 400f, 800f })
+            {
+                var view = new AvatarDoctorView(new SerializedObject(menu), menu);
+                try
+                {
+                    string path = Path.Combine(Path.GetTempPath(), "header-" + (int)width + ".png");
+                    string written = InspectorShots.Capture(view, path, width, 400f);
+                    Debug.Log("[ZzDesignShots] wrote " + written);
+                }
+                finally
+                {
+                    view.RemoveFromHierarchy();
+                }
+            }
+        }
+    }
+}
+#endif

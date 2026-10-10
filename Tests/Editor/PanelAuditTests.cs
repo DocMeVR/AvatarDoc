@@ -1,0 +1,423 @@
+#if DOCME_NDMF && DOCME_VRCSDK3A
+using System.Linq;
+using NUnit.Framework;
+using UnityEditor;
+using UnityEditor.Animations;
+using UnityEngine;
+using UnityEngine.UIElements;
+using VRC.SDK3.Avatars.ScriptableObjects;
+using VRC.SDK3.Dynamics.PhysBone.Components;
+
+namespace DocMe.AvatarDoctor.Editor
+{
+    /// <summary>
+    /// Phase 12 task 9 Part D: the creator's "look over all UI elements" ask, measured through PanelAudit against a
+    /// real, laid out 360px wide panel (LayoutProbe) rather than eyeballed. Each test builds one group of panels the
+    /// brief named and audits every one of them; a failure names the offending element and the rule it broke.
+    /// </summary>
+    public class PanelAuditTests
+    {
+        TestAvatar avatar;
+
+        [SetUp]
+        public void SetUp()
+        {
+            avatar = TestAvatar.Create();
+            AvatarPlanCache.Invalidate();
+            PreviewState.ClearAll();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            avatar.Dispose();
+            AvatarPlanCache.Invalidate();
+            PreviewState.ClearAll();
+        }
+
+        AvatarDoctorView View(AvatarDoc menu) => new AvatarDoctorView(new SerializedObject(menu), menu);
+
+        MenuEntry TriggerOn(AvatarDoc menu, string name)
+        {
+            var entry = menu.AddEntry(EntryKind.Trigger, name);
+            entry.objects.Add(new ObjectTarget { target = avatar.Glasses });
+            return entry;
+        }
+
+        MenuEntry ContactTriggerOn(AvatarDoc menu, string name, Transform anchor)
+        {
+            var entry = TriggerOn(menu, name);
+            entry.source = TriggerSource.Contact;
+            entry.contactAnchor = anchor;
+            return entry;
+        }
+
+        /// <summary>
+        /// The target list rows' own trailing "x" remove buttons are the audit's one deliberate exception, named
+        /// once here with the reason the brief asks for: an intentional trailing action control, the same shape
+        /// as the header's own Show and Remove, not a data field the 112px column or the "never after a growing
+        /// field" rule was built to measure. The tree row's own Move to, Duplicate and Delete buttons that used to
+        /// need the same exception are gone: those actions live in the right click menu only now.
+        /// </summary>
+        static PanelAudit.AllowList StandardAllowList() => new PanelAudit.AllowList()
+            .Allow(e => e.name == "remove" && e.ClassListContains("ad-w-24"), "a target list row's own trailing x remove button: deliberately at the row's far end, removing the whole row rather than a field on it")
+            .Allow(e => e.ClassListContains("ad-chip-remove"), "a chip's own remove x: trailing inside its own chip, not a labelled row field")
+            .Allow(e => e.name == "ad-unlock", "the lock banner's own trailing action button")
+            .Allow(e => e.name == "ad-preview-simulate" || e.name == "ad-select-component", "a panel's own single primary action button, not part of a labelled field row")
+            .AllowForRule(3, e => e is Toggle && e.parent != null && e.parent.ClassListContains("ad-flags"),
+                "a compact flags row's own toggle (In menu, Default on, Saved, Synced): keeps its own inline caption and sits in sequence with its row mates, not at the field column, whether the row holds one flag or several");
+
+        [Test]
+        public void ToggleAndRadialPanelsFitAndAlign()
+        {
+            var menu = avatar.AddMenu();
+            avatar.AddBodyShapes("Blush");
+            var toggle = menu.AddEntry(EntryKind.Toggle, "Face");
+            toggle.objects.Add(new ObjectTarget { target = avatar.Hat });
+            toggle.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", minWeight = 0f, maxWeight = 100f });
+            toggle.materials.Add(new MaterialTarget { renderer = avatar.Body, slot = 0, material = avatar.MaterialA });
+            toggle.properties.Add(new MaterialPropertyTarget { renderer = avatar.Body, property = "_Glossiness", type = PropertyValueType.Float, value = 0.5f });
+            var clip = new AnimationClip();
+            toggle.animations.Add(new AnimationTarget { clip = clip });
+            toggle.follows.Add(new FollowTarget { target = avatar.Glasses, follows = avatar.Hat.transform, keepOffset = true });
+
+            var radial = menu.AddEntry(EntryKind.Radial, "Eyes");
+            radial.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", minWeight = 0f, maxWeight = 100f });
+
+            var submenu = menu.AddEntry(EntryKind.Submenu, "Outfits");
+
+            var view = View(menu);
+            var allow = StandardAllowList();
+            try
+            {
+                LayoutProbe.Measure(view, () =>
+                {
+                    view.Tree.SelectEntry(toggle.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    view.Tree.SelectEntry(radial.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    view.Tree.SelectEntry(submenu.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+                });
+            }
+            finally
+            {
+                Object.DestroyImmediate(clip);
+            }
+        }
+
+        [Test]
+        public void TriggerPanelsFitAndAlign()
+        {
+            var menu = avatar.AddMenu();
+            var hold = ContactTriggerOn(menu, "Poke", avatar.Root.transform);
+            hold.touchMode = TouchMode.Hold;
+            // The touch panel's own "Closer than" shape: Hold, with the contact's own distance choice set past
+            // plain touch, which shows the extra proximity slider row beneath the touch/closer choice itself.
+            var closer = ContactTriggerOn(menu, "Near", avatar.Root.transform);
+            closer.touchMode = TouchMode.Hold;
+            closer.contactProximity = 0.5f;
+            // The real "Fade" shape: a Contact trigger whose mode is Follow distance, which shows the three
+            // segment mode choice with Fade selected, and BuildFullAtRow's own "Fully on at" slider and note in
+            // place of the plain touch/closer row. IsFollowDistanceTrigger also requires the trigger's own first
+            // condition to be a Contact one; ContactTriggerOn's single, group-less condition already is.
+            var fade = ContactTriggerOn(menu, "Fade", avatar.Root.transform);
+            fade.touchMode = TouchMode.FollowDistance;
+            Assert.That(fade.IsFollowDistanceTrigger, Is.True, "the fixture must actually reach the Fade shape TouchPanel.BuildFullAtRow builds");
+            var pb = avatar.Hat.AddComponent<VRCPhysBone>();
+            var physBone = TriggerOn(menu, "Squeeze");
+            physBone.source = TriggerSource.PhysBone;
+            physBone.physBone = pb;
+
+            var view = View(menu);
+            var allow = StandardAllowList();
+            LayoutProbe.Measure(view, () =>
+            {
+                foreach (var entry in new[] { hold, closer, fade, physBone })
+                {
+                    view.Tree.SelectEntry(entry.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+                }
+            });
+        }
+
+        [Test]
+        public void OtherPanelsFitAndAlign()
+        {
+            var menu = avatar.AddMenu();
+            var over = menu.AddEntry(EntryKind.Override, "Silence");
+            over.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 50f });
+
+            var hat = menu.AddEntry(EntryKind.Toggle, "Hat");
+            hat.objects.Add(new ObjectTarget { target = avatar.Hat });
+            var preset = menu.AddEntry(EntryKind.Preset, "Casual");
+            preset.presetStates.Add(new PresetState { entryId = hat.id, on = true });
+
+            var grab = menu.AddEntry(EntryKind.Grabbable, "Sword");
+            grab.grabObject = avatar.Hat;
+
+            var controller = new AnimatorController { name = "FX" };
+            var asset = ScriptableObject.CreateInstance<VRCExpressionsMenu>();
+            asset.name = "Bought";
+            var extraGo = new GameObject("Extra");
+            AvatarDoc foreignHolder = null;
+            Component foreignToggle = null;
+            try
+            {
+                extraGo.transform.SetParent(avatar.Root.transform);
+                foreignHolder = extraGo.AddComponent<AvatarDoc>();
+                foreignHolder.installPath = "Old";
+                foreignHolder.AddEntry(EntryKind.Toggle, "Existing").objects.Add(new ObjectTarget { target = avatar.Body.gameObject });
+                foreignToggle = VrcFuryTestHelper.AddToggle(extraGo, "Foreign");
+
+                var view = View(menu);
+                var allow = StandardAllowList();
+                avatar.AddBodyShapes("Blush");
+
+                LayoutProbe.Measure(view, () =>
+                {
+                    view.Tree.SelectEntry(over.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    view.Tree.SelectEntry(preset.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    view.Tree.SelectEntry(grab.id);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    var animatorRow = view.Tree.AddAnimator(controller);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    var assetRow = view.Tree.AddMenuAsset(asset);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    var existingRow = view.Tree.RowsOfKind(RowKind.Existing).First();
+                    view.Tree.SelectKey(existingRow.Key);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                    var foreignRow = view.Tree.RowsOfKind(RowKind.Foreign).First();
+                    view.Tree.SelectKey(foreignRow.Key);
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+                });
+            }
+            finally
+            {
+                Object.DestroyImmediate(controller);
+                Object.DestroyImmediate(asset);
+            }
+        }
+
+        [Test]
+        public void HeaderFitsAndAligns()
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Hat });
+            var allow = StandardAllowList()
+                .Allow(e => e.name == "ad-problems-arrow", "the status row's own leading disclosure arrow, before the status row's own spacer")
+                .Allow(e => e.name == "ad-status-glyph", "the status row's own leading icon, before the status row's own spacer")
+                .Allow(e => e.name == "ad-ready-show" || e.name == "ad-summary-toggle", "the status row's own trailing actions, after the status row's own spacer")
+                .Allow(e => e.name == "ad-settings-fold-dot" || e.name == "ad-advanced-fold-dot", "a fold's own non default dot, drawn inside the foldout's own native toggle row");
+            // A fresh view per width: reusing one view's tree across two LayoutProbe.Measure calls left its Yoga
+            // nodes holding the first window's resolved sizes, so the second call silently re-measured the same
+            // 360px geometry under an 800px window instead of a real, wider layout.
+            foreach (var width in new[] { 360f, 800f })
+            {
+                var view = View(menu);
+                LayoutProbe.Measure(view, () =>
+                {
+                    if (!view.Header.SettingsFoldOpen) view.Header.ToggleSettingsFold();
+                    LayoutProbe.Validate(view);
+                    PanelAudit.Audit(view.Header, view.Header.worldBound.xMax, allow);
+                }, width, 900f);
+            }
+        }
+
+        /// <summary>Phase 12 task 10: the merged, compact header drops the title row, the count badge and the title's own free count entirely.</summary>
+        [Test]
+        public void HeaderHasNoTitleRowAndNothingTwice()
+        {
+            var menu = avatar.AddMenu();
+            var view = View(menu);
+
+            Assert.That(view.Header.Q<VisualElement>("ad-title-bar"), Is.Null);
+            Assert.That(view.Header.Q<Label>("ad-title"), Is.Null);
+            Assert.That(view.Header.Q<Label>("ad-summary-badge"), Is.Null);
+            Assert.That(view.Header.Q<Label>("ad-title-bits"), Is.Null);
+
+            var freeTexts = view.Header.Query<Label>().Build().ToList()
+                .Where(l => !string.IsNullOrEmpty(l.text) && System.Text.RegularExpressions.Regex.IsMatch(l.text, @"\bfree\b"))
+                .ToList();
+            Assert.That(freeTexts.Count, Is.EqualTo(1), "the free count text must appear exactly once in the header");
+        }
+
+        /// <summary>Phase 12 task 10: clicking the arrow or the status text opens and closes the same list, the same way the key remembers it.</summary>
+        [Test]
+        public void StatusArrowAndTextBothToggleTheList()
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "A").objects.Add(new ObjectTarget { target = null });
+            var view = View(menu);
+            Assert.That(view.Header.ProblemsOpen, Is.False);
+
+            LayoutProbe.Measure(view, () =>
+            {
+                var arrow = view.Header.Q<Toggle>("ad-problems-arrow");
+                Assert.That(arrow, Is.Not.Null);
+                arrow.value = true;
+                Assert.That(view.Header.ProblemsOpen, Is.True, "the arrow drives the same state ToggleProblemsOpen does");
+                arrow.value = false;
+                Assert.That(view.Header.ProblemsOpen, Is.False);
+
+                UiTestEvents.SimulateClick(view.Header.ReadyLabelClickable);
+                Assert.That(view.Header.ProblemsOpen, Is.True, "the status text opens the same list the arrow does");
+                UiTestEvents.SimulateClick(view.Header.ReadyLabelClickable);
+                Assert.That(view.Header.ProblemsOpen, Is.False);
+            });
+        }
+
+        /// <summary>Phase 12 task 10: the arrow is a real Toggle carrying Unity's own Foldout toggle class, so Unity's own stylesheet draws its triangle rather than a drawn on glyph.</summary>
+        [Test]
+        public void StatusArrowIsUnitysFoldoutArrow()
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "A").objects.Add(new ObjectTarget { target = null });
+            var view = View(menu);
+
+            var arrow = view.Header.Q<Toggle>("ad-problems-arrow");
+            Assert.That(arrow, Is.Not.Null);
+            Assert.That(arrow.ClassListContains(Foldout.toggleUssClassName), Is.True, "the arrow must carry Unity's own foldout toggle class so its checkmark draws the native triangle");
+            // The header wires these gently so a changed Unity never breaks the inspector; this is where a change
+            // shows up instead, before an arrow with no triangle ships.
+            var input = arrow.Q(className: Toggle.inputUssClassName);
+            Assert.That(input, Is.Not.Null, "the toggle's own input element is missing in this Unity version");
+            Assert.That(input.ClassListContains(Foldout.inputUssClassName), Is.True, "the input carries the foldout input class, as a real Foldout's does");
+            var checkmark = input.Q(className: Toggle.checkmarkUssClassName);
+            Assert.That(checkmark, Is.Not.Null, "the toggle's own checkmark element is missing in this Unity version");
+            Assert.That(checkmark.ClassListContains(Foldout.checkmarkUssClassName), Is.True, "the checkmark carries the foldout checkmark class, which is what draws the triangle");
+        }
+
+        /// <summary>Phase 12 task 10: Summary sits at the status row's own right end, with Show directly before it, both on the row's own vertical centre, at both the default and a wider width.</summary>
+        [Test]
+        public void SummarySitsAtTheStatusRowsRightEnd()
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "A").objects.Add(new ObjectTarget { target = null });
+
+            // A fresh view per width, for the same reason HeaderFitsAndAligns needs one: a reused view's tree
+            // keeps the first window's resolved Yoga sizes on its second, differently sized pass.
+            foreach (var width in new[] { 360f, 800f })
+            {
+                var view = View(menu);
+                LayoutProbe.Measure(view, () =>
+                {
+                    var statusRow = view.Header.Q<VisualElement>("ad-status-row");
+                    var arrow = view.Header.Q<Toggle>("ad-problems-arrow");
+                    var glyph = view.Header.Q<KindGlyph>("ad-status-glyph");
+                    var label = view.Header.Q<Label>("ad-ready-label");
+                    var show = view.Header.Q<Button>("ad-ready-show");
+                    var summary = view.Header.Q<Button>("ad-summary-toggle");
+
+                    Assert.That(summary.worldBound.xMax, Is.EqualTo(statusRow.worldBound.xMax).Within(1f), "Summary must sit at the row's own right end at " + width + "px");
+                    Assert.That(show.worldBound.xMax, Is.LessThanOrEqualTo(summary.worldBound.x + 0.5f), "Show must sit directly before Summary at " + width + "px");
+                    Assert.That(summary.worldBound.x - show.worldBound.xMax, Is.LessThanOrEqualTo(8.5f), "nothing but the row's own button gap sits between Show and Summary at " + width + "px");
+
+                    float rowCentre = statusRow.worldBound.y + statusRow.worldBound.height / 2f;
+                    foreach (var item in new VisualElement[] { arrow, glyph, label, show, summary })
+                    {
+                        float itemCentre = item.worldBound.y + item.worldBound.height / 2f;
+                        Assert.That(itemCentre, Is.EqualTo(rowCentre).Within(1f), item.name + " must sit on the status row's own vertical centre at " + width + "px");
+                    }
+                }, width, 900f);
+            }
+        }
+
+        /// <summary>Phase 12 task 10: the first-use tip spans the header's own content width, with its close cross at the tip's own right edge, inside its own padding.</summary>
+        [Test]
+        public void TipSpansTheWidthWithItsCloseAtTheRight()
+        {
+            var menu = avatar.AddMenu();
+            var view = View(menu);
+
+            LayoutProbe.Measure(view, () =>
+            {
+                var tip = view.Header.Q<VisualElement>("ad-tip-header");
+                Assert.That(tip, Is.Not.Null, "a fresh view's tip has not been dismissed");
+                var statusRow = view.Header.Q<VisualElement>("ad-status-row");
+                Assert.That(tip.worldBound.xMax, Is.EqualTo(statusRow.worldBound.xMax).Within(1f), "the tip must span the same content width the status row does");
+
+                var close = tip.Q<Button>("ad-tip-close");
+                Assert.That(close, Is.Not.Null);
+                Assert.That(close.worldBound.xMax, Is.LessThanOrEqualTo(tip.worldBound.xMax + 0.5f));
+                Assert.That(close.worldBound.xMax, Is.GreaterThan(tip.worldBound.xMax - 14f), "the close cross sits inside the tip's own right padding, not flush past it");
+            });
+        }
+
+        /// <summary>Phase 12 task 10: at 800px the memory bar legend's two swatch items and the free text share one left aligned line, ending at the right edge.</summary>
+        [Test]
+        public void LegendIsOneLeftAlignedLine()
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Hat });
+            var view = View(menu);
+
+            LayoutProbe.Measure(view, () =>
+            {
+                var legend = view.Header.Q<VisualElement>("ad-membar-legend");
+                var avatarSwatch = view.Header.Q<VisualElement>("ad-legend-swatch-avatar");
+                var avatarLabel = view.Header.Q<Label>("ad-legend-avatar");
+                var doctorSwatch = view.Header.Q<VisualElement>("ad-legend-swatch-doctor");
+                var doctorLabel = view.Header.Q<Label>("ad-legend-doctor");
+                var freeLabel = view.Header.Q<Label>("ad-legend-free");
+
+                float Centre(VisualElement e) => e.worldBound.y + e.worldBound.height / 2f;
+                float lineCentre = Centre(freeLabel);
+                foreach (var item in new[] { avatarSwatch, avatarLabel, doctorSwatch, doctorLabel })
+                    Assert.That(Centre(item), Is.EqualTo(lineCentre).Within(1f), item.name + " must share the legend's one line at 800px");
+                Assert.That(avatarSwatch.worldBound.x, Is.LessThan(avatarLabel.worldBound.x));
+                Assert.That(avatarLabel.worldBound.x, Is.LessThan(doctorSwatch.worldBound.x));
+                Assert.That(doctorSwatch.worldBound.x, Is.LessThan(doctorLabel.worldBound.x));
+                Assert.That(doctorLabel.worldBound.x, Is.LessThan(freeLabel.worldBound.x));
+                Assert.That(freeLabel.worldBound.xMax, Is.EqualTo(legend.worldBound.xMax).Within(1f), "the free text must end at the legend's own right edge");
+            }, 800f, 900f);
+        }
+
+        [Test]
+        public void AdvancedFoldFitsAndAligns()
+        {
+            var menu = avatar.AddMenu();
+            var toggle = menu.AddEntry(EntryKind.Toggle, "Hat");
+            toggle.objects.Add(new ObjectTarget { target = avatar.Hat });
+            toggle.parameterName = "CustomParam";
+            toggle.exclusiveGroup = "";
+            toggle.blendSeconds = 0.5f;
+            toggle.platform = EntryPlatform.PCOnly;
+
+            var view = View(menu);
+            var allow = StandardAllowList();
+            LayoutProbe.Measure(view, () =>
+            {
+                view.Tree.SelectEntry(toggle.id);
+                LayoutProbe.Validate(view);
+                var fold = view.Detail.Q<AdvancedFold>();
+                Assert.That(fold, Is.Not.Null);
+                if (!fold.IsOpen) fold.ToggleOpen();
+                LayoutProbe.Validate(view);
+                PanelAudit.Audit(fold, view.Detail.worldBound.xMax, allow);
+            });
+        }
+    }
+}
+#endif

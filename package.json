@@ -1,0 +1,13 @@
+{
+  "name": "dev.docme.avatar-doctor",
+  "displayName": "DocMe AvatarDoc",
+  "version": "0.2.2",
+  "unity": "2022.3",
+  "description": "Toggles, radials, submenus and triggers for VRChat avatars, built at upload time through NDMF.",
+  "author": { "name": "DocMe", "url": "https://github.com/DocMeVR" },
+  "license": "MIT",
+  "vpmDependencies": {
+    "nadena.dev.ndmf": ">=1.14.1",
+    "com.vrchat.avatars": ">=3.10.0"
+  }
+}

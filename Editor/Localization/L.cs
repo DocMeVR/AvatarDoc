@@ -1,0 +1,393 @@
+#if DOCME_NDMF
+using System;
+using System.Collections.Generic;
+using System.IO;
+using nadena.dev.ndmf;
+using nadena.dev.ndmf.localization;
+using Newtonsoft.Json;
+using UnityEditor;
+
+namespace DocMe.AvatarDoctor.Editor
+{
+    /// <summary>English strings for messages and, later, the inspector. One JSON file per language.</summary>
+    public static class L
+    {
+        public static readonly string[] KnownKeys =
+        {
+            "ad.info.path_created", "ad.info.same_submenu_merged", "ad.info.menu_split", "ad.warn.orphan_entry",
+            "ad.warn.target_missing", "ad.warn.no_effects", "ad.warn.group_multiple_defaults", "ad.error.group_value_conflict",
+            "ad.error.parameter_type_conflict", "ad.error.bits_exceeded", "ad.warn.bits_exceeded_vrcfury", "ad.error.no_fx_layer", "ad.info.curve_overwritten",
+            "ad.warn.marker_clip_skipped", "ad.warn.trigger_source_missing", "ad.warn.parameter_type_unknown",
+            "ad.warn.duplicate_entry_id", "ad.info.parameter_reused", "ad.warn.target_outside_avatar", "ad.info.target_shared",
+            "ad.info.target_shared_override", "ad.warn.link_effect_is_source", "ad.info.parameter_animator_only", "ad.warn.replace_kept_source",
+            "ad.info.override_applied", "ad.warn.override_unused", "ad.warn.override_conflict", "ad.warn.override_target_gone",
+            "ad.error.edit_cycle", "ad.warn.edit_own_entry", "ad.warn.edit_source_missing",
+            "ad.warn.preset_empty", "ad.warn.preset_target_missing", "ad.error.preset_group_conflict", "ad.warn.preset_parameter_unknown",
+            "ad.warn.property_missing", "ad.warn.property_differs", "ad.info.blend_ignored_in_group",
+            "ad.warn.animation_proxy", "ad.info.animation_overridden", "ad.warn.animation_binding_missing",
+            "ad.import.note.unsupported_action", "ad.import.note.transition", "ad.import.note.security",
+            "ad.import.note.separate_local", "ad.import.note.hold_button", "ad.import.note.invert_rest_logic",
+            "ad.import.note.extra_tags", "ad.import.note.clip_paths", "ad.import.note.shape_changer_delete",
+            "ad.import.note.reactive_inverted", "ad.import.note.slot_missing",
+            "ad.import.reason.no_supported_action", "ad.import.reason.not_a_toggle", "ad.import.reason.ma_merge_animator", "ad.import.reason.nothing_here", "ad.import.reason.nothing_under",
+            "ad.import.note.fx_path_missing", "ad.import.reason.property_partial",
+            "ad.import.reason.fx_no_layer", "ad.import.reason.fx_parameter_shared",
+            "ad.import.reason.fx_other_condition", "ad.import.reason.fx_no_on_state", "ad.import.reason.fx_blend_tree",
+            "ad.import.reason.fx_no_motion", "ad.import.reason.fx_unsupported_curve", "ad.warn.removed_layer_missing",
+            "ad.import.reason.shared_layer", "ad.import.reason.shared_parameter_controls", "ad.import.reason.behaviours",
+            "ad.import.reason.layer_control", "ad.import.reason.layer_masked", "ad.import.reason.transition_chain",
+            "ad.import.note.driven_elsewhere", "ad.import.note.off_values", "ad.warn.removed_layer_unsafe",
+            "ad.import.reason.edit_locked", "ad.import.reason.already_converted", "ad.import.reason.layer_name_not_unique", "ad.warn.removed_layer_ambiguous",
+            "ad.import.reason.off_values_differ", "ad.import.reason.inverted_default_mismatch",
+            "ad.import.reason.group_needs_removal", "ad.import.note.osc",
+            "ad.import.reason.radial_shape", "ad.import.reason.radial_bindings", "ad.import.reason.synced_layer",
+            "ad.import.reason.ma_renamed_parameters", "ad.import.note.merge_converted",
+            "ad.import.note.merge_parameter_control", "ad.import.note.merge_button", "ad.import.note.ma_radio_set",
+            "ad.error.contact_no_anchor", "ad.error.contact_no_tags", "ad.error.contact_nobody", "ad.error.physbone_missing",
+            "ad.error.flip_target", "ad.error.touch_parameter_type", "ad.error.touch_outside_avatar",
+            "ad.info.flip_target_excluded", "ad.warn.platform_parity",
+            "ad.warn.physbone_renamed", "ad.info.group_default_excluded",
+            "ad.warn.merge_no_controller", "ad.warn.merge_override_no_controller", "ad.warn.merge_skip_missing", "ad.error.merge_outside_avatar",
+            "ad.error.explicit_off_pin",
+            "ad.error.merge_parameter_type", "ad.error.merge_layer_control", "ad.error.merge_synced_layer",
+            "ad.warn.parameter_control_unused",
+            "ad.info.removed_parameter", "ad.info.removed_kept",
+            "ad.removal.kept.control", "ad.removal.kept.entry", "ad.removal.kept.layer",
+            "ad.removal.kept.other_controller", "ad.removal.kept.driver", "ad.removal.kept.contact",
+            "ad.removal.kept.builtin", "ad.removal.kept.other_tool",
+            "ad.warn.converted_layer_unsafe",
+            "ad.error.gate_target", "ad.info.hidden_toggle_unreachable",
+            "ad.error.trigger_too_complex", "ad.warn.trigger_no_condition", "ad.warn.condition_group_empty",
+            "ad.warn.menu_asset_missing", "ad.warn.parameter_declared_twice", "ad.error.parameter_declared_type",
+            "ad.warn.parameter_undeclared", "ad.import.note.takeover",
+            "ad.info.shapes_follow_kept_own", "ad.info.shapes_always_on", "ad.info.shapes_never_on", "ad.warn.shapes_active_not_constant",
+            "ad.warn.shapes_clip_owns_shape", "ad.warn.shapes_conflict", "ad.warn.shapes_missing_shape",
+            "ad.error.shapes_outside_avatar", "ad.error.shapes_no_mesh", "ad.import.reason.shapes_delete",
+            "ad.info.capture_nothing_above_zero", "ad.info.shape_set_count", "ad.info.shape_set_count.one", "ad.warn.shape_set_large",
+            "ad.error.shape_set_outside_avatar", "ad.error.shape_set_not_a_toggle",
+            "ad.error.follow_not_on_off", "ad.error.follow_self", "ad.error.follow_outside_avatar", "ad.error.follow_existing_constraint",
+            "ad.error.follow_no_rest_parent", "ad.error.follow_too_many_sources", "ad.warn.follow_claim_unresolved",
+            "ad.error.grab_no_object", "ad.error.grab_outside_avatar", "ad.error.grab_no_hand", "ad.info.grab_uses_existing_physbone",
+            "ad.error.grab_inside_physbone", "ad.warn.grab_existing_physbone_unsuitable",
+
+            // Phase 12 task 2: upload style checks mirrored from the VRChat SDK's own build validation.
+            "ad.error.menu_icon_too_large", "ad.warn.write_defaults_mixed",
+
+            // Phase 12 task 4: the tag filter's own drag-off note, split by which filter is active.
+            "ad.info.drag_needs_no_search_or_tags", "ad.info.drag_needs_no_tags",
+
+            // Phase 13 task 7: contacts that follow distance.
+            "ad.warn.follow_distance_one_contact", "ad.warn.follow_distance_no_follows", "ad.warn.follow_distance_tracking_left_to",
+
+            // Phase 13 task 8: ready made contact starts.
+            "ad.error.contact_start_no_head",
+
+            // Plan 14 task S: smooth blend shape triggers and requirements.
+            "ad.warn.link_clips_outside_fx", "ad.warn.link_source_tracked", "ad.warn.smooth_range", "ad.warn.requirements_one_card", "ad.warn.link_no_fx_clip",
+        };
+
+        public static readonly string[] UiKeys =
+        {
+            "ad.ui.title", "ad.ui.menu", "ad.ui.install", "ad.ui.install.root", "ad.ui.install.pick", "ad.ui.install.mode", "ad.ui.menu_name", "ad.ui.menu_icon",
+            "ad.ui.prefix", "ad.ui.memory.avatar", "ad.ui.memory.avatar.one", "ad.ui.memory.ad", "ad.ui.memory.ad.one", "ad.ui.memory.free", "ad.ui.memory.free_bits", "ad.ui.memory.over", "ad.ui.disabled", "ad.ui.no_avatar",
+            "ad.ui.other_components", "ad.ui.other_components.one", "ad.ui.add.toggle", "ad.ui.add.radial", "ad.ui.add.submenu", "ad.ui.triggers", "ad.ui.triggers.note", "ad.ui.triggers.note.one",
+            "ad.ui.existing", "ad.ui.disabled_chip", "ad.ui.drop.tree", "ad.ui.detail.toggle", "ad.ui.detail.radial", "ad.ui.detail.submenu",
+            "ad.ui.detail.trigger", "ad.ui.detail.none", "ad.ui.name", "ad.ui.icon", "ad.ui.default_on", "ad.ui.default_value", "ad.ui.saved",
+            "ad.ui.synced", "ad.ui.group", "ad.ui.group.none", "ad.ui.group.settings", "ad.ui.parameter", "ad.ui.parameter.auto",
+            "ad.ui.parameter.custom", "ad.ui.parameter.use_custom", "ad.ui.parameter.bits", "ad.ui.parameter.no_bits",
+            "ad.ui.parameter.value", "ad.ui.slots",
+            "ad.ui.objects", "ad.ui.blendshapes", "ad.ui.materials", "ad.ui.add", "ad.ui.shown_when_on", "ad.ui.hidden_when_on",
+            "ad.ui.seg.shown", "ad.ui.seg.hidden", "ad.ui.drop.objects",
+            "ad.ui.weight", "ad.ui.min", "ad.ui.max", "ad.ui.slot", "ad.ui.other_component", "ad.ui.select_component", "ad.ui.existing_note",
+            "ad.ui.trigger_note", "ad.ui.menu.rename", "ad.ui.menu.duplicate", "ad.ui.menu.delete", "ad.ui.menu.move", "ad.ui.menu.move.root", "ad.ui.pick.shape",
+            "ad.ui.pick.renderer", "ad.ui.add.trigger", "ad.ui.trigger.when", "ad.ui.trigger.source.toggle", "ad.ui.trigger.source.parameter",
+            "ad.ui.trigger.source.blendshape", "ad.ui.trigger.toggle", "ad.ui.trigger.no_toggles", "ad.ui.trigger.toggle.on", "ad.ui.trigger.toggle.off",
+            "ad.ui.trigger.parameter", "ad.ui.trigger.condition", "ad.ui.trigger.value", "ad.ui.trigger.shape",
+            "ad.ui.trigger.mode", "ad.ui.trigger.link_note", "ad.ui.trigger.parameter_note", "ad.ui.effect.fixed", "ad.ui.effect.follow",
+            "ad.ui.effect.pin", "ad.ui.seg.fixed", "ad.ui.seg.pin", "ad.ui.effect.multiplier", "ad.ui.override.value", "ad.ui.override.usage", "ad.ui.override.unused",
+            "ad.ui.usage.chip", "ad.ui.pick.parameter", "ad.ui.pick.parameter.avatar", "ad.ui.pick.parameter.doctor",
+            "ad.ui.pick.parameter.vrchat", "ad.ui.preview", "ad.ui.preview.default", "ad.ui.preview.on", "ad.ui.preview.off",
+            "ad.ui.preview.follows", "ad.ui.preview.off_note", "ad.ui.preview.reset", "ad.ui.preview.always",
+            "ad.ui.wheel", "ad.ui.wheel.count", "ad.ui.wheel.select", "ad.ui.wheel.test", "ad.ui.wheel.reset", "ad.ui.copy", "ad.ui.root_menu", "ad.ui.window.none", "ad.ui.search",
+            "ad.ui.chip.trigger_off", "ad.ui.trigger.source_disabled",
+            "ad.ui.add.override", "ad.ui.overrides", "ad.ui.overrides.note", "ad.ui.overrides.note.one", "ad.ui.detail.override", "ad.ui.override_note",
+            "ad.ui.style", "ad.ui.style.preview", "ad.ui.style.color", "ad.ui.style.bold", "ad.ui.style.italic", "ad.ui.style.raw", "ad.ui.style.raw_label", "ad.ui.style.custom",
+            "ad.ui.capture", "ad.ui.capture.title", "ad.ui.capture.fit", "ad.ui.capture.background", "ad.ui.capture.transparent",
+            "ad.ui.capture.solid", "ad.ui.capture.save", "ad.ui.capture.none", "ad.ui.capture.saved",
+            "ad.ui.capture.fill", "ad.ui.capture.fill.tip",
+            "ad.ui.chip.modular_avatar", "ad.ui.chip.vrcfury",
+            "ad.ui.existing.title", "ad.ui.existing.move", "ad.ui.existing.stay", "ad.ui.existing.hidden", "ad.ui.existing.reset",
+            "ad.ui.existing.late_note", "ad.ui.existing.original", "ad.ui.existing.hide", "ad.ui.existing.show",
+            "ad.ui.existing.move_refused",
+            "ad.ui.existing.remove", "ad.ui.existing.remove.tip", "ad.ui.existing.remove_frees", "ad.ui.existing.remove_keeps",
+            "ad.ui.chip.edited", "ad.ui.chip.hidden", "ad.ui.chip.removed", "ad.ui.edit.remove",
+            "ad.ui.add.preset", "ad.ui.detail.preset", "ad.ui.preset.sets", "ad.ui.preset.add", "ad.ui.preset.from_preview",
+            "ad.ui.preset.from_preview.tip", "ad.ui.preset.on", "ad.ui.preset.off", "ad.ui.preset.parameters",
+            "ad.ui.preset.parameters.tip", "ad.ui.preset.apply", "ad.ui.preset.reset", "ad.ui.preset.none", "ad.ui.preset.missing",
+            "ad.ui.targets.properties", "ad.ui.targets.animations", "ad.ui.property.pick", "ad.ui.property.other",
+            "ad.ui.property.min", "ad.ui.property.max", "ad.ui.property.type.float", "ad.ui.property.type.color",
+            "ad.ui.property.type.vector", "ad.ui.animation.path_root", "ad.ui.animation.path_root.tip",
+            "ad.ui.animations.no_preview", "ad.ui.blend", "ad.ui.blend.tip", "ad.ui.blend.group_note",
+            "ad.ui.import", "ad.ui.import.tooltip", "ad.ui.import.intro", "ad.ui.import.select_all", "ad.ui.import.select_none",
+            "ad.ui.import.none", "ad.ui.import.remove", "ad.ui.import.remove.tip", "ad.ui.import.button", "ad.ui.import.button.one",
+            "ad.ui.import.done", "ad.ui.import.layers", "ad.ui.import.restore", "ad.ui.import.group.fx",
+            "ad.ui.import.group.animator", "ad.ui.import.kind.animator", "ad.ui.import.summary.merged_layers",
+            "ad.ui.import.summary.object", "ad.ui.import.summary.objects", "ad.ui.import.summary.blendshape", "ad.ui.import.summary.blendshapes",
+            "ad.ui.import.summary.material", "ad.ui.import.summary.materials", "ad.ui.import.summary.property", "ad.ui.import.summary.properties",
+            "ad.ui.import.summary.animation", "ad.ui.import.summary.animations", "ad.ui.convert", "ad.ui.ok",
+            "ad.ui.import.rescanned",
+            "ad.ui.trigger.source.contact", "ad.ui.trigger.source.physbone", "ad.ui.touch.anchor",
+            "ad.ui.touch.radius", "ad.ui.touch.offset", "ad.ui.touch.tags", "ad.ui.touch.more_tags", "ad.ui.touch.custom_tag",
+            "ad.ui.touch.who", "ad.ui.touch.self", "ad.ui.touch.others", "ad.ui.touch.distance", "ad.ui.touch.touch",
+            "ad.ui.touch.closer", "ad.ui.touch.physbone", "ad.ui.touch.event", "ad.ui.touch.event.grabbed", "ad.ui.touch.event.posed",
+            "ad.ui.touch.event.angle", "ad.ui.touch.event.stretch", "ad.ui.touch.event.squish", "ad.ui.touch.threshold",
+            "ad.ui.touch.mode", "ad.ui.touch.hold", "ad.ui.touch.flip", "ad.ui.touch.follow", "ad.ui.touch.flip_target", "ad.ui.touch.simulate",
+            "ad.ui.touch.scene_hint", "ad.ui.touch.fullat", "ad.ui.touch.fullat_note",
+            "ad.outfit.everything_off", "ad.outfit.none", "ad.outfit.default_name",
+            "ad.ui.add.outfit", "ad.ui.outfit.title", "ad.ui.outfit.intro", "ad.ui.outfit.name", "ad.ui.outfit.mode",
+            "ad.ui.outfit.mode.one", "ad.ui.outfit.mode.mix", "ad.ui.outfit.none_option", "ad.ui.outfit.add",
+            "ad.ui.outfit.default", "ad.ui.outfit.drop", "ad.ui.outfit.hidden", "ad.ui.outfit.shrinks",
+            "ad.ui.outfit.show_all", "ad.ui.outfit.capture", "ad.ui.outfit.create", "ad.ui.outfit.empty",
+            "ad.ui.outfit.split.each", "ad.ui.outfit.split.all", "ad.ui.outfit.outside", "ad.ui.outfit.created", "ad.ui.outfit.add_piece",
+            "ad.ui.capture_missing", "ad.ui.capture_missing.done",
+            "ad.ui.platform", "ad.ui.platform.inherit", "ad.ui.platform.both", "ad.ui.platform.pc", "ad.ui.platform.quest",
+            "ad.ui.platform.current", "ad.ui.platform.name.pc", "ad.ui.platform.name.quest",
+            "ad.ui.chip.pc_only", "ad.ui.chip.quest_only",
+            "ad.ui.summary", "ad.ui.summary.plain", "ad.ui.summary.markdown", "ad.ui.summary.copy", "ad.ui.summary.copied",
+            "ad.ui.lock", "ad.ui.lock.tip", "ad.ui.lock.note", "ad.ui.locked", "ad.ui.locked.refused", "ad.ui.unlock",
+            "ad.summary.local", "ad.summary.bits", "ad.summary.platform", "ad.summary.parameters", "ad.summary.parameters.animator_only",
+            "ad.summary.parameters.synced", "ad.summary.parameters.saved", "ad.summary.parameters.default",
+            "ad.summary.parameters.default_value", "ad.summary.parameters.uses_existing", "ad.summary.parameters.shared_group",
+            "ad.summary.yes", "ad.summary.no", "ad.summary.menu", "ad.summary.menu.install_path", "ad.summary.menu.install_root",
+            "ad.summary.menu.none", "ad.summary.menu.slots", "ad.summary.needs", "ad.summary.needs.ndmf", "ad.summary.needs.vrcsdk",
+            "ad.summary.needs.modular_avatar", "ad.summary.needs.vrcfury", "ad.summary.touch", "ad.summary.touch.contacts", "ad.summary.touch.contacts.one",
+            "ad.summary.touch.physbones", "ad.summary.touch.physbones.one", "ad.summary.messages", "ad.summary.messages.info", "ad.summary.messages.warning",
+            "ad.summary.messages.error", "ad.summary.footer",
+            "ad.summary.animators", "ad.summary.animators.layers",
+            "ad.ui.animators", "ad.ui.animators.note", "ad.ui.animator_note", "ad.ui.animator.unnamed", "ad.ui.detail.animator",
+            "ad.ui.add.animator", "ad.ui.animator.controller", "ad.ui.animator.match_write_defaults", "ad.ui.animator.layers",
+            "ad.ui.animator.parameters", "ad.ui.animator.no_preview", "ad.ui.animator.existing", "ad.ui.animator.not_synced",
+            "ad.ui.animator.add_control", "ad.ui.parameter_control_note",
+            "ad.ui.target.explicit_off", "ad.ui.target.explicit_off.tip", "ad.ui.target.off_value",
+            "ad.ui.trigger.gate", "ad.ui.trigger.gate.always", "ad.ui.trigger.gate.add",
+            "ad.ui.in_menu", "ad.ui.chip.no_menu", "ad.ui.chip.problem", "ad.ui.wheel.not_in_menu",
+            "ad.summary.hidden", "ad.summary.gated_triggers", "ad.summary.gated_triggers.line",
+            "ad.ui.when.title", "ad.ui.fires", "ad.ui.when.any_of", "ad.ui.when.all_of", "ad.ui.when.add_and", "ad.ui.when.add_or",
+            "ad.ui.when.remove", "ad.ui.when.remove_group", "ad.ui.when.settings", "ad.ui.when.chip_more", "ad.ui.when.kind.toggle", "ad.ui.when.kind.parameter",
+            "ad.ui.when.kind.contact", "ad.ui.when.kind.physbone", "ad.ui.when.note", "ad.ui.when.pick_toggle",
+            "ad.ui.when.sentence", "ad.ui.when.and", "ad.ui.when.or", "ad.ui.when.nothing",
+            "ad.ui.when.missing", "ad.ui.when.position", "ad.ui.when.with_gate",
+            "ad.ui.when.toggle_on", "ad.ui.when.toggle_off", "ad.ui.when.is_true", "ad.ui.when.is_false",
+            "ad.ui.when.equals", "ad.ui.when.not_equals", "ad.ui.when.greater", "ad.ui.when.less",
+            "ad.ui.when.contact", "ad.ui.when.contact_near", "ad.ui.when.pb_grabbed", "ad.ui.when.pb_posed",
+            "ad.ui.when.pb_angle", "ad.ui.when.pb_stretch", "ad.ui.when.pb_squish",
+            "ad.summary.conditions", "ad.summary.conditions.line",
+            "ad.ui.pick.avatar_object", "ad.ui.pick.bones", "ad.ui.pick.inactive", "ad.ui.pick.none",
+            "ad.ui.menu_assets", "ad.ui.menu_assets.note", "ad.ui.menu_assets.tip",
+            "ad.ui.add.menu_asset", "ad.ui.detail.menu_asset", "ad.ui.menu_asset.unnamed",
+            "ad.ui.menu_asset.asset", "ad.ui.menu_asset.path", "ad.ui.menu_asset.path.tip",
+            "ad.ui.menu_asset.place", "ad.ui.menu_asset.place.submenu", "ad.ui.menu_asset.place.append",
+            "ad.ui.menu_asset.parameters", "ad.ui.menu_asset.note", "ad.ui.menu_asset.declare",
+            "ad.ui.menu_asset.declared", "ad.ui.menu_asset.undeclared", "ad.ui.chip.asset",
+            "ad.ui.parameters", "ad.ui.parameters.note", "ad.ui.parameters.tip",
+            "ad.ui.parameters.none", "ad.ui.parameters.total", "ad.ui.parameters.bits",
+            "ad.ui.parameters.add", "ad.ui.parameters.new", "ad.ui.parameters.default",
+            "ad.ui.import.group.menu_asset", "ad.ui.import.kind.menu_asset", "ad.ui.import.summary.takeover",
+            "ad.ui.import.keep", "ad.ui.import.keep.tip", "ad.summary.menu_assets",
+            "ad.summary.menu_assets.line", "ad.summary.declared", "ad.summary.declared.line",
+            "ad.ui.shapes.note", "ad.ui.shapes.follows", "ad.ui.shapes.follows.note", "ad.ui.shapes.while_on",
+            "ad.ui.shapes.while_on.note", "ad.ui.shapes.source_mesh", "ad.ui.shapes.source_shape",
+            "ad.ui.shapes.local_shape", "ad.ui.shapes.same_name", "ad.ui.shapes.mesh", "ad.ui.shapes.shape",
+            "ad.ui.shapes.value", "ad.ui.shapes.add", "ad.ui.shapes.add_matching", "ad.ui.shapes.add_matching.tip",
+            "ad.ui.shapes.none", "ad.ui.import.group.shapes", "ad.ui.import.kind.shapes", "ad.ui.import.summary.shapes",
+            "ad.summary.shapes", "ad.summary.shapes.line",
+            "ad.import.reason.driven_elsewhere", "ad.import.reason.install_target_unknown",
+            "ad.summary.removed", "ad.summary.removed.freed", "ad.summary.removed.kept",
+            "ad.ui.shape_set.capture", "ad.ui.shape_set.zero_others", "ad.summary.shape_sets", "ad.summary.shape_sets.line",
+            "ad.ui.targets.follows", "ad.ui.target.keep_offset", "ad.summary.follows", "ad.summary.follows.line",
+            "ad.summary.grabbables", "ad.summary.grabbables.line",
+            "ad.ui.add.grabbable", "ad.ui.detail.grabbable", "ad.ui.grab.object", "ad.ui.grab.hands",
+            "ad.ui.grab.hands.both", "ad.ui.grab.hands.left", "ad.ui.grab.hands.right", "ad.ui.grab.summary",
+            "ad.ui.grab.anyone", "ad.ui.grab.return_seconds", "ad.ui.grab.menu_toggle", "ad.ui.grab.reach", "ad.ui.grab.fold",
+
+            // Phase 10 task 2: one sentence tooltips on every labelled control.
+            "ad.ui.select_component.tip", "ad.ui.icon.tip", "ad.ui.capture.tip", "ad.ui.platform.tip",
+            "ad.ui.default_on.tip", "ad.ui.saved.tip", "ad.ui.synced.tip", "ad.ui.in_menu.tip", "ad.ui.group.tip",
+            "ad.ui.parameter.tip", "ad.ui.parameter.use_custom.tip", "ad.ui.parameter.value.tip",
+            "ad.ui.preview.tip", "ad.ui.preview.default.tip", "ad.ui.touch.simulate.tip", "ad.ui.chip.no_menu.tip",
+            "ad.ui.trigger.when.tip", "ad.ui.trigger.toggle.tip", "ad.ui.trigger.toggle_state.tip",
+            "ad.ui.trigger.parameter.tip", "ad.ui.trigger.condition.tip", "ad.ui.trigger.value.tip",
+            "ad.ui.trigger.shape.tip", "ad.ui.trigger.mode.tip",
+            "ad.ui.trigger.gate.tip", "ad.ui.trigger.gate_state.tip", "ad.ui.trigger.gate.add.tip",
+            "ad.ui.name.tip", "ad.ui.style.tip", "ad.ui.style.color.tip", "ad.ui.style.clear_color.tip",
+            "ad.ui.style.bold.tip", "ad.ui.style.italic.tip", "ad.ui.style.raw.tip", "ad.ui.style.preview.tip",
+            "ad.ui.existing.move.tip", "ad.ui.existing.hidden.tip", "ad.ui.existing.reset.tip",
+            "ad.ui.animator.controller.tip", "ad.ui.animator.match_write_defaults.tip", "ad.ui.animator.layers.tip",
+            "ad.ui.animator.parameters.tip", "ad.ui.animator.add_control.tip",
+            "ad.ui.menu_asset.asset.tip", "ad.ui.menu_asset.place.tip", "ad.ui.menu_asset.name.tip",
+            "ad.ui.menu_asset.parameters.tip", "ad.ui.menu_asset.declare.tip",
+            "ad.ui.parameters.add.tip", "ad.ui.parameters.row_name.tip", "ad.ui.parameters.type.tip", "ad.ui.parameters.default.tip",
+            "ad.ui.preset.sets.tip", "ad.ui.preset.add.tip", "ad.ui.preset.parameters.add.tip", "ad.ui.preset.control.tip",
+            "ad.ui.preset.value.tip", "ad.ui.preset.on.tip", "ad.ui.preset.param_name.tip", "ad.ui.preset.param_value.tip",
+            "ad.ui.preset.apply.tip", "ad.ui.preset.reset.tip",
+            "ad.ui.touch.anchor.tip", "ad.ui.touch.radius.tip", "ad.ui.touch.offset.tip", "ad.ui.touch.who.tip",
+            "ad.ui.touch.self.tip", "ad.ui.touch.others.tip", "ad.ui.touch.tags.tip", "ad.ui.touch.more_tags.tip",
+            "ad.ui.touch.custom_tag_chip.tip", "ad.ui.touch.custom_tag.tip", "ad.ui.touch.distance.tip",
+            "ad.ui.touch.proximity.tip", "ad.ui.touch.physbone.tip", "ad.ui.touch.event.tip", "ad.ui.touch.threshold.tip",
+            "ad.ui.touch.mode.tip", "ad.ui.touch.flip_target.tip", "ad.ui.touch.fullat.tip", "ad.ui.touch.radius_follow.tip",
+            "ad.ui.touch.hold.tip", "ad.ui.touch.flip.tip", "ad.ui.touch.follow.tip",
+            "ad.ui.when.title.tip", "ad.ui.fires.tip", "ad.ui.when.add_and.tip", "ad.ui.when.add_and.limit.tip", "ad.ui.when.add_or.tip", "ad.ui.when.all_of.tip",
+            "ad.ui.when.kind.tip", "ad.ui.when.settings.tip", "ad.ui.when.any_of.tip",
+            "ad.ui.objects.tip", "ad.ui.blendshapes.tip", "ad.ui.materials.tip", "ad.ui.targets.properties.tip", "ad.ui.targets.animations.tip",
+            "ad.ui.objects.add.tip", "ad.ui.blendshapes.add.tip", "ad.ui.materials.add.tip", "ad.ui.targets.properties.add.tip", "ad.ui.targets.animations.add.tip",
+            "ad.ui.shape_set.capture.tip", "ad.ui.target.object.tip", "ad.ui.target.mode.tip", "ad.ui.target.shape.tip",
+            "ad.ui.min.tip", "ad.ui.max.tip", "ad.ui.effect.link_mode.tip", "ad.ui.weight.tip", "ad.ui.effect.multiplier.tip",
+            "ad.ui.override.value.tip", "ad.ui.seg.fixed_pin.tip", "ad.ui.target.off_value.tip",
+            "ad.ui.target.renderer.tip", "ad.ui.target.material.tip", "ad.ui.property.renderer.tip", "ad.ui.property.pick_button.tip",
+            "ad.ui.target.clip.tip", "ad.ui.usage.chip.tip", "ad.ui.property.value_type.tip",
+            "ad.ui.property.min.tip", "ad.ui.property.max.tip", "ad.ui.property.value.tip", "ad.ui.shape_set.zero_others.tip",
+            "ad.ui.summary.format.tip", "ad.ui.summary.text.tip", "ad.ui.summary.copy.tip", "ad.ui.lock.note.tip",
+            "ad.ui.summary.toggle.tip", "ad.ui.install.tip", "ad.ui.install.mode.tip", "ad.ui.menu_name.tip",
+            "ad.ui.menu_icon.tip", "ad.ui.prefix.tip", "ad.ui.platform.component.tip", "ad.ui.preview.reset.tip", "ad.ui.edit.remove.tip",
+            "ad.ui.memory.bar.tip",
+            "ad.ui.wheel.mode.tip", "ad.ui.wheel.ring.tip", "ad.ui.wheel.radial_slider.tip", "ad.ui.wheel.triggers_strip.tip",
+            "ad.ui.wheel.not_in_menu.tip", "ad.ui.wheel.trigger_button.tip", "ad.ui.wheel.hidden_button.tip", "ad.ui.wheel.crumb.tip",
+            "ad.ui.add.toggle.tip", "ad.ui.add.radial.tip", "ad.ui.add.submenu.tip", "ad.ui.add.trigger.tip",
+            "ad.ui.add.override.tip", "ad.ui.add.preset.tip", "ad.ui.add.animator.tip", "ad.ui.add.menu_asset.tip",
+            "ad.ui.add.outfit.tip", "ad.ui.wheel.toggle.tip", "ad.ui.search.tip", "ad.ui.search.placeholder", "ad.log.slow_refresh",
+            "ad.ui.shapes.follows.tip", "ad.ui.shapes.add_follow.tip", "ad.ui.shapes.while_on.tip", "ad.ui.shapes.add_while_on.tip",
+            "ad.ui.shapes.platform.tip", "ad.ui.shapes.source_mesh.tip", "ad.ui.shapes.mesh.tip", "ad.ui.shapes.value.tip",
+            "ad.ui.shapes.source_shape.tip", "ad.ui.shapes.local_shape.tip", "ad.ui.shapes.shape.tip",
+            "ad.ui.import.select_all.tip", "ad.ui.import.select_none.tip", "ad.ui.import.button.tip",
+            "ad.ui.import.restore.tip", "ad.ui.import.candidate.tip",
+            "ad.ui.outfit.name.tip", "ad.ui.outfit.mode.tip", "ad.ui.outfit.none_option.tip", "ad.ui.outfit.add.tip",
+            "ad.ui.outfit.hidden.tip", "ad.ui.outfit.capture.tip", "ad.ui.outfit.create.tip",
+            "ad.ui.outfit.split.each.tip", "ad.ui.outfit.split.all.tip", "ad.ui.outfit.card_name.tip", "ad.ui.outfit.default.tip",
+            "ad.ui.outfit.shrinks.tip", "ad.ui.outfit.shrink_toggle.tip", "ad.ui.outfit.show_all.tip", "ad.ui.outfit.add_piece.tip",
+            "ad.ui.capture.background.tip", "ad.ui.capture.color.tip", "ad.ui.capture.fit.tip", "ad.ui.capture.save.tip",
+            "ad.ui.chip.asset.tip", "ad.ui.unlock.tip", "ad.ui.default_value.tip",
+            "ad.ui.targets.follows.tip", "ad.ui.targets.follows.add.tip", "ad.ui.target.follow_object.tip",
+            "ad.ui.target.follow_target.tip", "ad.ui.target.keep_offset.tip",
+            "ad.ui.add.grabbable.tip", "ad.ui.grab.object.tip", "ad.ui.grab.hands.tip", "ad.ui.grab.anyone.tip",
+            "ad.ui.grab.return_seconds.tip", "ad.ui.grab.menu_toggle.tip", "ad.ui.grab.reach.tip", "ad.ui.grab.fold.tip",
+
+            // Phase 11 task 4: search disables reordering, so a visible note explains it while it does.
+            "ad.info.drag_needs_no_search",
+
+            // Phase 11 task 5: a drop the tree cannot apply says why once instead of reverting silently.
+            "ad.info.drop_refused", "ad.info.drop_refused.locked", "ad.info.drop_refused.own_descendant", "ad.info.drop_refused.not_a_container",
+
+            // Phase 11 task 7: a one line preview of where a drag will land, from the pointer's horizontal position.
+            "ad.ui.drag_target.into", "ad.ui.drag_target.root",
+
+            // Phase 12 task 2: ready to upload, and costs where they are added.
+            "ad.ui.slots.chip", "ad.ui.more_page",
+            "ad.ui.synced.cost.none", "ad.ui.synced.cost.bit", "ad.ui.synced.cost.bits",
+            "ad.ui.ready", "ad.ui.ready.problems", "ad.ui.ready.problems.one", "ad.ui.ready.warnings", "ad.ui.ready.warnings.one", "ad.ui.ready.show", "ad.ui.ready.show.tip", "ad.ui.ready.tip",
+            "ad.ui.problems.arrow_closed", "ad.ui.problems.arrow_open", "ad.ui.problems.arrow.tip", "ad.ui.problems.more", "ad.ui.problems.line_count",
+            "ad.ui.write_defaults", "ad.ui.write_defaults.on", "ad.ui.write_defaults.off", "ad.ui.write_defaults.tip",
+            "ad.ui.builds.line", "ad.ui.builds.controls", "ad.ui.builds.controls.one", "ad.ui.builds.bits", "ad.ui.builds.bits.one", "ad.ui.builds.layers", "ad.ui.builds.layers.one",
+            "ad.ui.builds.contacts", "ad.ui.builds.contacts.one", "ad.ui.builds.physbones", "ad.ui.builds.physbones.one", "ad.ui.builds.constraints", "ad.ui.builds.constraints.one",
+            "ad.ui.builds.follow_distance", "ad.ui.builds.pauses_blink", "ad.ui.builds.pauses_lipsync",
+            "ad.ui.builds.blink_left_to", "ad.ui.builds.lipsync_left_to",
+            "ad.ui.part.blinking", "ad.ui.part.lipsync",
+            "ad.ui.builds.nothing.platform", "ad.ui.builds.nothing.empty", "ad.ui.builds.nothing.disabled", "ad.ui.builds.tip",
+
+            // Phase 12 task 3: a first screen that invites, a slim toolbar, visible row actions, and a tag filter.
+            "ad.ui.detail.select_hint",
+            "ad.ui.settings_fold", "ad.ui.settings_fold.tip", "ad.ui.settings_fold.dot.tip",
+            "ad.ui.toolbar.convert", "ad.ui.more", "ad.ui.more.tip",
+            "ad.ui.welcome.title", "ad.ui.welcome.toggle", "ad.ui.welcome.toggle.desc", "ad.ui.welcome.toggle.tip",
+            "ad.ui.welcome.convert.title", "ad.ui.welcome.convert", "ad.ui.welcome.convert.desc",
+            "ad.ui.welcome.convert.mixed_source", "ad.ui.welcome.convert.tip",
+            "ad.ui.welcome.outfit", "ad.ui.welcome.outfit.desc", "ad.ui.welcome.outfit.tip",
+            "ad.ui.welcome.quickstart", "ad.ui.welcome.quickstart.tip",
+            "ad.ui.row.move.tip", "ad.ui.row.duplicate.tip", "ad.ui.row.delete.tip", "ad.ui.row.convert.tip", "ad.ui.row.rename.tip",
+            "ad.ui.shortcut.delete", "ad.ui.menu.back",
+            "ad.ui.add.contact", "ad.ui.add.contact.tip", "ad.ui.toolbar.capture",
+            "ad.ui.capture_missing.tip",
+            "ad.ui.tagfilter", "ad.ui.tagfilter.count", "ad.ui.tagfilter.tip", "ad.ui.tagfilter.clear", "ad.ui.tagfilter.clear.tip",
+            "ad.ui.tagfilter.chip.remove.tip",
+            "ad.ui.tagfilter.group.kind", "ad.ui.tagfilter.group.from", "ad.ui.tagfilter.group.state", "ad.ui.tagfilter.group.platform",
+            "ad.ui.tagfilter.from.avatardoc", "ad.ui.tagfilter.from.avatar_menu", "ad.ui.tagfilter.state.has_problems",
+
+            // Phase 12 task 4: panels that grow with you, one name for one idea, and first-use tips.
+            "ad.ui.advanced_fold", "ad.ui.advanced_fold.tip", "ad.ui.advanced_fold.dot.tip",
+            "ad.ui.add_effect", "ad.ui.add_effect.tip",
+            "ad.ui.add_effect.objects", "ad.ui.add_effect.blendshapes", "ad.ui.add_effect.materials",
+            "ad.ui.add_effect.properties", "ad.ui.add_effect.animations", "ad.ui.add_effect.follows",
+            "ad.ui.tips_switch_label", "ad.ui.tips_switch", "ad.ui.tips_switch.tip", "ad.ui.tip.dismiss.tip", "ad.ui.row.more.tip",
+            "ad.tip.toggle", "ad.tip.radial", "ad.tip.submenu", "ad.tip.trigger", "ad.tip.override",
+            "ad.tip.preset", "ad.tip.grabbable", "ad.tip.animator", "ad.tip.menu_asset", "ad.tip.header",
+
+            // Phase 13 task 8: ready made contact starts.
+            "ad.ui.add.contact_starts",
+            "ad.ui.add.contact_starts.headpat", "ad.ui.add.contact_starts.headpat.tip",
+            "ad.ui.add.contact_starts.eye_touch", "ad.ui.add.contact_starts.eye_touch.tip",
+            "ad.ui.add.contact_starts.nose_boop", "ad.ui.add.contact_starts.nose_boop.tip",
+
+            // Stability pass: the console line for a menu that closed by itself, and its reasons.
+            "ad.log.menu_closed", "ad.log.menu_closed.view_gone", "ad.log.menu_closed.removed", "ad.log.menu_closed.resized",
+            "ad.log.menu_closed.undo", "ad.log.menu_closed.window_focus", "ad.log.menu_closed.focus_taken",
+            "ad.log.menu_closed.other_app", "ad.log.menu_closed.nothing", "ad.log.ids_repaired", "ad.log.plan_reused",
+
+            // Plan 13 task G: the Simple and Advanced switch.
+            "ad.ui.mode.simple", "ad.ui.mode.advanced", "ad.ui.mode.tip", "ad.ui.advanced_item.note", "ad.tip.header.simple",
+
+            // Plan 14 task S: smooth blend shape triggers and requirements.
+            "ad.ui.trigger.style", "ad.ui.trigger.style.tip", "ad.ui.trigger.style.smooth", "ad.ui.trigger.style.smooth.tip",
+            "ad.ui.trigger.style.switch", "ad.ui.trigger.style.switch.tip", "ad.ui.trigger.smooth_start", "ad.ui.trigger.smooth_start.tip",
+            "ad.ui.trigger.smooth_full", "ad.ui.trigger.smooth_full.tip", "ad.ui.trigger.switch_at", "ad.ui.trigger.switch_at.tip",
+            "ad.ui.trigger.swap_at", "ad.ui.trigger.swap_at.tip", "ad.ui.trigger.mode.add", "ad.ui.trigger.mode.replace",
+            "ad.ui.when.shape_moves", "ad.ui.when.hand_near", "ad.ui.when.add_requirement.tip", "ad.ui.when.add_and.limit_driver.tip",
+            "ad.ui.when.requirements_note", "ad.ui.preview.unchecked", "ad.ui.builds.smooth", "ad.ui.builds.switch", "ad.ui.builds.mirror",
+            "ad.summary.parameters.mirror", "ad.ui.when.ignored", "ad.ui.when.ignored.tip", "ad.ui.builds.pauses_blink_shape", "ad.ui.builds.pauses_lipsync_shape",
+        };
+
+        public static readonly Localizer Localizer = new Localizer("en-US", () => new List<(string, Func<string, string>)>
+        {
+            ("en-US", Lookup("en-US")),
+        });
+
+        /// <summary>A table's asset id: it travels with the file, so the lookup works wherever the package sits (Assets or Packages). A method, not a field, because the localizer above is built while static fields are still being set.</summary>
+        static string TableGuid(string language) => language == "en-US" ? "4765286081f70184ea750f2a579fe0eb" : null;
+
+        /// <summary>The asset path of a language's table, found by its id first and by name as a fallback; null when there is none.</summary>
+        public static string TablePath(string language)
+        {
+            var guid = TableGuid(language);
+            var path = guid != null ? AssetDatabase.GUIDToAssetPath(guid) : null;
+            if (!string.IsNullOrEmpty(path)) return path;
+            var guids = AssetDatabase.FindAssets("AvatarDoctor." + language + " t:TextAsset");
+            return guids.Length > 0 ? AssetDatabase.GUIDToAssetPath(guids[0]) : null;
+        }
+
+        static Func<string, string> Lookup(string language)
+        {
+            Dictionary<string, string> table = null;
+            var path = TablePath(language);
+            if (path != null)
+            {
+                try { table = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.GetFullPath(path))); }
+                catch (Exception e) { UnityEngine.Debug.LogWarning("[AvatarDoc] Could not read " + path + ": " + e.Message); }
+            }
+            return key => table != null && table.TryGetValue(key, out var value) ? value : null;
+        }
+
+        public static string Text(string key) => Localizer.GetLocalizedString(key);
+
+        public static void Report(ModelMessage message)
+        {
+            var severity = message.Severity == MessageSeverity.Error ? ErrorSeverity.Error
+                : message.Severity == MessageSeverity.Warning ? ErrorSeverity.NonFatal
+                : ErrorSeverity.Information;
+            ErrorReport.ReportError(Localizer, severity, message.Key, message.Args ?? Array.Empty<object>());
+        }
+
+        public static void Report(IEnumerable<ModelMessage> messages)
+        {
+            foreach (var message in messages) Report(message);
+        }
+    }
+}
+#endif
