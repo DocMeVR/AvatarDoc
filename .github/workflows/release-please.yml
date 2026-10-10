@@ -39,14 +39,15 @@ jobs:
           echo "name=$(jq -r .name package.json)" >> $GITHUB_OUTPUT
           echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
-      # The package as VCC installs it: no tests, no design notes, no repository files. It sits under
-      # Packages/<name> so the unitypackage imports into the Packages folder.
+      # Only what creators need to use the tool: no tests, design notes, changelog or repository files.
+      # The README stays because the Quick start window reads it. The package sits under Packages/<name>
+      # so the unitypackage imports into the Packages folder.
       - name: Stage The Package
         run: |
           stage="$RUNNER_TEMP/stage/Packages/${{ steps.pkg.outputs.name }}"
           mkdir -p "$stage"
-          rsync -a --exclude '.git' --exclude '.github' --exclude '.gitignore' --exclude '.gitattributes' \
-            --exclude 'Tests' --exclude 'Tests.meta' --exclude 'Docs~' ./ "$stage/"
+          rsync -a --exclude '.git*' --exclude 'Tests' --exclude 'Tests.meta' --exclude 'Docs~' \
+            --exclude '/CHANGELOG.md' --exclude '/CHANGELOG.md.meta' ./ "$stage/"
 
       - name: Create Package Zip
         run: |
