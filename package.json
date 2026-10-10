@@ -4,8 +4,22 @@
   "version": "0.2.2",
   "unity": "2022.3",
   "description": "Toggles, radials, submenus and triggers for VRChat avatars, built at upload time through NDMF.",
-  "author": { "name": "DocMe", "url": "https://github.com/DocMeVR" },
+  "author": {
+    "name": "DocMe",
+    "email": "docme2nd@gmail.com",
+    "url": "https://github.com/DocMeVR"
+  },
   "license": "MIT",
+  "documentationUrl": "https://github.com/DocMeVR/AvatarDoc#readme",
+  "changelogUrl": "https://github.com/DocMeVR/AvatarDoc/blob/main/CHANGELOG.md",
+  "keywords": [
+    "vrchat",
+    "avatar",
+    "menu",
+    "toggle",
+    "ndmf",
+    "docme"
+  ],
   "vpmDependencies": {
     "nadena.dev.ndmf": ">=1.14.1",
     "com.vrchat.avatars": ">=3.10.0"
