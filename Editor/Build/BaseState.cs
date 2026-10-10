@@ -15,9 +15,12 @@ namespace DocMe.AvatarDoctor.Editor
         readonly Dictionary<EditorCurveBinding, float> customFloats = new Dictionary<EditorCurveBinding, float>();
         readonly Dictionary<EditorCurveBinding, Object> customObjects = new Dictionary<EditorCurveBinding, Object>();
 
+        /// <summary>The tree's shape set context, so every layer of one build reads the avatar's tracked and piece driven shapes once. Null for a base state made without a tree.</summary>
+        public ShapeSetModel.HeldContext HeldContext { get; private set; }
+
         public static BaseState Capture(MenuTree tree)
         {
-            var state = new BaseState();
+            var state = new BaseState { HeldContext = tree.HeldContext };
             // An entry left out on this platform writes nothing here, so its targets are not part of the Off state.
             foreach (var control in tree.Controls)
                 if (!control.Excluded) state.CaptureEntry(control.Entry, tree.AvatarRoot);
@@ -40,15 +43,17 @@ namespace DocMe.AvatarDoctor.Editor
                 var key = (target.renderer, target.shape);
                 if (!weights.ContainsKey(key)) weights[key] = target.renderer.GetBlendShapeWeight(target.renderer.sharedMesh.GetBlendShapeIndex(target.shape));
             }
-            // The shapes a "zero others" rule forces to 0 are pinned too, and their pin hands them back to this
-            // weight. Read here, before DefaultsApplier writes a default on toggle's zeros into the scene.
+            // The shapes a rule holds are pinned too: a Default rule holds them at this weight and their pin hands
+            // them back to it. Read here, before DefaultsApplier writes a default on toggle's values into the scene.
+            // Every shape of the mesh is read, whichever of them the rule ends up holding.
             foreach (var rule in ShapeSetModel.EffectiveRules(entry))
             {
-                if (MenuModel.IsOutsideAvatar(avatarRoot, rule.mesh.transform)) continue;
-                foreach (var shape in ShapeSetModel.ZeroedShapes(entry, rule))
+                if (!rule.On || rule.mesh.sharedMesh == null || MenuModel.IsOutsideAvatar(avatarRoot, rule.mesh.transform)) continue;
+                var mesh = rule.mesh.sharedMesh;
+                for (int i = 0; i < mesh.blendShapeCount; i++)
                 {
-                    var key = (rule.mesh, shape);
-                    if (!weights.ContainsKey(key)) weights[key] = rule.mesh.GetBlendShapeWeight(rule.mesh.sharedMesh.GetBlendShapeIndex(shape));
+                    var key = (rule.mesh, mesh.GetBlendShapeName(i));
+                    if (!weights.ContainsKey(key)) weights[key] = rule.mesh.GetBlendShapeWeight(i);
                 }
             }
             foreach (var target in entry.materials)

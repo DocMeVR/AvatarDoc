@@ -184,20 +184,49 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 return holdOffLeavesOwned.Value;
             }
+            var heldContext = tree.HeldContext;
+            float SceneWeight(SkinnedMeshRenderer renderer, string shape) => scene.ShapeWeight(renderer, renderer.sharedMesh.GetBlendShapeIndex(shape));
+            // A toggle's or a Hold trigger's Pin rows and rules live in its pin layer, which the build moves above every
+            // ordinary layer while keeping the pin layers' own order (MovePinLayersLast). So they are queued here and
+            // written in tree order once the controls and the other triggers are done, before Fade and blend shape
+            // triggers, whose layers come after theirs.
+            var pinned = new List<(BlendShapeTarget target, float weight)>();
+            bool queuePinned = true;
+            void WritePinned(BlendShapeTarget target, float weight)
+            {
+                if (queuePinned) pinned.Add((target, weight));
+                else WriteShape(target, weight);
+            }
+            void FlushPinned()
+            {
+                queuePinned = false;
+                foreach (var (target, weight) in pinned) WriteShape(target, weight);
+                pinned.Clear();
+            }
             void WriteSwitch(MenuEntry entry, bool on)
             {
+                bool pinLayer = entry.kind == EntryKind.Toggle || (entry.kind == EntryKind.Trigger && !entry.HasDriver);
                 foreach (var target in entry.objects) WriteObject(target, on);
                 foreach (var target in entry.blendShapes)
                 {
                     if (!on && !EffectMath.WritesWhenOff(target)) continue;
-                    if (MenuModel.ShapeExists(target.renderer, target.shape)) WriteShape(target, EffectMath.ToggleShapeWeight(target, on, BaseWeight(target)));
+                    if (!MenuModel.ShapeExists(target.renderer, target.shape)) continue;
+                    float weight = EffectMath.ToggleShapeWeight(target, on, BaseWeight(target));
+                    if (on && pinLayer && target.mode == ShapeEffectMode.Pin) WritePinned(target, weight);
+                    else WriteShape(target, weight);
                 }
-                // A shape set rule follows the same pin semantics as a pinned row: forced to 0 while on, released
+                // A shape set rule follows the same pin semantics as a pinned row: held at its value while on (0, or
+                // the scene's own weight, which cancels whatever another previewed entry wrote there), released
                 // entirely while off, so the preview shows exactly what the build would hold.
-                if (on)
+                if (on && entry.OffersShapeSets)
                     foreach (var rule in ShapeSetModel.EffectiveRules(entry))
-                        foreach (var shape in ShapeSetModel.ZeroedShapes(entry, rule))
-                            WriteShape(new BlendShapeTarget { renderer = rule.mesh, shape = shape }, 0f);
+                        foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, heldContext))
+                        {
+                            var held = new BlendShapeTarget { renderer = rule.mesh, shape = shape };
+                            float weight = ShapeSetModel.HeldWeight(rule, SceneWeight(rule.mesh, shape));
+                            if (pinLayer) WritePinned(held, weight);
+                            else WriteShape(held, weight);
+                        }
                 foreach (var target in entry.materials) WriteMaterial(target, on);
                 if (entry.BuildsProperties)
                     foreach (var target in entry.properties)
@@ -305,6 +334,7 @@ namespace DocMe.AvatarDoctor.Editor
             // the other triggers, then Fade triggers, then blend shape triggers, each group in tree order.
             foreach (var trigger in tree.Triggers.OrderBy(t => t.Entry.source == TriggerSource.BlendShape ? 2 : t.Entry.IsFollowDistanceTrigger ? 1 : 0))
             {
+                if (queuePinned && (trigger.Entry.source == TriggerSource.BlendShape || trigger.Entry.IsFollowDistanceTrigger)) FlushPinned();
                 if (trigger.Excluded) continue;
                 var entry = trigger.Entry;
                 // A flip trigger acts on its target toggle's override, never on effects of its own.
@@ -332,6 +362,19 @@ namespace DocMe.AvatarDoctor.Editor
                         }
                         WriteShape(target, EffectMath.LinkShapeWeight(entry, target, weight, BaseWeight(target)));
                     }
+                    // A rule's shapes move like Fixed rows, from their default to the rule's value.
+                    foreach (var rule in ShapeSetModel.EffectiveRules(entry))
+                        foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, heldContext))
+                        {
+                            var held = new BlendShapeTarget { renderer = rule.mesh, shape = shape };
+                            float rest = SceneWeight(rule.mesh, shape);
+                            if (resting)
+                            {
+                                if (!ShapeWritten(held)) WriteShape(held, rest);
+                                continue;
+                            }
+                            WriteShape(held, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), EffectMath.LinkFraction(entry, weight)));
+                        }
                     foreach (var target in entry.properties)
                     {
                         if (resting)
@@ -347,6 +390,7 @@ namespace DocMe.AvatarDoctor.Editor
                     if (entry.HasDriver ? RequirementsMet(entry) : GateMet(entry)) WriteSwitch(entry, forced >= 0.5f);
                 }
             }
+            if (queuePinned) FlushPinned();
             foreach (var rule in tree.Overrides)
             {
                 if (rule.Excluded) continue;

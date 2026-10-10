@@ -494,8 +494,8 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 view.Tree.SelectEntry(entry.id);
                 var list = view.Detail.Q<TargetListView>("ad-blendshapes");
-                bool showsRule = entry.kind == EntryKind.Toggle;
-                Assert.That(list.Q<VisualElement>("ad-shape-sets") != null, Is.EqualTo(showsRule), context + ": the rule line is a toggle-only feature");
+                bool showsRule = entry.kind == EntryKind.Toggle || entry.kind == EntryKind.Trigger;
+                Assert.That(list.Q<VisualElement>("ad-shape-sets") != null, Is.EqualTo(showsRule), context + ": the rule line shows on a toggle and on a trigger with effects, nowhere else");
             }
         }
 

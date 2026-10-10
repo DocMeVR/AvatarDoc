@@ -230,6 +230,11 @@
 .ad-target-off .unity-base-field__label { min-width: auto; flex-basis: auto; margin-right: 6px; }
 .ad-target-off > .unity-base-field, .ad-target-off > .ad-property-vector { flex-grow: 1; flex-shrink: 1; min-width: 0; }
 .ad-target-off > .unity-toggle.ad-compact { flex-grow: 0; flex-shrink: 0; margin-right: 8px; }
+/* A shape set rule's switch names its mesh: it may shrink, and a long name ends in an ellipsis (the tooltip names it in full). */
+.ad-row > .unity-toggle.ad-compact.ad-shape-set-switch { flex-shrink: 1; min-width: 0; }
+.ad-row > .unity-toggle.ad-compact.ad-shape-set-switch > .unity-base-field__label { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-row > .ad-seg.ad-shape-set-value { flex-grow: 0; flex-shrink: 0; margin-right: 8px; }
+.ad-row.ad-header-wrap { flex-wrap: wrap; justify-content: flex-end; }
 .ad-target-sub-row { margin-left: 8px; }
 .ad-property-values { flex-direction: row; align-items: center; flex-grow: 1; flex-shrink: 1; flex-basis: 140px; min-width: 140px; margin-right: 4px; }
 .ad-property-vector { flex-direction: row; flex-grow: 1; }

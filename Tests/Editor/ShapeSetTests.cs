@@ -198,7 +198,7 @@ namespace DocMe.AvatarDoctor.Editor
             face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
             var rule = new ShapeSetRule { mesh = avatar.Body, zeroOthers = true };
 
-            var zeroed = ShapeSetModel.ZeroedShapes(face, rule);
+            var zeroed = ShapeSetModel.HeldShapes(face, rule, null);
 
             Assert.That(zeroed, Is.EqualTo(new List<string> { "Eye_Big" }));
         }
@@ -472,7 +472,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             Assert.That(effective.Count, Is.EqualTo(1));
             Assert.That(effective[0].zeroOthers, Is.True, "on if either raw row is on");
-            Assert.That(ShapeSetModel.ZeroedShapes(face, effective[0]).Count, Is.EqualTo(2));
+            Assert.That(ShapeSetModel.HeldShapes(face, effective[0], null).Count, Is.EqualTo(2));
         }
 
         [Test]

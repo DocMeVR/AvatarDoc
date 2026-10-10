@@ -182,6 +182,11 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>True when two entries of this avatar carry the same internal id, usually because a component was copied.</summary>
         public bool HasDuplicateIds;
 
+        ShapeSetModel.HeldContext heldContext;
+
+        /// <summary>What the shape set rules of this tree read from its avatar, read once per tree.</summary>
+        public ShapeSetModel.HeldContext HeldContext => heldContext ?? (heldContext = ShapeSetModel.ContextFor(AvatarRoot));
+
         public bool HasErrors => Messages.Any(m => m.Severity == MessageSeverity.Error);
 
         /// <summary>The control with this entry id, or null when there is none or when several entries share the id.</summary>
@@ -1086,14 +1091,15 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// A rule on anything but a toggle is an error: a radial has two ends and a trigger follows its source,
-        /// neither of which the rule's "while on" wording means anything for. A missing or outside-avatar mesh is
-        /// an error too. Several rules for one mesh count as one here, the same merge the build follows.
+        /// A rule on anything but a toggle or a trigger with effects of its own is an error: a radial has two ends,
+        /// which the rule's "while on" wording means nothing for, and a flip trigger has no effects to hold it with.
+        /// A missing or outside-avatar mesh is an error too. Several rules for one mesh count as one here, the same
+        /// merge the build follows.
         /// </summary>
         static void ValidateShapeSets(MenuTree tree, AvatarDoc component, MenuEntry entry)
         {
             if (entry.shapeSets == null || entry.shapeSets.Count == 0) return;
-            if (entry.kind != EntryKind.Toggle)
+            if (!entry.OffersShapeSets)
             {
                 tree.Messages.Add(ModelMessage.Error("ad.error.shape_set_not_a_toggle", entry.PlainName, component).For(entry.id));
                 return;
@@ -1108,7 +1114,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 // The cost regardless of the switch: a large rule the creator has turned off for now still warns,
                 // since turning it back on does not shrink the mesh.
-                int count = ShapeSetModel.CoveredShapeCount(entry, rule);
+                int count = ShapeSetModel.CoveredShapeCount(entry, rule, tree.HeldContext);
                 if (count > ShapeSetModel.LargeThreshold)
                     tree.Messages.Add(ModelMessage.Warning("ad.warn.shape_set_large", entry.PlainName, rule.mesh.name, count.ToString()).For(entry.id));
             }

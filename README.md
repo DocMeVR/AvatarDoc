@@ -62,8 +62,8 @@ Simple shows only what most avatars need:
 - **The header** keeps the status line, `Show`, `Summary` and the memory bar. The `Component settings` fold is left
   out.
 - **A toggle** shows Name, Icon, Default on and In menu, then the Objects section and the Blend shapes section (with
-  Capture, even before the toggle has a shape). Its `+ Add effect` offers those two and Properties (a material
-  value, such as a hue shift or a glow).
+  Capture and Hold the rest, even before the toggle has a shape, and the lines of any rule it has). Its
+  `+ Add effect` offers those two and Properties (a material value, such as a hue shift or a glow).
 - **A radial** shows Name, Icon, a Default slider in place of Default on, and In menu, then the Blend shapes section
   (with Capture). A radial has no Objects section, so its `+ Add effect` offers Blend shapes and Properties.
 - **A submenu** shows Name and Icon, and how many of its slots are used.
@@ -235,6 +235,51 @@ Pin mode builds each control's pinned shapes into their own FX layer with Write 
 report a mixed Write Defaults notice on an avatar that uses Pin mode purely because of that extra layer; that
 notice is expected and is not a sign the setup is broken.
 
+**Holding the rest of a mesh.** The Blend shapes section of a toggle, and of every trigger with effects of its own,
+has two buttons beside `+ Add`:
+
+- `Capture` picks a mesh and adds a row for every shape of it that is above 0 in the scene right now, at that
+  weight (in `Pin` mode, or `Fixed` on a blend shape trigger). On a toggle it also adds a rule that holds every
+  other shape of that mesh at 0; on a trigger it adds the rows alone.
+- `Hold the rest` picks a mesh and adds only the rule, holding every other shape of that mesh at its default: the
+  weight it shows in the scene when you upload. If the entry already has a rule for that mesh, it keeps the one it
+  has.
+
+Each rule has a few lines under the list:
+
+- `Everything else on <mesh>` switches the rule on or off without removing it. The `×` at its end removes the rule;
+  the rows Capture added stay.
+- `Hold at` chooses `Default` or `0`. With `Default`, every other shape stays exactly as the scene shows it, so
+  whatever else moves it on the avatar (a gesture, face tracking, another toggle) cannot change it while this is on.
+  With `0`, every other shape is cleared.
+- `Blink and visemes` shows only for a mesh the avatar descriptor blinks or speaks with. Off (the default) leaves
+  those shapes free, so blinking and lip sync keep working while the rule holds the rest. On holds them too, and
+  VRChat's own blinking or lip sync pauses while the entry is on and comes back as soon as it is off. VRChat ignores
+  such a pause for a moment after the avatar loads, so for a toggle that is on by default the pause starts about 5
+  seconds after loading. A `Pin` row on one of those shapes, such as the half closed eyes Capture takes from a
+  sleepy face, pauses blinking the same way while the entry is on, and leaves the shape to VRChat while it is off.
+- A note says how many shapes the rule holds and at what, for example "Holds 37 other shapes at their default while
+  this is on."
+
+The shapes the entry has rows for keep their rows' values, and so do the shapes a toggle's own custom animations
+move. A blend shape trigger never holds its own shape, and no rule holds a shape an AvatarDoc Shapes component
+drives (see AvatarDoc Shapes below): a piece that changes the body while it is worn keeps doing so. A toggle holds
+the rest while it is on and writes nothing for those shapes while it is off, the same as a `Pin` row.
+A trigger in its usual mode holds them while it fires. A `Fade` contact and a Smooth blend shape trigger blend them
+like any row, from their default at the start to the rule's value when fully on: with `Default` nothing visibly
+moves, the shapes are simply held; with `0` they fade out. A Switch blend shape trigger holds them while it is on. A
+radial cannot have a rule (it has two ends, not an on and an off), and neither can a `Flip` trigger, which has no
+effects of its own; both report an error.
+
+A rule adds no expression parameter and no synced bits. On a toggle or a trigger in its usual mode it adds curves
+to the layer the entry's pinned rows use; a `Fade` contact puts them in its distance layer and a blend shape
+trigger in its own shape layer. A rule above 150 shapes gets a warning, since every one of them is written each
+time it turns on. The scene preview
+and the wheel's test mode show the held shapes while the entry is previewed on, and the summary lists each rule with
+its mesh, its count and what it holds at. Rules made before `Default` existed keep holding at 0, and now leave the
+blink and viseme shapes free as well; before, a rule on the face mesh held those too, which stopped blinking and lip
+sync altogether.
+
 A `Fixed` blend shape or material property row on a toggle (not a radial, and not while the shape is pinned) also
 has a `Set a value when off` switch. Off, the row behaves as described above: the shape or property returns to
 whatever the scene had when the entry was made. On, an `Off value` field appears and AvatarDoc writes that value
@@ -356,6 +401,10 @@ has: a renderer, a shader property and the value to use. A `Flip` trigger has no
   avatar's Write Defaults: this layer is always built with Write Defaults off.
 - **Blend shape**: the property blends with the shape, from its rest value at `Starts at` to the row's value at
   `Fully on at` (or switches at `Switch at` in the Switch style), and rests the same way a Fade trigger's does.
+
+**Holding the rest of a mesh** works on every trigger with effects of its own, the same way it does on a toggle
+(see Toggles, radials and groups above): a Hold trigger holds the rest while it fires, a `Fade` contact and a blend
+shape trigger blend it in with their other effects.
 
 `+ And`, `+ Or` and `Only while` work the same with property rows as with any other effect. The scene preview shows
 a trigger's property rows when you press `On` or `Off` on it. With `Off`, a property one of your toggles also sets

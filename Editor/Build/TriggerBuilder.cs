@@ -59,6 +59,7 @@ namespace DocMe.AvatarDoctor.Editor
                     Entry = plan.Entry,
                     Enter = enter.Select(list => ImmutableList.CreateRange(list)).ToList(),
                     Leave = leave.Select(list => ImmutableList.CreateRange(list)).ToList(),
+                    PauseFlag = plan.PauseFlag,
                 };
                 AnimatorBuilder.BuildPinLayer(asc, fx, name, new[] { member }, baseState, tree.AvatarRoot, pinLayerNames: pinLayerNames, pinState: pinState);
             }

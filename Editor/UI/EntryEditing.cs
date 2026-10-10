@@ -435,8 +435,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// radial's two ends) instead of the plain weight field; mode, when given, is written onto every row this
         /// call touches (Pin for a toggle or a trigger condition, Fixed for a blend shape link); left null a row's
         /// mode is untouched (a radial's ends carry none, an override pins by kind regardless of it). withRule adds
-        /// or turns on the entry's rule for the mesh, which only a toggle offers. Returns how many shapes were
-        /// captured, 0 when refused or the mesh has none above 0, in which case nothing else here runs.
+        /// the entry's rule for the mesh at 0, or turns on the one it has, leaving that one's value as it is; only a
+        /// toggle's Capture asks for it. Returns how many shapes were captured, 0 when refused or the mesh has none
+        /// above 0, in which case nothing else here runs.
         /// </summary>
         public static int CaptureShapeSet(AvatarDoc menu, MenuEntry entry, SkinnedMeshRenderer mesh, bool intoUpperEnd = false, ShapeEffectMode? mode = ShapeEffectMode.Pin, bool withRule = true)
         {
@@ -468,7 +469,46 @@ namespace DocMe.AvatarDoctor.Editor
             return captured.Count;
         }
 
-        /// <summary>Switches whether a rule really zeroes the mesh's other shapes. The captured rows are left alone either way.</summary>
+        /// <summary>
+        /// Adds a rule that holds every other shape of mesh at its default while the entry is on, with the shapes
+        /// VRChat blinks and speaks with left free. A rule the entry already has for that mesh is kept as it is and
+        /// nothing is added. One Undo step.
+        /// </summary>
+        public static bool AddHoldRule(AvatarDoc menu, MenuEntry entry, SkinnedMeshRenderer mesh)
+        {
+            if (Refuses(menu) || entry == null || mesh == null || !entry.OffersShapeSets) return false;
+            if (entry.shapeSets.Any(r => r != null && r.mesh == mesh)) return false;
+            Undo.RecordObject(menu, "Hold the rest");
+            entry.shapeSets.Add(new ShapeSetRule { mesh = mesh, zeroOthers = true, value = ShapeSetValue.Default, holdTracked = false });
+            MarkChanged(menu);
+            return true;
+        }
+
+        /// <summary>Chooses what a rule holds the mesh's other shapes at: their default or 0.</summary>
+        public static bool SetShapeSetValue(AvatarDoc menu, MenuEntry entry, int ruleIndex, ShapeSetValue value)
+        {
+            if (Refuses(menu) || entry == null || ruleIndex < 0 || ruleIndex >= entry.shapeSets.Count) return false;
+            var rule = entry.shapeSets[ruleIndex];
+            if (rule == null || rule.value == value) return false;
+            Undo.RecordObject(menu, "Change shape set");
+            rule.value = value;
+            MarkChanged(menu);
+            return true;
+        }
+
+        /// <summary>Chooses whether a rule holds the shapes the avatar descriptor blinks and speaks with too.</summary>
+        public static bool SetShapeSetHoldTracked(AvatarDoc menu, MenuEntry entry, int ruleIndex, bool value)
+        {
+            if (Refuses(menu) || entry == null || ruleIndex < 0 || ruleIndex >= entry.shapeSets.Count) return false;
+            var rule = entry.shapeSets[ruleIndex];
+            if (rule == null || rule.holdTracked == value) return false;
+            Undo.RecordObject(menu, "Change shape set");
+            rule.holdTracked = value;
+            MarkChanged(menu);
+            return true;
+        }
+
+        /// <summary>Switches a rule on or off. The captured rows are left alone either way.</summary>
         public static bool SetShapeSetZeroOthers(AvatarDoc menu, MenuEntry entry, int ruleIndex, bool value)
         {
             if (Refuses(menu) || entry == null || ruleIndex < 0 || ruleIndex >= entry.shapeSets.Count) return false;

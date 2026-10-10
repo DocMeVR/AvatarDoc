@@ -110,13 +110,18 @@ namespace DocMe.AvatarDoctor.Editor
                 };
             }
 
-            // Floats only the animator reads, never synced: a blend shape trigger's hidden copy of its shape and a
-            // driven layer's pause flag.
+            // Floats only the animator reads, never synced: a blend shape trigger's hidden copy of its shape, and the
+            // pause flag of a driven layer or of a toggle or trigger whose rule holds a shape VRChat tracks.
             foreach (var node in tree.Triggers)
             {
                 if (node.Component != component || node.Excluded) continue;
                 if (touch.ShapeMirrors.TryGetValue(node.Entry.id, out var mirror)) yield return AnimatorOnlyFloat(mirror);
                 if (touch.PauseFlags.TryGetValue(node.Entry.id, out var pause)) yield return AnimatorOnlyFloat(pause.Parameter);
+            }
+            foreach (var control in tree.Controls)
+            {
+                if (control.Component != component || control.Excluded) continue;
+                if (touch.PauseFlags.TryGetValue(control.Entry.id, out var pause)) yield return AnimatorOnlyFloat(pause.Parameter);
             }
         }
 

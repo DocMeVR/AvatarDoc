@@ -24,7 +24,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// earlier call in the same build made) and across the later one in Optimizing, where the virtual layer
         /// objects are freshly rebuilt from the committed controller and only the recorded names survive.
         /// </summary>
-        public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, ParameterPlan plan, BaseState baseState, ICollection<string> pinLayerNames = null, FollowPlan followPlan = null, PinLayerState pinState = null)
+        /// <param name="touch">Where the pause flag of a toggle whose rule holds a shape VRChat blinks or speaks with is named (TouchParameters.PauseFlags). Null builds no flag.</param>
+        public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, ParameterPlan plan, BaseState baseState, ICollection<string> pinLayerNames = null, FollowPlan followPlan = null, PinLayerState pinState = null, TouchBuilder.TouchParameters touch = null)
         {
             var messages = new List<ModelMessage>();
             if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null)
@@ -46,7 +47,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (!plan.Bindings.TryGetValue(control, out var binding)) continue;
                 if (binding.Parameter.GroupName != null)
                 {
-                    if (builtGroups.Add(binding.Parameter.GroupName)) BuildGroupLayer(asc, fx, writeDefaults, binding.Parameter, plan, baseState, tree.AvatarRoot, messages, pinLayerNames, pinState);
+                    if (builtGroups.Add(binding.Parameter.GroupName)) BuildGroupLayer(asc, fx, writeDefaults, binding.Parameter, plan, baseState, tree.AvatarRoot, messages, pinLayerNames, pinState, touch);
                     continue;
                 }
                 // A parameter control drives its parameter and nothing else: whatever reads it, usually a merged
@@ -54,7 +55,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (control.Entry.IsParameterControl) continue;
                 if (!control.Entry.HasEffects) continue;
                 if (control.Entry.kind == EntryKind.Radial) BuildRadialLayer(asc, fx, writeDefaults, control, binding, tree.AvatarRoot, messages);
-                else BuildToggleLayer(asc, fx, writeDefaults, control, binding, baseState, tree.AvatarRoot, messages, pinLayerNames, followPlan, pinState);
+                else BuildToggleLayer(asc, fx, writeDefaults, control, binding, baseState, tree.AvatarRoot, messages, pinLayerNames, followPlan, pinState, touch);
             }
             return messages;
         }
@@ -491,7 +492,7 @@ namespace DocMe.AvatarDoctor.Editor
             return transition;
         }
 
-        static void BuildToggleLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, bool writeDefaults, ControlNode control, ControlBinding binding, BaseState baseState, Transform avatarRoot, List<ModelMessage> messages, ICollection<string> pinLayerNames, FollowPlan followPlan = null, PinLayerState pinState = null)
+        static void BuildToggleLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, bool writeDefaults, ControlNode control, ControlBinding binding, BaseState baseState, Transform avatarRoot, List<ModelMessage> messages, ICollection<string> pinLayerNames, FollowPlan followPlan = null, PinLayerState pinState = null, TouchBuilder.TouchParameters touch = null)
         {
             var offContent = new ClipContent(avatarRoot);
             offContent.WriteToggle(control.Entry, false, baseState, ShapeSet.MainOnly, followPlan);
@@ -521,9 +522,15 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             if (control.Entry.HasPins)
-                BuildPinLayer(asc, fx, name, new[] { PinMember.Of("On", control.Entry, Conditions(binding.Parameter, binding.Value, true), Conditions(binding.Parameter, binding.Value, false)) }, baseState, avatarRoot,
-                    defaultOn: binding.OnByDefault, pinLayerNames: pinLayerNames, pinState: pinState);
+            {
+                var member = PinMember.Of("On", control.Entry, Conditions(binding.Parameter, binding.Value, true), Conditions(binding.Parameter, binding.Value, false));
+                member.PauseFlag = PauseFlagOf(touch, control.Entry);
+                BuildPinLayer(asc, fx, name, new[] { member }, baseState, avatarRoot, defaultOn: binding.OnByDefault, pinLayerNames: pinLayerNames, pinState: pinState);
+            }
         }
+
+        static TouchBuilder.PauseFlag PauseFlagOf(TouchBuilder.TouchParameters touch, MenuEntry entry)
+            => touch != null && touch.PauseFlags.TryGetValue(entry.id, out var flag) ? flag : null;
 
         /// <summary>One state of a pin layer: the control whose pins it writes, and the conditions that enter and leave it.</summary>
         internal sealed class PinMember
@@ -532,6 +539,8 @@ namespace DocMe.AvatarDoctor.Editor
             public MenuEntry Entry;
             public IReadOnlyList<ImmutableList<AnimatorCondition>> Enter = new List<ImmutableList<AnimatorCondition>>();
             public IReadOnlyList<ImmutableList<AnimatorCondition>> Leave = new List<ImmutableList<AnimatorCondition>>();
+            /// <summary>Written 1 in this member's state and 0 in every other state of the layer, for the shared blink and lip sync pause layers: set when a rule of the entry holds a shape VRChat blinks or speaks with.</summary>
+            public TouchBuilder.PauseFlag PauseFlag;
 
             public static PinMember Of(string stateName, MenuEntry entry, ImmutableList<AnimatorCondition> enter, ImmutableList<AnimatorCondition> leave)
             {
@@ -564,10 +573,24 @@ namespace DocMe.AvatarDoctor.Editor
             // what sits below it, and until this a face tracking layer merged after AvatarDoc took the shape back.
             var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
             var sm = layer.StateMachine;
-            var off = sm.AddState("Off", new ClipContent(avatarRoot).ToClip(asc, name + " Off"), new Vector3(0f, 0f, 0f));
+
+            // A member's pause flag is 1 in its own state and 0 everywhere else in the layer, Off included: an
+            // exclusive group's layer moves straight from one member to another, never through Off.
+            var flags = members.Select(m => m.PauseFlag).Where(f => f != null).Distinct().ToList();
+            foreach (var flag in flags)
+            {
+                EnsureParameter(fx, flag.Parameter, PlannedType.Float, 0f);
+                pinState?.PauseFlags.Add(flag);
+            }
+            var offContent = new ClipContent(avatarRoot);
+            foreach (var flag in flags) offContent.SetAnimatorParameter(flag.Parameter, 0f);
+            var off = sm.AddState("Off", offContent.ToClip(asc, name + " Off"), new Vector3(0f, 0f, 0f));
             off.WriteDefaultValues = false;
             sm.DefaultState = off;
 
+            // A shape VRChat blinks or speaks with, held by a Pin row or a rule, is never handed back to rest: while
+            // the entry is off, VRChat's own blinking or lip sync owns it.
+            var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(avatarRoot);
             var states = new List<VirtualState>();
             foreach (var member in members)
             {
@@ -575,7 +598,11 @@ namespace DocMe.AvatarDoctor.Editor
                 content.WriteToggle(member.Entry, true, baseState, ShapeSet.PinsOnly);
                 if (pinState != null)
                     foreach (var (renderer, shape, _) in content.ShapeWrites())
+                    {
+                        if (heldContext.IsTracked(renderer, shape)) continue;
                         pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
+                    }
+                foreach (var flag in flags) content.SetAnimatorParameter(flag.Parameter, flag == member.PauseFlag ? 1f : 0f);
                 var state = sm.AddState(member.StateName, content.ToClip(asc, name + " " + member.StateName), new Vector3(0f, 120f * (states.Count + 1), 0f));
                 state.WriteDefaultValues = false;
                 states.Add(state);
@@ -602,7 +629,7 @@ namespace DocMe.AvatarDoctor.Editor
             off.Transitions = offTransitions.ToImmutable();
         }
 
-        static void BuildGroupLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, bool writeDefaults, PlannedParameter group, ParameterPlan plan, BaseState baseState, Transform avatarRoot, List<ModelMessage> messages, ICollection<string> pinLayerNames, PinLayerState pinState = null)
+        static void BuildGroupLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, bool writeDefaults, PlannedParameter group, ParameterPlan plan, BaseState baseState, Transform avatarRoot, List<ModelMessage> messages, ICollection<string> pinLayerNames, PinLayerState pinState = null, TouchBuilder.TouchParameters touch = null)
         {
             var name = UniqueLayerName(fx, "AD: " + group.GroupName);
             var layer = fx.AddLayer(LayerPriority.Default, name);
@@ -661,6 +688,7 @@ namespace DocMe.AvatarDoctor.Editor
                     StateName = member.Entry.PlainName,
                     Entry = member.Entry,
                     Enter = new[] { Conditions(group, plan.Bindings[member].Value, true) },
+                    PauseFlag = PauseFlagOf(touch, member.Entry),
                 }).ToList(), baseState, avatarRoot, NoMemberSelected(group, plan, pinned), pinLayerNames: pinLayerNames, pinState: pinState);
         }
 

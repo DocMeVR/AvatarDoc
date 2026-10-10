@@ -46,7 +46,7 @@ namespace DocMe.AvatarDoctor.Editor
         public float SmoothFull = 100f;
         /// <summary>The hidden Float parameter that copies the source shape's weight, in the same 0 to 100 units, from every FX clip that moves it. Never an expression parameter.</summary>
         public string MirrorParameter = "";
-        /// <summary>A blend shape trigger's pause flag, when its effects move a shape VRChat blinks or speaks with. Null otherwise.</summary>
+        /// <summary>The trigger's pause flag: a blend shape trigger's when its effects or a rule move a shape VRChat blinks or speaks with, a Hold trigger's when a rule holds one. Null otherwise.</summary>
         public TouchBuilder.PauseFlag PauseFlag;
         public MenuEntry Entry => Node.Entry;
         public AvatarDoc Component => Node.Component;
@@ -118,6 +118,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             if (!Resolve(tree, plan, node, existing, touch, messages, out var conditions, out var met)) return null;
             var result = new TriggerPlan { Node = node, Kind = TriggerKind.Condition, Conditions = conditions };
+            if (touch != null && touch.PauseFlags.TryGetValue(node.Entry.id, out var pause)) result.PauseFlag = pause;
             result.Gate = BuildGate(tree, plan, node.Entry);
             var gate = AndGate(Enumerable.Empty<AnimatorCondition>(), result.Gate);
             if (LeaveTooComplex(node, met, gate, messages)) return null;

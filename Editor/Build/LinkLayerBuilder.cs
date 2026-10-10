@@ -29,7 +29,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>How far below the threshold the switch sits, so a shape exactly at the threshold counts as above it, as EffectMath.LinkAbove has it.</summary>
         const float SwitchMargin = 0.001f;
 
-        /// <summary>The rows of one trigger the layer can build: those whose target is on the avatar, without a row that names the trigger's own shape.</summary>
+        /// <summary>The rows of one trigger the layer can build: those whose target is on the avatar, without a row that names the trigger's own shape, and every shape its rules hold.</summary>
         sealed class Effects
         {
             public readonly List<BlendShapeTarget> Fixed = new List<BlendShapeTarget>();
@@ -37,9 +37,15 @@ namespace DocMe.AvatarDoctor.Editor
             public readonly List<ObjectTarget> Objects = new List<ObjectTarget>();
             public readonly List<MaterialTarget> Materials = new List<MaterialTarget>();
             public readonly List<MaterialPropertyTarget> Properties = new List<MaterialPropertyTarget>();
+            /// <summary>Each shape a rule holds, with its rule: it goes from its default to the rule's value the way a Fixed row goes to its weight.</summary>
+            public readonly List<(SkinnedMeshRenderer renderer, string shape, ShapeSetRule rule)> Held = new List<(SkinnedMeshRenderer, string, ShapeSetRule)>();
 
-            public Effects(MenuEntry entry, Transform avatarRoot)
+            public Effects(MenuEntry entry, Transform avatarRoot, ShapeSetModel.HeldContext context)
             {
+                foreach (var rule in ShapeSetModel.EffectiveRules(entry))
+                    if (!MenuModel.IsOutsideAvatar(avatarRoot, rule.mesh.transform))
+                        foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, context))
+                            Held.Add((rule.mesh, shape, rule));
                 foreach (var target in entry.objects)
                     if (target.target != null && !MenuModel.IsOutsideAvatar(avatarRoot, target.target.transform)) Objects.Add(target);
                 foreach (var target in entry.blendShapes)
@@ -55,11 +61,11 @@ namespace DocMe.AvatarDoctor.Editor
                     if (MenuModel.PropertyExists(target, entry) && !MenuModel.IsOutsideAvatar(avatarRoot, target.renderer.transform)) Properties.Add(target);
             }
 
-            public bool IsEmpty => Fixed.Count + Follow.Count + Objects.Count + Materials.Count + Properties.Count == 0;
+            public bool IsEmpty => Fixed.Count + Follow.Count + Objects.Count + Materials.Count + Properties.Count + Held.Count == 0;
             /// <summary>Objects and material slots: they cannot blend, so they switch.</summary>
             public bool Swapped => Objects.Count > 0 || Materials.Count > 0;
             /// <summary>Shapes and properties that go from rest to their value: blended in Smooth, switched in Switch.</summary>
-            public bool Ranged => Fixed.Count > 0 || Properties.Count > 0;
+            public bool Ranged => Fixed.Count > 0 || Properties.Count > 0 || Held.Count > 0;
         }
 
         public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, IReadOnlyList<TriggerPlan> plans, BaseState baseState, VRCAvatarDescriptor descriptor, ICollection<string> pinLayerNames, PinLayerState pinState)
@@ -70,7 +76,7 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var plan in plans)
             {
                 if (plan.Kind != TriggerKind.Link) continue;
-                var effects = new Effects(plan.Entry, tree.AvatarRoot);
+                var effects = new Effects(plan.Entry, tree.AvatarRoot, baseState.HeldContext ?? ShapeSetModel.ContextFor(tree.AvatarRoot));
                 if (effects.IsEmpty)
                 {
                     // Nothing to build, so nothing replaces the shape: the final pass keeps its curves and says so.
@@ -132,6 +138,11 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var row in effects.Objects) content.SetActive(row.target, EffectMath.ObjectActive(row, swappedOn));
                 foreach (var row in effects.Fixed) content.SetShape(row.renderer, row.shape, Mathf.Lerp(baseState.WeightOf(row.renderer, row.shape), row.weight, fraction));
                 foreach (var row in effects.Follow) content.SetShape(row.renderer, row.shape, EffectMath.FollowWeight(x, row.multiplier));
+                foreach (var (renderer, shape, rule) in effects.Held)
+                {
+                    float rest = baseState.WeightOf(renderer, shape);
+                    content.SetShape(renderer, shape, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction));
+                }
                 foreach (var row in effects.Materials) content.SetMaterial(row.renderer, row.slot, EffectMath.ToggleMaterial(row, swappedOn, baseState.MaterialOf(row.renderer, row.slot)));
                 foreach (var row in effects.Properties)
                 {
@@ -181,11 +192,11 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 foreach (var (renderer, property, value) in restContent.TakePropertyWrites())
                     pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
-                foreach (var row in effects.Fixed.Concat(effects.Follow))
+                foreach (var (renderer, shape) in effects.Fixed.Concat(effects.Follow).Select(row => (row.renderer, row.shape)).Concat(effects.Held.Select(h => (h.renderer, h.shape))))
                 {
-                    var key = (row.renderer, row.shape);
+                    var key = (renderer, shape);
                     if (eyelids.Contains(key) || mouth.Contains(key)) continue;
-                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = row.renderer, Shape = row.shape, RestValue = baseState.WeightOf(row.renderer, row.shape) });
+                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
                 }
                 pinState.ShapeMirrors.Add(new PinLayerState.ShapeMirror { Entry = entry, Renderer = plan.SourceRenderer, Shape = plan.SourceShape, Parameter = mirror, Replace = plan.Replace });
             }

@@ -904,8 +904,10 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(errors, Is.Empty);
             var layer = Layer(fx, "AD: Blink pause");
             var idle = State(layer, "Idle");
-            Assert.That(layer.stateMachine.defaultState, Is.SameAs(idle));
-            Assert.That(idle.behaviours, Is.Empty, "the default state changes nothing at load");
+            var load = State(layer, "Load");
+            Assert.That(layer.stateMachine.defaultState, Is.SameAs(load));
+            Assert.That(load.behaviours, Is.Empty, "the default state changes nothing at load");
+            Assert.That(idle.behaviours, Is.Empty, "and neither does Idle, where it goes next");
         }
 
         [Test]

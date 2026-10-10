@@ -394,6 +394,102 @@ namespace DocMe.AvatarDoctor.Editor
             }, 800f, 900f);
         }
 
+        /// <summary>Whether a text element shows its whole text: its content box is at least as wide as the text measures.</summary>
+        static void AssertTextFits(TextElement element, string what)
+        {
+            var size = element.MeasureTextSize(element.text, 0f, VisualElement.MeasureMode.Undefined, 0f, VisualElement.MeasureMode.Undefined);
+            Assert.That(element.contentRect.width, Is.GreaterThanOrEqualTo(size.x - 0.5f),
+                what + " \"" + element.text + "\" is cut short: " + element.contentRect.width.ToString("0.0") + " wide for text that measures " + size.x.ToString("0.0"));
+        }
+
+        /// <summary>
+        /// Plan 15 task R: the Hold the rest button beside Capture and the rule lines under a toggle's and a trigger's
+        /// blend shapes, at both ends of the default inspector width (360 and 300 px): the switch named for its mesh,
+        /// the Default or 0 choice, the blink and viseme switch and the count note, with nothing clipped or cut short.
+        /// A long mesh name may end in an ellipsis; its switch's tooltip then names it in full.
+        /// </summary>
+        [Test]
+        public void ShapeSetRuleLinesFitAndAlign()
+        {
+            var menu = avatar.AddMenu();
+            avatar.AddBodyShapes("Smile", "Blink");
+            avatar.Descriptor.enableEyeLook = true;
+            avatar.Descriptor.customEyeLookSettings.eyelidType = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor.EyelidType.Blendshapes;
+            avatar.Descriptor.customEyeLookSettings.eyelidsSkinnedMesh = avatar.Body;
+            avatar.Descriptor.customEyeLookSettings.eyelidsBlendshapes = new[] { avatar.Mesh.GetBlendShapeIndex("Blink"), -1, -1 };
+            const string longName = "Body_Outfit_Winter_Coat_With_A_Very_Long_Mesh_Name";
+            var longGo = new GameObject(longName);
+            longGo.transform.SetParent(avatar.Root.transform);
+            var longMesh = longGo.AddComponent<SkinnedMeshRenderer>();
+            longMesh.sharedMesh = TestAvatar.QuadWithShapes("Shrink", "Hide");
+
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            face.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Default });
+            face.shapeSets.Add(new ShapeSetRule { mesh = longMesh, zeroOthers = true, value = ShapeSetValue.Zero });
+            var hat = menu.AddEntry(EntryKind.Toggle, "Hat");
+            hat.objects.Add(new ObjectTarget { target = avatar.Hat });
+            var pout = TriggerOn(menu, "Pout");
+            pout.source = TriggerSource.Toggle;
+            pout.sourceToggleId = hat.id;
+            pout.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            pout.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Zero, holdTracked = true });
+
+            var allow = StandardAllowList();
+            try
+            {
+                foreach (var width in new[] { 360f, 300f })
+                {
+                    var view = View(menu);
+                    LayoutProbe.Measure(view, () =>
+                    {
+                        foreach (var entry in new[] { face, pout })
+                        {
+                            view.Tree.SelectEntry(entry.id);
+                            LayoutProbe.Validate(view);
+                            PanelAudit.Audit(view.Detail, view.Detail.worldBound.xMax, allow);
+
+                            var list = view.Detail.Q<TargetListView>("ad-blendshapes");
+                            foreach (var name in new[] { "ad-shape-set-capture", "ad-shape-set-hold" })
+                            {
+                                var button = list.Q<Button>(name);
+                                Assert.That(button.worldBound.width, Is.GreaterThan(0f), entry.name + ": " + name + " shows");
+                                AssertTextFits(button, entry.name + ": " + name);
+                            }
+
+                            var rows = list.Query<VisualElement>("ad-shape-set-row").ToList();
+                            Assert.That(rows.Count, Is.EqualTo(entry.shapeSets.Count), entry.name + ": one line per rule");
+                            for (int i = 0; i < rows.Count; i++)
+                            {
+                                var row = rows[i];
+                                var rule = entry.shapeSets[i];
+                                var on = row.Q<Toggle>("zero-others");
+                                Assert.That(on.tooltip, Does.Contain(rule.mesh.name), "the switch's tooltip names the mesh in full");
+                                if (rule.mesh != longMesh) AssertTextFits(on.labelElement, entry.name + ": the switch");
+                                else Assert.That(on.labelElement.worldBound.xMax, Is.LessThanOrEqualTo(row.Q<Button>("remove").worldBound.xMin + 0.5f), "a long mesh name stops short of the remove button");
+                                var value = row.Q<SegmentedChoice>("ad-shape-set-value");
+                                foreach (var item in value.Items) AssertTextFits(item, entry.name + ": the Default or 0 choice");
+                                var tracked = row.Q<Toggle>("hold-tracked");
+                                Assert.That(tracked != null, Is.EqualTo(rule.mesh == avatar.Body), entry.name + ": the blink and viseme switch shows for the mesh the descriptor blinks with");
+                                if (tracked != null)
+                                {
+                                    AssertTextFits(tracked.labelElement, entry.name + ": the blink and viseme switch");
+                                    Assert.That(tracked.worldBound.xMax, Is.LessThanOrEqualTo(view.Detail.worldBound.xMax + 0.5f));
+                                }
+                                var note = row.Q<Label>("ad-shape-set-note");
+                                Assert.That(note.worldBound.height, Is.GreaterThan(0f), entry.name + ": the count note shows");
+                                Assert.That(note.resolvedStyle.whiteSpace, Is.EqualTo(WhiteSpace.Normal), "the note wraps rather than being cut");
+                            }
+                        }
+                    }, width);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(longMesh.sharedMesh);
+            }
+        }
+
         [Test]
         public void AdvancedFoldFitsAndAligns()
         {

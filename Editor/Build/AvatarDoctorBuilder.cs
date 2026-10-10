@@ -89,7 +89,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var pins = context.GetState<PinLayerState>();
                 // Taken before any layer of ours is added, so the merged layers follow what the avatar already did.
                 bool writeDefaults = fx == null || AnimatorBuilder.DecideWriteDefaults(fx, pins.Names);
-                var animatorMessages = AnimatorBuilder.Build(asc, tree, plan, baseState, pins.Names, followPlan, pins);
+                var animatorMessages = AnimatorBuilder.Build(asc, tree, plan, baseState, pins.Names, followPlan, pins, touch);
                 L.Report(animatorMessages);
                 if (!animatorMessages.Any(m => m.Severity == MessageSeverity.Error))
                 {

@@ -167,13 +167,9 @@ namespace DocMe.AvatarDoctor.Editor
                 if (MenuModel.ShapeExists(target.renderer, target.shape) && !Outside(target.renderer.transform))
                     SetShape(target.renderer, target.shape, EffectMath.ToggleShapeWeight(target, on, baseState.WeightOf(target.renderer, target.shape)));
             }
-            // A shape set rule lives in the same pin state the pinned rows use: forced to 0 while on, nothing at
-            // all while off, so it holds over whatever else animates that mesh only while the control is on.
-            if (on && shapes != ShapeSet.MainOnly)
-                foreach (var rule in ShapeSetModel.EffectiveRules(entry))
-                    if (!Outside(rule.mesh.transform))
-                        foreach (var shape in ShapeSetModel.ZeroedShapes(entry, rule))
-                            SetShape(rule.mesh, shape, 0f);
+            // A shape set rule lives in the same pin state the pinned rows use: held at its value while on, nothing
+            // at all while off, so it holds over whatever else animates that mesh only while the control is on.
+            if (on && shapes != ShapeSet.MainOnly) WriteShapeSets(entry, baseState, atRuleValue: true);
             if (shapes != ShapeSet.PinsOnly)
                 foreach (var target in entry.materials)
                     if (MenuModel.SlotExists(target) && !Outside(target.renderer.transform))
@@ -183,6 +179,26 @@ namespace DocMe.AvatarDoctor.Editor
                     if (MenuModel.PropertyExists(target, entry) && !Outside(target.renderer.transform))
                         SetProperty(target.renderer, target.property, target.type,
                             EffectMath.PropertyValue(target, on, baseState.PropertyOf(target.renderer, target.property, target.type)));
+        }
+
+        /// <summary>
+        /// Every shape the entry's rules hold, at the rule's value (0, or the shape's default) or, with atRuleValue
+        /// false, at its default: the rest a blend starts from. The default is the base state's weight, the same
+        /// value every Off state rests the shape at, so a held shape and an Off state never disagree.
+        /// </summary>
+        public void WriteShapeSets(MenuEntry entry, BaseState baseState, bool atRuleValue)
+        {
+            if (entry.shapeSets.Count == 0) return;
+            var context = HeldContextOf(baseState);
+            foreach (var rule in ShapeSetModel.EffectiveRules(entry))
+            {
+                if (Outside(rule.mesh.transform)) continue;
+                foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, context))
+                {
+                    float rest = baseState.WeightOf(rule.mesh, shape);
+                    SetShape(rule.mesh, shape, atRuleValue ? ShapeSetModel.HeldWeight(rule, rest) : rest);
+                }
+            }
         }
 
         /// <summary>
@@ -360,7 +376,22 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var target in entry.materials)
                 if (MenuModel.SlotExists(target) && !Outside(target.renderer.transform))
                     SetMaterial(target.renderer, target.slot, EffectMath.ToggleMaterial(target, above, baseState.MaterialOf(target.renderer, target.slot)));
+            // A rule's shapes go from their default to the rule's value the way a Fixed row goes to its weight.
+            if (entry.shapeSets.Count == 0) return;
+            var context = HeldContextOf(baseState);
+            float fraction = EffectMath.LinkFraction(entry, sourceWeight);
+            foreach (var rule in ShapeSetModel.EffectiveRules(entry))
+            {
+                if (Outside(rule.mesh.transform)) continue;
+                foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, context))
+                {
+                    float rest = baseState.WeightOf(rule.mesh, shape);
+                    SetShape(rule.mesh, shape, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction));
+                }
+            }
         }
+
+        ShapeSetModel.HeldContext HeldContextOf(BaseState baseState) => baseState?.HeldContext ?? ShapeSetModel.ContextFor(avatarRoot);
 
         public void ApplyToScene()
         {

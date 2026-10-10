@@ -153,7 +153,7 @@ namespace DocMe.AvatarDoctor
         public List<AnimationTarget> animations = new List<AnimationTarget>();
         /// <summary>While this entry is on (a toggle) or met (a trigger), each target follows its transform instead of hanging where it belongs. Toggles and triggers only.</summary>
         public List<FollowTarget> follows = new List<FollowTarget>();
-        /// <summary>Captured meshes: while a toggle is on, every shape of each mesh this entry does not name is forced to 0. Toggles only.</summary>
+        /// <summary>Meshes whose other shapes this entry holds, at 0 or at their default, while it is on. Toggles and triggers with effects of their own only (<see cref="OffersShapeSets"/>).</summary>
         public List<ShapeSetRule> shapeSets = new List<ShapeSetRule>();
 
         // Grabbable (phase 11): the whole "hold this in a hand" arrangement in one entry.
@@ -367,8 +367,11 @@ namespace DocMe.AvatarDoctor
             }
         }
 
-        /// <summary>A rule that really forces something to 0: it has a mesh and is switched on. An inert placeholder (zeroOthers off) counts nowhere.</summary>
-        bool HasActiveShapeSetRule => shapeSets.Any(r => r != null && r.mesh != null && r.zeroOthers);
+        /// <summary>A rule that really holds something: it has a mesh and is switched on. An inert placeholder (switched off) counts nowhere.</summary>
+        bool HasActiveShapeSetRule => shapeSets.Any(r => r != null && r.mesh != null && r.On);
+
+        /// <summary>Whether this entry can hold the rest of a mesh (a shape set rule): a toggle, or a trigger with effects of its own. A radial has two ends, and a flip trigger has no effects. The model, the build and the panel all ask here.</summary>
+        public bool OffersShapeSets => kind == EntryKind.Toggle || (kind == EntryKind.Trigger && !IsFlipTrigger);
 
         /// <summary>True when a blend shape target is held only while the control is on, or an active shape set rule does, either of which needs a pin layer of its own.</summary>
         public bool HasPins => blendShapes.Any(t => t.mode == ShapeEffectMode.Pin) || HasActiveShapeSetRule;

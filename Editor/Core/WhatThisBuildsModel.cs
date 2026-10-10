@@ -62,11 +62,14 @@ namespace DocMe.AvatarDoctor.Editor
                 if (entry.IsFollowDistanceTrigger)
                     parts.Add(string.Format(L.Text("ad.ui.builds.follow_distance"), Mathf.RoundToInt(entry.EffectiveContactFullAt * 100f)));
                 // A Fade contact or a blend shape trigger that moves a shape VRChat blinks or speaks with pauses that
-                // part of tracking while its effects move, through the shared pause layers.
-                if (entry.HasDriver)
+                // part of tracking while its effects move, through the shared pause layers; a toggle or a Hold
+                // trigger does while its pin layer holds one (a Pin row, or a rule).
+                if (entry.HasDriver || entry.OffersShapeSets)
                 {
                     var descriptor = plan.AvatarRoot != null ? plan.AvatarRoot.GetComponent<VRCAvatarDescriptor>() : null;
-                    TouchBuilder.FollowDistanceTracking(entry, descriptor, out bool eyes, out bool mouth);
+                    bool eyes, mouth;
+                    if (entry.HasDriver) TouchBuilder.FollowDistanceTracking(entry, plan.Tree.HeldContext, out eyes, out mouth);
+                    else ShapeSetModel.PinTracking(entry, plan.Tree.HeldContext, out eyes, out mouth);
                     if (eyes || mouth)
                     {
                         bool fade = entry.IsFollowDistanceTrigger;

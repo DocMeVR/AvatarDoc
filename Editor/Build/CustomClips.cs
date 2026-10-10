@@ -39,6 +39,27 @@ namespace DocMe.AvatarDoctor.Editor
             return result;
         }
 
+        /// <summary>The names of the blend shapes of mesh that the entry's clips animate, their paths rewritten for pathRoot exactly as Collect does. Reads the bindings only, never a curve.</summary>
+        public static HashSet<string> ShapesMovedOn(MenuEntry entry, Transform avatarRoot, SkinnedMeshRenderer mesh)
+        {
+            var result = new HashSet<string>();
+            if (entry == null || mesh == null || avatarRoot == null) return result;
+            string meshPath = AnimationUtility.CalculateTransformPath(mesh.transform, avatarRoot);
+            foreach (var target in entry.animations)
+            {
+                var clip = target.clip;
+                if (clip == null || IsProxy(clip) || MenuModel.IsOutsideAvatar(avatarRoot, target.pathRoot)) continue;
+                string prefix = PrefixFor(avatarRoot, target.pathRoot);
+                foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+                {
+                    if (binding.type != typeof(SkinnedMeshRenderer) || !binding.propertyName.StartsWith("blendShape.")) continue;
+                    if (CombinePath(prefix, binding.path) != meshPath) continue;
+                    result.Add(binding.propertyName.Substring("blendShape.".Length));
+                }
+            }
+            return result;
+        }
+
         /// <summary>VRChat proxy animations must be preserved as-is and never merged into another clip.</summary>
         public static bool IsProxy(AnimationClip clip) => clip != null && clip.name.StartsWith("proxy_");
 

@@ -223,20 +223,29 @@ namespace DocMe.AvatarDoctor.Editor
             sb.Append('\n');
         }
 
-        /// <summary>Every rule of this component's toggles, naming the mesh and how many shapes it forces to 0.</summary>
+        /// <summary>Every rule of this component's toggles and triggers, naming the mesh, how many shapes it holds and what at.</summary>
         static void AppendShapeSets(StringBuilder sb, AvatarPlan plan, AvatarDoc component, bool markdown)
         {
-            var lines = new List<(string entry, string mesh, int count)>();
-            foreach (var control in plan.Tree.Controls)
+            var context = plan.Tree.HeldContext;
+            var lines = new List<string>();
+            void Add(MenuEntry entry)
             {
-                if (control.Component != component) continue;
-                foreach (var rule in ShapeSetModel.EffectiveRules(control.Entry))
-                    lines.Add((control.Entry.PlainName, rule.mesh.name, ShapeSetModel.CoveredShapeCount(control.Entry, rule)));
+                foreach (var rule in ShapeSetModel.EffectiveRules(entry))
+                {
+                    int count = ShapeSetModel.CoveredShapeCount(entry, rule, context);
+                    string key = rule.value == ShapeSetValue.Default ? "ad.summary.shape_sets.line.default" : "ad.summary.shape_sets.line";
+                    if (count == 1) key += ".one";
+                    lines.Add(string.Format(L.Text(key), entry.PlainName, rule.mesh.name, count));
+                }
             }
+            foreach (var control in plan.Tree.Controls)
+                if (control.Component == component) Add(control.Entry);
+            foreach (var trigger in plan.Tree.Triggers)
+                if (trigger.Component == component && trigger.Entry.OffersShapeSets) Add(trigger.Entry);
             if (lines.Count == 0) return;
             Heading(sb, "ad.summary.shape_sets", markdown);
-            foreach (var (entry, mesh, count) in lines)
-                sb.Append(markdown ? "- " : "  ").Append(string.Format(L.Text("ad.summary.shape_sets.line"), entry, mesh, count)).Append('\n');
+            foreach (var line in lines)
+                sb.Append(markdown ? "- " : "  ").Append(line).Append('\n');
             sb.Append('\n');
         }
 

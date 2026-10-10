@@ -1776,30 +1776,103 @@ this entry may touch them, or face tracking and the other animations would be pi
   scene (above 0.0001), at the weight the scene holds, in Pin mode. A row this entry already has for that mesh and
   shape keeps its place and takes the captured weight; nothing is duplicated. A mesh where every shape is 0 adds no
   row and reports `ad.info.capture_nothing_above_zero`.
-- Capture is for toggles. A radial has two ends and a trigger follows its source, so neither offers the button.
+- Every Blendshapes section offers Capture (a radial's capture fills its upper end, an override's its pinned
+  values). A toggle's Capture also adds the rule below; a trigger with effects of its own gets a rule only through
+  Hold the rest (plan 15).
 - Pin mode is what the use case needs: the On state forces the value over every layer below, the Off state writes
   nothing at all, so other animations keep the shape when the toggle is off. The captured rows are ordinary rows
   afterwards: editable, removable, and switchable to Fixed if the creator wants the softer behaviour.
 
 ### Everything else at 0
 
-- `MenuEntry.shapeSets : List<ShapeSetRule>`, `ShapeSetRule { SkinnedMeshRenderer mesh; bool zeroOthers; }`. A
-  capture adds a rule for its mesh with `zeroOthers` on. The rule stands for every shape of that mesh this entry
-  does not name: while the entry is on, each of them is forced to 0, and no row is shown for any of them.
-- The inspector shows one line per rule under the Blendshapes list: a switch `ad.ui.shape_set.zero_others`
-  (`Everything else on this mesh is 0`) with the mesh name and a note saying how many shapes the rule covers
-  (`ad.info.shape_set_count`). A remove button drops the rule. Dropping the rule leaves the captured rows alone.
+- `MenuEntry.shapeSets : List<ShapeSetRule>`, `ShapeSetRule { SkinnedMeshRenderer mesh; bool zeroOthers;
+  ShapeSetValue value; bool holdTracked; }`. A toggle's capture adds a rule for its mesh with `zeroOthers` on and
+  `value` `Zero`. The rule stands for every shape of that mesh this entry does not name: while the entry is on, each of
+  them is held at the rule's value, and no row is shown for any of them. `zeroOthers` is the rule's on and off
+  switch (read through `ShapeSetRule.On`); it keeps the name it was saved under.
+- The inspector shows each rule under the Blendshapes list: the switch `Everything else on <mesh>` and a remove
+  button, then `Hold at` with `Default` or `0`, the `Blink and visemes` switch, and a note saying how many shapes
+  the rule holds and at what (`ad.info.shape_set_count`, `.default`, each with its singular). Dropping the rule
+  leaves the captured rows alone.
 - The rule is built into the same pin layer the pinned rows use, so it follows pin semantics exactly: forced while
   on, nothing written while off. An entry whose rows are all Fixed still gets its pin layer when it carries a rule.
 - The rule writes every other shape of the mesh, not only the ones something else animates: a shape a tool outside
   AvatarDoc moves would otherwise survive, which is the jank the user is trying to end. The note names the count so
   the cost is visible, and `ad.warn.shape_set_large` says so above 150 shapes.
 - A rule whose mesh is missing or outside the avatar is `ad.error.shape_set_outside_avatar`; two rules for one mesh
-  on one entry are merged when the model is built; a rule on an entry that is not a toggle is
-  `ad.error.shape_set_not_a_toggle`. A rule costs no parameter and no bit.
+  on one entry are merged when the model is built (on if any is on, value and blink switch from the first one that
+  is on); a rule on an entry that cannot hold one (`MenuEntry.OffersShapeSets`: a radial, an override, a flip
+  trigger) is `ad.error.shape_set_not_a_toggle`, a key kept from when only toggles could. A rule costs no parameter
+  and no bit.
 - The scene preview and the wheel's test mode follow the rule: while the entry is previewed on, the other shapes of
-  that mesh read 0.
-- The summary lists the rule under its entry with the mesh and the count.
+  that mesh read the rule's value.
+- The summary lists the rule under its entry with the mesh, the count and the value.
+
+### Holding the rest at its default (asked 2026-10-10, plan 15 task R)
+
+The creator: "when working with blendshapes there should be a toggle to pin all other blendshapes to the default
+state (current state of avatar by selecting the mesh renderer)". Their choices: on toggles and triggers; the blink
+and lip sync shapes settable per rule; the default read at upload.
+
+- **What it holds.** Every shape of the rule's mesh except the ones the entry names (its rows, and on a toggle every
+  shape its own Animations clips move, paths resolved the way `CustomClips.Collect` resolves them, path root
+  included: those play in the main layer below the pin layer), a blend shape trigger's own shape (holding it would
+  feed the trigger its own output), the shapes an included AvatarDoc Shapes piece drives (its while-on rows and the
+  local shapes of its follow rows, from `ShapesModel.Plan`; the creator chose to leave those to the piece), and,
+  unless `holdTracked` is on, the descriptor's eyelid and viseme or jaw flap shapes (`ShapeSetModel.HeldShapes`).
+  What the avatar contributes is read once per tree (`MenuTree.HeldContext`, kept by the plan cache, which drops on
+  any change to a component of the avatar) and once per build (`BaseState.HeldContext`); the pieces are read only
+  when a rule asks.
+- **At what.** `ShapeSetValue.Zero` (0, every rule saved before this) or `Default`: the shape's weight on the build
+  clone before AvatarDoc changes anything, `BaseState.WeightOf`, the same value every Off state and every release
+  to rest uses, so a held shape and an Off state never disagree. `BaseState` reads every shape of a rule's mesh
+  before `DefaultsApplier` writes a default on toggle into the clone. AvatarDoc Shapes pieces write the clone later
+  (`ShapesBuilder`, after Modular Avatar), which is why a rule leaves the shapes a piece drives alone.
+- **Where.** A toggle and every trigger with effects of its own (`MenuEntry.OffersShapeSets`). A radial and a flip
+  trigger keep the error, reworded: only a toggle or a trigger with effects can hold one.
+- **How it is built.** A toggle and a Hold trigger (any condition source): in the pin layer, as before, the held
+  shapes written at the rule's value in On and nothing in Off; `ReleasePinsToRest` hands them back to their default
+  when nothing else owns them. A Fade contact: in the Near tree, at their default in the child at 0 and at the
+  rule's value at Fully on (`ClipContent.WriteShapeSets`); Far writes nothing and the release pass decides. A blend
+  shape trigger: like a Fixed row (`LinkLayerBuilder.Effects.Held`), from the default at Start to the value at Full
+  in Smooth, held in On in Switch, nothing in the rest state. `DefaultsApplier` writes a default on toggle's held
+  shapes and a blend shape trigger's at its source's weight into the clone, the same way it writes rows.
+- **Preview order.** A toggle's or a Hold trigger's Pin rows and rule shapes are queued in `PreviewModel.WriteSwitch`
+  and written in tree order after the controls and the other triggers, before Fade and blend shape triggers: the
+  order `MovePinLayersLast` gives their layers, above every ordinary layer. So a held shape shows the rule's value
+  whichever entry comes later in the tree.
+- **Blink and visemes.** Left out of the held set by default, for stored rules too: a stored rule on the face mesh
+  used to write 0 for the eyelid and viseme shapes in its pin layer's On state and registered them for the release
+  pass, which then gave Off a rest curve as well, so FX bound those shapes in both states and VRChat's blinking and
+  lip sync stopped for good, and no tracking pause was built. With `holdTracked` on they are held, and the entry
+  gets a pause flag (`<prefix>/Pause/<name>`, named in `TouchBuilder.Describe` after every trigger's, so a trigger
+  keeps its name) written 1 in every state where the hold is active and 0 in the rest: a pin layer's member state
+  and its Off (an exclusive group's other members write 0 too), a Fade's Near children, a blend shape trigger's
+  driven states. `BuildTrackingPauseLayers` reads it with the others. A held tracked shape is never registered for
+  release: while the rule does not hold it, VRChat's tracking owns it. The parameter provider lists a toggle's flag
+  as animator only, like a trigger's.
+- **Pin rows on those shapes (fix round 1).** The same holds for a Pin row naming an eyelid or viseme shape (Capture
+  makes one from a sleepy face): `BuildPinLayer` never registers a tracked shape for release, the rule
+  `BuildFollowDistanceLayers` and `LinkLayerBuilder` already followed, and such a row raises the entry's pause flag
+  while on (`ShapeSetModel.PinTracking`, counted in `TouchBuilder.Describe` for toggles and Hold triggers).
+- **The pause at load.** Each pause layer starts in `Load` (no behaviour), which goes to `Idle` after an exit time of
+  5 (an empty state lasts one second): VRChat ignores tracking control for a moment after load and `Paused` asks
+  once, so a flag that is 1 from the first frame (a default on toggle that holds blink) is heard after the wait.
+- **Inspector.** `Hold the rest` beside `Capture` opens the avatar's mesh picker and adds a Default rule with the
+  blink and viseme shapes free; a mesh the entry already has a rule for keeps that rule, nothing is added (one Undo
+  step, `EntryEditing.AddHoldRule`). Capture keeps adding its rule at 0, as first asked, on a toggle only: the
+  creator chose that a trigger's Capture adds the captured rows alone. The
+  rule's lines: the switch with the mesh name (a long name ends in an ellipsis; the tooltip names it in full) and
+  the remove button on one line that never wraps, then `Hold at` with the `Default` or `0` choice and, only for a
+  mesh the descriptor blinks or speaks with, `Blink and visemes` (that line wraps at the narrow end of the
+  inspector), then the count note. With Hold the rest beside it, the section header wraps its last button onto a
+  line of its own, at the right, when the three do not fit. Each control writes one Undo
+  step. A section whose only content is a rule stays shown (`TargetListView.HasContent`). In Simple, a toggle's
+  Blend shapes section shows `Hold the rest` with Capture and the rule lines while it has a rule; triggers show
+  their whole panel as before.
+- **Words.** `ad.warn.shape_set_large` speaks of holding, for both values; the summary line names the value
+  (`ad.summary.shape_sets.line`, `.default`, each with its singular); "What this builds" says blinking or lip sync
+  pauses while the effects are on when a rule holds those shapes.
 
 ### Pin layers go last
 

@@ -36,7 +36,7 @@ namespace DocMe.AvatarDoctor.Editor
         readonly bool radial;
         readonly bool link;
         readonly bool pinned;
-        /// <summary>Non-null for every blendshape list that offers Capture: the entry its captured rows belong to. Only a toggle's list also shows the shape set rule lines, see <see cref="ShowsRule"/>.</summary>
+        /// <summary>Non-null for every blendshape list that offers Capture: the entry its captured rows belong to. Only a toggle's or a trigger's list also offers Hold the rest and shows the rule lines, see <see cref="ShowsRule"/>.</summary>
         readonly MenuEntry captureEntry;
         readonly ListView listView = new ListView();
         VisualElement rulesBox;
@@ -48,12 +48,24 @@ namespace DocMe.AvatarDoctor.Editor
         readonly Label count = new Label();
 
         public int Count => list.arraySize;
+
+        /// <summary>Whether the section holds anything worth showing: a row, or a rule that holds the rest of a mesh, which has no row of its own.</summary>
+        public bool HasContent
+        {
+            get
+            {
+                if (list.arraySize > 0) return true;
+                if (!ShowsRule) return false;
+                var entry = CapturedEntry() ?? captureEntry;
+                return entry.shapeSets.Any(r => r != null);
+            }
+        }
         /// <summary>True for the blendshape list of a blendshape-source trigger: rows show a fixed/follow mode instead of a plain weight.</summary>
         public bool IsLinkMode => link;
         /// <summary>True for an override's blendshape list: rows show a slider labelled "Pinned value" and no mode dropdown.</summary>
         public bool IsPinnedMode => pinned;
-        /// <summary>Only a toggle's blendshape list carries the "everything else on this mesh is 0" rule: a radial has two ends, a trigger follows its source, and an override already pins by kind.</summary>
-        bool ShowsRule => captureEntry != null && captureEntry.kind == EntryKind.Toggle;
+        /// <summary>Only a toggle's or a trigger's blendshape list carries the rules that hold the rest of a mesh: a radial has two ends, and an override already pins by kind (MenuEntry.OffersShapeSets).</summary>
+        bool ShowsRule => captureEntry != null && captureEntry.OffersShapeSets;
 
         public TargetListView(AvatarDoctorView owner, SerializedProperty list, Kind kind, bool radial, bool link = false, bool pinned = false, MenuEntry captureEntry = null)
         {
@@ -99,6 +111,16 @@ namespace DocMe.AvatarDoctor.Editor
                 capture.clicked += () => AvatarObjectPicker.Show(capture.worldBound, owner.Plan.AvatarRoot, PickKind.SkinnedMeshWithShapes,
                     picked => CaptureFrom(picked as SkinnedMeshRenderer));
                 header.Add(capture);
+                if (ShowsRule)
+                {
+                    var hold = new Button { text = L.Text("ad.ui.shape_set.hold"), name = "ad-shape-set-hold", tooltip = L.Text("ad.ui.shape_set.hold.tip") };
+                    hold.clicked += () => AvatarObjectPicker.Show(hold.worldBound, owner.Plan.AvatarRoot, PickKind.SkinnedMeshWithShapes,
+                        picked => HoldTheRest(picked as SkinnedMeshRenderer));
+                    header.Add(hold);
+                    // Three buttons do not fit beside the title at the narrow end of the inspector: the last one
+                    // moves to a line of its own, still at the right.
+                    header.AddToClassList("ad-header-wrap");
+                }
             }
             Add(header);
 
@@ -1219,44 +1241,18 @@ namespace DocMe.AvatarDoctor.Editor
             return index >= 0 ? renderer.GetBlendShapeWeight(index) : 0f;
         }
 
-        /// <summary>Rebuilds the rule lines under a toggle's blendshape list from the entry's own data, and the capture status line every section that offers Capture carries.</summary>
+        /// <summary>Rebuilds the rule lines under a toggle's or a trigger's blendshape list from the entry's own data, and the capture status line every section that offers Capture carries.</summary>
         void RefreshRules()
         {
             var current = CapturedEntry() ?? captureEntry;
             if (rulesBox != null)
             {
                 rulesBox.Clear();
+                var context = owner.Plan?.Tree?.HeldContext ?? ShapeSetModel.ContextFor(owner.Plan?.AvatarRoot);
                 for (int i = 0; i < current.shapeSets.Count; i++)
                 {
                     var rule = current.shapeSets[i];
-                    if (rule == null) continue;
-                    int index = i;
-                    var row = new VisualElement { name = "ad-shape-set-row" };
-                    row.AddToClassList("ad-row");
-                    row.AddToClassList("ad-target-wrap");
-                    var meshLabel = new Label(rule.mesh != null ? rule.mesh.name : "?");
-                    meshLabel.AddToClassList("ad-label");
-                    row.Add(meshLabel);
-                    var toggle = new Toggle(L.Text("ad.ui.shape_set.zero_others")) { name = "zero-others", tooltip = L.Text("ad.ui.shape_set.zero_others.tip") };
-                    toggle.AddToClassList("ad-compact");
-                    toggle.SetValueWithoutNotify(rule.zeroOthers);
-                    toggle.RegisterValueChangedCallback(e => SetZeroOthers(index, e.newValue));
-                    row.Add(toggle);
-                    var spacer = new VisualElement();
-                    spacer.AddToClassList("ad-spacer");
-                    row.Add(spacer);
-                    var remove = new Button { text = "×", name = "remove" };
-                    remove.AddToClassList("ad-w-24");
-                    remove.clicked += () => RemoveRule(index);
-                    row.Add(remove);
-                    var offLine = OffLine();
-                    // The count the switch would zero if it were on, not what ZeroedShapes reports right now: an off
-                    // rule still has to say what it costs, or its own note would tell the author it does nothing.
-                    var note = new Label(UiText.Count(ShapeSetModel.CoveredShapeCount(current, rule), "ad.info.shape_set_count.one", "ad.info.shape_set_count"));
-                    note.AddToClassList("ad-note");
-                    offLine.Add(note);
-                    row.Add(offLine);
-                    rulesBox.Add(row);
+                    if (rule != null) rulesBox.Add(RuleLine(current, rule, i, context));
                 }
             }
             shapeSetStatusBox.Clear();
@@ -1269,16 +1265,80 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
+        /// One rule's lines: its switch, named for the mesh, and the remove button, on a line that never wraps so a
+        /// long name ends in an ellipsis instead of pushing the button down; under them Hold at with the Default or
+        /// 0 choice and, for a mesh VRChat blinks or speaks with, the blink and viseme switch; then the count note.
+        /// </summary>
+        VisualElement RuleLine(MenuEntry entry, ShapeSetRule rule, int index, ShapeSetModel.HeldContext context)
+        {
+            var meshName = rule.mesh != null ? rule.mesh.name : "?";
+            var container = new VisualElement { name = "ad-shape-set-row" };
+            var head = new VisualElement { name = "ad-shape-set-head" };
+            head.AddToClassList("ad-row");
+            var on = new Toggle(string.Format(L.Text("ad.ui.shape_set.zero_others"), meshName)) { name = "zero-others", tooltip = string.Format(L.Text("ad.ui.shape_set.zero_others.tip"), meshName) };
+            on.AddToClassList("ad-compact");
+            on.AddToClassList("ad-shape-set-switch");
+            on.SetValueWithoutNotify(rule.On);
+            on.RegisterValueChangedCallback(e => SetZeroOthers(index, e.newValue));
+            head.Add(on);
+            var spacer = new VisualElement();
+            spacer.AddToClassList("ad-spacer");
+            head.Add(spacer);
+            var remove = new Button { text = "×", name = "remove", tooltip = L.Text("ad.ui.shape_set.remove.tip") };
+            remove.AddToClassList("ad-w-24");
+            remove.clicked += () => RemoveRule(index);
+            head.Add(remove);
+            container.Add(head);
+
+            var settings = new VisualElement { name = "ad-shape-set-settings" };
+            settings.AddToClassList("ad-row");
+            settings.AddToClassList("ad-target-wrap");
+            var holdAt = new Label(L.Text("ad.ui.shape_set.hold_at"));
+            holdAt.AddToClassList("ad-label");
+            settings.Add(holdAt);
+            var value = new SegmentedChoice(new[] { L.Text("ad.ui.shape_set.value.default"), L.Text("ad.ui.shape_set.value.zero") },
+                rule.value == ShapeSetValue.Default ? 0 : 1,
+                new[] { L.Text("ad.ui.shape_set.value.default.tip"), L.Text("ad.ui.shape_set.value.zero.tip") })
+            {
+                name = "ad-shape-set-value",
+                tooltip = L.Text("ad.ui.shape_set.value.tip"),
+            };
+            value.AddToClassList("ad-shape-set-value");
+            value.Changed += chosen => SetRuleValue(index, chosen == 0 ? ShapeSetValue.Default : ShapeSetValue.Zero);
+            settings.Add(value);
+            if (ShapeSetModel.MeshHasTrackedShapes(rule.mesh, context))
+            {
+                var tracked = new Toggle(L.Text("ad.ui.shape_set.hold_tracked")) { name = "hold-tracked", tooltip = L.Text("ad.ui.shape_set.hold_tracked.tip") };
+                tracked.AddToClassList("ad-compact");
+                tracked.SetValueWithoutNotify(rule.holdTracked);
+                tracked.RegisterValueChangedCallback(e => SetHoldTracked(index, e.newValue));
+                settings.Add(tracked);
+            }
+            container.Add(settings);
+
+            // The count the switch would hold if it were on, not what HeldShapes reports right now: an off rule still
+            // has to say what it costs, or its own note would tell the author it does nothing.
+            int count = ShapeSetModel.CoveredShapeCount(entry, rule, context);
+            var note = new Label(rule.value == ShapeSetValue.Default
+                ? UiText.Count(count, "ad.info.shape_set_count.default.one", "ad.info.shape_set_count.default")
+                : UiText.Count(count, "ad.info.shape_set_count.one", "ad.info.shape_set_count")) { name = "ad-shape-set-note" };
+            note.AddToClassList("ad-note");
+            container.Add(note);
+            return container;
+        }
+
+        /// <summary>
         /// Captures mesh's shapes above 0 into this section's rows: a radial takes the upper end, a toggle or a
         /// trigger condition takes Pin mode, a blend shape link takes Fixed mode, an override just takes the
-        /// weight. Only a toggle's rule is added or turned on. Public for the Capture button and for tests.
+        /// weight. A toggle's rule for the mesh is added at 0, or switched on when it has one; a trigger gets only the
+        /// rows. Public for the Capture button and for tests.
         /// </summary>
         public void CaptureFrom(SkinnedMeshRenderer mesh)
         {
             var entry = CapturedEntry();
             if (mesh == null || entry == null) return;
             ShapeEffectMode? mode = radial || pinned ? (ShapeEffectMode?)null : (link ? ShapeEffectMode.Fixed : ShapeEffectMode.Pin);
-            int count = EntryEditing.CaptureShapeSet(owner.Menu, entry, mesh, intoUpperEnd: radial, mode: mode, withRule: ShowsRule);
+            int count = EntryEditing.CaptureShapeSet(owner.Menu, entry, mesh, intoUpperEnd: radial, mode: mode, withRule: entry.kind == EntryKind.Toggle);
             lastShapeSetStatus = count == 0 ? string.Format(L.Text("ad.info.capture_nothing_above_zero"), mesh.name) : "";
             if (count == 0) { RefreshRules(); return; }
             AvatarPlanCache.NoteSelfEdit(owner.Menu);
@@ -1286,10 +1346,36 @@ namespace DocMe.AvatarDoctor.Editor
             owner.Refresh();
         }
 
-        /// <summary>Switches a rule's "everything else is 0" on or off. Public for the rule row's switch and for tests.</summary>
+        /// <summary>Adds a rule that holds every other shape of mesh at its default while the entry is on, unless the entry already has one for that mesh. Public for the Hold the rest button and for tests.</summary>
+        public void HoldTheRest(SkinnedMeshRenderer mesh)
+        {
+            if (!EntryEditing.AddHoldRule(owner.Menu, CapturedEntry(), mesh)) return;
+            AfterRuleWrite();
+        }
+
+        /// <summary>Switches a rule on or off. Public for the rule row's switch and for tests.</summary>
         public void SetZeroOthers(int ruleIndex, bool value)
         {
             if (!EntryEditing.SetShapeSetZeroOthers(owner.Menu, CapturedEntry(), ruleIndex, value)) return;
+            AfterRuleWrite();
+        }
+
+        /// <summary>Chooses what a rule holds the other shapes at. Public for the rule row's Default or 0 choice and for tests.</summary>
+        public void SetRuleValue(int ruleIndex, ShapeSetValue value)
+        {
+            if (!EntryEditing.SetShapeSetValue(owner.Menu, CapturedEntry(), ruleIndex, value)) return;
+            AfterRuleWrite();
+        }
+
+        /// <summary>Chooses whether a rule holds the shapes VRChat blinks and speaks with too. Public for the rule row's switch and for tests.</summary>
+        public void SetHoldTracked(int ruleIndex, bool value)
+        {
+            if (!EntryEditing.SetShapeSetHoldTracked(owner.Menu, CapturedEntry(), ruleIndex, value)) return;
+            AfterRuleWrite();
+        }
+
+        void AfterRuleWrite()
+        {
             AvatarPlanCache.NoteSelfEdit(owner.Menu);
             AvatarPlanCache.InvalidateMenu(owner.Plan?.AvatarRoot);
             owner.Refresh();
@@ -1299,9 +1385,7 @@ namespace DocMe.AvatarDoctor.Editor
         public void RemoveRule(int ruleIndex)
         {
             if (!EntryEditing.RemoveShapeSet(owner.Menu, CapturedEntry(), ruleIndex)) return;
-            AvatarPlanCache.NoteSelfEdit(owner.Menu);
-            AvatarPlanCache.InvalidateMenu(owner.Plan?.AvatarRoot);
-            owner.Refresh();
+            AfterRuleWrite();
         }
 
         public void AddMaterialRow()

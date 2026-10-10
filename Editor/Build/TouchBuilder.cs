@@ -139,15 +139,12 @@ namespace DocMe.AvatarDoctor.Editor
                 var entry = node.Entry;
                 if (node.Excluded) continue;
                 if (entry.kind != EntryKind.Trigger || !entry.HasEffects) continue;
-                if (entry.HasDriver)
-                {
-                    FollowDistanceTracking(entry, descriptor, out bool eyes, out bool mouth);
-                    if (eyes || mouth)
-                    {
-                        var flagPrefix = node.Component != null ? node.Component.parameterPrefix : "AD";
-                        touch.PauseFlags[entry.id] = new PauseFlag { Parameter = UniqueTouchName(PauseFlagFor(entry, flagPrefix), existing, used), Eyes = eyes, Mouth = mouth };
-                    }
-                }
+                // A driven trigger pauses for every shape VRChat tracks that it moves; a Hold trigger, like a toggle
+                // below, for the ones its pin layer holds (a Pin row, or a rule).
+                bool eyes, mouth;
+                if (entry.HasDriver) FollowDistanceTracking(entry, tree.HeldContext, out eyes, out mouth);
+                else ShapeSetModel.PinTracking(entry, tree.HeldContext, out eyes, out mouth);
+                if (eyes || mouth) touch.PauseFlags[entry.id] = NewPauseFlag(node.Component, entry, eyes, mouth, existing, used);
                 // A flip trigger whose toggle is not built here has nothing to flip (ad.info.flip_target_excluded),
                 // so it gets no receiver either: a contact costs on the platform where the count matters.
                 if (entry.IsFlipTrigger && FlipTargetIsGone(tree, entry)) continue;
@@ -169,7 +166,22 @@ namespace DocMe.AvatarDoctor.Editor
                 // A blend shape trigger's groups are its requirement group alone (MenuEntry.EffectiveGroups).
                 DescribeConditions(tree, node, entry.EffectiveGroups().SelectMany(g => g.group.all.Select((condition, i) => (g.groupIndex, i, condition))), existing, used, physBoneBase, touch);
             }
+            // A toggle whose pin layer holds a shape VRChat blinks or speaks with pauses that part while it is on.
+            // Named after every trigger's flag, so a toggle's flag never renames a trigger's flag.
+            foreach (var control in tree.Controls)
+            {
+                var entry = control.Entry;
+                if (control.Excluded || entry.kind != EntryKind.Toggle || entry.IsParameterControl || !entry.HasEffects) continue;
+                ShapeSetModel.PinTracking(entry, tree.HeldContext, out bool eyes, out bool mouth);
+                if (eyes || mouth) touch.PauseFlags[entry.id] = NewPauseFlag(control.Component, entry, eyes, mouth, existing, used);
+            }
             return touch;
+        }
+
+        static PauseFlag NewPauseFlag(AvatarDoc component, MenuEntry entry, bool eyes, bool mouth, IReadOnlyDictionary<string, ExistingParameter> existing, HashSet<string> used)
+        {
+            var prefix = component != null ? component.parameterPrefix : "AD";
+            return new PauseFlag { Parameter = UniqueTouchName(PauseFlagFor(entry, prefix), existing, used), Eyes = eyes, Mouth = mouth };
         }
 
         /// <summary>
@@ -265,21 +277,23 @@ namespace DocMe.AvatarDoctor.Editor
         /// Whether a Fade contact's or a blend shape trigger's effects write a blend shape the avatar descriptor uses
         /// for blinking (eyelids, Blendshapes type, only while eye look is on) or for a viseme or a jaw flap shape
         /// (only while lip sync is set to read blend shapes), matched by mesh and shape name. Every shape mode counts
-        /// here: neither has a separate pin layer of its own to reserve Pin's usual exclusion for.
+        /// here: neither has a separate pin layer of its own to reserve Pin's usual exclusion for. A rule that holds
+        /// those shapes too (ShapeSetRule.holdTracked) counts as well.
         /// </summary>
         public static void FollowDistanceTracking(MenuEntry entry, VRCAvatarDescriptor descriptor, out bool eyes, out bool mouth)
+            => FollowDistanceTracking(entry, ShapeSetModel.ContextFor(descriptor != null ? descriptor.transform : null), out eyes, out mouth);
+
+        public static void FollowDistanceTracking(MenuEntry entry, ShapeSetModel.HeldContext context, out bool eyes, out bool mouth)
         {
-            eyes = false;
-            mouth = false;
-            var (eyelidShapes, mouthShapes) = DescriptorDrivenShapes(descriptor);
+            ShapeSetModel.HeldTracking(entry, context, out eyes, out mouth);
             foreach (var target in entry.blendShapes)
             {
                 if (!MenuModel.ShapeExists(target.renderer, target.shape)) continue;
                 // A blend shape trigger never writes its own shape, so that row moves nothing VRChat tracks.
                 if (entry.source == TriggerSource.BlendShape && target.renderer == entry.sourceRenderer && target.shape == entry.sourceShape) continue;
                 var key = (target.renderer, target.shape);
-                if (eyelidShapes.Contains(key)) eyes = true;
-                if (mouthShapes.Contains(key)) mouth = true;
+                if (context.Eyelids.Contains(key)) eyes = true;
+                if (context.Mouth.Contains(key)) mouth = true;
             }
         }
 
@@ -292,26 +306,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// MouthOpenBlendShapeName), both on VisemeSkinnedMesh.
         /// </summary>
         internal static (HashSet<(SkinnedMeshRenderer renderer, string shape)> eyelids, HashSet<(SkinnedMeshRenderer renderer, string shape)> mouth) DescriptorDrivenShapes(VRCAvatarDescriptor descriptor)
-        {
-            var eyelids = new HashSet<(SkinnedMeshRenderer, string)>();
-            var mouth = new HashSet<(SkinnedMeshRenderer, string)>();
-            if (descriptor == null) return (eyelids, mouth);
-
-            var eye = descriptor.customEyeLookSettings;
-            if (descriptor.enableEyeLook && eye.eyelidType == VRCAvatarDescriptor.EyelidType.Blendshapes
-                && eye.eyelidsSkinnedMesh != null && eye.eyelidsSkinnedMesh.sharedMesh != null && eye.eyelidsBlendshapes != null)
-                foreach (var shapeIndex in eye.eyelidsBlendshapes)
-                    if (shapeIndex >= 0 && shapeIndex < eye.eyelidsSkinnedMesh.sharedMesh.blendShapeCount)
-                        eyelids.Add((eye.eyelidsSkinnedMesh, eye.eyelidsSkinnedMesh.sharedMesh.GetBlendShapeName(shapeIndex)));
-
-            if (descriptor.lipSync == VRC_AvatarDescriptor.LipSyncStyle.VisemeBlendShape && descriptor.VisemeSkinnedMesh != null && descriptor.VisemeBlendShapes != null)
-                foreach (var shapeName in descriptor.VisemeBlendShapes)
-                    if (!string.IsNullOrEmpty(shapeName)) mouth.Add((descriptor.VisemeSkinnedMesh, shapeName));
-            if (descriptor.lipSync == VRC_AvatarDescriptor.LipSyncStyle.JawFlapBlendShape && descriptor.VisemeSkinnedMesh != null && !string.IsNullOrEmpty(descriptor.MouthOpenBlendShapeName))
-                mouth.Add((descriptor.VisemeSkinnedMesh, descriptor.MouthOpenBlendShapeName));
-
-            return (eyelids, mouth);
-        }
+            => ShapeSetModel.TrackedShapes(descriptor);
 
         /// <summary>Everything about a contact condition that decides what its receiver looks like. Two conditions that read the same here share one receiver.</summary>
         static string ContactSettings(WhenCondition condition)
@@ -545,6 +540,8 @@ namespace DocMe.AvatarDoctor.Editor
                 var offContent = new ClipContent(tree.AvatarRoot);
                 offContent.WriteToggle(entry, false, baseState, ShapeSet.All);
                 WriteAllShapes(offContent, entry, false, baseState, tree.AvatarRoot);
+                // A rule's shapes start the blend at rest and reach the rule's value at Fully on, like any row.
+                offContent.WriteShapeSets(entry, baseState, atRuleValue: false);
                 var onContent = new ClipContent(tree.AvatarRoot);
                 onContent.WriteToggle(entry, true, baseState, ShapeSet.All);
                 WriteAllShapes(onContent, entry, true, baseState, tree.AvatarRoot);
@@ -633,14 +630,15 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// One shared layer per face part (Eyes, Mouth), for every driven layer (a Fade contact's or a blend shape
-        /// trigger's) whose effects move it, instead of a tracking control per trigger: Idle (the default, no
-        /// behaviour at all, so nothing changes at load or while another system owns the part), Paused (sets the
-        /// part to Animation on entry, one transition in for each contributing layer's pause flag, an OR), Release
-        /// (sets the part back to Tracking on entry, then falls straight through to Idle). It reads the flags the
-        /// driven layers actually built (PinLayerState.PauseFlags), so it runs after every one of them, and a
-        /// layer skipped for a requirement that did not resolve contributes nothing. A pin layer for ordering,
-        /// built only when at least one layer needs the part.
+        /// One shared layer per face part (Eyes, Mouth), for every layer whose effects move it (a Fade contact's, a
+        /// blend shape trigger's, or the pin layer of a toggle or Hold trigger that holds such a shape), instead of a
+        /// tracking control per entry: Load (the default, no behaviour), Idle (no behaviour at all, so nothing
+        /// changes while another system owns the part), Paused (sets the part to Animation on entry, one transition
+        /// in for each contributing layer's pause flag, an OR), Release (sets the part back to Tracking on entry,
+        /// then falls straight through to Idle). It reads the flags the layers actually built
+        /// (PinLayerState.PauseFlags), so it runs after every one of them, and a layer skipped for a requirement
+        /// that did not resolve contributes nothing. A pin layer for ordering, built only when at least one layer
+        /// needs the part.
         /// </summary>
         public static List<ModelMessage> BuildTrackingPauseLayers(AnimatorServicesContext asc, Transform avatarRoot, ICollection<string> pinLayerNames, PinLayerState pinState)
         {
@@ -657,6 +655,9 @@ namespace DocMe.AvatarDoctor.Editor
             return messages;
         }
 
+        /// <summary>How long a pause layer waits in Load before it listens to the flags, in seconds.</summary>
+        internal const float LoadWaitSeconds = 5f;
+
         static string BuildPauseLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, string baseName, List<string> parameters, bool eyes, ICollection<string> pinLayerNames)
         {
             var name = AnimatorBuilder.UniqueLayerName(fx, baseName);
@@ -664,13 +665,26 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
             var sm = layer.StateMachine;
             var empty = new ClipContent(avatarRoot);
+            var load = sm.AddState("Load", empty.ToClip(asc, name + " Load"), new Vector3(0f, -150f, 0f));
             var idle = sm.AddState("Idle", empty.ToClip(asc, name + " Idle"), new Vector3(0f, 0f, 0f));
             var paused = sm.AddState("Paused", empty.ToClip(asc, name + " Paused"), new Vector3(300f, 0f, 0f));
             var release = sm.AddState("Release", empty.ToClip(asc, name + " Release"), new Vector3(600f, 0f, 0f));
+            load.WriteDefaultValues = false;
             idle.WriteDefaultValues = false;
             paused.WriteDefaultValues = false;
             release.WriteDefaultValues = false;
-            sm.DefaultState = idle;
+            // VRChat ignores a tracking control for a short while after the avatar loads, and Paused asks only once on
+            // entry: a flag that is already 1 at load (a toggle on by default that holds a blink shape) would lose its
+            // pause. Load waits out that window first; an empty state lasts one second, so the exit time is seconds.
+            sm.DefaultState = load;
+            var loadToIdle = VirtualStateTransition.Create();
+            loadToIdle.SetDestination(idle);
+            loadToIdle.Conditions = ImmutableList<AnimatorCondition>.Empty;
+            loadToIdle.ExitTime = LoadWaitSeconds;
+            loadToIdle.Duration = 0f;
+            loadToIdle.HasFixedDuration = true;
+            loadToIdle.CanTransitionToSelf = false;
+            load.Transitions = ImmutableList.Create(loadToIdle);
 
             paused.Behaviours = ImmutableList.Create<StateMachineBehaviour>(Tracking(eyes, !eyes, VRC_AnimatorTrackingControl.TrackingType.Animation));
             release.Behaviours = ImmutableList.Create<StateMachineBehaviour>(Tracking(eyes, !eyes, VRC_AnimatorTrackingControl.TrackingType.Tracking));

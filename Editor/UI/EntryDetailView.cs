@@ -690,10 +690,10 @@ namespace DocMe.AvatarDoctor.Editor
             if (row == null) return;
             fields.Reload();
             foreach (var targets in body.Query<TargetListView>().ToList()) targets.Reload();
-            // A section that just gained or lost its last row shows or hides at once: the always visible one
-            // (the kind's common starting place) never does, whatever its count.
+            // A section that just gained or lost its last row or rule shows or hides at once: the always visible
+            // one (the kind's common starting place) never does, whatever it holds.
             foreach (var section in effectSections)
-                if (!section.AlwaysVisible) section.View.EnableInClassList("ad-hidden", section.View.Count == 0);
+                if (!section.AlwaysVisible) section.View.EnableInClassList("ad-hidden", !section.View.HasContent);
             RefreshAdvancedFoldDot(row);
             foreach (var animatorPanel in body.Query<AnimatorPanel>().ToList()) animatorPanel.Rebuild();
             foreach (var assetPanel in body.Query<MenuAssetPanel>().ToList()) assetPanel.Rebuild();
@@ -1240,7 +1240,7 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var section in sections)
             {
                 effectSections.Add(section);
-                if (!section.AlwaysVisible) section.View.EnableInClassList("ad-hidden", section.View.Count == 0);
+                if (!section.AlwaysVisible) section.View.EnableInClassList("ad-hidden", !section.View.HasContent);
                 body.Add(section.View);
             }
             var offered = offerOnlyTheBasics ? sections.Where(s => SimpleOffers.Contains(s.NameKey)).ToList() : sections;
