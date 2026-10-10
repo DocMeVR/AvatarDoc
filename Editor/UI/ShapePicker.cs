@@ -1,33 +1,18 @@
 #if DOCME_NDMF && DOCME_VRCSDK3A
 using System;
-using UnityEditor.IMGUI.Controls;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Searchable dropdown of every blendshape on every skinned mesh under the avatar, grouped by renderer.</summary>
-    public sealed class ShapePicker : AdvancedDropdown
+    /// <summary>Every blend shape on every skinned mesh under the avatar, in an AdMenu with a search field: a group per mesh, or the shapes themselves when only one mesh has any.</summary>
+    public static class ShapePicker
     {
-        sealed class ShapeItem : AdvancedDropdownItem
-        {
-            public readonly SkinnedMeshRenderer Renderer;
-            public readonly string Shape;
-            public ShapeItem(SkinnedMeshRenderer renderer, string shape) : base(shape) { Renderer = renderer; Shape = shape; }
-        }
-
-        readonly Transform avatarRoot;
-        readonly Action<SkinnedMeshRenderer, string> onPick;
-
-        ShapePicker(Transform avatarRoot, Action<SkinnedMeshRenderer, string> onPick) : base(new AdvancedDropdownState())
-        {
-            this.avatarRoot = avatarRoot;
-            this.onPick = onPick;
-            minimumSize = new Vector2(260f, 320f);
-        }
-
-        /// <summary>Swapped in tests so opening the picker never shows a real dropdown window.</summary>
+        /// <summary>Swapped in tests so opening the picker never opens a real menu.</summary>
         public static Action<Rect, Transform, Action<SkinnedMeshRenderer, string>> ShowOverride;
 
+        /// <summary>For callers outside AvatarDoc, which hand over only the button's world rectangle: the button is looked for with AdMenu.FindTarget.</summary>
         public static void Show(Rect anchor, Transform avatarRoot, Action<SkinnedMeshRenderer, string> onPick)
         {
             if (ShowOverride != null)
@@ -35,32 +20,50 @@ namespace DocMe.AvatarDoctor.Editor
                 ShowOverride(anchor, avatarRoot, onPick);
                 return;
             }
-            new ShapePicker(avatarRoot, onPick).Show(anchor);
+            Open(anchor, AdMenu.FindTarget(anchor), avatarRoot, onPick);
         }
 
-        protected override AdvancedDropdownItem BuildRoot()
+        /// <summary>Opens the picker on the control that asked for it.</summary>
+        internal static void Show(VisualElement anchor, Transform avatarRoot, Action<SkinnedMeshRenderer, string> onPick) =>
+            Show(anchor.worldBound, anchor, avatarRoot, onPick);
+
+        /// <summary>Opens the picker under anchor in the window that hosts target, for a control that may be gone by now (target is then what outlives it).</summary>
+        internal static void Show(Rect anchor, VisualElement target, Transform avatarRoot, Action<SkinnedMeshRenderer, string> onPick)
         {
-            var root = new AdvancedDropdownItem(L.Text("ad.ui.pick.shape"));
-            int found = 0;
+            if (ShowOverride != null)
+            {
+                ShowOverride(anchor, avatarRoot, onPick);
+                return;
+            }
+            Open(anchor, target, avatarRoot, onPick);
+        }
+
+        /// <summary>Opens the picker under anchor in the window that hosts target. Null when target is not on a panel.</summary>
+        public static AdMenu Open(Rect anchor, VisualElement target, Transform avatarRoot, Action<SkinnedMeshRenderer, string> onPick) =>
+            AdMenu.Open(anchor, target, Items(avatarRoot, onPick), search: true);
+
+        /// <summary>One group per skinned mesh with shapes, named after its renderer, in hierarchy order, each mesh's shapes in mesh order.</summary>
+        public static List<AdMenu.Item> Items(Transform avatarRoot, Action<SkinnedMeshRenderer, string> onPick)
+        {
+            var groups = new List<AdMenu.Item>();
             if (avatarRoot != null)
             {
                 foreach (var renderer in avatarRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true))
                 {
                     var mesh = renderer.sharedMesh;
                     if (mesh == null || mesh.blendShapeCount == 0) continue;
-                    var group = new AdvancedDropdownItem(renderer.name);
-                    for (int i = 0; i < mesh.blendShapeCount; i++) group.AddChild(new ShapeItem(renderer, mesh.GetBlendShapeName(i)));
-                    root.AddChild(group);
-                    found++;
+                    var shapes = new List<AdMenu.Item>(mesh.blendShapeCount);
+                    var owner = renderer;
+                    for (int i = 0; i < mesh.blendShapeCount; i++)
+                    {
+                        var shape = mesh.GetBlendShapeName(i);
+                        shapes.Add(new AdMenu.Item { Text = shape, Action = () => onPick(owner, shape) });
+                    }
+                    groups.Add(new AdMenu.Item { Text = renderer.name, Children = shapes });
                 }
             }
-            if (found == 0) root.AddChild(new AdvancedDropdownItem(L.Text("ad.ui.pick.renderer")) { enabled = false });
-            return root;
-        }
-
-        protected override void ItemSelected(AdvancedDropdownItem item)
-        {
-            if (item is ShapeItem shape) onPick(shape.Renderer, shape.Shape);
+            if (groups.Count == 0) return new List<AdMenu.Item> { new AdMenu.Item { Text = L.Text("ad.ui.pick.renderer"), Disabled = true } };
+            return groups.Count == 1 ? groups[0].Children : groups;
         }
     }
 }

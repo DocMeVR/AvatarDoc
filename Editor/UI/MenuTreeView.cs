@@ -697,7 +697,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>The first of several built in icon names that this Unity version actually has a texture for, since an icon's name has moved between versions and skins.</summary>
-        static Texture FirstIcon(params string[] names)
+        internal static Texture FirstIcon(params string[] names)
         {
             foreach (var name in names)
             {
@@ -1092,7 +1092,7 @@ namespace DocMe.AvatarDoctor.Editor
             var root = owner.Plan?.AvatarRoot;
             var button = welcomeCard.Q<Button>("ad-welcome-toggle");
             if (root == null || button == null) return;
-            AvatarObjectPicker.Show(button.worldBound, root, PickKind.GameObject, picked =>
+            AvatarObjectPicker.Show(button, root, PickKind.GameObject, picked =>
             {
                 if (picked is GameObject go) AddTogglesFor(new[] { go });
             });

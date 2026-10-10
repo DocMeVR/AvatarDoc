@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,7 +31,7 @@ namespace DocMe.AvatarDoctor.Editor
     /// </summary>
     public static class AvatarObjectPicker
     {
-        /// <summary>Swapped in tests so opening the picker never shows a real IMGUI window.</summary>
+        /// <summary>Swapped in tests so opening the picker never opens a real menu.</summary>
         public static Action<Rect, Transform, PickKind, Action<UnityEngine.Object>> ShowOverride;
 
         /// <summary>
@@ -188,11 +187,56 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Opens the searchable dropdown at the button's world rect, scoped to this avatar.</summary>
+        /// <summary>Opens the picker, an AdMenu with a search field, under a button's world rect, scoped to this avatar. For callers outside AvatarDoc, which hand over only the rectangle: the button is looked for with AdMenu.FindTarget.</summary>
         public static void Show(Rect buttonRect, Transform avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick)
         {
             if (ShowOverride != null) { ShowOverride(buttonRect, avatarRoot, kind, onPick); return; }
-            new PickerDropdown(avatarRoot, kind, onPick).Show(buttonRect);
+            Open(buttonRect, AdMenu.FindTarget(buttonRect), avatarRoot, kind, onPick);
+        }
+
+        /// <summary>Opens the picker on the control that asked for it, scoped to this avatar.</summary>
+        internal static void Show(VisualElement anchor, Transform avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick)
+        {
+            if (ShowOverride != null) { ShowOverride(anchor.worldBound, avatarRoot, kind, onPick); return; }
+            Open(anchor.worldBound, anchor, avatarRoot, kind, onPick);
+        }
+
+        /// <summary>Opens the picker under buttonRect in the window that hosts target. Null when target is not on a panel.</summary>
+        public static AdMenu Open(Rect buttonRect, VisualElement target, Transform avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick) =>
+            AdMenu.Open(buttonRect, target, Items(avatarRoot, kind, onPick), search: true);
+
+        /// <summary>
+        /// The Choices as menu items: the object's name (marked when inactive) with its parent path as the dim text
+        /// beside it, found by its name or its path under the avatar. Humanoid bones go in one Bones group, where the
+        /// first of them would stand.
+        /// </summary>
+        public static List<AdMenu.Item> Items(Transform avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick)
+        {
+            var items = new List<AdMenu.Item>();
+            AdMenu.Item bones = null;
+            foreach (var choice in Choices(avatarRoot, kind))
+            {
+                var target = choice.Target;
+                var item = new AdMenu.Item
+                {
+                    Text = choice.Inactive ? choice.Name + " " + L.Text("ad.ui.pick.inactive") : choice.Name,
+                    SearchText = choice.ParentPath.Length > 0 ? choice.ParentPath + "/" + choice.Name : choice.Name,
+                    Note = choice.ParentPath,
+                    Action = () => onPick(target),
+                };
+                if (choice.IsBone)
+                {
+                    if (bones == null)
+                    {
+                        bones = new AdMenu.Item { Text = L.Text("ad.ui.pick.bones"), Children = new List<AdMenu.Item>() };
+                        items.Add(bones);
+                    }
+                    bones.Children.Add(item);
+                }
+                else items.Add(item);
+            }
+            if (items.Count == 0) items.Add(new AdMenu.Item { Text = L.Text("ad.ui.pick.none"), Disabled = true });
+            return items;
         }
 
         /// <summary>
@@ -209,19 +253,29 @@ namespace DocMe.AvatarDoctor.Editor
             var stamp = new OpenStamp();
             // Unity opens its own selector from the default action of the mouse down on this element and from the
             // key down on the focused field, so both are claimed outright: stopping the propagation alone would
-            // leave the default action running and open the scene wide selector beside this one.
+            // leave the default action running and open the scene wide selector beside this one. The avatar picker
+            // itself opens on the release, as a button does: a menu opened by the press can lie under the pointer
+            // when the window is short.
             selector.RegisterCallback<PointerDownEvent>(evt =>
             {
                 if (evt.button != 0 || !CanOpen(selector, avatarRoot)) return;
                 Claim(evt);
-                OpenOnce(stamp, selector, avatarRoot, kind, onPick);
+                stamp.Pressed = true;
             }, TrickleDown.TrickleDown);
             selector.RegisterCallback<MouseDownEvent>(evt =>
             {
                 if (evt.button != 0 || !CanOpen(selector, avatarRoot)) return;
                 Claim(evt);
+            }, TrickleDown.TrickleDown);
+            selector.RegisterCallback<PointerUpEvent>(evt =>
+            {
+                if (evt.button != 0 || !stamp.Pressed) return;
+                stamp.Pressed = false;
+                if (!CanOpen(selector, avatarRoot)) return;
+                Claim(evt);
                 OpenOnce(stamp, selector, avatarRoot, kind, onPick);
             }, TrickleDown.TrickleDown);
+            selector.RegisterCallback<PointerLeaveEvent>(_ => stamp.Pressed = false);
             field.RegisterCallback<KeyDownEvent>(evt =>
             {
                 if (evt.keyCode != KeyCode.Return && evt.keyCode != KeyCode.KeypadEnter && evt.keyCode != KeyCode.Space) return;
@@ -231,10 +285,11 @@ namespace DocMe.AvatarDoctor.Editor
             }, TrickleDown.TrickleDown);
         }
 
-        /// <summary>When one selector last opened its list. One of these per selector, held by that selector's own callbacks.</summary>
+        /// <summary>When one selector last opened its list, and whether a press on it waits for its release. One of these per selector, held by that selector's own callbacks.</summary>
         sealed class OpenStamp
         {
             public double At = -1d;
+            public bool Pressed;
         }
 
         static void Claim(EventBase evt)
@@ -243,7 +298,7 @@ namespace DocMe.AvatarDoctor.Editor
             evt.PreventDefault();
         }
 
-        /// <summary>One press arrives as a pointer event and as a mouse event: only the first of the two opens this selector's list.</summary>
+        /// <summary>Opens this selector's list unless it opened within the last quarter second, as a held key repeats.</summary>
         static void OpenOnce(OpenStamp stamp, VisualElement selector, Func<Transform> avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick)
         {
             double now = EditorApplication.timeSinceStartup;
@@ -266,67 +321,8 @@ namespace DocMe.AvatarDoctor.Editor
         public static bool TryOpen(VisualElement selector, Func<Transform> avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick)
         {
             if (!CanOpen(selector, avatarRoot)) return false;
-            var root = avatarRoot();
-            Show(selector.worldBound, root, kind, onPick);
+            Show(selector, avatarRoot(), kind, onPick);
             return true;
-        }
-
-        sealed class PickerDropdown : AdvancedDropdown
-        {
-            sealed class Item : AdvancedDropdownItem
-            {
-                public readonly UnityEngine.Object Target;
-                public Item(string label, UnityEngine.Object target) : base(label) { Target = target; }
-            }
-
-            readonly Transform avatarRoot;
-            readonly PickKind kind;
-            readonly Action<UnityEngine.Object> onPick;
-
-            public PickerDropdown(Transform avatarRoot, PickKind kind, Action<UnityEngine.Object> onPick) : base(new AdvancedDropdownState())
-            {
-                this.avatarRoot = avatarRoot;
-                this.kind = kind;
-                this.onPick = onPick;
-                minimumSize = new Vector2(280f, 320f);
-            }
-
-            protected override AdvancedDropdownItem BuildRoot()
-            {
-                var root = new AdvancedDropdownItem(L.Text("ad.ui.pick.avatar_object"));
-                var choices = Choices(avatarRoot, kind);
-                AdvancedDropdownItem bones = null;
-                for (int i = 0; i < choices.Count; i++)
-                {
-                    var choice = choices[i];
-                    var item = new Item(LabelOf(choice), choice.Target);
-                    if (choice.IsBone)
-                    {
-                        if (bones == null)
-                        {
-                            bones = new AdvancedDropdownItem(L.Text("ad.ui.pick.bones"));
-                            root.AddChild(bones);
-                        }
-                        bones.AddChild(item);
-                    }
-                    else root.AddChild(item);
-                }
-                if (choices.Count == 0) root.AddChild(new AdvancedDropdownItem(L.Text("ad.ui.pick.none")) { enabled = false });
-                return root;
-            }
-
-            static string LabelOf(PickChoice choice)
-            {
-                var label = choice.Name;
-                if (choice.Inactive) label += " " + L.Text("ad.ui.pick.inactive");
-                label = L.Aside(label, choice.ParentPath);
-                return label;
-            }
-
-            protected override void ItemSelected(AdvancedDropdownItem item)
-            {
-                if (item is Item picked) onPick(picked.Target);
-            }
         }
     }
 }

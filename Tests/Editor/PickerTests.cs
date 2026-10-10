@@ -9,7 +9,7 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>AvatarObjectPicker: the searchable dropdown that replaces Unity's scene wide object selector on a field that names something on the avatar. Choices and Accepts are pure and are what these tests check; the dropdown itself is never opened here.</summary>
+    /// <summary>AvatarObjectPicker: the avatar's own picker that replaces Unity's scene wide object selector on a field that names something on the avatar. Choices and Accepts are pure and are what these tests check; PickerSearchTests opens the menu itself.</summary>
     public class PickerTests
     {
         TestAvatar avatar;

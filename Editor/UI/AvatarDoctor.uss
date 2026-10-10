@@ -309,3 +309,14 @@
 .ad-menu-header { padding: 4px 8px 2px 8px; }
 .ad-menu-header-text { font-size: 10px; margin: 0; padding: 0; -unity-font-style: bold; letter-spacing: 1px; color: var(--ad-muted); }
 .ad-menu-back .ad-menu-label { color: var(--ad-muted); }
+/* A menu with search (the pickers): the field on top, then a list of one fixed height, rows of one line each. A long
+   name ends in an ellipsis and its row's tooltip shows it whole; the dim note beside it gives way from its start, so
+   the end of a path, the part that tells two objects apart, stays readable. */
+.ad-menu-search { flex-shrink: 0; height: 22px; margin: 0 6px 4px 6px; }
+.ad-menu-search > .unity-base-field__label { display: none; width: 0; min-width: 0; margin: 0; padding: 0; }
+.ad-menu-search .unity-text-field__input, .ad-menu-search .unity-base-text-field__input { flex-grow: 1; height: 22px; margin: 0; padding: 2px 6px; position: relative; }
+.ad-menu-list { flex-shrink: 1; min-height: 22px; }
+.ad-menu-searchable .ad-menu-column { min-width: 0; overflow: hidden; }
+.ad-menu-searchable .ad-menu-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ad-menu-note { flex-shrink: 1; max-width: 50%; margin: 0 0 0 6px; padding: 0; font-size: 11px; color: var(--ad-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -unity-text-overflow-position: start; }
+.ad-menu-searchable .ad-menu-info .ad-menu-label { white-space: normal; color: var(--ad-muted); }

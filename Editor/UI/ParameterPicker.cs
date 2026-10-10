@@ -2,79 +2,60 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using nadena.dev.ndmf;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Searchable dropdown of every parameter name a trigger can watch.</summary>
-    public sealed class ParameterPicker : AdvancedDropdown
+    /// <summary>Every parameter name a trigger can watch, in an AdMenu with a search field.</summary>
+    public static class ParameterPicker
     {
-        sealed class NameItem : AdvancedDropdownItem
-        {
-            public readonly string Value;
-            public NameItem(string label, string value) : base(label) { Value = value; }
-        }
+        /// <summary>For callers outside AvatarDoc, which hand over only the button's world rectangle: the button is looked for with AdMenu.FindTarget.</summary>
+        public static void Show(Rect anchor, AvatarPlan plan, Action<string> onPick) => Open(anchor, AdMenu.FindTarget(anchor), plan, onPick);
 
-        readonly AvatarPlan plan;
-        readonly Action<string> onPick;
+        /// <summary>Opens the picker on the control that asked for it.</summary>
+        internal static void Show(VisualElement anchor, AvatarPlan plan, Action<string> onPick) => Open(anchor.worldBound, anchor, plan, onPick);
 
-        ParameterPicker(AvatarPlan plan, Action<string> onPick) : base(new AdvancedDropdownState())
-        {
-            this.plan = plan;
-            this.onPick = onPick;
-            minimumSize = new Vector2(280f, 340f);
-        }
+        /// <summary>Opens the picker under anchor in the window that hosts target. Null when target is not on a panel.</summary>
+        public static AdMenu Open(Rect anchor, VisualElement target, AvatarPlan plan, Action<string> onPick) =>
+            AdMenu.Open(anchor, target, Items(plan, onPick), search: true);
 
-        public static void Show(Rect anchor, AvatarPlan plan, Action<string> onPick)
+        /// <summary>
+        /// The avatar's own parameters, AvatarDoc's, VRChat's built in ones and VRCFury's globals, a group each, with
+        /// the type as the dim text beside each name. A name that appears in more than one group (an AvatarDoc toggle
+        /// already visible as an avatar parameter) is only ever shown once, in the first group it turns up in; a
+        /// group with nothing left in it is not shown.
+        /// </summary>
+        public static List<AdMenu.Item> Items(AvatarPlan plan, Action<string> onPick)
         {
-            new ParameterPicker(plan, onPick).Show(anchor);
-        }
-
-        protected override AdvancedDropdownItem BuildRoot()
-        {
-            var root = new AdvancedDropdownItem(L.Text("ad.ui.pick.parameter"));
-            // A name that appears in more than one group (e.g. an AvatarDoctor toggle already visible as an
-            // avatar parameter) is only ever shown once, in the first group it turns up in.
+            var groups = new List<AdMenu.Item>();
             var seen = new HashSet<string>();
-            var avatarGroup = new AdvancedDropdownItem(L.Text("ad.ui.pick.parameter.avatar"));
-            if (plan.AvatarRoot != null)
+            void AddGroup(string title, IEnumerable<(string Name, string Type)> names)
             {
-                foreach (var p in AvatarPlanCache.ProvidedFor(plan.AvatarRoot).Where(p => !(p.Source is AvatarDoc)).OrderBy(p => p.EffectiveName))
+                var children = new List<AdMenu.Item>();
+                foreach (var (name, type) in names)
                 {
-                    if (!seen.Add(p.EffectiveName)) continue;
-                    avatarGroup.AddChild(new NameItem(p.ParameterType.HasValue ? L.Aside(p.EffectiveName, p.ParameterType.Value.ToString()) : p.EffectiveName, p.EffectiveName));
+                    if (!seen.Add(name)) continue;
+                    children.Add(new AdMenu.Item { Text = name, Note = type, Action = () => onPick(name) });
                 }
+                if (children.Count > 0) groups.Add(new AdMenu.Item { Text = title, Children = children });
             }
-            root.AddChild(avatarGroup);
-            var doctorGroup = new AdvancedDropdownItem(L.Text("ad.ui.pick.parameter.doctor"));
-            foreach (var p in plan.Plan.Parameters.OrderBy(p => p.Name))
+
+            var avatarRoot = plan?.AvatarRoot;
+            if (avatarRoot != null)
             {
-                if (!seen.Add(p.Name)) continue;
-                doctorGroup.AddChild(new NameItem(L.Aside(p.Name, p.Type.ToString()), p.Name));
+                AddGroup(L.Text("ad.ui.pick.parameter.avatar"), AvatarPlanCache.ProvidedFor(avatarRoot)
+                    .Where(p => !(p.Source is AvatarDoc)).OrderBy(p => p.EffectiveName)
+                    .Select(p => (p.EffectiveName, p.ParameterType.HasValue ? p.ParameterType.Value.ToString() : null)));
             }
-            root.AddChild(doctorGroup);
-            var vrchatGroup = new AdvancedDropdownItem(L.Text("ad.ui.pick.parameter.vrchat"));
-            foreach (var name in TriggerPlanner.BuiltInNames.OrderBy(n => n))
-            {
-                if (!seen.Add(name)) continue;
-                vrchatGroup.AddChild(new NameItem(L.Aside(name, TriggerPlanner.BuiltInType(name).ToString()), name));
-            }
-            root.AddChild(vrchatGroup);
-            var vrcFuryGroup = new AdvancedDropdownItem(L.Text("ad.ui.chip.vrcfury"));
-            foreach (var name in VrcFuryChoices(plan.AvatarRoot))
-            {
-                if (!seen.Add(name)) continue;
-                vrcFuryGroup.AddChild(new NameItem(name, name));
-            }
-            root.AddChild(vrcFuryGroup);
-            return root;
+            if (plan?.Plan != null)
+                AddGroup(L.Text("ad.ui.pick.parameter.doctor"), plan.Plan.Parameters.OrderBy(p => p.Name).Select(p => (p.Name, p.Type.ToString())));
+            AddGroup(L.Text("ad.ui.pick.parameter.vrchat"), TriggerPlanner.BuiltInNames.OrderBy(n => n).Select(n => (n, TriggerPlanner.BuiltInType(n).ToString())));
+            AddGroup(L.Text("ad.ui.chip.vrcfury"), VrcFuryChoices(avatarRoot).Select(n => (n, (string)null)));
+            return groups;
         }
 
-        /// <summary>The distinct VRCFury global parameter names to offer, in order. A separate, testable method
-        /// because AdvancedDropdownItem's children are not readable from outside UnityEditor, so BuildRoot's tree
-        /// cannot be inspected directly by a test.</summary>
+        /// <summary>The distinct VRCFury global parameter names to offer, in order.</summary>
         public static List<string> VrcFuryChoices(Transform avatarRoot)
         {
             var result = new List<string>();
@@ -85,11 +66,6 @@ namespace DocMe.AvatarDoctor.Editor
                 if (seen.Add(name)) result.Add(name);
             }
             return result;
-        }
-
-        protected override void ItemSelected(AdvancedDropdownItem item)
-        {
-            if (item is NameItem name) onPick(name.Value);
         }
     }
 }

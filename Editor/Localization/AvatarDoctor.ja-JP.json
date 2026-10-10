@@ -285,7 +285,6 @@
   "ad.ui.override.unused": "このアバターでは、まだこのシェイプをアニメーションするものがありません。値はメッシュにそのまま適用されます。",
   "ad.ui.usage.chip": "クリップ{0}個",
   "ad.ui.preview.always": "オンの間は常にプレビューに適用されます。",
-  "ad.ui.pick.parameter": "パラメーターを選択",
   "ad.ui.pick.parameter.avatar": "アバター",
   "ad.ui.pick.parameter.doctor": "AvatarDoc",
   "ad.ui.pick.parameter.vrchat": "VRChat",
@@ -591,7 +590,6 @@
   "ad.summary.conditions.line": "「{0}」：{1}",
   "ad.ui.when.settings": "設定",
   "ad.ui.when.chip_more": "{0} +{1}",
-  "ad.ui.pick.avatar_object": "アバターから選択",
   "ad.ui.pick.bones": "ボーン",
   "ad.ui.pick.inactive": "（非アクティブ）",
   "ad.ui.pick.none": "オブジェクトが見つかりません。",
@@ -1098,5 +1096,9 @@
   "ad.summary.parameters.name": "名前",
   "ad.summary.parameters.type": "型",
   "ad.summary.parameters.notes": "備考",
-  "ad.ui.blend.unit": "秒"
+  "ad.ui.blend.unit": "秒",
+  "ad.ui.pick.search.tip": "入力すると一覧を絞り込みます。上下キーで結果を移動し、Enter でハイライト中の項目を選び、Esc で検索をクリアします。",
+  "ad.ui.pick.no_match": "「{0}」に一致する項目はありません。",
+  "ad.ui.pick.more": "ほかに {0} 件あります。文字を追加して絞り込んでください。",
+  "ad.ui.pick.more.one": "ほかに {0} 件あります。文字を追加して絞り込んでください。"
 }

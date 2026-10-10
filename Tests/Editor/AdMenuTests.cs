@@ -63,8 +63,10 @@ namespace DocMe.AvatarDoctor.Editor
 
         static void Hover(VisualElement target) => Pointer<PointerMoveEvent>(target, EventType.MouseMove, 0);
 
+        /// <summary>A press and a release on the row: a release alone, from a press that began outside the menu, picks nothing.</summary>
         static void ClickRow(AdMenu menu, int index)
         {
+            Press(menu.Rows[index]);
             Release(menu.Rows[index]);
         }
 
@@ -245,12 +247,61 @@ namespace DocMe.AvatarDoctor.Editor
                     Assert.That(menu.Depth, Is.EqualTo(0), "Backspace goes up one level");
 
                     ClickRow(menu, 0);
+                    Press(menu.Card.Q(name: "ad-menu-back"));
                     Release(menu.Card.Q(name: "ad-menu-back"));
                     Assert.That(menu.Depth, Is.EqualTo(0), "the Back row goes up too");
 
                     ClickRow(menu, 0);
                     ClickRow(menu, 1);
                     Assert.That(log, Is.EqualTo(new[] { "Outfits" }));
+                    Assert.That(menu.IsClosed, Is.True);
+                }
+                finally { menu?.Close(false); }
+            });
+        }
+
+        [Test]
+        public void ARowPicksOnlyAReleaseThatFollowsAPressInside()
+        {
+            InWindow(opener =>
+            {
+                var log = new List<string>();
+                var items = new List<AdMenu.Item>
+                {
+                    new AdMenu.Item { Text = "Move to", Children = new List<AdMenu.Item>
+                    {
+                        new AdMenu.Item { Text = "Root", Action = () => log.Add("Root") },
+                        new AdMenu.Item { Text = "Outfits", Action = () => log.Add("Outfits") },
+                    } },
+                    new AdMenu.Item { Text = "Delete", Action = () => log.Add("Delete") },
+                };
+                // Opened with no press inside it, as a button's click or a press on another control opens one.
+                var menu = AdMenu.Open(opener.worldBound, opener, items);
+                try
+                {
+                    LayoutProbe.Validate(menu);
+                    Release(menu.Rows[1]);
+                    Assert.That(log, Is.Empty, "a release alone on a row picks nothing");
+                    Assert.That(menu.IsClosed, Is.False);
+                    Release(menu.Rows[0]);
+                    Assert.That(menu.Depth, Is.EqualTo(0), "nor opens a group");
+
+                    Key(menu, KeyCode.DownArrow);
+                    Key(menu, KeyCode.RightArrow);
+                    Assert.That(menu.Depth, Is.EqualTo(1));
+                    LayoutProbe.Validate(menu);
+                    var back = menu.Card.Q(name: "ad-menu-back");
+                    Release(back);
+                    Assert.That(menu.Depth, Is.EqualTo(1), "a release alone on the Back row goes nowhere");
+                    Release(menu.Rows[0]);
+                    Assert.That(log, Is.Empty, "a release alone on a row of the group picks nothing either");
+
+                    Press(back);
+                    Release(back);
+                    Assert.That(menu.Depth, Is.EqualTo(0), "a press and a release on the Back row go back");
+                    Press(menu.Rows[1]);
+                    Release(menu.Rows[1]);
+                    Assert.That(log, Is.EqualTo(new[] { "Delete" }), "a press and a release on a row pick it");
                     Assert.That(menu.IsClosed, Is.True);
                 }
                 finally { menu?.Close(false); }

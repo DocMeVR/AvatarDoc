@@ -108,13 +108,13 @@ namespace DocMe.AvatarDoctor.Editor
             if (captureEntry != null)
             {
                 var capture = new Button { text = L.Text("ad.ui.shape_set.capture"), name = "ad-shape-set-capture", tooltip = L.Text("ad.ui.shape_set.capture.tip") };
-                capture.clicked += () => AvatarObjectPicker.Show(capture.worldBound, owner.Plan.AvatarRoot, PickKind.SkinnedMeshWithShapes,
+                capture.clicked += () => AvatarObjectPicker.Show(capture, owner.Plan.AvatarRoot, PickKind.SkinnedMeshWithShapes,
                     picked => CaptureFrom(picked as SkinnedMeshRenderer));
                 header.Add(capture);
                 if (ShowsRule)
                 {
                     var hold = new Button { text = L.Text("ad.ui.shape_set.hold"), name = "ad-shape-set-hold", tooltip = L.Text("ad.ui.shape_set.hold.tip") };
-                    hold.clicked += () => AvatarObjectPicker.Show(hold.worldBound, owner.Plan.AvatarRoot, PickKind.SkinnedMeshWithShapes,
+                    hold.clicked += () => AvatarObjectPicker.Show(hold, owner.Plan.AvatarRoot, PickKind.SkinnedMeshWithShapes,
                         picked => HoldTheRest(picked as SkinnedMeshRenderer));
                     header.Add(hold);
                     // Three buttons do not fit beside the title at the narrow end of the inspector: the last one
@@ -468,7 +468,7 @@ namespace DocMe.AvatarDoctor.Editor
                     {
                         if (!Follow()) return;
                         var path = list.GetArrayElementAtIndex((int)row.userData).propertyPath;
-                        ShapePicker.Show(shape.worldBound, owner.Plan.AvatarRoot, (r, s) => SetShape(path, r, s));
+                        ShapePicker.Show(shape, owner.Plan.AvatarRoot, (r, s) => SetShape(path, r, s));
                     };
                     row.Add(shape);
                     var usage = new Label();
@@ -1004,7 +1004,7 @@ namespace DocMe.AvatarDoctor.Editor
             return container;
         }
 
-        /// <summary>The property dropdown: every choice the renderer's shaders list, grouped into submenus by the first letter, or a fixed chunk of the alphabet when there are more than 40; "Other..." always comes first, for a property typed by hand.</summary>
+        /// <summary>The property dropdown: every choice the renderer's shaders list, grouped into submenus by the first letter, or a fixed chunk of the alphabet when there are more than 40; "Other..." always comes first, for a property typed by hand. Its search field finds a property by its display name or its shader name, which shows beside the display name when the two differ.</summary>
         void ShowPropertyMenu(VisualElement anchorElement, Renderer renderer, string elementPath)
         {
             var anchor = anchorElement.worldBound;
@@ -1024,10 +1024,16 @@ namespace DocMe.AvatarDoctor.Editor
                 var branch = groups.Find(g => g.Text == group);
                 if (branch == null) groups.Add(branch = new AdMenu.Item { Text = group, Children = new List<AdMenu.Item>() });
                 var picked = choice;
-                branch.Children.Add(new AdMenu.Item { Text = choice.DisplayName, Action = () => SetProperty(elementPath, picked) });
+                branch.Children.Add(new AdMenu.Item
+                {
+                    Text = choice.DisplayName,
+                    SearchText = choice.PropertyName,
+                    Note = choice.DisplayName == choice.PropertyName ? "" : choice.PropertyName,
+                    Action = () => SetProperty(elementPath, picked),
+                });
             }
             items.AddRange(groups);
-            AdMenu.Open(anchor, anchorElement, items);
+            AdMenu.Open(anchor, anchorElement, items, search: true);
         }
 
         static string AlphabetGroup(string displayName, bool wideChunks)
@@ -1152,7 +1158,7 @@ namespace DocMe.AvatarDoctor.Editor
             switch (kind)
             {
                 case Kind.Objects: AddObjects(new GameObject[] { null }); break;
-                case Kind.BlendShapes: ShapePicker.Show(anchor, owner.Plan.AvatarRoot, AddShape); break;
+                case Kind.BlendShapes: ShapePicker.Show(anchor, owner, owner.Plan.AvatarRoot, AddShape); break;
                 case Kind.Materials: AddMaterialRow(); break;
                 case Kind.Properties: AddProperty(null, ""); break;
                 case Kind.Animations: AddAnimation(null); break;

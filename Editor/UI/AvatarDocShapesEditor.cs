@@ -74,7 +74,7 @@ namespace DocMe.AvatarDoctor.Editor
             followButtons.AddToClassList("ad-row");
             followButtons.Add(new Button(AddFollow) { text = L.Text("ad.ui.shapes.add"), name = "ad-shapes-add-follow", tooltip = L.Text("ad.ui.shapes.add_follow.tip") });
             var matching = new Button { text = L.Text("ad.ui.shapes.add_matching"), name = "ad-shapes-add-matching", tooltip = L.Text("ad.ui.shapes.add_matching.tip") };
-            matching.clicked += () => AvatarObjectPicker.Show(matching.worldBound, AvatarRoot, PickKind.SkinnedMeshWithShapes,
+            matching.clicked += () => AvatarObjectPicker.Show(matching, AvatarRoot, PickKind.SkinnedMeshWithShapes,
                 picked => AddMatching(picked as SkinnedMeshRenderer));
             followButtons.Add(matching);
             root.Add(followButtons);
@@ -177,7 +177,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>A label and a button that opens the shape picker: a shape name never fits an ordinary text field at this width.</summary>
-        static VisualElement ShapeRow(string labelKey, string text, string name, System.Action<Rect> show)
+        static VisualElement ShapeRow(string labelKey, string text, string name, System.Action<VisualElement> show)
         {
             var row = new VisualElement();
             row.AddToClassList("ad-row");
@@ -187,7 +187,7 @@ namespace DocMe.AvatarDoctor.Editor
             row.Add(label);
             var button = new Button { text = string.IsNullOrEmpty(text) ? L.Text("ad.ui.pick.shape") : text, name = name, tooltip = tip };
             button.AddToClassList("ad-shape-pick");
-            button.clicked += () => show(button.worldBound);
+            button.clicked += () => show(button);
             row.Add(button);
             return row;
         }

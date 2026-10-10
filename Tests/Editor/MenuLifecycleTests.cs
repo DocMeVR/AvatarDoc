@@ -349,7 +349,8 @@ namespace DocMe.AvatarDoctor.Editor
                     LayoutProbe.Validate(view);
                     Assert.That(add.worldBound.y, Is.EqualTo(bound.y + 40f).Within(1f), "the button moved down after the menu opened");
 
-                    // Chosen with a release on its row, as the pointer does, so the close runs inside an event.
+                    // Chosen with a press and a release on its row, as the pointer does, so the close runs inside an event.
+                    Pointer<PointerDownEvent>(open.Rows[blendShapes], EventType.MouseDown, 0);
                     Pointer<PointerUpEvent>(open.Rows[blendShapes], EventType.MouseUp, 0);
 
                     Assert.That(open.IsClosed, Is.True);

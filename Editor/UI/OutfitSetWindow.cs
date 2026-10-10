@@ -524,7 +524,7 @@ namespace DocMe.AvatarDoctor.Editor
             row.Add(drop);
             var add = new Button { text = L.Text("ad.ui.outfit.add_piece"), name = "ad-outfit-add-piece", tooltip = L.Text("ad.ui.outfit.add_piece.tip") };
             var root = component != null ? AvatarPlanCache.RootOf(component) : null;
-            add.clicked += () => AvatarObjectPicker.Show(add.worldBound, root, PickKind.GameObject, picked => { if (picked is GameObject go) onPick(go); });
+            add.clicked += () => AvatarObjectPicker.Show(add, root, PickKind.GameObject, picked => { if (picked is GameObject go) onPick(go); });
             add.SetEnabled(root != null);
             row.Add(add);
             return row;

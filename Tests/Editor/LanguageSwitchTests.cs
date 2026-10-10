@@ -300,6 +300,7 @@ namespace DocMe.AvatarDoctor.Editor
                     int japanese = choices.IndexOf("ja-jp");
                     Assert.That(japanese, Is.GreaterThanOrEqualTo(0));
 
+                    Pointer<PointerDownEvent>(menu.Rows[japanese], EventType.MouseDown);
                     Pointer<PointerUpEvent>(menu.Rows[japanese], EventType.MouseUp);
 
                     Assert.That(menu.IsClosed, Is.True);

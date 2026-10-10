@@ -2535,3 +2535,46 @@ the language, the key and the fix. `LocalizationFileTests` runs them on every fi
 language file writes the same findings to the Console. Tests use `L.UseTestLanguage`, a table injected in memory that
 never touches a file, NDMF's saved choice or EditorPrefs; scopes nest, also on one code. Every run is pinned to English:
 the project's runner wraps it, and `EnglishDuringTests`, a `[SetUpFixture]`, does the same in Unity's Test Runner.
+
+## Search in the pickers (asked 2026-10-10, plan 16 task Q)
+
+The creator: "for material properties and blendshapes and such when selecting it: add a search function that suits the
+design". The blend shape, parameter and avatar object pickers used Unity's `AdvancedDropdown` (see "Pickers show only
+the current avatar"), and the material property menu had no search at all, so all four now open `AdMenu` with
+`search: true`.
+
+**The field.** A plain `TextField` with the tree search's look (magnifier and placeholder inside its input) sits above
+the list and takes the keyboard focus when the menu opens; the menu itself is then not focusable. While it is empty
+the menu browses exactly as without search. With text, every enabled leaf whose name or `SearchText` holds the text,
+case insensitive, shows in one flat list in the groups' order, its `Note` (or, without one, its group: the submenus
+above it and the header over it) as dim text on the same row. At most `MaxResults` (100) rows are built, then one
+disabled row counts the rest (`ad.ui.pick.more`, `.one`); nothing matching shows `ad.ui.pick.no_match`. The search
+index (lower cased names, search texts, groups) is built once when the menu opens. A browsed list longer than two
+screens (every object of an avatar, every shape of one mesh) builds each row with its size at once but gives it its
+text only as it scrolls near, or when the keyboard reaches it: 800 rows open and lay out in about 20 ms instead of 200.
+
+**Keys.** A trickle down handler on the menu answers before the field: Down and Up move the highlight, Enter picks it or
+the first result, Escape clears the field or closes an empty one, Tab closes; with an empty field Right, Left and
+Backspace open and leave groups as before. Every other key, and every key while an input method is composing
+(`Input.compositionString`), goes to the field, except a leading space: Space on an object field opens the picker and
+Windows then sends the space itself. A press on a row is kept from moving the focus, so typing goes on.
+
+**Press and release.** In every AdMenu a row, or the Back row, is picked only by a release that follows a press inside
+the card while the menu was open, so the release of the press that opened a menu never picks the row that lies under
+the pointer by then. The object field's selector, which has to claim the press to keep Unity's own selector shut, opens
+the avatar picker on the release, as a button does.
+
+**Size.** The card is `SearchWidth` (260) wide, or the control's width up to `MaxWidth`, and its list is as tall as the
+most rows it can show (up to `MaxRows`), so it keeps one size and place while the results change. Rows keep to one line:
+a long name ends in an ellipsis and the row's tooltip shows it whole; the note gives way from its start, so the end of a
+path stays readable.
+
+**Pickers.** Each keeps its public entry point and test seam. Every AvatarDoc control hands itself to an internal
+`Show(VisualElement anchor, ...)`, so the menu is opened on it, held by its view and closed with it; `TargetListView.OnAdd`
+opens on the view, which outlives a rebuild of the button that asked. The public `Show(Rect, ...)` stays for outside
+callers and looks for the control with `AdMenu.FindTarget`: the element with exactly that rectangle under its centre in
+the focused window, else the window under the pointer, else whatever one of those two shows there; no other window.
+`AvatarObjectPicker.TryOpen` hands over the selector itself. Blend shapes: a group
+per mesh, the shapes directly for a single mesh. Properties: `Other...` first, the letter groups, the shader name as
+search text and note. Parameters: the four groups (an empty one is left out), the type as note instead of "(Bool)" in
+the name. Objects: the parent path as note, the full path as search text, the bones in one group.

@@ -1567,7 +1567,7 @@ namespace DocMe.AvatarDoctor.Editor
                     row2.Add(nameField);
                     var pick = new Button();
                     AddDropdownIcon(pick);
-                    pick.clicked += () => ParameterPicker.Show(pick.worldBound, owner.Plan, SetSourceParameter);
+                    pick.clicked += () => ParameterPicker.Show(pick, owner.Plan, SetSourceParameter);
                     row2.Add(pick);
                     body.Add(row2);
                     var conditionField = fields.EnumChoice(property.FindPropertyRelative(nameof(MenuEntry.condition)), L.Text("ad.ui.trigger.condition"));
@@ -1612,7 +1612,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var shapeButton = new Button { text = (entry.sourceRenderer != null ? entry.sourceRenderer.name : "?") + " › " + entry.sourceShape, name = "ad-trigger-shape", tooltip = L.Text("ad.ui.trigger.shape.tip") };
             shapeButton.AddToClassList("ad-field-button");
-            shapeButton.clicked += () => ShapePicker.Show(shapeButton.worldBound, owner.Plan.AvatarRoot, SetSourceShape);
+            shapeButton.clicked += () => ShapePicker.Show(shapeButton, owner.Plan.AvatarRoot, SetSourceShape);
             var shapeRow = new VisualElement { name = "ad-when-driver" };
             shapeRow.AddToClassList("ad-row");
             var label = new Label(L.Text("ad.ui.trigger.shape")) { tooltip = L.Text("ad.ui.trigger.shape.tip") };

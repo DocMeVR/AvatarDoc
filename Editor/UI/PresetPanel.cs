@@ -287,7 +287,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var pick = new Button { name = "ad-preset-param-pick" };
             EntryDetailView.AddDropdownIcon(pick);
-            pick.clicked += () => ParameterPicker.Show(pick.worldBound, owner.Plan, name => SetParameterName(index, name));
+            pick.clicked += () => ParameterPicker.Show(pick, owner.Plan, name => SetParameterName(index, name));
             parameterRow.Add(pick);
 
             var valueField = new FloatField { isDelayed = true, name = "ad-preset-param-value", tooltip = L.Text("ad.ui.preset.param_value.tip") };

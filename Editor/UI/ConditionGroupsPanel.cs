@@ -259,7 +259,7 @@ namespace DocMe.AvatarDoctor.Editor
             line.Add(nameField);
             var pick = new Button();
             EntryDetailView.AddDropdownIcon(pick);
-            pick.clicked += () => ParameterPicker.Show(pick.worldBound, owner.Plan, picked => detail.SetConditionParameter(conditionProperty, picked));
+            pick.clicked += () => ParameterPicker.Show(pick, owner.Plan, picked => detail.SetConditionParameter(conditionProperty, picked));
             line.Add(pick);
             container.Add(line);
 

@@ -285,7 +285,6 @@
   "ad.ui.override.unused": "此 Avatar 上目前没有动画控制这个形态键。该值仍会应用到网格上。",
   "ad.ui.usage.chip": "{0} 个剪辑",
   "ad.ui.preview.always": "只要开启，就会在预览中应用。",
-  "ad.ui.pick.parameter": "选择参数",
   "ad.ui.pick.parameter.avatar": "Avatar",
   "ad.ui.pick.parameter.doctor": "AvatarDoc",
   "ad.ui.pick.parameter.vrchat": "VRChat",
@@ -591,7 +590,6 @@
   "ad.summary.conditions.line": "“{0}”：{1}",
   "ad.ui.when.settings": "设置",
   "ad.ui.when.chip_more": "{0} +{1}",
-  "ad.ui.pick.avatar_object": "从 Avatar 中选择",
   "ad.ui.pick.bones": "骨骼",
   "ad.ui.pick.inactive": "（未激活）",
   "ad.ui.pick.none": "未找到对象。",
@@ -1098,5 +1096,9 @@
   "ad.summary.parameters.name": "名称",
   "ad.summary.parameters.type": "类型",
   "ad.summary.parameters.notes": "备注",
-  "ad.ui.blend.unit": "秒"
+  "ad.ui.blend.unit": "秒",
+  "ad.ui.pick.search.tip": "输入内容以筛选列表。上下方向键在结果间移动，Enter 选择高亮项，Esc 清除搜索。",
+  "ad.ui.pick.no_match": "没有与“{0}”匹配的项。",
+  "ad.ui.pick.more": "还有 {0} 项。继续输入以缩小范围。",
+  "ad.ui.pick.more.one": "还有 {0} 项。继续输入以缩小范围。"
 }

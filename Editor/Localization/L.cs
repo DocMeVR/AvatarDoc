@@ -109,7 +109,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.trigger.parameter", "ad.ui.trigger.condition", "ad.ui.trigger.value", "ad.ui.trigger.shape",
             "ad.ui.trigger.mode", "ad.ui.trigger.link_note", "ad.ui.trigger.parameter_note", "ad.ui.effect.fixed", "ad.ui.effect.follow",
             "ad.ui.effect.pin", "ad.ui.seg.fixed", "ad.ui.seg.pin", "ad.ui.effect.multiplier", "ad.ui.override.value", "ad.ui.override.usage", "ad.ui.override.unused",
-            "ad.ui.usage.chip", "ad.ui.pick.parameter", "ad.ui.pick.parameter.avatar", "ad.ui.pick.parameter.doctor",
+            "ad.ui.usage.chip", "ad.ui.pick.parameter.avatar", "ad.ui.pick.parameter.doctor",
             "ad.ui.pick.parameter.vrchat", "ad.ui.preview", "ad.ui.preview.default", "ad.ui.preview.on", "ad.ui.preview.off",
             "ad.ui.preview.follows", "ad.ui.preview.off_note", "ad.ui.preview.reset", "ad.ui.preview.always",
             "ad.ui.wheel", "ad.ui.wheel.count", "ad.ui.wheel.select", "ad.ui.wheel.test", "ad.ui.wheel.reset", "ad.ui.copy", "ad.ui.root_menu", "ad.ui.window.none", "ad.ui.search",
@@ -186,7 +186,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.when.contact", "ad.ui.when.contact_near", "ad.ui.when.pb_grabbed", "ad.ui.when.pb_posed",
             "ad.ui.when.pb_angle", "ad.ui.when.pb_stretch", "ad.ui.when.pb_squish",
             "ad.summary.conditions", "ad.summary.conditions.line",
-            "ad.ui.pick.avatar_object", "ad.ui.pick.bones", "ad.ui.pick.inactive", "ad.ui.pick.none",
+            "ad.ui.pick.bones", "ad.ui.pick.inactive", "ad.ui.pick.none",
             "ad.ui.menu_assets", "ad.ui.menu_assets.note", "ad.ui.menu_assets.tip",
             "ad.ui.add.menu_asset", "ad.ui.detail.menu_asset", "ad.ui.menu_asset.unnamed",
             "ad.ui.menu_asset.asset", "ad.ui.menu_asset.path", "ad.ui.menu_asset.path.tip",
@@ -358,6 +358,9 @@ namespace DocMe.AvatarDoctor.Editor
             // Plan 16 task L: punctuation and words the code puts between pieces of text.
             "ad.ui.list.separator", "ad.ui.aside", "ad.ui.brackets", "ad.ui.quoted", "ad.ui.labelled",
             "ad.summary.parameters.name", "ad.summary.parameters.type", "ad.summary.parameters.notes", "ad.ui.blend.unit",
+
+            // Plan 16 task Q: the search field at the top of every picker.
+            "ad.ui.pick.search.tip", "ad.ui.pick.no_match", "ad.ui.pick.more", "ad.ui.pick.more.one",
         };
 
         static Localizer localizer;

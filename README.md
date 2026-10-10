@@ -635,7 +635,10 @@ AvatarDoc's own picker when you click the small circle at the field's right end,
 picker. Unity's own picker lists every object in every open scene and cannot be limited to one hierarchy; AvatarDoc's
 picker lists only the current avatar's own objects and their children.
 
-The picker is a searchable dropdown: type to filter, and use the arrow keys to move through the list. It only offers
+Every picker, for blend shapes, material properties and parameters as well as objects, has a search field at the top:
+type part of a name, an object's path or a shader property's name such as `_Color`, and it lists every match from
+every group, with its mesh, path, property name or type dimmed beside it; Up and Down move through the results, Enter
+picks one and Escape clears the search. The object picker only offers
 what the field actually accepts (any GameObject, only objects with a renderer, only skinned meshes that have blend
 shapes, only PhysBones, or any Transform), and a Transform field, such as a contact's Anchor or a `Path root`, lists
 the avatar's own humanoid bones first under `Bones` when the avatar has a humanoid rig. An object switched off in

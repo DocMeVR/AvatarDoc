@@ -285,7 +285,6 @@
   "ad.ui.override.unused": "Nothing on this avatar animates this shape yet. The value still applies to the mesh.",
   "ad.ui.usage.chip": "{0} clips",
   "ad.ui.preview.always": "Applied in the preview whenever it is on.",
-  "ad.ui.pick.parameter": "Pick a parameter",
   "ad.ui.pick.parameter.avatar": "Avatar",
   "ad.ui.pick.parameter.doctor": "AvatarDoc",
   "ad.ui.pick.parameter.vrchat": "VRChat",
@@ -591,7 +590,6 @@
   "ad.summary.conditions.line": "\"{0}\": {1}",
   "ad.ui.when.settings": "Settings",
   "ad.ui.when.chip_more": "{0} +{1}",
-  "ad.ui.pick.avatar_object": "Pick from the avatar",
   "ad.ui.pick.bones": "Bones",
   "ad.ui.pick.inactive": "(inactive)",
   "ad.ui.pick.none": "No objects found.",
@@ -1098,5 +1096,9 @@
   "ad.summary.parameters.name": "Name",
   "ad.summary.parameters.type": "Type",
   "ad.summary.parameters.notes": "Notes",
-  "ad.ui.blend.unit": "s"
+  "ad.ui.blend.unit": "s",
+  "ad.ui.pick.search.tip": "Type to filter the list. Up and Down move through the results, Enter picks the highlighted one, Escape clears the search.",
+  "ad.ui.pick.no_match": "Nothing matches \"{0}\".",
+  "ad.ui.pick.more": "{0} more. Type more letters to narrow the list.",
+  "ad.ui.pick.more.one": "{0} more. Type more letters to narrow the list."
 }
