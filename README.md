@@ -28,8 +28,15 @@ Modular Avatar below.
 
 ## Install
 
-Copy the `AvatarDoctor` folder into your project's `Assets` folder. A VRChat Creator Companion listing is planned
-for a future release; until then, a manual copy is the way to install it.
+1. Add the DocMe listing to the VRChat Creator Companion: open **https://docmevr.github.io/vpm** and press **Add to
+   VCC**, or add `https://docmevr.github.io/vpm/index.json` under Settings > Packages > Add Repository.
+2. AvatarDoc needs NDMF. If VCC says it cannot find `nadena.dev.ndmf`, also add the Modular Avatar listing,
+   `https://vpm.nadena.dev/vpm.json`, which hosts NDMF.
+3. In your avatar project, press **Manage Project** and add **DocMe AvatarDoc**.
+
+Without VCC: download the `.zip` from the latest release at https://github.com/DocMeVR/AvatarDoc/releases and unpack
+it into a new folder `Packages/dev.docme.avatar-doctor` in your project, or import the `.unitypackage`. NDMF has to
+be installed first.
 
 ## Quick start
 
@@ -1389,6 +1396,13 @@ Convert shows its own notes and reasons in its window rather than on a tree row;
   other meshes; nothing checks that a matched shape is actually the right one.
 - The platform parity check only ever compares against another avatar's AvatarDoc components that are open in a
   scene right now; it cannot see a copy sitting in a closed scene or another project.
+
+## How this was made
+
+The code in this repository was written by AI (Claude, by Anthropic). The idea, the design, every feature, the
+testing on real avatars and the decisions on how it should behave are mine (DocMe). I planned it and directed the
+work; the AI typed it out. Bug reports and pull requests are welcome, and anything that gets merged goes through my
+own review.
 
 ## License
 
