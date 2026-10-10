@@ -3,3 +3,6 @@
 Thumbs.db
 *.swp
 *.tmp
+
+# internal planning notes, kept on disk only
+Docs~/plan-*.md
