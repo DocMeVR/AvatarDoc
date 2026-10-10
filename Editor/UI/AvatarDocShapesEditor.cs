@@ -18,9 +18,23 @@ namespace DocMe.AvatarDoctor.Editor
         VisualElement root;
         VisualElement messages;
 
-        void OnEnable() => Undo.undoRedoPerformed += OnUndoRedo;
+        void OnEnable()
+        {
+            Undo.undoRedoPerformed += OnUndoRedo;
+            L.LanguageChanged += OnLanguageChanged;
+        }
 
-        void OnDisable() => Undo.undoRedoPerformed -= OnUndoRedo;
+        void OnDisable()
+        {
+            Undo.undoRedoPerformed -= OnUndoRedo;
+            L.LanguageChanged -= OnLanguageChanged;
+        }
+
+        void OnLanguageChanged()
+        {
+            if (root == null || target == null) return;
+            Rebuild();
+        }
 
         /// <summary>Unity does not rebuild a UI Toolkit inspector for an Undo, and the cards and buttons hold the array positions they were built for, so they would act on the wrong row.</summary>
         void OnUndoRedo()

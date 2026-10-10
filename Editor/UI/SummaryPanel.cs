@@ -19,6 +19,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>The built summary text, in the format currently chosen. Read by tests instead of the clipboard.</summary>
         public string Text => textField.value;
 
+        /// <summary>Plain or Markdown, as the switch shows it.</summary>
+        public SummaryFormat Format => format;
+
         public SummaryPanel(AvatarDoctorView owner)
         {
             this.owner = owner;

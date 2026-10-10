@@ -30,6 +30,13 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Unity asks for the panel when the window is first shown and again after every script reload.</summary>
         public void CreateGUI() => Build();
 
+        void OnEnable() => L.LanguageChanged += OnLanguageChanged;
+
+        void OnDisable() => L.LanguageChanged -= OnLanguageChanged;
+
+        /// <summary>The section itself is the README's English text; only the title follows the language.</summary>
+        void OnLanguageChanged() => titleContent = new GUIContent(L.Text("ad.ui.welcome.quickstart"));
+
         void Build()
         {
             var root = rootVisualElement;

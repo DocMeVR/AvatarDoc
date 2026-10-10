@@ -44,7 +44,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var p in AvatarPlanCache.ProvidedFor(plan.AvatarRoot).Where(p => !(p.Source is AvatarDoc)).OrderBy(p => p.EffectiveName))
                 {
                     if (!seen.Add(p.EffectiveName)) continue;
-                    avatarGroup.AddChild(new NameItem(p.ParameterType.HasValue ? p.EffectiveName + "  (" + p.ParameterType.Value + ")" : p.EffectiveName, p.EffectiveName));
+                    avatarGroup.AddChild(new NameItem(p.ParameterType.HasValue ? L.Aside(p.EffectiveName, p.ParameterType.Value.ToString()) : p.EffectiveName, p.EffectiveName));
                 }
             }
             root.AddChild(avatarGroup);
@@ -52,14 +52,14 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var p in plan.Plan.Parameters.OrderBy(p => p.Name))
             {
                 if (!seen.Add(p.Name)) continue;
-                doctorGroup.AddChild(new NameItem(p.Name + "  (" + p.Type + ")", p.Name));
+                doctorGroup.AddChild(new NameItem(L.Aside(p.Name, p.Type.ToString()), p.Name));
             }
             root.AddChild(doctorGroup);
             var vrchatGroup = new AdvancedDropdownItem(L.Text("ad.ui.pick.parameter.vrchat"));
             foreach (var name in TriggerPlanner.BuiltInNames.OrderBy(n => n))
             {
                 if (!seen.Add(name)) continue;
-                vrchatGroup.AddChild(new NameItem(name + "  (" + TriggerPlanner.BuiltInType(name) + ")", name));
+                vrchatGroup.AddChild(new NameItem(L.Aside(name, TriggerPlanner.BuiltInType(name).ToString()), name));
             }
             root.AddChild(vrchatGroup);
             var vrcFuryGroup = new AdvancedDropdownItem(L.Text("ad.ui.chip.vrcfury"));

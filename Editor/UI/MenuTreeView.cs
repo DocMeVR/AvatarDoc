@@ -718,7 +718,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Appends the same small dropdown arrow after a toolbar button's own text, so a button that opens a popup menu looks exactly like the other one, whichever built in icon name this Unity version and skin has.</summary>
-        static void AddDropdownArrow(TextElement element)
+        internal static void AddDropdownArrow(TextElement element)
         {
             var icon = TryLoadIcon("d_icon dropdown", "icon dropdown");
             if (icon == null) return;

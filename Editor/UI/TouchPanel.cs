@@ -318,7 +318,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
             else
             {
-                var labels = toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : c.Entry.PlainName + " (" + c.Component.gameObject.name + ")").ToList();
+                var labels = toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : L.Aside(c.Entry.PlainName, c.Component.gameObject.name)).ToList();
                 int current = toggles.FindIndex(c => c.Entry.id == entry.flipToggleId);
                 toggleField = new DropdownField(L.Text("ad.ui.touch.flip_target"), labels, Mathf.Max(0, current)) { name = "ad-touch-flip-toggle", tooltip = L.Text("ad.ui.touch.flip_target.tip") };
                 if (current < 0) toggleField.SetValueWithoutNotify("");

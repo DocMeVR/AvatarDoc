@@ -89,12 +89,20 @@ namespace DocMe.AvatarDoctor.Editor
             rig = new IconCapture.Rig();
             EditorApplication.update += Tick;
             ObjectChangeEvents.changesPublished += OnChangesPublished;
+            L.LanguageChanged += OnLanguageChanged;
+        }
+
+        void OnLanguageChanged()
+        {
+            titleContent = new GUIContent(L.Text("ad.ui.capture.title"));
+            if (rootVisualElement.childCount > 0) Rebuild();
         }
 
         void OnDisable()
         {
             EditorApplication.update -= Tick;
             ObjectChangeEvents.changesPublished -= OnChangesPublished;
+            L.LanguageChanged -= OnLanguageChanged;
             rig?.Dispose();
             rig = null;
             if (current != null) DestroyImmediate(current);
@@ -102,6 +110,9 @@ namespace DocMe.AvatarDoctor.Editor
 
         void Rebuild()
         {
+            // A rebuild for another entry or another language keeps the background the creator chose.
+            int background = backgroundMode != null ? backgroundMode.Index : 0;
+            var backgroundValue = backgroundColor != null ? backgroundColor.value : Color.white;
             var root = rootVisualElement;
             root.Clear();
             root.AddToClassList("ad-root");
@@ -118,11 +129,11 @@ namespace DocMe.AvatarDoctor.Editor
             label.AddToClassList("ad-label");
             row.Add(label);
             var modes = new List<string> { L.Text("ad.ui.capture.transparent"), L.Text("ad.ui.capture.solid") };
-            backgroundMode = new SegmentedChoice(modes) { name = "ad-capture-background", tooltip = L.Text("ad.ui.capture.background.tip") };
+            backgroundMode = new SegmentedChoice(modes, background) { name = "ad-capture-background", tooltip = L.Text("ad.ui.capture.background.tip") };
             backgroundMode.Changed += _ => { backgroundColor.EnableInClassList("ad-hidden", Transparent); RenderNow(); };
             row.Add(backgroundMode);
-            backgroundColor = new ColorField { value = Color.white, showAlpha = false, tooltip = L.Text("ad.ui.capture.color.tip") };
-            backgroundColor.AddToClassList("ad-hidden");
+            backgroundColor = new ColorField { value = backgroundValue, showAlpha = false, tooltip = L.Text("ad.ui.capture.color.tip") };
+            backgroundColor.EnableInClassList("ad-hidden", Transparent);
             backgroundColor.RegisterValueChangedCallback(_ => RenderNow());
             row.Add(backgroundColor);
             root.Add(row);

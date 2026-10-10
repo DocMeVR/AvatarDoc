@@ -1018,7 +1018,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var entries = pair.Value;
                 if (entries.Count <= FollowPlan.MaxClaims) continue;
                 var overflow = entries.Skip(FollowPlan.MaxClaims).ToList();
-                var names = string.Join(", ", overflow.Select(e => "\"" + e.PlainName + "\""));
+                var names = L.JoinList(overflow.Select(e => L.Quoted(e.PlainName)));
                 tree.Messages.Add(ModelMessage.Error("ad.error.follow_too_many_sources", pair.Key.name, entries.Count.ToString(),
                         FollowPlan.MaxClaims.ToString(), names)
                     .For(overflow.Select(e => e.id).ToArray()));
@@ -1349,7 +1349,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (count < 2) continue;
                 if (pair.Value.All(u => u.entry.kind == EntryKind.Override)) continue;
                 bool overridden = pair.Value.Any(u => u.entry.kind == EntryKind.Override);
-                var names = string.Join(", ", pair.Value.Select(u => u.entry.PlainName));
+                var names = L.JoinList(pair.Value.Select(u => u.entry.PlainName));
                 tree.Messages.Add(ModelMessage.Info(overridden ? "ad.info.target_shared_override" : "ad.info.target_shared", labels[pair.Key], names, pair.Value[pair.Value.Count - 1].component)
                     .For(pair.Value.Select(u => u.entry.id).ToArray()));
             }

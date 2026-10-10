@@ -248,7 +248,7 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     if (g > 0) sb.Append(L.Text("ad.ui.when.or"));
                     var parts = groups[g].all.Select(c => Words(c, tree)).ToList();
-                    if (parts.Count > 1) sb.Append('(').Append(string.Join(L.Text("ad.ui.when.and"), parts)).Append(')');
+                    if (parts.Count > 1) sb.Append(L.Brackets(string.Join(L.Text("ad.ui.when.and"), parts)));
                     else sb.Append(parts[0]);
                 }
                 rule = string.Format(L.Text("ad.ui.when.sentence"), sb.ToString());

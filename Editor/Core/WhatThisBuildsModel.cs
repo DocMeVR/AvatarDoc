@@ -79,7 +79,7 @@ namespace DocMe.AvatarDoctor.Editor
                         if (mouth) parts.Add(mouthOwner != null ? string.Format(L.Text("ad.ui.builds.lipsync_left_to"), mouthOwner) : L.Text(fade ? "ad.ui.builds.pauses_lipsync" : "ad.ui.builds.pauses_lipsync_shape"));
                     }
                 }
-                return string.Format(L.Text("ad.ui.builds.line"), string.Join(", ", parts));
+                return string.Format(L.Text("ad.ui.builds.line"), L.JoinList(parts));
             }
             if (row.OwnerDisabled) return L.Text("ad.ui.builds.nothing.disabled");
             if (row.Excluded) return string.Format(L.Text("ad.ui.builds.nothing.platform"), HeaderView.CurrentPlatformName);

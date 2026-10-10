@@ -76,11 +76,11 @@ Simple shows only what most avatars need:
 - **A submenu** shows Name and Icon, and how many of its slots are used.
 - The Style row, Rich text tags, Exclusive group, the `Builds` line, the scene preview control and the Advanced fold
   are left out of all three.
-- **Any other kind of item** (a trigger, an override, a grabbable, a merged animator, an installed menu asset, an item
-  of the avatar's own menu or one another tool added) shows its whole panel, with one line at the top: "This is an
-  advanced item; switch to Advanced to add more like it." A preset (`+ Outfit set` builds presets when it mixes
-  freely) and the `More (page N)` rows a menu gets by itself past eight items show their whole panel without that
-  line.
+- **Any other kind of item** shows its whole panel. An AvatarDoc item only Advanced adds (a trigger, an override, a
+  grabbable, a merged animator, an installed menu asset, a declared parameter) opens with one line at the top: "This
+  is an advanced item; switch to Advanced to add more like it." A preset (`+ Outfit set` builds presets when it mixes
+  freely), the `More (page N)` rows a menu gets by itself past eight items, and an item of the avatar's own menu or
+  one another tool added show their whole panel without that line.
 - The welcome card drops its Convert start, and the first-use tips use words that fit Simple. Right click menus are
   the same in both modes.
 
@@ -92,6 +92,21 @@ something stays until you select another item or switch the mode (the `Component
 switch the mode), so the part you are using does not vanish when you put its last value back. A tag filter you ticked in Advanced pauses while Simple is on, since Simple has no filter
 button to clear it with, and narrows the tree again when you switch back. Switching only changes what is shown: it
 writes nothing to the component and builds nothing again.
+
+## Languages
+
+AvatarDoc speaks English, Japanese and Simplified Chinese. The language button at the right end of the
+`Simple | Advanced` row, in both modes, shows the current language in its own name; click it and pick another. It is
+the same language setting NDMF and Modular Avatar use, so choosing it here changes theirs too, and choosing it in
+Modular Avatar or NDMF changes AvatarDoc. Every open AvatarDoc inspector and window switches at once, and anything a
+language has not translated yet shows in English. Switching changes only the editor: the names already in your menu
+stay as they are. A name AvatarDoc writes for you, such as the `None` toggle of a new outfit set, is written in the
+language you use when you create it.
+
+Each language is one file, so anyone can add one or keep one up to date without touching code. See
+[Translating AvatarDoc](https://github.com/DocMeVR/AvatarDoc/blob/main/Docs~/translating.md) for how, and
+[the glossary](https://github.com/DocMeVR/AvatarDoc/blob/main/Docs~/glossary.md) for the agreed words. Both live in
+the repository only, not in the package you install.
 
 ## Finding your way around
 

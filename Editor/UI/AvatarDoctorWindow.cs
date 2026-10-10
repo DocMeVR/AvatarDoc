@@ -20,6 +20,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             Selection.selectionChanged += OnSelectionChanged;
             EditorApplication.hierarchyChanged += OnSelectionChanged;
+            L.LanguageChanged += OnLanguageChanged;
             Rebuild();
         }
 
@@ -27,6 +28,13 @@ namespace DocMe.AvatarDoctor.Editor
         {
             Selection.selectionChanged -= OnSelectionChanged;
             EditorApplication.hierarchyChanged -= OnSelectionChanged;
+            L.LanguageChanged -= OnLanguageChanged;
+        }
+
+        /// <summary>A view on show builds itself again; the note shown when nothing is selected is built here.</summary>
+        void OnLanguageChanged()
+        {
+            if (view == null) Rebuild();
         }
 
         void OnSelectionChanged()

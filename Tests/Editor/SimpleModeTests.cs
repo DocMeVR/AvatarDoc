@@ -1051,15 +1051,17 @@ namespace DocMe.AvatarDoctor.Editor
                     ("trigger", view.Tree.RowFor(trigger.id).Key), ("override", view.Tree.RowFor(over.id).Key),
                     ("grabbable", view.Tree.RowFor(grab.id).Key),
                     ("animator", view.Tree.RowsOfKind(RowKind.Animator).First().Key), ("menu asset", view.Tree.RowsOfKind(RowKind.MenuAsset).First().Key),
-                    ("avatar menu row", view.Tree.RowsOfKind(RowKind.Existing).First(r => r.Node == null).Key),
-                    ("foreign row", view.Tree.RowsOfKind(RowKind.Foreign).First().Key),
                     ("triggers group", view.Tree.RowsOfKind(RowKind.TriggersGroup).First().Key),
                 };
                 var more = view.Tree.RowsOfKind(RowKind.More).First();
+                // The avatar's own menu items and another tool's items are not AvatarDoc's to add more of, so the
+                // note's "switch to Advanced to add more like it" has nothing to offer on them.
                 var withoutNote = new List<(string Name, string Key)>
                 {
                     ("preset", view.Tree.RowFor(preset.id).Key),
                     ("More page", more.Key),
+                    ("avatar menu row", view.Tree.RowsOfKind(RowKind.Existing).First(r => r.Node == null).Key),
+                    ("foreign row", view.Tree.RowsOfKind(RowKind.Foreign).First().Key),
                 };
                 string Signature(string skipName) => string.Join(";", Descendants(panel).Where(e => e.name != skipName && !(e.parent != null && e.parent.name == skipName))
                     .Select(e => e.GetType().Name + "#" + e.name));
@@ -1087,7 +1089,7 @@ namespace DocMe.AvatarDoctor.Editor
                     view.SetMode(ViewMode.Simple);
                     view.Tree.SelectKey(key);
                     Assert.That(panel.Q<Label>("ad-advanced-item-note"), Is.Null,
-                        name + " is no advanced item: + Outfit set builds presets, and a menu past eight items makes the More pages itself");
+                        name + " is no advanced item of AvatarDoc's: + Outfit set builds presets, a menu past eight items makes the More pages itself, and the avatar's or another tool's items are not AvatarDoc's to add");
                     string simpleShape = Signature("ad-advanced-item-note");
                     Assert.That(simpleShape.Length, Is.GreaterThan(0));
 

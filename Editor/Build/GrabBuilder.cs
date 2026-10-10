@@ -167,10 +167,10 @@ namespace DocMe.AvatarDoctor.Editor
             if (info.Claims.Count >= FollowPlan.MaxClaims)
             {
                 var names = new List<string>();
-                foreach (var claim in info.Claims) names.Add("\"" + claim.Entry.PlainName + "\"");
-                names.Add("\"" + entry.PlainName + "\"");
+                foreach (var claim in info.Claims) names.Add(L.Quoted(claim.Entry.PlainName));
+                names.Add(L.Quoted(entry.PlainName));
                 tree.Messages.Add(ModelMessage.Error("ad.error.follow_too_many_sources", entry.grabObject.name,
-                    (info.Claims.Count + 1).ToString(), FollowPlan.MaxClaims.ToString(), string.Join(", ", names)).For(entry.id));
+                    (info.Claims.Count + 1).ToString(), FollowPlan.MaxClaims.ToString(), L.JoinList(names)).For(entry.id));
                 return;
             }
 

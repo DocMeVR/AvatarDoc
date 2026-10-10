@@ -52,7 +52,12 @@
 /* The Simple and Advanced switch above everything else: a pill that fills the row up to a modest width, so it reads
    as one control at an inspector's default width and does not stretch across a wide window. */
 .ad-mode-row { flex-direction: row; margin-bottom: 6px; }
-.ad-mode-row > .ad-seg { flex-grow: 1; max-width: 200px; }
+.ad-mode-row > .ad-seg { flex-grow: 1; max-width: 200px; margin-right: 4px; }
+/* The language picker at the row's right end: the language's own name and an arrow, as tall as the switch and framed
+   the same way, so the two read as one row of settings. Its auto left margin takes only the room the pill leaves past
+   its 200 px, so the pill still fills to that width first. */
+.ad-root .unity-button.ad-language { flex-direction: row; align-items: center; flex-shrink: 0; height: 20px; min-height: 20px; margin: 0; margin-left: auto; padding: 0 6px; border-width: 1px; border-color: var(--ad-border); border-radius: 3px; }
+.ad-language > Label { font-size: 10.5px; -unity-text-align: middle-left; margin: 0; padding: 0; }
 
 .ad-panel { background-color: var(--ad-panel); border-color: var(--ad-border); border-width: 1px; border-radius: 3px; margin-bottom: 6px; }
 .ad-panel-title { flex-direction: row; align-items: center; height: 22px; padding: 0 8px; border-bottom-width: 1px; border-bottom-color: var(--ad-border); -unity-font-style: bold; font-size: 11px; color: var(--ad-muted); letter-spacing: 1px; }

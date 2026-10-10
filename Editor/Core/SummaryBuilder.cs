@@ -72,8 +72,10 @@ namespace DocMe.AvatarDoctor.Editor
                 Heading(sb, "ad.summary.parameters", markdown);
                 if (markdown)
                 {
-                    sb.Append("| Name | Type | ").Append(L.Text("ad.summary.parameters.synced")).Append(" | ")
-                      .Append(L.Text("ad.summary.parameters.saved")).Append(" | ").Append(L.Text("ad.summary.parameters.default")).Append(" | Notes |\n");
+                    sb.Append("| ").Append(L.Text("ad.summary.parameters.name")).Append(" | ").Append(L.Text("ad.summary.parameters.type")).Append(" | ")
+                      .Append(L.Text("ad.summary.parameters.synced")).Append(" | ")
+                      .Append(L.Text("ad.summary.parameters.saved")).Append(" | ").Append(L.Text("ad.summary.parameters.default")).Append(" | ")
+                      .Append(L.Text("ad.summary.parameters.notes")).Append(" |\n");
                     sb.Append("|---|---|---|---|---|---|\n");
                     foreach (var p in normal)
                     {
@@ -92,7 +94,7 @@ namespace DocMe.AvatarDoctor.Editor
                         if (p.Saved) sb.Append(L.Text("ad.summary.parameters.saved")).Append(' ');
                         sb.Append(string.Format(L.Text("ad.summary.parameters.default_value"), FormatDefault(p)));
                         var notes = ParameterNotes(p, component);
-                        if (notes.Length > 0) sb.Append("  (").Append(notes).Append(')');
+                        if (notes.Length > 0) sb.Append("  ").Append(L.Brackets(notes));
                         sb.Append('\n');
                     }
                 }
@@ -104,14 +106,14 @@ namespace DocMe.AvatarDoctor.Editor
                 Heading(sb, "ad.summary.parameters.animator_only", markdown);
                 foreach (var p in animatorOnly)
                 {
-                    if (markdown) sb.Append("- ").Append(p.Name).Append(" (").Append(p.Type).Append(")\n");
+                    if (markdown) sb.Append("- ").Append(L.Aside(p.Name, p.Type.ToString())).Append('\n');
                     else sb.Append("  ").Append(p.Name).Append("  ").Append(p.Type).Append('\n');
                 }
                 var note = L.Text("ad.summary.parameters.mirror");
                 foreach (var name in mirrors)
                 {
-                    if (markdown) sb.Append("- ").Append(name).Append(" (").Append(PlannedType.Float).Append(", ").Append(note).Append(")\n");
-                    else sb.Append("  ").Append(name).Append("  ").Append(PlannedType.Float).Append("  (").Append(note).Append(")\n");
+                    if (markdown) sb.Append("- ").Append(L.Aside(name, L.JoinList(new[] { PlannedType.Float.ToString(), note }))).Append('\n');
+                    else sb.Append("  ").Append(name).Append("  ").Append(PlannedType.Float).Append("  ").Append(L.Brackets(note)).Append('\n');
                 }
                 sb.Append('\n');
             }
@@ -182,13 +184,13 @@ namespace DocMe.AvatarDoctor.Editor
                     var name = RichName.Strip(string.IsNullOrEmpty(sub.RichName) ? sub.Name : sub.RichName);
                     var subEntry = sub.EntryId != null && sub.Component != null ? sub.Component.FindEntry(sub.EntryId) : null;
                     var note = subEntry != null ? PlatformNote(sub.Component, subEntry) : "";
-                    lines.Add((depth, name + note + " (" + string.Format(L.Text("ad.summary.menu.slots"), slots, VRCExpressionsMenu.MAX_CONTROLS, CurrentPlatformName()) + ")"));
+                    lines.Add((depth, L.Aside(L.Aside(name, note), string.Format(L.Text("ad.summary.menu.slots"), slots, VRCExpressionsMenu.MAX_CONTROLS, CurrentPlatformName()))));
                     lines.AddRange(childLines);
                 }
                 else if (item.Control != null && item.Control.Component == component)
                 {
                     var entry = item.Control.Entry;
-                    lines.Add((depth, entry.PlainName + PlatformNote(item.Control.Component, entry)));
+                    lines.Add((depth, L.Aside(entry.PlainName, PlatformNote(item.Control.Component, entry))));
                 }
             }
             return lines;
@@ -201,12 +203,13 @@ namespace DocMe.AvatarDoctor.Editor
 
         static string PlatformNote(AvatarDoc component, AnimatorMerge merge) => PlatformNote(Platform.Effective(component, merge));
 
+        /// <summary>"PC only" or "Quest only" for a part limited to one platform, empty otherwise; L.Aside puts it after a name.</summary>
         static string PlatformNote(PlatformChoice choice)
         {
             switch (choice)
             {
-                case PlatformChoice.PCOnly: return " (" + L.Text("ad.ui.chip.pc_only") + ")";
-                case PlatformChoice.MobileOnly: return " (" + L.Text("ad.ui.chip.quest_only") + ")";
+                case PlatformChoice.PCOnly: return L.Text("ad.ui.chip.pc_only");
+                case PlatformChoice.MobileOnly: return L.Text("ad.ui.chip.quest_only");
                 default: return "";
             }
         }
@@ -219,7 +222,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (hidden.Count == 0) return;
             Heading(sb, "ad.summary.hidden", markdown);
             foreach (var control in hidden)
-                sb.Append(markdown ? "- " : "  ").Append(control.Entry.PlainName + PlatformNote(component, control.Entry)).Append('\n');
+                sb.Append(markdown ? "- " : "  ").Append(L.Aside(control.Entry.PlainName, PlatformNote(component, control.Entry))).Append('\n');
             sb.Append('\n');
         }
 
@@ -332,8 +335,8 @@ namespace DocMe.AvatarDoctor.Editor
                 var layers = MergeBuilder.LayerNames(node.Merge.controller);
                 int merged = layers.Count(name => !node.Merge.skipLayers.Contains(name));
                 sb.Append(markdown ? "- " : "  ")
-                  .Append(string.Format(L.Text("ad.summary.animators.layers"), node.Merge.controller.name, merged))
-                  .Append(PlatformNote(component, node.Merge)).Append('\n');
+                  .Append(L.Aside(string.Format(L.Text("ad.summary.animators.layers"), node.Merge.controller.name, merged), PlatformNote(component, node.Merge)))
+                  .Append('\n');
             }
             sb.Append('\n');
         }
@@ -481,7 +484,7 @@ namespace DocMe.AvatarDoctor.Editor
                     }
                 if (contacts + physBones == before) continue;
                 var note = PlatformNote(component, trigger.Entry);
-                if (note.Length > 0) limited.Add(trigger.Entry.PlainName + note);
+                if (note.Length > 0) limited.Add(L.Aside(trigger.Entry.PlainName, note));
             }
             if (contacts == 0 && physBones == 0) return;
             Heading(sb, "ad.summary.touch", markdown);
@@ -516,7 +519,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var severity = message.Severity == MessageSeverity.Error ? L.Text("ad.summary.messages.error")
                     : message.Severity == MessageSeverity.Warning ? L.Text("ad.summary.messages.warning")
                     : L.Text("ad.summary.messages.info");
-                sb.Append(markdown ? "- " : "  ").Append(severity).Append(": ").Append(UiText.Format(message)).Append('\n');
+                sb.Append(markdown ? "- " : "  ").Append(L.Labelled(severity, UiText.Format(message))).Append('\n');
             }
             sb.Append('\n');
         }

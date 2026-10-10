@@ -1260,22 +1260,30 @@ namespace DocMe.AvatarDoctor.Editor
         bool Trimmed(MenuEntry entry) => owner.Simple && (entry.kind == EntryKind.Toggle || entry.kind == EntryKind.Radial || entry.kind == EntryKind.Submenu);
 
         /// <summary>
-        /// Whether a row is something Simple does not add. A toggle, a radial and a submenu are what it adds; so are the
-        /// More pages a menu makes by itself once it passes eight items, and the presets that + Outfit set builds when
-        /// it mixes freely. The panel of every other kind opens with a note that says it is advanced.
+        /// Whether a row is one of AvatarDoc's own items that only Advanced adds: a trigger, an override, a grabbable, a
+        /// merged animator, an installed menu asset, a declared parameter, or one of their group rows. Its panel opens
+        /// with a note that says so. A toggle, a radial, a submenu, a preset (+ Outfit set builds those) and a More page
+        /// are what Simple makes too, and an item of the avatar's own menu or of another tool is not AvatarDoc's to add,
+        /// so none of those gets the note.
         /// </summary>
         static bool IsAdvancedItem(TreeRow row)
         {
             switch (row.Kind)
             {
-                case RowKind.Toggle:
-                case RowKind.Radial:
-                case RowKind.Submenu:
-                case RowKind.More:
-                case RowKind.Preset:
-                    return false;
-                default:
+                case RowKind.Trigger:
+                case RowKind.TriggersGroup:
+                case RowKind.Override:
+                case RowKind.OverridesGroup:
+                case RowKind.Grabbable:
+                case RowKind.Animator:
+                case RowKind.AnimatorsGroup:
+                case RowKind.MenuAsset:
+                case RowKind.MenuAssetsGroup:
+                case RowKind.Parameter:
+                case RowKind.ParametersGroup:
                     return true;
+                default:
+                    return false;
             }
         }
 
@@ -1346,7 +1354,7 @@ namespace DocMe.AvatarDoctor.Editor
             field.name = "ad-blend";
             field.tooltip = L.Text("ad.ui.blend.tip");
             row.Add(field);
-            var suffix = new Label("s");
+            var suffix = new Label(L.Text("ad.ui.blend.unit"));
             suffix.AddToClassList("ad-note");
             suffix.AddToClassList("ad-suffix");
             row.Add(suffix);
@@ -1533,7 +1541,7 @@ namespace DocMe.AvatarDoctor.Editor
                     }
                     else
                     {
-                        var labels = toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : c.Entry.PlainName + " (" + c.Component.gameObject.name + ")").ToList();
+                        var labels = toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : L.Aside(c.Entry.PlainName, c.Component.gameObject.name)).ToList();
                         int current = toggles.FindIndex(c => c.Entry.id == entry.sourceToggleId);
                         toggleField = new DropdownField(L.Text("ad.ui.trigger.toggle"), labels, Mathf.Max(0, current)) { name = "ad-trigger-toggle", tooltip = L.Text("ad.ui.trigger.toggle.tip") };
                         if (current < 0) toggleField.SetValueWithoutNotify("");
@@ -1789,7 +1797,7 @@ namespace DocMe.AvatarDoctor.Editor
             var container = new VisualElement();
             var toggles = owner.Plan.Tree.Controls.Where(c => c.Entry.kind == EntryKind.Toggle && c.Entry.id != entry.id).ToList();
             var labels = new List<string> { L.Text("ad.ui.trigger.gate.always") };
-            labels.AddRange(toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : c.Entry.PlainName + " (" + c.Component.gameObject.name + ")"));
+            labels.AddRange(toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : L.Aside(c.Entry.PlainName, c.Component.gameObject.name)));
             int current = string.IsNullOrEmpty(entry.gateToggleId) ? -1 : toggles.FindIndex(c => c.Entry.id == entry.gateToggleId);
             var gateField = new DropdownField(L.Text("ad.ui.trigger.gate"), labels, current + 1) { name = "ad-trigger-gate", tooltip = L.Text("ad.ui.trigger.gate.tip") };
             gateField.RegisterValueChangedCallback(e =>

@@ -88,6 +88,16 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         public void CreateGUI() => Rebuild();
 
+        void OnEnable() => L.LanguageChanged += OnLanguageChanged;
+
+        void OnDisable() => L.LanguageChanged -= OnLanguageChanged;
+
+        void OnLanguageChanged()
+        {
+            titleContent = new GUIContent(L.Text("ad.ui.outfit.title"));
+            if (rootVisualElement.childCount > 0) Rebuild();
+        }
+
         public int OutfitCount => outfits.Count;
         public IReadOnlyList<GameObject> PiecesOf(int index) => index >= 0 && index < outfits.Count ? outfits[index].pieces : Array.Empty<GameObject>();
         public IReadOnlyList<ShrinkDraft> ShrinksOf(int index) => index >= 0 && index < outfits.Count ? outfits[index].shrinks : (IReadOnlyList<ShrinkDraft>)Array.Empty<ShrinkDraft>();
@@ -477,7 +487,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var shrink = shrinks[i];
                 int captured = i;
                 string rendererName = shrink.renderer != null ? shrink.renderer.name : "?";
-                var box = new Toggle(rendererName + ": " + shrink.shape) { value = shrink.chosen, tooltip = L.Text("ad.ui.outfit.shrink_toggle.tip") };
+                var box = new Toggle(L.Labelled(rendererName, shrink.shape)) { value = shrink.chosen, tooltip = L.Text("ad.ui.outfit.shrink_toggle.tip") };
                 box.RegisterValueChangedCallback(e => SetShrinkChosen(outfitIndex, captured, e.newValue));
                 container.Add(box);
             }

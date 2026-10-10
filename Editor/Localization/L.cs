@@ -1,15 +1,18 @@
 #if DOCME_NDMF
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.localization;
-using Newtonsoft.Json;
 using UnityEditor;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>English strings for messages and, later, the inspector. One JSON file per language.</summary>
+    /// <summary>
+    /// Every text AvatarDoc shows, by key, in the language NDMF and Modular Avatar share. Each language is one file
+    /// (LanguageTables); English is the default and fills any key a language lacks. The key lists below name every key
+    /// the code uses, so a test can check English has them all.
+    /// </summary>
     public static class L
     {
         public static readonly string[] KnownKeys =
@@ -348,39 +351,198 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.when.shape_moves", "ad.ui.when.hand_near", "ad.ui.when.add_requirement.tip", "ad.ui.when.add_and.limit_driver.tip",
             "ad.ui.when.requirements_note", "ad.ui.preview.unchecked", "ad.ui.builds.smooth", "ad.ui.builds.switch", "ad.ui.builds.mirror",
             "ad.summary.parameters.mirror", "ad.ui.when.ignored", "ad.ui.when.ignored.tip", "ad.ui.builds.pauses_blink_shape", "ad.ui.builds.pauses_lipsync_shape",
+
+            // Plan 16 task L: the language picker beside the Simple and Advanced switch.
+            "ad.ui.language.tip",
+
+            // Plan 16 task L: punctuation and words the code puts between pieces of text.
+            "ad.ui.list.separator", "ad.ui.aside", "ad.ui.brackets", "ad.ui.quoted", "ad.ui.labelled",
+            "ad.summary.parameters.name", "ad.summary.parameters.type", "ad.summary.parameters.notes", "ad.ui.blend.unit",
         };
 
-        public static readonly Localizer Localizer = new Localizer("en-US", () => new List<(string, Func<string, string>)>
-        {
-            ("en-US", Lookup("en-US")),
-        });
+        static Localizer localizer;
 
-        /// <summary>A table's asset id: it travels with the file, so the lookup works wherever the package sits (Assets or Packages). A method, not a field, because the localizer above is built while static fields are still being set.</summary>
-        static string TableGuid(string language) => language == "en-US" ? "4765286081f70184ea750f2a579fe0eb" : null;
+        /// <summary>NDMF's view of AvatarDoc's texts, for the messages in NDMF's error report. It answers through the same lookup as Text, so it follows the current language and falls back to English the same way.</summary>
+        public static Localizer Localizer => localizer ?? (localizer = new Localizer(LanguageTables.English,
+            () => new List<(string, Func<string, string>)> { (LanguageTables.English, Find) }));
 
-        /// <summary>The asset path of a language's table, found by its id first and by name as a fallback; null when there is none.</summary>
+        /// <summary>The asset path of a language's table: the shipped one first, by its asset id for English; null when there is none.</summary>
         public static string TablePath(string language)
         {
-            var guid = TableGuid(language);
-            var path = guid != null ? AssetDatabase.GUIDToAssetPath(guid) : null;
-            if (!string.IsNullOrEmpty(path)) return path;
-            var guids = AssetDatabase.FindAssets("AvatarDoctor." + language + " t:TextAsset");
-            return guids.Length > 0 ? AssetDatabase.GUIDToAssetPath(guids[0]) : null;
-        }
-
-        static Func<string, string> Lookup(string language)
-        {
-            Dictionary<string, string> table = null;
-            var path = TablePath(language);
-            if (path != null)
+            var code = LanguageTables.Normalize(language) ?? language;
+            if (code == LanguageTables.English)
             {
-                try { table = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.GetFullPath(path))); }
-                catch (Exception e) { UnityEngine.Debug.LogWarning("[AvatarDoc] Could not read " + path + ": " + e.Message); }
+                var byId = AssetDatabase.GUIDToAssetPath(LanguageTables.EnglishGuid);
+                if (!string.IsNullOrEmpty(byId)) return byId;
             }
-            return key => table != null && table.TryGetValue(key, out var value) ? value : null;
+            foreach (var file in LanguageTables.Files())
+                if (string.Equals(file.Code, code, StringComparison.OrdinalIgnoreCase)) return file.Path;
+            return null;
         }
 
-        public static string Text(string key) => Localizer.GetLocalizedString(key);
+        static string testLanguage;
+
+        /// <summary>The language AvatarDoc shows, in lower case as NDMF keeps it: the one NDMF and Modular Avatar share, or a test's while one is in place.</summary>
+        public static string Language => testLanguage ?? LanguagePrefs.Language;
+
+        /// <summary>Chooses the shared language, so NDMF and Modular Avatar follow. While a test's language is in place, only the test's changes and nothing is saved.</summary>
+        public static void SetLanguage(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code)) return;
+            code = code.ToLowerInvariant();
+            if (testLanguage == null)
+            {
+                LanguagePrefs.Language = code;
+                return;
+            }
+            if (code == testLanguage) return;
+            testLanguage = code;
+            RaiseLanguageChanged();
+        }
+
+        /// <summary>Raised after the language AvatarDoc shows changed: chosen in AvatarDoc, in Modular Avatar or in NDMF, or a language file was saved.</summary>
+        public static event Action LanguageChanged;
+
+        /// <summary>Moves on every change LanguageChanged reports, so something built in an earlier language can tell.</summary>
+        public static int LanguageVersion { get; private set; }
+
+        /// <summary>How many listen to LanguageChanged right now. Read by the tests that check a view lets go when it leaves its panel.</summary>
+        public static int LanguageListenerCount => LanguageChanged?.GetInvocationList().Length ?? 0;
+
+        static void RaiseLanguageChanged()
+        {
+            LanguageVersion++;
+            var listeners = LanguageChanged;
+            if (listeners == null) return;
+            foreach (Action listener in listeners.GetInvocationList())
+            {
+                try { listener(); }
+                catch (Exception e) { UnityEngine.Debug.LogException(e); }
+            }
+        }
+
+        [InitializeOnLoadMethod]
+        static void Hook()
+        {
+            LanguagePrefs.RegisterLanguageChangeCallback(typeof(L), _ => RaiseLanguageChanged());
+            RegisterLanguages();
+        }
+
+        /// <summary>Adds every language file's language to NDMF's list, so NDMF's and Modular Avatar's language switchers offer it too.</summary>
+        public static void RegisterLanguages()
+        {
+            foreach (var file in LanguageTables.Files()) LanguagePrefs.RegisterLanguage(file.Code);
+        }
+
+        /// <summary>Reads every language file again, offers any new language to NDMF and redraws every open AvatarDoc view and window.</summary>
+        public static void ReloadLanguages()
+        {
+            LanguageTables.Reload();
+            RegisterLanguages();
+            RaiseLanguageChanged();
+        }
+
+        /// <summary>
+        /// For tests: shows AvatarDoc in a language made of these texts, in place of any file for that code, until the
+        /// returned scope is disposed. With no texts, only the language changes and the files answer as usual, which
+        /// pins a test run to English with UseTestLanguage("en-US", null). Every open view follows, as it does for a
+        /// real change. Nothing reaches NDMF's shared choice or EditorPrefs meanwhile: SetLanguage changes only the
+        /// test's language.
+        /// </summary>
+        public static IDisposable UseTestLanguage(string code, IDictionary<string, string> texts) => new TestLanguage(code, texts);
+
+        sealed class TestLanguage : IDisposable
+        {
+            readonly string code;
+            readonly bool hasTable;
+            readonly Dictionary<string, string> previousTable;
+            readonly string previous;
+            bool disposed;
+
+            public TestLanguage(string code, IDictionary<string, string> texts)
+            {
+                this.code = code;
+                hasTable = texts != null;
+                previous = testLanguage;
+                if (hasTable) previousTable = LanguageTables.PutTestTable(code, texts);
+                testLanguage = code.ToLowerInvariant();
+                RaiseLanguageChanged();
+            }
+
+            public void Dispose()
+            {
+                if (disposed) return;
+                disposed = true;
+                if (hasTable) LanguageTables.RestoreTestTable(code, previousTable);
+                testLanguage = previous;
+                RaiseLanguageChanged();
+            }
+        }
+
+        /// <summary>
+        /// The tables a text is looked for in, in order: the language itself, then any other form of the same language
+        /// (zh-Hant tries zh-Hans), then English. NDMF orders its own tables the same way.
+        /// </summary>
+        public static IReadOnlyList<string> LookupOrder(string language)
+        {
+            var order = new List<string>();
+            var codes = LanguageTables.Codes;
+            foreach (var code in codes)
+                if (string.Equals(code, language, StringComparison.OrdinalIgnoreCase)) order.Add(code);
+            var baseLanguage = (language ?? "").Split('-')[0];
+            if (baseLanguage.Length > 0)
+            {
+                foreach (var code in codes)
+                {
+                    if (order.Contains(code)) continue;
+                    if (string.Equals(code, baseLanguage, StringComparison.OrdinalIgnoreCase) || code.StartsWith(baseLanguage + "-", StringComparison.OrdinalIgnoreCase))
+                        order.Add(code);
+                }
+            }
+            if (!order.Contains(LanguageTables.English)) order.Add(LanguageTables.English);
+            return order;
+        }
+
+        static string orderLanguage;
+        static int orderVersion = -1;
+        static string[] order = Array.Empty<string>();
+
+        /// <summary>A key's text in the current language, from English when that language lacks it; null when English lacks it too.</summary>
+        static string Find(string key)
+        {
+            if (key == null) return null;
+            var language = Language;
+            if (orderVersion != LanguageTables.Version || !string.Equals(orderLanguage, language, StringComparison.Ordinal))
+            {
+                order = LookupOrder(language).ToArray();
+                orderLanguage = language;
+                orderVersion = LanguageTables.Version;
+            }
+            foreach (var code in order)
+            {
+                var text = LanguageTables.Text(code, key);
+                if (text != null) return text;
+            }
+            return null;
+        }
+
+        /// <summary>A key's text in the current language. A key the language lacks shows its English text; one English lacks too shows as &lt;key&gt;.</summary>
+        public static string Text(string key) => Find(key) ?? "<" + key + ">";
+
+        /// <summary>Items listed the way the current language lists them: "a, b" in English, "a、b" in Japanese and Chinese.</summary>
+        public static string JoinList(IEnumerable<string> items) => string.Join(Text("ad.ui.list.separator"), items);
+
+        /// <summary>A text with a note after it in the language's own brackets: "Hat (Body)", "Hat（Body）". No note, no brackets.</summary>
+        public static string Aside(string text, string note) => string.IsNullOrEmpty(note) ? text : string.Format(Text("ad.ui.aside"), text, note);
+
+        /// <summary>A text in the language's own brackets: "(a and b)", "（a かつ b）".</summary>
+        public static string Brackets(string text) => string.Format(Text("ad.ui.brackets"), text);
+
+        /// <summary>A name in the language's own quotes: "Hat" in English, 「Hat」 in Japanese, “Hat” in Chinese.</summary>
+        public static string Quoted(string name) => string.Format(Text("ad.ui.quoted"), name);
+
+        /// <summary>A label and its text, joined by the language's own colon: "Error: ...", "エラー：...".</summary>
+        public static string Labelled(string label, string text) => string.Format(Text("ad.ui.labelled"), label, text);
 
         public static void Report(ModelMessage message)
         {

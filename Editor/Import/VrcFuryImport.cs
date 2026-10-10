@@ -40,7 +40,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (data.ExclusiveTags.Count > 1)
                 {
                     candidate.Notes.Add(string.Format(L.Text("ad.import.note.extra_tags"),
-                        string.Join(", ", data.ExclusiveTags.Skip(1)), data.ExclusiveTags[0]));
+                        L.JoinList(data.ExclusiveTags.Skip(1)), data.ExclusiveTags[0]));
                 }
             }
 

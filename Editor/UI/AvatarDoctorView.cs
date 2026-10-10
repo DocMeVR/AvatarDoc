@@ -46,13 +46,13 @@ namespace DocMe.AvatarDoctor.Editor
         public readonly SerializedObject SerializedObject;
         public readonly AvatarDoc Menu;
         public AvatarPlan Plan { get; private set; }
-        public readonly HeaderView Header;
+        public HeaderView Header { get; private set; }
         public readonly VisualElement Content = new VisualElement();
         public readonly VisualElement Left = new VisualElement();
         public readonly List<VisualElement> Refreshables = new List<VisualElement>();
-        public readonly MenuTreeView Tree;
-        public readonly EntryDetailView Detail;
-        public readonly SummaryPanel Summary;
+        public MenuTreeView Tree { get; private set; }
+        public EntryDetailView Detail { get; private set; }
+        public SummaryPanel Summary { get; private set; }
         /// <summary>
         /// Where first-use tips read whether they were dismissed and turn them all back on. Defaults to an
         /// in-memory store that never touches the real EditorPrefs, the way a detached view keeps its own test
@@ -76,9 +76,19 @@ namespace DocMe.AvatarDoctor.Editor
         public bool Simple => Mode == ViewMode.Simple;
 
         /// <summary>The Simple and Advanced switch at the very top of the view.</summary>
-        public readonly SegmentedChoice ModeChoice;
-        readonly VisualElement lockBanner = new VisualElement { name = "ad-lock-banner" };
-        readonly Label lockBannerText = new Label { name = "ad-lock-banner-text" };
+        public SegmentedChoice ModeChoice { get; private set; }
+
+        /// <summary>The language picker at the right end of the switch's row, shown in both modes.</summary>
+        public LanguagePicker LanguagePicker { get; private set; }
+
+        /// <summary>The L.LanguageVersion the parts were last built in. A view that was off its panel during a change builds again on its next poll.</summary>
+        int builtLanguage;
+
+        /// <summary>How many times the parts were built again for a language change. Read by the tests.</summary>
+        public int Rerenders { get; private set; }
+
+        VisualElement lockBanner;
+        Label lockBannerText;
 
         readonly bool wide;
         readonly PublishedValueWatch<ImmutableDictionary<string, float>> overridesWatch;
@@ -121,14 +131,61 @@ namespace DocMe.AvatarDoctor.Editor
 
             if (EntryEditing.EnsureUniqueIds(menu, OthersOf(menu)) > 0) AvatarPlanCache.InvalidateMenu(AvatarPlanCache.RootOf(menu));
 
+            BuildParts();
+
+            // The poller only has to run while the inspector is on screen, so it is paused with the panel.
+            overridesWatch = new PublishedValueWatch<ImmutableDictionary<string, float>>(PreviewState.Overrides, OnOverridesChanged);
+            RegisterCallback<AttachToPanelEvent>(_ =>
+            {
+                if (poller == null) poller = schedule.Execute(CheckVersion).Every(250);
+                else poller.Resume();
+                overridesWatch.Start();
+                AvatarPlanCache.Changed += OnCacheChanged;
+                ModeChanged -= OnModeChangedElsewhere;
+                ModeChanged += OnModeChangedElsewhere;
+                // A language chosen while this view was off screen is caught by the poller's first run instead of
+                // here: building the parts again inside their own attach would change the tree being attached.
+                L.LanguageChanged -= OnLanguageChanged;
+                L.LanguageChanged += OnLanguageChanged;
+                // A switch pressed while this view was off screen never reached it, so it reads the person's
+                // choice again before it shows.
+                var stored = ViewModes.Load(ViewPrefs);
+                if (stored != Mode) ApplyMode(stored);
+                // A refresh asked for while there was no panel to schedule it on never ran, so the flag that
+                // holds the next one back has to be let go of here.
+                refreshPending = false;
+                UpdateWheel();
+            });
+            RegisterCallback<DetachFromPanelEvent>(_ =>
+            {
+                poller?.Pause();
+                overridesWatch.Stop();
+                AvatarPlanCache.Changed -= OnCacheChanged;
+                ModeChanged -= OnModeChangedElsewhere;
+                L.LanguageChanged -= OnLanguageChanged;
+                // Nothing off screen has to redraw, and a refresh left waiting here would never run to clear itself.
+                pending?.Pause();
+                refreshPending = false;
+            });
+            Refresh();
+        }
+
+        /// <summary>Builds every part of the view, each reading its texts in the current language.</summary>
+        void BuildParts()
+        {
+            builtLanguage = L.LanguageVersion;
             var modeRow = new VisualElement { name = "ad-mode-row" };
             modeRow.AddToClassList("ad-mode-row");
             ModeChoice = new SegmentedChoice(new List<string> { L.Text("ad.ui.mode.simple"), L.Text("ad.ui.mode.advanced") }, Simple ? 0 : 1)
                 { name = "ad-mode", tooltip = L.Text("ad.ui.mode.tip") };
             ModeChoice.Changed += index => SetMode(index == 0 ? ViewMode.Simple : ViewMode.Advanced);
             modeRow.Add(ModeChoice);
+            LanguagePicker = new LanguagePicker();
+            modeRow.Add(LanguagePicker);
             Add(modeRow);
 
+            lockBanner = new VisualElement { name = "ad-lock-banner" };
+            lockBannerText = new Label { name = "ad-lock-banner-text" };
             lockBanner.AddToClassList("ad-lock-banner");
             lockBanner.AddToClassList("ad-hidden");
             lockBannerText.AddToClassList("ad-note");
@@ -155,37 +212,53 @@ namespace DocMe.AvatarDoctor.Editor
             Tree.SelectionChanged += Detail.Show;
             Tree.SelectionChanged += _ => UpdateWheel();
             Tree.SelectionChanged += _ => CloseSummary();
+        }
 
-            // The poller only has to run while the inspector is on screen, so it is paused with the panel.
-            overridesWatch = new PublishedValueWatch<ImmutableDictionary<string, float>>(PreviewState.Overrides, OnOverridesChanged);
-            RegisterCallback<AttachToPanelEvent>(_ =>
+        void OnLanguageChanged()
+        {
+            if (Menu == null) return;
+            // A rebuild would drop a drag the tree holds; the poller builds again once the drag ends.
+            if (Tree.Dragging) return;
+            Rerender();
+        }
+
+        /// <summary>
+        /// Builds every part again, so each label, tooltip and note reads in the current language. What the creator was
+        /// looking at stays: the selected row, the search, the Summary and its format, the mode, and the folds and open rows
+        /// the view's store keeps. A menu of this view is closed first, since its rows were made in the old language.
+        /// </summary>
+        public void Rerender()
+        {
+            if (Menu == null) return;
+            Tree.PollExpansion();
+            var selectedKey = Tree.Selected?.Key;
+            var search = Tree.Q<TextField>("ad-search")?.value ?? "";
+            bool summaryOpen = SummaryOpen;
+            var summaryFormat = Summary.Format;
+            if (panel != null)
             {
-                if (poller == null) poller = schedule.Execute(CheckVersion).Every(250);
-                else poller.Resume();
-                overridesWatch.Start();
-                AvatarPlanCache.Changed += OnCacheChanged;
-                ModeChanged -= OnModeChangedElsewhere;
-                ModeChanged += OnModeChangedElsewhere;
-                // A switch pressed while this view was off screen never reached it, so it reads the person's
-                // choice again before it shows.
-                var stored = ViewModes.Load(ViewPrefs);
-                if (stored != Mode) ApplyMode(stored);
-                // A refresh asked for while there was no panel to schedule it on never ran, so the flag that
-                // holds the next one back has to be let go of here.
-                refreshPending = false;
-                UpdateWheel();
-            });
-            RegisterCallback<DetachFromPanelEvent>(_ =>
-            {
-                poller?.Pause();
-                overridesWatch.Stop();
-                AvatarPlanCache.Changed -= OnCacheChanged;
-                ModeChanged -= OnModeChangedElsewhere;
-                // Nothing off screen has to redraw, and a refresh left waiting here would never run to clear itself.
-                pending?.Pause();
-                refreshPending = false;
-            });
+                foreach (var menu in panel.visualTree.Query<AdMenu>().ToList())
+                    if (menu.Owner == this) menu.Close(false);
+                var focused = panel.focusController?.focusedElement as VisualElement;
+                if (focused != null && Contains(focused)) focused.Blur();
+            }
+            Clear();
+            Content.Clear();
+            Left.Clear();
+            Refreshables.Clear();
+            wheel = null;
+            SummaryOpen = false;
+            BuildParts();
+            Rerenders++;
             Refresh();
+            if (search.Length > 0)
+            {
+                var field = Tree.Q<TextField>("ad-search");
+                if (field != null) field.value = search;
+            }
+            if (selectedKey != null && Tree.RowForKey(selectedKey) != null) Tree.SelectKey(selectedKey);
+            if (summaryFormat != Summary.Format) Summary.SetFormat(summaryFormat);
+            if (summaryOpen) OpenSummary();
         }
 
         /// <summary>
@@ -442,6 +515,11 @@ namespace DocMe.AvatarDoctor.Editor
                 menuHolds = 0;
                 menuHoldSuspended = 0;
                 Detail.RunPendingRebuild();
+            }
+            if (builtLanguage != L.LanguageVersion && Menu != null)
+            {
+                Rerender();
+                return;
             }
             if (MenuOpen)
             {

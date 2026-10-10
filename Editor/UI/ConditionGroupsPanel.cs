@@ -230,7 +230,7 @@ namespace DocMe.AvatarDoctor.Editor
             var container = new VisualElement();
             var toggles = owner.Plan.Tree.Controls.Where(c => c.Entry.kind == EntryKind.Toggle && c.Entry.id != entry.id).ToList();
             var labels = new List<string> { L.Text("ad.ui.when.pick_toggle") };
-            labels.AddRange(toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : c.Entry.PlainName + " (" + c.Component.gameObject.name + ")"));
+            labels.AddRange(toggles.Select(c => c.Component == owner.Menu ? c.Entry.PlainName : L.Aside(c.Entry.PlainName, c.Component.gameObject.name)));
             int current = toggles.FindIndex(c => c.Entry.id == condition.sourceToggleId);
             var field = new DropdownField(L.Text("ad.ui.trigger.toggle"), labels, current + 1) { name = "ad-when-toggle", tooltip = L.Text("ad.ui.trigger.toggle.tip") };
             field.RegisterValueChangedCallback(e =>

@@ -65,12 +65,23 @@ namespace DocMe.AvatarDoctor.Editor
         {
             Undo.undoRedoPerformed += OnUndo;
             AvatarPlanCache.Changed += OnCacheChanged;
+            L.LanguageChanged += OnLanguageChanged;
         }
 
         void OnDisable()
         {
             Undo.undoRedoPerformed -= OnUndo;
             AvatarPlanCache.Changed -= OnCacheChanged;
+            L.LanguageChanged -= OnLanguageChanged;
+        }
+
+        /// <summary>The title, the notes and every candidate's reason were made in the old language, so the candidates are read again (keeping the ticks) and the panel is built again.</summary>
+        void OnLanguageChanged()
+        {
+            titleContent = new GUIContent(L.Text("ad.ui.import"));
+            if (rootVisualElement.childCount == 0) return;
+            if (component != null) Rescan();
+            Rebuild();
         }
 
         void OnCacheChanged(Transform _) => QueueRescan(force: false);
@@ -434,7 +445,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (draft.materials.Count > 0) parts.Add(Count(draft.materials.Count, "ad.ui.import.summary.material", "ad.ui.import.summary.materials"));
             if (draft.properties.Count > 0) parts.Add(Count(draft.properties.Count, "ad.ui.import.summary.property", "ad.ui.import.summary.properties"));
             if (draft.animations.Count > 0) parts.Add(Count(draft.animations.Count, "ad.ui.import.summary.animation", "ad.ui.import.summary.animations"));
-            return string.Join(", ", parts);
+            return L.JoinList(parts);
         }
 
         static string Count(int n, string singularKey, string pluralKey) => string.Format(L.Text(n == 1 ? singularKey : pluralKey), n);

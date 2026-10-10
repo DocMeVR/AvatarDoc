@@ -722,6 +722,18 @@ namespace DocMe.AvatarDoctor.Editor
             InvalidateAll(reason, notify: false, controllers: false);
         }
 
+        /// <summary>The L.LanguageVersion the cached plans were built in; -1 before the first plan.</summary>
+        static int builtForLanguage = -1;
+
+        /// <summary>A plan holds texts made while it was built (a message's details, a Convert reason read from a controller), so a language change drops every plan and the controller reads with them.</summary>
+        static void CheckLanguage()
+        {
+            if (builtForLanguage == L.LanguageVersion) return;
+            bool first = builtForLanguage < 0;
+            builtForLanguage = L.LanguageVersion;
+            if (!first) InvalidateAll("language changed", notify: false, controllers: true);
+        }
+
         /// <summary>Drops every plan and everything read from the controllers behind them.</summary>
         public static void Invalidate() => InvalidateAll("Invalidate", notify: true, controllers: true);
 
@@ -758,6 +770,8 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 LayerAnalysis.DropCache();
                 ParameterUsage.DropCaches();
+                // Everything that holds a text is gone, so whatever is built next is built in the current language.
+                builtForLanguage = L.LanguageVersion;
             }
             if (notify) Changed?.Invoke(null);
         }
@@ -878,6 +892,7 @@ namespace DocMe.AvatarDoctor.Editor
         public static PreviewPlan PreviewPlanFor(Transform avatarRoot, IReadOnlyList<AvatarDoc> components)
         {
             CheckPlatform();
+            CheckLanguage();
             // A cached entry is dropped the moment its avatar's plan is, so one that is still here was built for
             // the editor as it stands; only the component set has to be checked against it.
             var key = string.Join(",", components.Select(c => c != null ? c.GetInstanceID() : 0));
@@ -901,6 +916,7 @@ namespace DocMe.AvatarDoctor.Editor
         public static AvatarPlan GetFor(AvatarDoc component)
         {
             CheckPlatform();
+            CheckLanguage();
             var root = RootOf(component);
             if (root != null)
             {
@@ -914,6 +930,7 @@ namespace DocMe.AvatarDoctor.Editor
         public static AvatarPlan Get(Transform avatarRoot)
         {
             CheckPlatform();
+            CheckLanguage();
             if (avatarRoot == null) return Build(null, new AvatarDoc[0]);
             if (plans.TryGetValue(avatarRoot, out var cached)) return cached;
             Remember(avatarRoot);
@@ -964,7 +981,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (trigger.Kind != TriggerKind.Link) continue;
                 var outside = result.Usage.ClipsOutsideFx(trigger.SourceRenderer, trigger.SourceShape);
                 if (outside.Count > 0)
-                    result.Messages.Add(ModelMessage.Warning("ad.warn.link_clips_outside_fx", trigger.Entry.PlainName, trigger.SourceRenderer.name + "/" + trigger.SourceShape, string.Join(", ", outside.Select(c => c.name))).For(trigger.Entry.id));
+                    result.Messages.Add(ModelMessage.Warning("ad.warn.link_clips_outside_fx", trigger.Entry.PlainName, trigger.SourceRenderer.name + "/" + trigger.SourceShape, L.JoinList(outside.Select(c => c.name))).For(trigger.Entry.id));
             }
 
             // Mirrors the VRChat SDK's own build validation ("VRCExpressionParameters has too many parameters
@@ -980,7 +997,7 @@ namespace DocMe.AvatarDoctor.Editor
             var writeDefaults = AnimatorBuilder.DecideWriteDefaultsForAvatar(fx);
             result.WriteDefaultsOn = writeDefaults.WriteDefaults;
             if (writeDefaults.Mixed)
-                result.Messages.Add(ModelMessage.Warning("ad.warn.write_defaults_mixed", string.Join(", ", writeDefaults.OnLayers), string.Join(", ", writeDefaults.OffLayers)));
+                result.Messages.Add(ModelMessage.Warning("ad.warn.write_defaults_mixed", L.JoinList(writeDefaults.OnLayers), L.JoinList(writeDefaults.OffLayers)));
 
             return result;
         }

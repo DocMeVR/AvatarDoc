@@ -59,7 +59,7 @@ namespace DocMe.AvatarDoctor.Editor
                     if (job.Replace) removals.Add((clip, sourceBinding));
                 }
                 if (outside.Count > 0)
-                    messages.Add(ModelMessage.Warning("ad.warn.link_clips_outside_fx", entry.PlainName, job.Renderer.name + "/" + job.Shape, string.Join(", ", outside)).For(entry.id));
+                    messages.Add(ModelMessage.Warning("ad.warn.link_clips_outside_fx", entry.PlainName, job.Renderer.name + "/" + job.Shape, L.JoinList(outside)).For(entry.id));
                 if (job.Parameter == null) continue;
                 if (copied == 0)
                     messages.Add(ModelMessage.Warning("ad.warn.link_no_fx_clip", entry.PlainName, job.Renderer.name + "/" + job.Shape).For(entry.id));

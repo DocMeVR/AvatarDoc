@@ -12,18 +12,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Swapped in tests so opening the README never touches the real file system or launches a real viewer.</summary>
         public static Action<string> OpenOverride;
 
-        /// <summary>
-        /// The package's own root folder, found from the localization file every build of this package ships
-        /// (the same asset L's own lookup finds), two levels above it (Editor/Localization/&lt;file&gt; sits directly
-        /// under the package root's Editor folder). Null when that file cannot be found at all.
-        /// </summary>
-        public static string PackageRoot()
-        {
-            var jsonPath = L.TablePath("en-US");
-            if (jsonPath == null) return null;
-            var editorFolder = Path.GetDirectoryName(Path.GetDirectoryName(jsonPath));
-            return editorFolder == null ? null : Path.GetDirectoryName(editorFolder)?.Replace('\\', '/');
-        }
+        /// <summary>The package's own root folder (LanguageTables finds it from the English table every copy ships); null when that file is missing.</summary>
+        public static string PackageRoot() => LanguageTables.PackageRoot();
 
         /// <summary>The README path this package ships, or null when the package root cannot be found.</summary>
         public static string ReadmePath()

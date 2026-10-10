@@ -314,9 +314,8 @@ adds the USS class `ad-wide`, which switches the grid to tree beside detail. Str
   (`#3FC9A8` dark, `#128A6E` light chosen by `EditorGUIUtility.isProSkin`, applied as a class on the root), semantic
   colours for warnings and errors, violet for source chips. Icons are 32 px PNGs under `Editor/UI/Icons`, located
   through the GUID of a marker asset so the folder can move.
-- Localization: an NDMF `Localizer` over `Editor/Localization/en-US.json`; elements carrying the `ndmf-tr` class get
-  their label from the key, the same mechanism Modular Avatar uses. All inspector strings and error messages live in
-  that file.
+- Localization: every inspector string and error message is a key in `Editor/Localization/AvatarDoctor.en-US.json`,
+  read through `L.Text`. Since plan 16 each language is one more file beside it; see "Languages" at the end.
 - Renaming a submenu in the editor updates `installPath` on every other component in the scene that points at it,
   with Undo.
 - Every edit the inspector makes outside `SerializedObject` binding (add, duplicate, delete, move, rename, id repair)
@@ -373,7 +372,7 @@ Live in the inspector (warning icon on the row plus a box in the detail) and at 
 Packages/dev.docme.avatar-doctor/   (Assets/DocMe/AvatarDoctor/ until 2026-10-10)
   package.json                      (for a later VPM release; name dev.docme.avatar-doctor)
   README.md
-  Docs~/design.md, plan-1-model-and-build.md, plan-2-inspector.md, plan-3-triggers.md, plan-4-preview-wheel-window.md
+  Docs~/design.md, translating.md, glossary.md (plan notes kept on disk only)
   Runtime/DocMe.AvatarDoctor.asmdef, AvatarDoctorMenu.cs, MenuEntry.cs, Targets.cs
   Editor/DocMe.AvatarDoctor.Editor.asmdef
     Core/MenuModel.cs, ParameterPlanner.cs, TriggerPlanner.cs, EffectMath.cs, ModelMessage.cs
@@ -384,7 +383,7 @@ Packages/dev.docme.avatar-doctor/   (Assets/DocMe/AvatarDoctor/ until 2026-10-10
       TreeRow.cs, EntryDetailView.cs, TargetListView.cs, WheelModel.cs, WheelView.cs, KindGlyph.cs, MemoryBar.cs,
       ParameterPicker.cs, ShapePicker.cs, EntryEditing.cs, AvatarPlanCache.cs, HierarchyDropManipulator.cs,
       AvatarDoctor.uss
-    Localization/L.cs, AvatarDoctor.en-US.json
+    Localization/L.cs, LanguageTables.cs, LanguageFile.cs, LanguageCheck.cs, AvatarDoctor.<code>.json
     Introspection/AvatarDoctorParameterProvider.cs
   Tests/Editor/DocMe.AvatarDoctor.Tests.asmdef, *.cs
 ```
@@ -2267,7 +2266,8 @@ real EditorPrefs. No plan is built, nothing is written to the component and noth
   Advanced. A toggle's Blend shapes section is always shown, with its Capture.
 - Every other kind of row keeps its whole panel in both modes. In Simple it opens with one note, "This is an advanced
   item; switch to Advanced to add more like it.", except presets (`+ Outfit set` builds them when it mixes freely) and
-  the automatic More pages.
+  the automatic More pages, and (since plan 16) rows of the avatar's own menu or of another tool, which are not
+  AvatarDoc's to add more of.
 - The exceptions that keep the promise: a part shows while it holds something. A section with rows, a name with a
   colour, bold, italic or hand written tags (Style row and Rich text tags), a toggle in an Exclusive group, an Advanced
   fold whose dot rule says a value differs, and a `Component settings` fold with a changed Install into, Install as,
@@ -2479,3 +2479,59 @@ row. A Fade trigger forced On also rests while a toggle requirement is off.
 copy of the shape's weight, no synced bits"; the summary lists the copy under `Animator only parameters`; the rule
 sentence reads "When "Body/Blush" moves and "Hat" is on" (Fade: "When a hand comes near "Head" and ...");
 `ad.warn.link_source_tracked` warns when the shape is one the descriptor blinks or speaks with, which no clip moves.
+
+## Languages (asked 2026-10-10, plan 16 task L)
+
+The creator asked for Japanese and Simplified Chinese as modular files people can maintain, in the language NDMF and
+Modular Avatar share rather than a setting of AvatarDoc's own.
+
+**One file per language, found by name.** `LanguageTables` treats every TextAsset named `AvatarDoctor.<code>.json` as a
+language table, wherever it sits; the code is normalised the way NDMF does it (`CultureInfo`), and a name that is not a
+language is ignored. The package's own files come first, then any others by path, and several files of one code merge
+key by key, the later winning, so a contributor's file under `Assets` can override a shipped text without editing the
+package. Files are read on first use and read again when an `AssetPostprocessor` (`LanguageFileWatcher`) sees one
+saved, added, moved or deleted. `LanguageFile` reads strictly (one JSON object of string pairs, UTF-8 with or without
+BOM), so a file that loads here also loads in any translation tool; a file it cannot read is left out with one Console
+warning, and English shows in its place.
+
+**Lookup and fallback.** `L.Text` looks a key up in the current language, then any other form of the same language
+(`zh-Hant` reads `zh-Hans`), then English (`L.LookupOrder`, the order NDMF uses). A blank text counts as missing. A key
+English lacks too still shows as `<key>`. `L.Localizer`, the NDMF `Localizer` that `ErrorReport` needs, has one table
+whose lookup is the same function, so build messages follow the same language and fallback.
+
+**Shared language.** `L.Language` is `LanguagePrefs.Language`; `L.SetLanguage` writes it, so NDMF and Modular Avatar
+follow. `L` registers with `LanguagePrefs.RegisterLanguageChangeCallback` and offers every file's code to
+`LanguagePrefs.RegisterLanguage` at load, so NDMF's and Modular Avatar's switchers list it. Every change (here, in
+Modular Avatar, in NDMF, or a saved file) raises `L.LanguageChanged` and moves `L.LanguageVersion`.
+
+**The picker and the re-render.** `LanguagePicker` sits at the right end of the `Simple | Advanced` row in both modes:
+the current language in its own name (NDMF's own name list, reached through its internal `GetLocaleNativeName`, since
+.NET's names cannot tell `zh-Hans` from `zh-Hant`) and an arrow opening an `AdMenu` of NDMF's registered languages plus
+AvatarDoc's, filtered as NDMF's switcher filters them. A view listens to `L.LanguageChanged` while it is on a panel and
+builds every part again (`AvatarDoctorView.Rerender`), keeping the selection, the search, the Summary and its format,
+and the mode; a view that was off its panel catches up on its next poll. The Convert, outfit set, icon capture and
+Quick start windows and the AvatarDoc Shapes inspector rebuild themselves and their titles (the capture window keeps
+its background). `AvatarPlanCache` drops its plans and controller reads on the first request after a change, since
+they hold texts made while they were built; a full drop with the controller reads counts as that drop.
+
+**Text the code puts together.** A list, a note in brackets, a quoted name and a "label: text" pair come from
+`L.JoinList`, `L.Aside`, `L.Brackets`, `L.Quoted` and `L.Labelled`, which read their punctuation from the keys
+`ad.ui.list.separator`, `ad.ui.aside`, `ad.ui.brackets`, `ad.ui.quoted` and `ad.ui.labelled`. The Builds line, the rule
+sentence's groups, the summary (with its Markdown table headers, `ad.summary.parameters.name`, `.type`, `.notes`), the
+twin parity list, the toggle pickers' "name (object)" labels, the parameter picker, the message arguments that list or
+quote names, and the blend time's unit (`ad.ui.blend.unit`) use them, so no English ", " or "(" lands between Japanese
+or Chinese words.
+
+**Simple mode's advanced note.** `EntryDetailView.IsAdvancedItem` is true only for AvatarDoc's own items that Simple
+does not add (triggers, overrides, grabbables, merged animators, menu assets, declared parameters and their groups). An
+item of the avatar's own menu or of another tool shows its panel without the note, since there is nothing of
+AvatarDoc's to add more of.
+
+**Maintenance.** The contributor guide is `Docs~/translating.md` and the term table `Docs~/glossary.md`: `Docs~` stays
+out of the installed package, and a test keeps every `.md` file out of `Editor/` and `Runtime/`. `LanguageCheck` holds
+the checks (valid JSON in UTF-8, no key twice, no key English lacks, the same placeholders, no stray brace, closed
+`<b>`, `<i>` and `<color>` tags, no empty text, the English order, and every key in a shipped language), each naming
+the language, the key and the fix. `LocalizationFileTests` runs them on every file in the project, and saving a
+language file writes the same findings to the Console. Tests use `L.UseTestLanguage`, a table injected in memory that
+never touches a file, NDMF's saved choice or EditorPrefs; scopes nest, also on one code. Every run is pinned to English:
+the project's runner wraps it, and `EnglishDuringTests`, a `[SetUpFixture]`, does the same in Unity's Test Runner.

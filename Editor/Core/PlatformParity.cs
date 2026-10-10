@@ -131,7 +131,7 @@ namespace DocMe.AvatarDoctor.Editor
             return list;
         }
 
-        static string Describe(string name, string type, bool synced) => name + " (" + type + (synced ? ", synced" : "") + ")";
+        static string Describe(string name, string type, bool synced) => L.Aside(name, synced ? L.JoinList(new[] { type, L.Text("ad.summary.parameters.synced") }) : type);
 
         static string TypeName(VRCExpressionParameters.ValueType type)
         {

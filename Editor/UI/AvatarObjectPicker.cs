@@ -319,7 +319,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var label = choice.Name;
                 if (choice.Inactive) label += " " + L.Text("ad.ui.pick.inactive");
-                if (!string.IsNullOrEmpty(choice.ParentPath)) label += "  (" + choice.ParentPath + ")";
+                label = L.Aside(label, choice.ParentPath);
                 return label;
             }
 
