@@ -28,6 +28,7 @@
     "reference-blend-shapes/overview": { "version": "0.3.0", "taken": "2026-10-11" },
     "reference-convert-window/overview": { "version": "0.3.0", "taken": "2026-10-11" },
     "reference-exclusive-groups/overview": { "version": "0.3.0", "taken": "2026-10-11" },
+    "reference-grabbable/overview": { "version": "0.3.0", "taken": "2026-10-11" },
     "reference-icon-capture/overview": { "version": "0.3.0", "taken": "2026-10-11" },
     "reference-import-window/rows": { "version": "0.3.0", "taken": "2026-10-11" },
     "reference-inspector/header": { "version": "0.3.0", "taken": "2026-10-11" },

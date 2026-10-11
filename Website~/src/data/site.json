@@ -5,5 +5,7 @@
   "releasesUrl": "https://github.com/DocMeVR/AvatarDoc/releases",
   "listingUrl": "https://docmevr.github.io/vpm/index.json",
   "listingPage": "https://docmevr.github.io/vpm",
-  "vccAddUrl": "vcc://vpm/addRepo?url=https://docmevr.github.io/vpm/index.json"
+  "vccAddUrl": "vcc://vpm/addRepo?url=https://docmevr.github.io/vpm/index.json",
+  "ndmfListingUrl": "https://vpm.nadena.dev/vpm.json",
+  "ndmfVccAddUrl": "vcc://vpm/addRepo?url=https://vpm.nadena.dev/vpm.json"
 }

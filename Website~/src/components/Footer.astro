@@ -1,0 +1,16 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+import pkg from '../../../package.json';
+---
+
+<Default {...Astro.props}><slot /></Default>
+<p class="docs-version">Docs for AvatarDoc {pkg.version}</p>
+
+<style>
+  .docs-version {
+    margin: 0;
+    padding-top: 0.5rem;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-sm);
+  }
+</style>

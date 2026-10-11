@@ -43,7 +43,7 @@ AvatarDoc chooses one setting for all its ordinary layers, so that they match th
 - When they disagree, or when there are no states, AvatarDoc uses Write Defaults on. A warning names the layers that mix the two settings, and the header of the inspector shows what AvatarDoc uses.
 - It does not count additive layers, layers that are one state holding a blend tree, or its own pin layers.
 
-A merged animator keeps the Write Defaults of its own controller, unless **Match write defaults** is on, which it is by default. Then its layers follow the avatar's setting. An additive layer, and a layer that is one state holding a direct blend tree, keep Write Defaults on either way, because they stop working without it.
+A merged animator keeps the Write Defaults of its own controller, unless <Label k="ad.ui.animator.match_write_defaults" /> is on, which it is by default. Then its layers follow the avatar's setting. An additive layer, and a layer that is one state holding a direct blend tree, keep Write Defaults on either way, because they stop working without it.
 
 ## Pin layers
 

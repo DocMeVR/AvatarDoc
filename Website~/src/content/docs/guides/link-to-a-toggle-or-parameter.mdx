@@ -87,7 +87,7 @@ The list groups the parameters under <Label k="ad.ui.pick.parameter.avatar" /> (
 
 </Steps>
 
-Inside a group, every condition must be true (<Label k="ad.ui.when.all_of" />). The trigger fires while any group is fully true. The <Label k="ad.ui.fires" /> line always says the whole rule in words. Use at most 4 groups of 4 conditions each: <Label k="ad.ui.when.add_and" /> switches off once a group holds 4.
+Inside a group, every condition must be true (<Label k="ad.ui.when.all_of" />). The trigger fires while any group is fully true. The <Label k="ad.ui.fires" /> line always says the whole rule in words. A trigger may have at most 4 groups and 4 conditions in a group, and the group sizes multiplied together may not pass 64, which is the number of ways it must be able to turn off again. Four groups of 2 conditions build; four groups of 3 are refused. A float compared with one exact value counts twice, and a menu switch adds to the count. <Label k="ad.ui.when.add_and" /> switches off once a group holds 4. [Limits](../../reference/limits/#how-complex-a-trigger-may-be) has the table.
 
 To make the trigger work only while a menu switch is on, open the panel's <Label k="ad.ui.advanced_fold" /> fold. In <Label k="ad.ui.trigger.gate" />, pick a toggle and <Label k="ad.ui.trigger.toggle.on" /> or <Label k="ad.ui.trigger.toggle.off" />, or press <Label k="ad.ui.trigger.gate.add" /> to make a new toggle for it.
 

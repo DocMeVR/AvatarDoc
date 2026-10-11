@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { changelogPage, glossaryPage, translatePage, parseNotes } from '../lib/pages.mjs';
+import { changelogPage, glossaryPage, translatePage, messagesPage, parseNotes } from '../lib/pages.mjs';
 
 test('the changelog loses its own first heading and gains frontmatter', () => {
   const md = changelogPage('# Changelog\n\n## [0.3.0](x) (2026-10-10)\n\n* a\n', 'CHANGELOG.md');
@@ -51,4 +51,17 @@ test('the translate page points glossary links at the site', () => {
 test('parseNotes reads key: text lines only', () => {
   assert.deepEqual(parseNotes('# c\n{}\nad.warn.a: Do this.\n\nad.warn.b: And: that.\n'), { 'ad.warn.a': 'Do this.', 'ad.warn.b': 'And: that.' });
   assert.deepEqual(parseNotes('{}\n'), {});
+});
+
+test('each generated page writes the editUrl it is given, and none when it has none', () => {
+  const url = 'https://example.com/r/edit/main/CHANGELOG.md';
+  assert.match(changelogPage('# C\n', 'CHANGELOG.md', url), /\neditUrl: "https:\/\/example\.com\/r\/edit\/main\/CHANGELOG\.md"\n/);
+  assert.match(glossaryPage('## A\n\n| English | Note |\n|---|---|\n| a | b |\n', 'g.md', url), /\neditUrl: "https/);
+  assert.match(translatePage('# T\n', 't.md', url), /\neditUrl: "https/);
+  assert.match(messagesPage('body', 'x.json', url), /\neditUrl: "https/);
+  assert.doesNotMatch(changelogPage('# C\n', 'CHANGELOG.md'), /editUrl/);
+});
+
+test('the Messages intro names the Learn more button by the label it is given', () => {
+  assert.match(messagesPage('body', 'x.json', '', 'Mehr'), /The \*\*Mehr\*\* button next to a message/);
 });

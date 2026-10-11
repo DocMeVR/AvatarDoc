@@ -4,12 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { loadStrings, usedLabels, stripBom } from './lib/strings.mjs';
 import { stripCode } from './lib/code.mjs';
 import { usedShots, checkShots, minorOf } from './lib/shots.mjs';
-import { coverage, toolLinkProblems, oversizeShots, listFiles } from './lib/checks.mjs';
+import { coverage, toolLinkProblems, oversizeShots, brokenLinks, listFiles } from './lib/checks.mjs';
 
 const site = fileURLToPath(new URL('..', import.meta.url));
 const pkg = path.resolve(site, '..');
 const docs = path.join(site, 'src', 'content', 'docs');
 const shotsDir = path.join(site, 'src', 'assets', 'shots');
+const siteData = JSON.parse(stripBom(fs.readFileSync(path.join(site, 'src', 'data', 'site.json'), 'utf8')));
 const allowMissing = process.env.DOCS_ALLOW_MISSING_SHOTS === '1';
 
 function readJson(file, fallback) {
@@ -49,6 +50,11 @@ console.log(`\nUI labels no page mentions yet (${uncovered.length})` + (uncovere
 uncovered.forEach((key) => console.log(`  ${key}  ${strings[key]}`));
 
 errors.push(...toolLinkProblems(path.join(site, 'dist'), readJson(path.join(site, 'src', 'data', 'tool-links.json'), { pages: [], anchors: [] })));
+errors.push(...brokenLinks(path.join(site, 'dist'), siteData.base).map((p) => 'Broken link: ' + p));
+const homePage = path.join(site, 'dist', 'index.html');
+if (packageVersion && fs.existsSync(homePage) && !fs.readFileSync(homePage, 'utf8').includes(`Docs for AvatarDoc ${packageVersion}`)) {
+  errors.push(`The built pages do not print "Docs for AvatarDoc ${packageVersion}". Check src/components/Footer.astro.`);
+}
 errors.push(...oversizeShots(shotsDir).map((s) => `Shot over 250 KB: ${s}. Re-capture it smaller.`));
 
 if (errors.length > 0) {

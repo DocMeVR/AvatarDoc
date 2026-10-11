@@ -148,7 +148,7 @@ AvatarDoc does not carry over everything from VRCFury or Modular Avatar. The Con
 
 1. If you have not changed anything else yet, use **Edit > Undo**. Convert undoes in one step.
 2. Open the Convert window again and read the notes of the row. [What each note means](../../reference/convert-window/#what-each-note-means) explains every one.
-3. After you convert, select the new entry and check its **Off value** fields, <Label k="ad.ui.blend" /> and parameter name against the old toggle.
+3. After you convert, select the new entry and check its <Label k="ad.ui.target.off_value" /> fields, <Label k="ad.ui.blend" /> and parameter name against the old toggle.
 4. To keep the old behaviour, leave that item as it is, with <Label k="ad.ui.import.keep" /> in the Convert window.
 
 See [Convert from VRCFury or Modular Avatar](../../guides/convert/).
@@ -320,7 +320,7 @@ See [Report a bug](../report-a-bug/).
 
 ### Likely cause
 
-A trigger may have at most 4 groups of at most 4 conditions each, and at most 64 ways to turn off again. That last count is the product of the group sizes, so 4 groups of 4 conditions come to 256 and are refused. [Limits](../../reference/limits/#how-complex-a-trigger-may-be) explains the count. Beyond these caps, VRChat cannot build all the ways to turn the trigger off again, so the build stops with an error.
+A trigger may have at most 4 groups of at most 4 conditions each, and at most 64 ways to turn off again. That last count is the product of the group sizes, so 4 groups of 4 conditions come to 256 and are refused. [Limits](../../reference/limits/#how-complex-a-trigger-may-be) explains the count with a table of what builds and what is refused. Beyond these caps, VRChat cannot build all the ways to turn the trigger off again, so the build stops with an error.
 
 ### Fix
 

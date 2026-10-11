@@ -22,6 +22,7 @@ export default defineConfig({
       lastUpdated: true,
       defaultLocale: 'root',
       locales: { root: { label: 'English', lang: 'en' } },
+      components: { Footer: './src/components/Footer.astro' },
       customCss: ['./src/styles/custom.css'],
       plugins: [starlightImageZoom(), starlightLinksValidator({ errorOnRelativeLinks: false })],
       sidebar: [
@@ -46,6 +47,7 @@ export default defineConfig({
             'reference/merged-animators',
             'reference/menu-assets-and-parameters',
             'reference/presets',
+            'reference/grabbable',
             'reference/outfit-sets',
             'reference/avatardoc-shapes',
             'reference/convert-window',
