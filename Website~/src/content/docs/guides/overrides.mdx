@@ -1,0 +1,72 @@
+---
+title: Hold a blend shape in every animation
+description: Keep one blend shape at a fixed value in every animation that moves it, such as a face tracking shape your avatar should never show.
+sidebar:
+  order: 12
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use an override when a shape must never move, whatever the animations do. For example, the face tracking animations of your avatar move a tongue shape that your model does not have a good tongue for. An override holds that shape at one value in every animation that moves it. It adds no button to the menu and costs no synced bits.
+
+To hold the other shapes of a face only while a toggle is on, see [Hold the rest of a face](../hold-the-rest/). To change a shape from the menu, see [Add a slider](../sliders/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.more" />, then <Label k="ad.ui.add.override" />. On a wide inspector, it sits on the toolbar itself.
+
+   You should now see an override named New Override, selected under <Label k="ad.ui.overrides" /> in the tree.
+
+3. In the override's panel, type a name into <Label k="ad.ui.name" />, such as No tongue, and press Enter.
+
+4. In the <Label k="ad.ui.blendshapes" /> section, press <Label k="ad.ui.add" />.
+
+   You should now see a list of your avatar's blend shapes, with a search field.
+
+5. Type part of the shape's name, such as `Tongue`, and pick the shape.
+
+   You should now see a row for the shape, with <Label k="ad.ui.override.value" /> at 0.
+
+6. Set <Label k="ad.ui.override.value" /> to the weight the shape should keep. 0 switches the shape off.
+
+   <Shot name="guides/overrides-pinned" alt="A No tongue override with 1 its Tongue_Out row, 2 Pinned value at 0, and 3 the list of the two clips that move the shape." />
+
+   In the picture, 1 is the shape the override holds, 2 is <Label k="ad.ui.override.value" />, and 3 is the list of the clips that move the shape.
+
+</Steps>
+
+One override can hold several shapes: add a row for each. If you set the weights in the scene first, press <Label k="ad.ui.shape_set.capture" /> in the section and pick the mesh. AvatarDoc adds a row for every shape of that mesh that is higher than 0, at its weight in the scene.
+
+The list under the rows names the clips of your avatar's own animators that move the shape. Click a name to find the clip in the Project window. The list cannot show animations that VRCFury or Modular Avatar add when you upload, but the override still reaches them. When nothing on the avatar moves the shape yet, the panel says so.
+
+### What AvatarDoc does at upload
+
+AvatarDoc changes the copy of the avatar that it uploads, never your animation files. In every animation that moves the shape, the shape stays at <Label k="ad.ui.override.value" />. AvatarDoc does this once after Modular Avatar and once more after VRCFury, so it also reaches the animations those tools add. When no animation moves the shape, AvatarDoc only sets the mesh to that value.
+
+An override wins over every toggle or trigger that changes the same shape, wherever that entry is in the menu.
+
+## Check it worked
+
+- In the Scene view, the shape shows at its held value while NDMF's previews are on. An override is always part of the preview, so its <Label k="ad.ui.preview" /> row is greyed out.
+- In Play mode with Gesture Manager, make the gesture or turn on the toggle that used to move the shape. The shape stays still. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- After Play mode or an upload, a warning says the override found no animation that moves the shape: nothing moves the shape, or the row points at a shape on the wrong mesh. Check the row's mesh, or remove the override if setting the mesh is all you wanted. See [the message](../../reference/messages/#ad-warn-override-unused).
+- A warning says two overrides hold the same shape: the one later in the tree wins. Remove one of them. See [the message](../../reference/messages/#ad-warn-override-conflict).
+- The shape should move some of the time: an override holds it all the time. Use a toggle with a <Label k="ad.ui.blendshapes" /> row, or a rule from [Hold the rest of a face](../hold-the-rest/), instead.
+
+## Related
+
+- The Reference page for Overrides describes every setting of the panel.
+- The How it works page about what happens when you upload explains when each tool runs.

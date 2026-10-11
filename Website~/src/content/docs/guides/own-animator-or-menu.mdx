@@ -1,0 +1,106 @@
+---
+title: Bring your own animator or menu
+description: Add a finished animator controller, a finished menu asset, or a parameter of your own to the avatar through AvatarDoc, without changing those assets.
+sidebar:
+  order: 15
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+A gimmick or a shader often comes with its own animator controller and its own menu. Rebuilding them as toggles would take a long time. AvatarDoc can merge the controller's layers into the avatar's FX controller and install the menu, the way Modular Avatar's Merge Animator and Menu Installer do. Neither asset is ever changed: AvatarDoc works on copies when you upload.
+
+To turn toggles made with VRCFury or Modular Avatar into AvatarDoc entries, see [Convert from VRCFury or Modular Avatar](../convert/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+### Merge an animator controller
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.more" />, then <Label k="ad.ui.add.animator" />. On a wide inspector, it sits on the toolbar itself.
+
+   You should now see a merged animator named <Label k="ad.ui.animator.unnamed" />, selected under <Label k="ad.ui.animators" /> in the tree. You can also drag the controller from the Project window onto the tree.
+
+3. In its panel, drag your controller onto <Label k="ad.ui.animator.controller" />.
+
+   You should now see the controller's layers under <Label k="ad.ui.animator.layers" /> and its parameters under <Label k="ad.ui.animator.parameters" />.
+
+4. If the controller's animations were made inside a prefab, set <Label k="ad.ui.animation.path_root" /> to that prefab's root on the avatar. Leave it empty when the animations start at the avatar root.
+
+5. Under <Label k="ad.ui.animator.layers" />, untick each layer that should stay out of the avatar.
+
+   <Shot name="guides/own-animator-or-menu-animator" alt="A merged Sparkles FX animator with 1 Controller, 2 Path root, 3 its two layers ticked, and 4 the Add control button of a parameter." />
+
+   In the picture, 1 is <Label k="ad.ui.animator.controller" />, 2 <Label k="ad.ui.animation.path_root" />, 3 the list of layers, and 4 <Label k="ad.ui.animator.add_control" /> beside a parameter.
+
+</Steps>
+
+<Label k="ad.ui.animator.match_write_defaults" /> is on for a new merged animator: its layers follow the Write Defaults choice of the avatar's own layers instead of the controller's own.
+
+The list of parameters says who looks after each one: the name of the AvatarDoc entry that drives it, <Label k="ad.ui.animator.existing" />, or <Label k="ad.ui.animator.not_synced" />. Only a parameter marked <Label k="ad.ui.animator.not_synced" /> has an <Label k="ad.ui.animator.add_control" /> button beside it. Press it to give that parameter a button in the menu. AvatarDoc makes a toggle named after the parameter, or a radial for a Float parameter. It drives the parameter from the menu and adds no layer of its own: its panel says <Label k="ad.ui.parameter_control_note" />.
+
+### Install a menu asset
+
+<Steps>
+
+1. In the inspector's toolbar, press <Label k="ad.ui.more" />, then <Label k="ad.ui.add.menu_asset" />. On a wide inspector, it sits on the toolbar itself.
+
+   You should now see an entry named <Label k="ad.ui.menu_asset.unnamed" />, selected under <Label k="ad.ui.menu_assets" /> in the tree. You can also drag the menu asset from the Project window onto the tree.
+
+2. In its panel, drag your menu asset onto <Label k="ad.ui.menu_asset.asset" />.
+
+3. In <Label k="ad.ui.menu_asset.path" />, type where the menu goes, such as Outfits/Summer. Leave it empty to install it where this component installs its entries. A single slash, `/`, installs it into the avatar's root menu.
+
+4. In <Label k="ad.ui.menu_asset.place" />, choose <Label k="ad.ui.menu_asset.place.submenu" /> to wrap the whole menu in one new submenu, or <Label k="ad.ui.menu_asset.place.append" /> to put its controls in that place directly.
+
+   With <Label k="ad.ui.menu_asset.place.submenu" />, type the submenu's name into <Label k="ad.ui.name" />. Left empty, it uses the asset's name.
+
+</Steps>
+
+The asset's controls show in the tree with an <Label k="ad.ui.chip.asset" /> chip. The tree shows these chips only while it is at least 360 pixels wide: on a narrower inspector, widen it to see them. You can rename, re-icon, hide or move them like the avatar's own items: see [Change the avatar's existing menu](../change-the-existing-menu/).
+
+### Declare a parameter
+
+VRChat ignores a menu control whose parameter the avatar does not declare. The <Label k="ad.ui.menu_asset.parameters" /> list of a menu asset's panel says who declares each parameter its controls use.
+
+<Steps>
+
+1. In the menu asset's panel, find a parameter marked <Label k="ad.ui.menu_asset.undeclared" />.
+
+2. Press <Label k="ad.ui.menu_asset.declare" /> beside it.
+
+   You should now see a <Label k="ad.ui.parameters" /> row in the tree, and the parameter marked <Label k="ad.ui.menu_asset.declared" />.
+
+3. In the tree, select <Label k="ad.ui.parameters" />.
+
+   You should now see one row per declared parameter, with its name, **Bool**, **Int** or **Float**, its default value, <Label k="ad.ui.saved" />, <Label k="ad.ui.synced" /> and the bits it costs.
+
+</Steps>
+
+<Label k="ad.ui.parameters.add" /> in that panel declares one more parameter. A declared parameter the avatar already has is reused, with the avatar's own settings.
+
+Merged animators and menu assets each have their own <Label k="ad.ui.platform" />, to leave them out of the PC or the Quest build.
+
+## Check it worked
+
+- In Play mode with Gesture Manager, open the menu, find the installed controls and use them. The merged layers react. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+- The scene preview does not show merged animators: the panel says so. Test them in Play mode.
+
+## If it does not work
+
+- A warning says the merged animator has no controller set: drag one onto <Label k="ad.ui.animator.controller" />. See [the message](../../reference/messages/#ad-warn-merge-no-controller).
+- An error says the avatar already has a parameter of the controller as another type: give the parameter the same type in both, or rename one. See [the message](../../reference/messages/#ad-error-merge-parameter-type).
+- A warning says nothing declares a parameter that an installed control drives: press <Label k="ad.ui.menu_asset.declare" /> for it. See [the message](../../reference/messages/#ad-warn-parameter-undeclared).
+
+## Related
+
+- The Reference pages for Merged animators and for Menu assets and parameters describe every setting.
+- [Fit in VRChat's parameter memory](../parameter-memory/) explains what declared parameters cost.

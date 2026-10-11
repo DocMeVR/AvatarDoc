@@ -1,0 +1,74 @@
+---
+title: Use AvatarDoc next to VRCFury and Modular Avatar
+description: Keep VRCFury and Modular Avatar on the same avatar as AvatarDoc, find their menu items in the tree, and know what to watch for at upload.
+sidebar:
+  order: 18
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Your avatar uses prefabs made with VRCFury or Modular Avatar, and you want to add AvatarDoc next to them. All three tools work on one avatar, and none of them needs the others. This page shows where their menu items appear in AvatarDoc and what to watch for. The How it works page about VRCFury and Modular Avatar explains the order the tools run in.
+
+To turn their toggles into AvatarDoc entries, see [Convert from VRCFury or Modular Avatar](../convert/).
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the tree, find the rows with a <Label k="ad.ui.chip.vrcfury" /> or <Label k="ad.ui.chip.modular_avatar" /> chip.
+
+   These are the menu items those tools add when you upload. AvatarDoc reads their place and name in the menu, not everything they do.
+
+   The tree shows these chips only while it is at least 360 pixels wide: on a narrower inspector, widen it to see them. At every width, these rows are dimmed and have a square icon, and the panel of such a row names the tool that adds it.
+
+   <Shot name="guides/with-vrcfury-and-modular-avatar-rows" alt="The tree with 1 a VRCFury chip and 2 a Modular Avatar chip, and the panel of the VRCFury Glasses row with 3 Name and 4 In menu." />
+
+   In the picture, 1 is a <Label k="ad.ui.chip.vrcfury" /> chip, 2 a <Label k="ad.ui.chip.modular_avatar" /> chip, 3 <Label k="ad.ui.name" /> and 4 <Label k="ad.ui.in_menu" /> of the selected VRCFury row.
+
+3. To rename, re-icon, hide or move one of them, select its row and change its panel, as in [Change the avatar's existing menu](../change-the-existing-menu/).
+
+   The panel says that the change is applied at upload, after the tool has added the item.
+
+4. To make one of them an AvatarDoc entry instead, right click its row and pick <Label k="ad.ui.convert" />.
+
+</Steps>
+
+Their items never count toward the eight places of AvatarDoc's own submenus, because each tool fills its own pages.
+
+### What happens at upload
+
+1. AvatarDoc builds its toggles, radials, submenus and presets, and applies your changes to the items of the avatar's own menu.
+2. Modular Avatar runs.
+3. AvatarDoc writes the rules of AvatarDoc Shapes, holds the shapes of its overrides in the animations Modular Avatar added, and applies your changes to Modular Avatar's items.
+4. VRCFury runs.
+5. AvatarDoc runs a last time: it holds the override shapes in the animations VRCFury added, and applies the changes still waiting for VRCFury's items.
+
+### Things to know
+
+- A VRCFury toggle gets a new parameter name at every upload, unless the toggle uses a global parameter, a setting of the VRCFury toggle. Give it one if a trigger or a preset of AvatarDoc should read it. The parameter lists then show it under <Label k="ad.ui.chip.vrcfury" />.
+- AvatarDoc offers only VRCFury toggles as rows and in Convert, no other VRCFury feature. It still reads the parameters of a VRCFury Full Controller, so it never frees one of them when you remove an item.
+- When the avatar's parameters do not fit in VRChat's 256 synced bits, VRCFury compresses them at upload until they fit, AvatarDoc's included. So with VRCFury installed, going over is a warning instead of an error.
+- AvatarDoc Shapes does not see animations that VRCFury adds.
+- VRCFury may say that it found a broken mix of Write Defaults on your avatar. When AvatarDoc has a blend shape row set to <Label k="ad.ui.seg.pin" />, or a touch trigger set to <Label k="ad.ui.touch.follow" />, choose **Skip**. AvatarDoc's layers that hold shapes, fade with distance, or pause blinking and lip sync are meant to have Write Defaults off. If you press **Auto-Fix**, AvatarDoc turns them back off at the end of the upload.
+
+## Check it worked
+
+- Press <Label k="ad.ui.wheel" /> on the toolbar (<Label k="ad.ui.mode.advanced" /> mode). The wheel shows the items of the other tools as darker wedges, in the places they take in the menu.
+- In Play mode with Gesture Manager, open **Expressions** and check that every tool's items are there. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- A trigger or a preset cannot find a VRCFury toggle's parameter: the toggle has no global parameter. Set one on the VRCFury toggle, then pick it from the parameter list.
+- A warning says the synced parameters need more bits than VRChat allows, and that VRCFury compresses them: the upload goes on. To fit without VRCFury's help, see [Fit in VRChat's parameter memory](../parameter-memory/). See [the message](../../reference/messages/#ad-warn-bits-exceeded-vrcfury).
+- A change to a VRCFury or Modular Avatar item does not show: the tool changed the item's name or place since you made the change. The header then lists the change as one that cannot apply. See [Change the avatar's existing menu](../change-the-existing-menu/#if-it-does-not-work).
+
+## Related
+
+- The How it works page about VRCFury and Modular Avatar explains the order of the tools in more detail.
+- The Reference page for the inspector at a glance describes the chips of the tree.

@@ -1,0 +1,78 @@
+---
+title: One button for several settings
+description: Make one menu button that puts several toggles and sliders into the state you choose, with a single press.
+sidebar:
+  order: 13
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a preset when one press should change several controls at once: take the hat off, put the hoodie on and set a smile halfway. A preset is a button in the menu. Each press sets the controls it lists. The controls then stay where the preset put them until you change them. The preset has no on or off state of its own, and it costs no synced bits.
+
+To wear one outfit out of several, see [Make one-of-many choices](../one-of-many/). To change effects by themselves whenever a toggle changes, see [Link effects to another toggle or a parameter](../link-to-a-toggle-or-parameter/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.more" />, then <Label k="ad.ui.add.preset" />. On a wide inspector, it sits on the toolbar itself.
+
+   You should now see a preset named New Preset, selected in the tree. It sits in the menu like a toggle.
+
+3. In the preset's panel, type a name into <Label k="ad.ui.name" />, such as Hoodie look, and press Enter.
+
+4. In the <Label k="ad.ui.preset.sets" /> section, press <Label k="ad.ui.preset.add" />.
+
+   You should now see a new row. Its button reads <Label k="ad.ui.preset.missing" /> until you pick a control, and a warning shows until then.
+
+5. Press the row's button and pick a control.
+
+   The list shows every toggle, radial and group member of every AvatarDoc component on the avatar, by its place in the menu, such as Outfits/Hoodie. Presets are not in the list.
+
+6. For a toggle, choose <Label k="ad.ui.preset.on" /> or <Label k="ad.ui.preset.off" />. For a radial, drag the slider: 0 is the radial's start and 1 its end.
+
+7. Add a row in the same way for every other control the preset sets.
+
+   <Shot name="guides/presets-sets" alt="A Hoodie look preset with 1 the first row's control, 2 its On and Off, 3 a radial row's slider, 4 From preview, 5 the + Add of Other parameters." />
+
+   In the picture, 1 is the control of the first row, 2 its <Label k="ad.ui.preset.on" /> and <Label k="ad.ui.preset.off" /> choice, 3 the slider of a radial row, 4 <Label k="ad.ui.preset.from_preview" />, and 5 the <Label k="ad.ui.add" /> of <Label k="ad.ui.preset.parameters" />.
+
+</Steps>
+
+The × at the end of a row removes it.
+
+### Fill the list from the scene preview
+
+If you would rather set the look in the scene first, preview each control the way you want it, with the <Label k="ad.ui.preview" /> row of its own panel. Then press <Label k="ad.ui.preset.from_preview" /> in the preset. It adds a row for every control that has a preview, at the value it previews, and updates the rows the preset already has.
+
+### Set a parameter of another tool
+
+<Label k="ad.ui.preset.parameters" /> sets a parameter that AvatarDoc does not own, such as one from Modular Avatar, or a VRCFury toggle with a global parameter. Press <Label k="ad.ui.add" /> under it, type the parameter's name or pick it with the arrow button, and type the value to set.
+
+### Exclusive groups
+
+For an exclusive group, the member you set to <Label k="ad.ui.preset.on" /> is the one that is worn. If every member you list is <Label k="ad.ui.preset.off" />, the group is switched off. Set only one member of a group to <Label k="ad.ui.preset.on" />. With two, the upload stops with an error, and Play mode goes on with only the first one in the list.
+
+## Check it worked
+
+- In the preset's panel, press <Label k="ad.ui.preview.on" /> in the <Label k="ad.ui.preview" /> row. The Scene view shows every row applied once. <Label k="ad.ui.preview.off" /> sets every listed control to off, and <Label k="ad.ui.preview.default" /> clears the previews of the listed controls.
+- In Play mode with Gesture Manager, press the preset in the menu and watch the controls change. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- A warning says the preset sets nothing yet: add a row to <Label k="ad.ui.preset.sets" /> or <Label k="ad.ui.preset.parameters" />. See [the message](../../reference/messages/#ad-warn-preset-empty).
+- A warning says the preset refers to a control that no longer exists: a row reads <Label k="ad.ui.preset.missing" />. Its control was deleted, or the row has no control yet. Press the button to pick one, or remove the row. See [the message](../../reference/messages/#ad-warn-preset-target-missing).
+- When you enter Play mode or upload, an error says the preset turns on two members of one group: Play mode applies only the first one, and the upload stops until you fix it. Set the other member to <Label k="ad.ui.preset.off" /> or remove its row. See [the message](../../reference/messages/#ad-error-preset-group-conflict).
+
+## Related
+
+- The Reference page for Presets describes every setting of the panel.
+- [Make one-of-many choices](../one-of-many/) explains exclusive groups.

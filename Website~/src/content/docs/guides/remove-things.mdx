@@ -1,0 +1,73 @@
+---
+title: Remove things from the avatar
+description: Take a menu item the avatar came with out of the build, together with the parameter and the FX layers nothing else needs, to free synced bits.
+sidebar:
+  order: 22
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Your avatar came with toggles you never use, and they cost synced bits. Turning <Label k="ad.ui.in_menu" /> off only takes an item out of the menu: its parameter and its animator layer keep running and keep costing bits. <Label k="ad.ui.existing.remove" /> takes the item out of the build, and with it the parameter and the FX layers that nothing else needs. Your assets are never changed: AvatarDoc removes them from the copy it uploads.
+
+This works for items of the avatar's own menu, and for the controls of menu assets AvatarDoc installs. Items that VRCFury or Modular Avatar add do not exist yet when AvatarDoc builds: hide them, or [convert them](../convert/) with <Label k="ad.ui.import.remove" /> on.
+
+To only rename, hide or move an item, see [Change the avatar's existing menu](../change-the-existing-menu/).
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the tree, select a row with an <Label k="ad.ui.existing" /> chip.
+
+   The tree shows these chips only while it is at least 360 pixels wide: on a narrower inspector, widen it to see them. At every width, the rows of the avatar's own menu are dimmed and have a square icon.
+
+   You should now see a panel titled <Label k="ad.ui.existing.title" />.
+
+3. In the panel, tick <Label k="ad.ui.existing.remove" />.
+
+   You should now see a line under the switch that says what the removal frees, such as **Frees 8 bits and 2 layers**. When a parameter has to stay, the line names it and what still needs it instead. The row in the tree gets a <Label k="ad.ui.chip.removed" /> chip, and <Label k="ad.ui.in_menu" /> turns off and greys out.
+
+   <Shot name="guides/remove-things-result" alt="The avatar's own Dance toggle with 1 In menu off and greyed out, 2 Remove from avatar ticked, and 3 the line saying it frees 8 bits and 2 layers." />
+
+   In the picture, 1 is <Label k="ad.ui.in_menu" />, 2 <Label k="ad.ui.existing.remove" />, and 3 the line that says what the removal frees.
+
+</Steps>
+
+The memory bar in the header shrinks by the freed bits at once. To bring the item back, untick <Label k="ad.ui.existing.remove" />, or press <Label k="ad.ui.existing.reset" />.
+
+### What can go
+
+AvatarDoc uses strict rules, and keeps what it cannot account for.
+
+An FX layer goes only when every parameter it reads belongs to a removed item and is freed: the parameters of its transitions, of its blend trees, and of its states' speed, time, mirror and cycle offset settings. It also needs no state behaviours, no mask and a weight higher than 0, no other layer that copies its states, and a name that no other layer of the FX controller has. When an animator layer control of the avatar aims at FX layers, every layer stays, because those controls find layers by their position.
+
+A parameter goes only when nothing else needs it. The line under the switch names the first thing that keeps it:
+
+- another menu control
+- an AvatarDoc entry, a preset or a trigger
+- an animator layer that stays, or another animator of the avatar
+- a parameter driver, a contact receiver or a PhysBone
+- another tool on the avatar, such as a VRCFury toggle or a Modular Avatar declaration
+- VRChat itself, for its own parameters
+
+## Check it worked
+
+- The text under the memory bar shows more free bits.
+- After Play mode or an upload, the **NDMF Console** (**Tools > NDM Framework > Show NDMF Console**) says which parameters left the avatar and how many bits they freed.
+
+## If it does not work
+
+- There is no <Label k="ad.ui.existing.remove" /> switch: the row came from VRCFury or Modular Avatar, or it is one of your own entries. Hide or convert the other tool's item. Delete your own entry instead.
+- The line names a parameter that has to stay: something else on the avatar still needs it. Check the thing it names, or leave the parameter.
+- A warning says a layer and its parameter were kept because another controller switches FX layers by their position: remove that layer control first if the layer should go. See [the message](../../reference/messages/#ad-warn-removed-layer-unsafe).
+
+## Related
+
+- [Fit in VRChat's parameter memory](../parameter-memory/) shows other ways to free bits.
+- The Reference page for the inspector at a glance describes the chips of the tree.

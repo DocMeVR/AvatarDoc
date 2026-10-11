@@ -1,0 +1,96 @@
+---
+title: Fit in VRChat's parameter memory
+description: See how many of VRChat's 256 synced bits your avatar uses, what each entry costs, and how to free bits when the menu does not fit.
+sidebar:
+  order: 20
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+VRChat gives each avatar 256 bits of synced parameter memory, shared by everything on the avatar. A synced toggle uses 1 bit, a radial uses 8. Use this page when the memory bar is nearly full, or when AvatarDoc says the parameters do not fit.
+
+To leave entries out of one platform without changing the parameters, see [Different setups for PC and Quest](../pc-and-quest/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+### Read the memory bar
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's header, look at the memory bar.
+
+   The light part is the synced bits of the avatar and its other tools, and the green part is what AvatarDoc adds. The text under the bar names both, such as **Avatar 2 bits** and **AvatarDoc 17 bits**, and says how many bits are free, such as **237 of 256 bits free**. When the avatar is over, it says by how many bits, and AvatarDoc's part turns red.
+
+3. In the tree, select an entry, such as a radial.
+
+   Its Builds line, under its name, says how many synced bits it adds.
+
+4. In its panel, open the <Label k="ad.ui.advanced_fold" /> fold.
+
+   Beside <Label k="ad.ui.synced" />, you should now see what the entry costs: <Label k="ad.ui.synced.cost.bit" />, <Label k="ad.ui.synced.cost.bits" /> or <Label k="ad.ui.synced.cost.none" />.
+
+   <Shot name="guides/parameter-memory-bits" alt="The header's memory bar and a Smile radial with its Advanced fold open: 1 the bar, 2 its legend, 3 the Builds line, 4 the +8 bits beside Synced." />
+
+   In the picture, 1 is the memory bar, 2 the text under it, 3 the Builds line of the Smile radial, and 4 the cost beside <Label k="ad.ui.synced" />.
+
+</Steps>
+
+### What costs synced bits
+
+| What | Synced bits |
+|---|---|
+| A toggle | 1 |
+| A radial | 8 |
+| An exclusive group | 8 for the whole group, however many toggles it has |
+| A declared parameter | 1 for a **Bool**, 8 for an **Int** or a **Float** |
+| A trigger, an override, a preset or a merged animator | 0 of its own |
+
+An entry with <Label k="ad.ui.synced" /> off costs nothing. <Label k="ad.ui.saved" /> costs nothing either: it only remembers the state between avatar loads.
+
+### Free some bits
+
+<Steps>
+
+1. In the tree, select a toggle that other players do not need to see.
+
+2. In its panel, open the <Label k="ad.ui.advanced_fold" /> fold.
+
+3. In the fold, untick <Label k="ad.ui.synced" />.
+
+   The toggle then changes only for you. Its cost turns to <Label k="ad.ui.synced.cost.none" />, and the memory bar shrinks.
+
+4. In the panels of toggles where only one is on at a time, put them in one exclusive group, as in [Make one-of-many choices](../one-of-many/).
+
+   A group costs 8 bits however many toggles it has, so it saves bits once it has more than eight toggles.
+
+5. In the panel of a toggle the avatar came with and that you never use, turn on <Label k="ad.ui.existing.remove" />, as in [Remove things from the avatar](../remove-things/).
+
+   Its parameter leaves the avatar when nothing else needs it, and the memory bar shrinks by its bits. Turning <Label k="ad.ui.in_menu" /> off frees nothing.
+
+</Steps>
+
+A toggle in an exclusive group has no <Label k="ad.ui.synced" /> switch of its own: its fold says <Label k="ad.ui.group.settings" />, because the group's parameter is always saved and synced.
+
+## Check it worked
+
+- The text under the memory bar says how many bits are free.
+- Press <Label k="ad.ui.summary" /> in the header. The summary says how many synced bits this component adds, and how many AvatarDoc uses on the avatar in total.
+
+## If it does not work
+
+- An error says the synced parameters need more bits than VRChat allows: the upload stops until the avatar fits. Free bits as in the steps. See [the message](../../reference/messages/#ad-error-bits-exceeded).
+- A warning says the same, and that VRCFury compresses the parameters: with VRCFury installed, the upload goes on and VRCFury makes the parameters smaller. See [the message](../../reference/messages/#ad-warn-bits-exceeded-vrcfury).
+- The light part of the bar is large: those are parameters the avatar or other tools declare, not AvatarDoc's. [Remove things from the avatar](../remove-things/) can free the avatar's own.
+
+## Related
+
+- The How it works page about parameters, sync and memory explains synced bits in more detail.
+- The Reference page for Limits lists VRChat's limits that AvatarDoc checks.

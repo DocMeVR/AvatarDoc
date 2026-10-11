@@ -1,0 +1,79 @@
+---
+title: Convert from VRCFury or Modular Avatar
+description: Turn toggles made with VRCFury, Modular Avatar or a hand made animator layer into AvatarDoc entries, in one window and one undo step.
+sidebar:
+  order: 17
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Your avatar already has toggles made with VRCFury, Modular Avatar, or by hand as layers of its FX controller, and you want to edit them all in AvatarDoc. The Convert window lists what AvatarDoc can turn into its own entries, makes the entries, and can remove the originals. Everything it does undoes in one step with **Edit > Undo**.
+
+To keep those tools and only rename, hide or move their items, see [Change the avatar's existing menu](../change-the-existing-menu/). To keep using them next to AvatarDoc, see [Use AvatarDoc next to VRCFury and Modular Avatar](../with-vrcfury-and-modular-avatar/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component. If the avatar has none yet, add one first, as in [Your first toggle](../../start-here/first-toggle/).
+
+   A new, empty component's welcome card also offers a button that opens the Convert window when it finds something to convert.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.toolbar.convert" />.
+
+   You should now see the <Label k="ad.ui.import" /> window. It lists what AvatarDoc found, under captions such as <Label k="ad.ui.chip.vrcfury" />, <Label k="ad.ui.chip.modular_avatar" /> and <Label k="ad.ui.import.group.fx" />. Every row that can be converted starts ticked.
+
+3. Untick the rows you want to keep as they are. <Label k="ad.ui.import.select_all" /> and <Label k="ad.ui.import.select_none" /> tick or clear every row.
+
+   <Shot name="guides/convert-window" alt="The Convert window with 1 All, 2 a VRCFury row, 3 a row that cannot be converted, 4 Remove originals, and 5 the Convert button." />
+
+   In the picture, 1 is <Label k="ad.ui.import.select_all" />, 2 a row that can be converted, 3 a row that cannot, with its reason under it, 4 <Label k="ad.ui.import.remove" />, and 5 the button that converts.
+
+4. Leave <Label k="ad.ui.import.remove" /> on to take the originals away.
+
+   For VRCFury and Modular Avatar, that removes their components. For a hand made layer, it hides the old menu control and leaves the old layer out of the avatar that is built. The controller asset itself is not changed.
+
+5. Press the button at the bottom. It says how many items it converts, such as **Convert 3 items**.
+
+   You should now see the new entries in the tree, in submenus that match their old place in the menu. The window says how many items it converted.
+
+</Steps>
+
+Each row shows its place in the menu, its kind, and what it changes, such as 1 object. Notes under a row say what could not be carried over, such as a transition animation of a VRCFury toggle.
+
+Some rows belong together and tick together: Modular Avatar toggles that share one parameter become one exclusive group, and the menu items that share one Modular Avatar Merge Animator convert with it.
+
+### Rows that cannot be converted
+
+A row without a tick box says why under it. A hand made layer converts only when it is one plain on and off layer, switched by its own parameter, that plays a plain animation of objects, blend shapes, materials or material properties. Anything else, such as a blend tree or state behaviours, is listed with its reason. The Reference page for the Convert window lists every reason.
+
+### Layers left out of the build
+
+A hand made layer that was converted is not deleted. <Label k="ad.ui.import.layers" />, at the bottom of the window, lists every such layer. <Label k="ad.ui.import.restore" /> brings the layer and its old menu control back.
+
+### Convert one item from the tree
+
+The rows that VRCFury and Modular Avatar add also show in AvatarDoc's tree. Right click one and pick <Label k="ad.ui.convert" /> to convert that one item and remove its original. On a submenu row of those tools, it converts every item inside that can be converted. This works in <Label k="ad.ui.mode.simple" /> mode too.
+
+## Check it worked
+
+- The converted items show in the tree as your own entries, not dimmed and without the <Label k="ad.ui.chip.vrcfury" /> or <Label k="ad.ui.chip.modular_avatar" /> chip. The tree shows these chips only while it is at least 360 pixels wide: on a narrower inspector, widen it to see them.
+- Select one and press <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" /> in its <Label k="ad.ui.preview" /> row. The Scene view shows its effects.
+- In Play mode with Gesture Manager, press the converted toggles in the menu. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- The button at the bottom is greyed out: no row is ticked. Tick at least one.
+- A row you expected is missing: AvatarDoc offers VRCFury toggles, but no other VRCFury feature, such as a Full Controller.
+- The window says the scene changed and the list was refreshed: something changed the avatar since the window looked. Check the list and convert again.
+
+## Related
+
+- The Reference page for the Convert window lists every reason and note it can show.
+- [Use AvatarDoc next to VRCFury and Modular Avatar](../with-vrcfury-and-modular-avatar/) explains what changes when those tools stay.

@@ -1,0 +1,96 @@
+---
+title: Shrink the body under clothes
+description: Make a piece of clothing push the body's shrink shapes while it is worn, and let the piece's own shapes follow the body, with an AvatarDoc Shapes component on the piece.
+sidebar:
+  order: 14
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Shoes and jackets often need the body under them pushed in with shrink blend shapes, so the skin does not show through the piece. AvatarDoc Shapes is a small component that sits on the piece itself. While the piece is on, it holds the shapes you list, whatever switches the piece: an AvatarDoc toggle, an outfit set, or a Modular Avatar animation. It also lets the piece's own shapes follow a shape of the body, such as a chest size. It adds no parameter and no FX layer.
+
+To change shapes only from one toggle of your own, give that toggle a <Label k="ad.ui.blendshapes" /> section instead: press <Label k="ad.ui.add_effect" /> in its panel.
+
+## Steps
+
+### Hold a shape while the piece is on
+
+<Steps>
+
+1. In the Hierarchy, select the piece, such as the shoes.
+
+2. In the inspector, press **Add Component**.
+
+   You should now see Unity's list of components, with a search field.
+
+3. Type `AvatarDoc Shapes` and pick **AvatarDoc Shapes**.
+
+   You should now see the AvatarDoc Shapes inspector with two sections, <Label k="ad.ui.shapes.follows" /> and <Label k="ad.ui.shapes.while_on" />.
+
+4. Under <Label k="ad.ui.shapes.while_on" />, press <Label k="ad.ui.shapes.add" />.
+
+   You should now see a row with <Label k="ad.ui.shapes.mesh" />, <Label k="ad.ui.shapes.shape" /> and <Label k="ad.ui.shapes.value" />. <Label k="ad.ui.shapes.value" /> starts at 100.
+
+5. In the row, press <Label k="ad.ui.pick.shape" /> and pick the shrink shape, such as Shrink_Feet.
+
+   You should now see the shape on the button. Picking a shape also fills in <Label k="ad.ui.shapes.mesh" /> with the mesh it belongs to, usually the body.
+
+6. Set <Label k="ad.ui.shapes.value" /> to how far the shape is held while the piece is on, from 0 to 100.
+
+   <Shot name="guides/shrink-under-clothes-shapes" alt="The AvatarDoc Shapes inspector on the shoes, with 1 Mesh, 2 Shape set to Shrink_Feet, 3 Value at 100, and 4 Add matching shapes." />
+
+   In the picture, 1 is <Label k="ad.ui.shapes.mesh" />, 2 <Label k="ad.ui.shapes.shape" />, 3 <Label k="ad.ui.shapes.value" />, and 4 <Label k="ad.ui.shapes.add_matching" />, which the next part uses.
+
+</Steps>
+
+While the piece is on, the shape holds its value. While the piece is off, the shape goes back to the weight the mesh has in the scene.
+
+### Make the piece's shapes follow the body
+
+For this part, the component must sit on the object that carries the piece's own skinned mesh.
+
+<Steps>
+
+1. Under <Label k="ad.ui.shapes.follows" />, press <Label k="ad.ui.shapes.add" />.
+
+   You should now see a row with <Label k="ad.ui.shapes.source_mesh" />, <Label k="ad.ui.shapes.source_shape" /> and <Label k="ad.ui.shapes.local_shape" />.
+
+2. Press the button of <Label k="ad.ui.shapes.source_shape" /> and pick the body's shape, such as Chest_Big. <Label k="ad.ui.shapes.source_mesh" /> fills in with it.
+
+3. Leave <Label k="ad.ui.shapes.local_shape" /> at <Label k="ad.ui.shapes.same_name" /> to write the piece's shape of the same name, or press it to pick another shape of the piece.
+
+</Steps>
+
+Every animation that moves the body's shape now moves the piece's shape with it. To add many rows at once, press <Label k="ad.ui.shapes.add_matching" /> and pick a mesh: you get a row for every shape name the piece and that mesh both have.
+
+### What counts as switching the piece
+
+- An animation that turns the piece's own object on or off.
+- An animation that turns a parent of the piece on or off, while the piece and every object between them are on in the scene and nothing else switches them.
+
+AvatarDoc reads the animations of the avatar's FX controller right after Modular Avatar: AvatarDoc's own toggles, outfit sets and triggers, merged animators, and what Modular Avatar adds. Animations that VRCFury adds later are not seen, and Gesture or Action animations are left alone.
+
+An animation that already sets the shape itself keeps its own value. When two pieces hold the same shape, the larger value wins in an animation that turns both on.
+
+<Label k="ad.ui.platform" />, at the bottom of the component, leaves the piece's rules out of the PC or the Quest build.
+
+## Check it worked
+
+- Select the toggle that switches the piece. In its <Label k="ad.ui.preview" /> row (<Label k="ad.ui.mode.advanced" /> mode), press <Label k="ad.ui.preview.on" />. The Scene view shows the piece and the held shapes.
+- Press <Label k="ad.ui.summary" /> in the AvatarDoc inspector's header. The summary lists every piece that carries the component, with how many rows it has.
+- In Play mode with Gesture Manager, turn the piece on and off. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- A warning says an animation fades the piece in and out: AvatarDoc leaves that animation alone. Make it switch the piece on and off at once. See [the message](../../reference/messages/#ad-warn-shapes-active-not-constant).
+- A warning says an animation already writes the shape: that animation keeps its own value. Remove the shape from the animation if the rule should apply there. See [the message](../../reference/messages/#ad-warn-shapes-clip-owns-shape).
+- An error says the object carries no skinned mesh: <Label k="ad.ui.shapes.follows" /> rows need the component on the piece's own mesh. Move the component, or remove those rows. See [the message](../../reference/messages/#ad-error-shapes-no-mesh).
+
+## Related
+
+- The Reference page for the AvatarDoc Shapes component describes every field.
+- [Convert from VRCFury or Modular Avatar](../convert/) turns Modular Avatar's Blendshape Sync and Shape Changer into AvatarDoc Shapes rows.

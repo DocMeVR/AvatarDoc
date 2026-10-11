@@ -1,0 +1,79 @@
+---
+title: Different setups for PC and Quest
+description: Leave entries out of the PC or the Quest version of an avatar, while both versions keep the same parameters in the same order.
+sidebar:
+  order: 19
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+You upload a PC version and a Quest version of one avatar, and some pieces or effects should exist on only one of them. Do not delete the toggles from one copy. VRChat syncs parameters by their place in the list, not by their name, so both versions must have the same list. If they do not, players on the other platform see the wrong toggles.
+
+Set the platform of an entry instead. On the other platform, the entry builds no menu control and no layers, but its parameter keeps its place. The How it works page about parameters, sync and memory explains why the order matters.
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+### For the whole component
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's header, open <Label k="ad.ui.settings_fold" />.
+
+3. In <Label k="ad.ui.platform" />, choose <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" /> or <Label k="ad.ui.platform.quest" />.
+
+   Under it, a note says which platform the editor builds for right now, such as **Building for PC**.
+
+</Steps>
+
+### For one entry
+
+<Steps>
+
+1. In the tree, select the entry.
+
+2. In its panel, open the <Label k="ad.ui.advanced_fold" /> fold.
+
+3. In <Label k="ad.ui.platform" />, choose <Label k="ad.ui.platform.pc" /> or <Label k="ad.ui.platform.quest" />.
+
+   <Shot name="guides/pc-and-quest-platform" alt="A Glow radial set to PC only: 1 the PC only chip of its row, 2 the Advanced fold, and 3 its Platform field." />
+
+   In the picture, 1 is the chip the row gets, 2 the <Label k="ad.ui.advanced_fold" /> fold, and 3 <Label k="ad.ui.platform" />.
+
+   On a wide inspector, you should now see a <Label k="ad.ui.chip.pc_only" /> or <Label k="ad.ui.chip.quest_only" /> chip on the entry's row. The tree shows these chips only while it is at least 360 pixels wide, except on an entry that is left out on the platform you build for: that one shows its chip at every width.
+
+</Steps>
+
+<Label k="ad.ui.platform.inherit" />, the start of every entry, takes the choice of the submenu the entry sits in, or the component's. A submenu's choice counts for everything inside it, until an entry inside picks its own. With <Label k="ad.ui.platform.inherit" />, triggers and overrides take the component's choice. Merged animators, menu assets and the AvatarDoc Shapes component each have their own <Label k="ad.ui.platform" /> too.
+
+### What decides the platform
+
+AvatarDoc reads Unity's active build target. Android and iOS count as Quest, everything else as PC. Switching the platform in Unity, or in the VRChat SDK's control panel, switches which entries build.
+
+An entry left out on the platform you build for keeps its parameter, with the same name, type and place, and the same synced bits. It loses its menu control, its FX layers and its default in the scene. A trigger also loses its contact receiver, or the parameter it gives a PhysBone. A left out entry takes no place in the menu.
+
+In the tree, an entry left out on the platform you build for is dimmed, and its chip shows in the warning colour. Its Builds line says it builds nothing there, such as **Builds nothing: not built for Quest.** On a wide inspector, an entry limited to the platform you build for shows a plain chip, so you can see what would go when you switch.
+
+## Check it worked
+
+- Look at the tree. Entries left out on the current platform are dimmed, with their chip.
+- Keep the PC and Quest copies of the avatar open in your scenes. When their parameter lists differ, the header shows a warning. No warning means the lists match.
+- Press <Label k="ad.ui.summary" /> in the header. The summary marks every entry that is limited to one platform.
+
+## If it does not work
+
+- A warning says this avatar and another one share a blueprint, but their parameters differ at a position: build both from the same menu, in the same order. See [the message](../../reference/messages/#ad-warn-platform-parity).
+- An entry still builds on Quest: its <Label k="ad.ui.platform" /> is <Label k="ad.ui.platform.inherit" />, and its submenu or the component says <Label k="ad.ui.platform.both" />. Or the editor builds for PC: check the note under the component's <Label k="ad.ui.platform" />.
+- The other copy shows no warning even though it differs: AvatarDoc compares only avatars that are open in a scene right now, and only copies with the same blueprint ID.
+
+## Related
+
+- The Reference page for the inspector at a glance describes <Label k="ad.ui.settings_fold" />.
+- [Fit in VRChat's parameter memory](../parameter-memory/) explains what each parameter costs.

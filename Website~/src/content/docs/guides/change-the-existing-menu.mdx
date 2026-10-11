@@ -1,0 +1,72 @@
+---
+title: Change the avatar's existing menu
+description: Rename, re-icon, hide or move menu items that the avatar already had, or that VRCFury or Modular Avatar add, without changing the originals.
+sidebar:
+  order: 16
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Your avatar came with a menu, or another tool adds items to it. AvatarDoc shows those items in its tree, next to your own entries, and can change how they appear. The original menu asset and the other tool are never changed. AvatarDoc keeps each change on its own component and applies it when you upload.
+
+To take an item out of the avatar completely, with its parameter, see [Remove things from the avatar](../remove-things/). To turn an item of VRCFury or Modular Avatar into an AvatarDoc entry, see [Convert from VRCFury or Modular Avatar](../convert/).
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the tree, select a row with an <Label k="ad.ui.existing" /> chip, from the avatar's own menu, or with a <Label k="ad.ui.chip.vrcfury" /> or <Label k="ad.ui.chip.modular_avatar" /> chip.
+
+   The tree shows these chips only while it is at least 360 pixels wide: on a narrower inspector, widen it to see them. At every width, these rows are dimmed and have a square icon.
+
+   You should now see a panel titled <Label k="ad.ui.existing.title" />.
+
+3. To rename the item, type a new name into <Label k="ad.ui.name" /> and press Enter.
+
+   You should now see the new name in the tree, and the old one under the field, such as **Original: Sit**. The <Label k="ad.ui.style" /> row can colour the name, as for your own entries.
+
+4. To give it another icon, drag a texture from the Project window onto <Label k="ad.ui.icon" />.
+
+5. To move it into another submenu, press the arrow button at the right end of <Label k="ad.ui.existing.move" /> and pick a submenu, or <Label k="ad.ui.menu.move.root" /> for the top of the menu.
+
+   You should now see the item in its new place in the tree. You can also type a path, such as Emotes, into the field. <Label k="ad.ui.existing.stay" /> undoes the move.
+
+6. To take it out of the menu, untick <Label k="ad.ui.in_menu" />.
+
+   <Shot name="guides/change-the-existing-menu-item" alt="The avatar's own Sit toggle renamed and moved into Emotes, with 1 Name, 2 Move to, 3 In menu, 4 Remove from avatar and 5 Reset." />
+
+   In the picture, the avatar's Sit toggle is renamed Sit down and moved into the Emotes submenu. 1 is <Label k="ad.ui.name" />, 2 <Label k="ad.ui.existing.move" />, 3 <Label k="ad.ui.in_menu" />, 4 <Label k="ad.ui.existing.remove" />, which [Remove things from the avatar](../remove-things/) explains, and 5 <Label k="ad.ui.existing.reset" />.
+
+</Steps>
+
+You can also drag the row onto a submenu row in the tree to move it. A right click on the row offers <Label k="ad.ui.menu.move" />, <Label k="ad.ui.existing.hide" /> or <Label k="ad.ui.existing.show" />, and <Label k="ad.ui.existing.reset" />.
+
+An item you changed carries an <Label k="ad.ui.chip.edited" /> chip. An item you took out of the menu stays in the tree with a <Label k="ad.ui.chip.hidden" /> chip, so you can find it again. <Label k="ad.ui.existing.reset" /> puts the item back exactly as it was. It is greyed out while nothing is changed.
+
+With <Label k="ad.ui.in_menu" /> off, the item leaves the menu, but its parameter and its animator layer keep working and keep costing synced bits.
+
+AvatarDoc applies your changes to the avatar's own items while it builds its own menu. It applies the changes to Modular Avatar's items right after Modular Avatar, and the changes to VRCFury's items after VRCFury, so they reach the menu those tools build. The panel of another tool's item says so.
+
+Your own entries are not changed here: select them and edit their own panel.
+
+## Check it worked
+
+- Press <Label k="ad.ui.wheel" /> on the toolbar (<Label k="ad.ui.mode.advanced" /> mode) and select the submenu. The wheel shows it the way VRChat draws it, with the new names and icons, and without the hidden items.
+- In Play mode with Gesture Manager, open **Expressions** and look through the submenus. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- A warning says a saved change cannot apply because its menu item was not found: the item was deleted, renamed elsewhere or converted. The header lists the change with a <Label k="ad.ui.edit.remove" /> button that clears it. See [the message](../../reference/messages/#ad-warn-edit-source-missing).
+- The move is refused with a note that an item cannot move into itself: a submenu cannot go into itself or into one of its own submenus. Pick another place. See [the error](../../reference/messages/#ad-error-edit-cycle) for the same problem at upload.
+- A warning says a saved change points at an AvatarDoc entry: one of your own entries now sits where the changed item was, so the change is ignored. Edit that entry in its own panel instead. See [the message](../../reference/messages/#ad-warn-edit-own-entry).
+
+## Related
+
+- The Reference page for the inspector at a glance describes the tree and its chips.
+- [Organise the menu](../organise-the-menu/) covers your own entries.
