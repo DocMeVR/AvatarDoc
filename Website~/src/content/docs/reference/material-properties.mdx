@@ -1,0 +1,118 @@
+---
+title: Material properties
+description: The Properties section, which changes a shader value such as a colour, a glow or a dissolve amount.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-material-properties/overview" alt="A Glow toggle's Properties rows with 1 the renderer, 2 the property, 3 On value, 4 Set a value when off, 5 Off value." />
+
+1. The row's renderer: the mesh whose materials the row changes.
+2. The property, by the name the shader gives it.
+3. <Label k="ad.ui.target.on_value" />, here a colour.
+4. <Label k="ad.ui.target.explicit_off" />.
+5. <Label k="ad.ui.target.off_value" />.
+
+The second row changes a number with a range, so its <Label k="ad.ui.target.on_value" /> is a slider.
+
+## When to use it
+
+Use the <Label k="ad.ui.targets.properties" /> section to change one value of the materials a mesh already has: a tint, an emission colour that makes a part glow, a smoothness, a dissolve amount, a hue shift.
+
+- To put a whole other material on the mesh, use [Material slots](../material-slots/).
+- To move the value with a dial, add the row to a [radial](../radial/), which gives it <Label k="ad.ui.min" /> and <Label k="ad.ui.max" />.
+
+A [toggle](../toggle/), a radial and a [trigger](../triggers/) have this section. A trigger in <Label k="ad.ui.touch.flip" /> mode has no effects of its own, so it has none. The section shows once it has a row. Add it with <Label k="ad.ui.add_effect" />.
+
+## Settings
+
+### Properties [#properties k=ad.ui.targets.properties]
+
+**Shown in:** Simple and Advanced, once it has a row · **Default:** no rows · **Choices:** a renderer and a shader property
+
+The list of property rows. <Label k="ad.ui.add" /> adds an empty row. On a narrow inspector, a row's controls wrap onto more lines, and the × that removes the row stays at its top right. Sliders and colour fields sit on a line of their own.
+
+### Renderer [#renderer]
+
+**Shown in:** Simple and Advanced · **Default:** empty · **Choices:** a mesh of this avatar
+
+The mesh whose materials the row changes. Drag it from the Hierarchy onto the field, or press the small circle at its right end and pick it from the avatar's meshes.
+
+The row changes the property on every material of that mesh that has it, in every slot.
+
+### Pick property [#pick-property k=ad.ui.property.pick]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.property.pick" /> · **Choices:** the colours, numbers and vectors the mesh's shaders list
+
+The button opens a list with a search field. <Label k="ad.ui.property.other" /> comes first, then the shaders' properties grouped by their first letter, or by groups of letters for a shader with more than 40. The list shows the name the shader gives each property, which can be short, such as Color, with the property's own name, such as `_EmissionColor`, beside it when the two differ. The search finds a property by either name.
+
+Once a property is picked, the button shows its name. Hold the pointer over the button to read the property's own name. Picking a property copies the material's current value into the row, so the first change starts from what you see.
+
+Textures are not in the list. Neither is a property the shader hides from the material's inspector: press <Label k="ad.ui.property.other" /> and type its name.
+
+### Other... [#other k=ad.ui.property.other]
+
+**Shown in:** Simple and Advanced
+
+Opens a field where you can type any property name, such as `_DissolveAmount`. AvatarDoc reads the property's type from the materials. When no material of the mesh has it, the row keeps its type and a warning says the property is missing.
+
+### Float, Colour or Vector [#type]
+
+**Shown in:** Simple and Advanced, while the row's property is not one the shaders list · **Default:** <Label k="ad.ui.property.type.float" /> · **Choices:** <Label k="ad.ui.property.type.float" />, <Label k="ad.ui.property.type.color" />, <Label k="ad.ui.property.type.vector" />
+
+The kind of value the property holds. The row asks for it only when AvatarDoc cannot tell from the shader, such as before a property is picked. Once you pick a property from the list, the choice goes away.
+
+### On value [#on-value k=ad.ui.target.on_value]
+
+**Shown in:** Simple and Advanced, on a toggle and a trigger · **Default:** the material's current value once a property is picked · **Choices:** a number, a colour or four numbers, as the property needs
+
+The value the property has while the toggle is on, or while the trigger fires. A number with a range shows a slider, a plain number a number field, a colour a colour field with brightness for glow, and a vector four number fields.
+
+### Set a value when off [#set-a-value-when-off k=ad.ui.target.explicit_off]
+
+**Shown in:** Simple and Advanced, on a toggle and a trigger · **Default:** Off · **Choices:** On, Off
+
+Off: while the toggle is off, the property goes back to the material's own value. On: an <Label k="ad.ui.target.off_value" /> field appears, and the toggle writes that value instead. The field starts at the material's current value, so nothing changes until you edit it.
+
+### Off value [#off-value k=ad.ui.target.off_value]
+
+**Shown in:** Simple and Advanced, while <Label k="ad.ui.target.explicit_off" /> is on · **Default:** the material's current value · **Choices:** the same kind of value as <Label k="ad.ui.target.on_value" />
+
+The value the property has while the toggle is off.
+
+### Min [#min k=ad.ui.min]
+
+**Shown in:** Simple and Advanced, on a radial · **Default:** 0, or black for a colour · **Choices:** the same kind of value as <Label k="ad.ui.max" />
+
+The value at the lowest point of the dial.
+
+### Max [#max k=ad.ui.max]
+
+**Shown in:** Simple and Advanced, on a radial · **Default:** the material's current value once a property is picked · **Choices:** a number, a colour or four numbers, as the property needs
+
+The value at the highest point of the dial. The dial blends between <Label k="ad.ui.min" /> and <Label k="ad.ui.max" />.
+
+## The value while off
+
+While a toggle is off, the property takes the value of the first material of the mesh that has it, and AvatarDoc writes that value to every material of the mesh. When the materials of one mesh hold different values for the property, a warning says that they all get the first one while the toggle is off. Edit the materials first, or tick <Label k="ad.ui.target.explicit_off" />.
+
+When no material of the mesh has the property, the row is skipped with a warning. One case works anyway: the same toggle swaps in a material that has the property, in its <Label k="ad.ui.materials" /> section. AvatarDoc then reads the value from that material, as a dissolve effect needs.
+
+## What AvatarDoc builds
+
+The property's values go into the entry's own layer in the avatar's FX animator, like its blend shapes. Some shaders, such as Poiyomi when its materials are locked, keep only the properties marked as animated. Mark the property as animated in the shader's own inspector before you lock the material, or the change shows in the editor but not in the game.
+
+## Messages
+
+- [No material of the mesh has the property](../messages/#ad-warn-property-missing): the row is skipped.
+- [The materials disagree on the property](../messages/#ad-warn-property-differs).
+- [A target is missing](../messages/#ad-warn-target-missing): the row has no renderer.
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [More than one control changes the same thing](../messages/#ad-info-target-shared).
+
+## Related
+
+- [Change a colour or glow](../../guides/colour-and-glow/)
+- [Add a slider](../../guides/sliders/)
+- [Swap materials](../../guides/swap-materials/)

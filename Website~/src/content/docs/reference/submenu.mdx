@@ -1,0 +1,84 @@
+---
+title: Submenu
+description: Every setting of a submenu, the menu page that holds other toggles, radials and submenus.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-submenu/overview" alt="An Outfits submenu open in the tree, with 1 its row, 2 Name, 3 the Builds line, 4 Icon, 5 Capture icon, 6 the count of places, 7 the Advanced fold." />
+
+1. The submenu's row in the tree, open, with its three toggles inside.
+2. <Label k="ad.ui.name" />, with the style row under it.
+3. The Builds line.
+4. <Label k="ad.ui.icon" />.
+5. <Label k="ad.ui.capture" />.
+6. The line that says how many of the submenu's eight places are used.
+7. The <Label k="ad.ui.advanced_fold" /> fold, which holds <Label k="ad.ui.platform" />.
+
+## When to use it
+
+A submenu is one button in the menu that opens a page of its own. Use it to sort a long menu: one submenu for outfits, one for the face, one for accessories.
+
+- To put all of a component's entries in one submenu, you do not need a submenu entry: set <Label k="ad.ui.install.mode" /> to <Label k="ad.ui.install.mode.submenu" /> under [Component settings](../inspector/#component-settings).
+- To build a submenu full of outfits in one step, use <Label k="ad.ui.add.outfit" />. [Your first outfit selector](../../start-here/first-outfit-selector/) shows how.
+
+To add a submenu, press <Label k="ad.ui.add.submenu" /> in the toolbar.
+
+## Filling a submenu
+
+A new entry lands inside the submenu that is selected in the tree, or in the same submenu as the entry that is selected. To move an entry into a submenu, drag its row in the tree, or right click it and pick <Label k="ad.ui.menu.move" /> and the submenu. <Label k="ad.ui.menu.move.root" /> moves it back to the top of the menu. A submenu holds toggles, radials, presets, grabbables and other submenus. Triggers and overrides have no button, so they stay in their own groups at the end of the tree.
+
+VRChat shows eight controls on one page. When a submenu holds more, AvatarDoc moves the extra controls to a More page, and the tree shows that page as **More (page 2)**. The tree also shows a count, such as **7 of 8**, on a submenu's row once it is nearly full.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced · **Default:** New Submenu · **Choices:** any text
+
+The text the menu shows on the submenu's button. It has the same style row as a toggle's name: see [Style](../toggle/#style).
+
+Renaming a submenu also changes the <Label k="ad.ui.install" /> of every other AvatarDoc component that installs into it, so they stay inside it. When the avatar's own menu already has a submenu of the same name in the same place, the entry joins that submenu instead of making a second one.
+
+### Icon [#icon k=ad.ui.icon]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any texture
+
+The picture VRChat shows on the submenu's button. It works as a [toggle's icon](../toggle/#icon) does.
+
+### Capture icon [#capture-icon k=ad.ui.capture]
+
+**Shown in:** Simple and Advanced
+
+Opens the capture window. For a submenu, it draws the pieces of every entry inside the submenu together.
+
+### Advanced [#advanced k=ad.ui.advanced_fold]
+
+**Shown in:** Advanced, and Simple once <Label k="ad.ui.platform" /> is not <Label k="ad.ui.platform.inherit" /> · **Default:** closed · **Choices:** open, closed
+
+A submenu's fold holds one setting.
+
+#### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build makes the submenu. Every entry inside it with <Label k="ad.ui.platform.inherit" /> takes this choice too. See [Platform](../toggle/#platform) on the toggle page.
+
+## What AvatarDoc builds
+
+At upload, a submenu adds one button to the menu it sits in, and a new menu page behind it. It adds no parameter, costs no synced bits and adds no layer. The Builds line says **1 menu control**.
+
+## Messages
+
+- [The submenu has more controls than one page holds](../messages/#ad-info-menu-split): the extra controls moved to a More page.
+- [The submenu joins one of the same name](../messages/#ad-info-same-submenu-merged).
+- [The icon fails VRChat's upload check](../messages/#ad-error-menu-icon-too-large).
+
+## Related
+
+- [Organise the menu](../../guides/organise-the-menu/)
+- [Your first outfit selector](../../start-here/first-outfit-selector/)
+- [Change the avatar's existing menu](../../guides/change-the-existing-menu/)

@@ -1,1 +1,18 @@
-{}
+# Notes for the Messages page: one "key: text" line per message, no quotes, lists or multi-line values.
+# Add a note when the message text alone does not tell a creator what to do. Write UI labels in **bold**.
+ad.info.target_shared: Nothing to fix when that is what you want. While both are on, the control AvatarDoc builds later wins, and triggers are built after every menu control. If the wrong one wins, give each control its own targets.
+ad.info.target_shared_override: Nothing to fix when that is what you want. Otherwise take the shape out of the override, or out of the control.
+ad.info.blend_ignored_in_group: Nothing to fix. A group switches its choices at once. To fade the toggle, take it out of its group.
+ad.info.group_default_excluded: Nothing breaks. To start this platform with a choice on, give the toggle that is on by default a **Platform** that includes this platform.
+ad.error.group_value_conflict: The inspector has no field for this number: it comes from a script or another tool. Delete one of the two toggles and make it again. A new toggle gets its number by itself.
+ad.info.parameter_reused: Nothing to fix. To give the control a parameter of its own, turn off **Custom name**, or pick a name the avatar does not have yet.
+ad.info.same_submenu_merged: Nothing to fix. To keep the submenu separate, give it another name.
+ad.info.path_created: Nothing to fix. To install into a submenu the avatar already has, pick it with the arrow button beside **Install into** in **Component settings**.
+ad.info.shape_set_pruned: Nothing to fix. The count says how many shapes the rule really writes.
+ad.info.capture_nothing_above_zero: Set the pose first: in the mesh's Skinned Mesh Renderer, raise the weights of the shapes you want, then press **Capture** again.
+ad.info.flip_target_excluded: Nothing to fix when the toggle is meant for the other platform only. Otherwise set the toggle's **Platform** so it is built here too.
+ad.warn.follow_distance_tracking_left_to: Nothing to fix: the other layer already pauses that part. If blinking or lip sync keeps moving while the effects are on, check that layer.
+ad.info.curve_overwritten: Nothing to fix when the trigger should win there. Otherwise give the trigger effects that the animation does not move.
+ad.info.animation_overridden: Nothing to fix when the toggle's own rows should win. Otherwise remove those rows from the toggle and let the clip set the values.
+ad.warn.animation_binding_missing: When the clip was made inside a prefab, set the row's **Path root** to the prefab's root object.
+ad.error.menu_icon_too_large: Select the texture in the Project window. In its import settings, set **Max Size** to 256 and **Compression** to anything but None, then press Apply.

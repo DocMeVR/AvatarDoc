@@ -1,0 +1,182 @@
+---
+title: The inspector at a glance
+description: What each part of the AvatarDoc inspector shows and does, from the header to the panel of the selected row.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-inspector/overview" alt="The AvatarDoc inspector with 1 the header, 2 the memory bar, 3 the toolbar, 4 the search, 5 the menu tree and 6 the panel of the Hat toggle." />
+
+1. The header: the status of the avatar, the memory bar and <Label k="ad.ui.settings_fold" />.
+2. The memory bar, inside the header.
+3. The toolbar, which adds entries and opens the tools.
+4. The search field, with the filter beside it.
+5. The menu tree: the avatar's whole menu as it will be built.
+6. The panel of the selected row, here a toggle.
+
+The row at the very top holds the <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> switch and the language.
+
+## When to use it
+
+Read this page to find your way around the inspector. Each kind of item has its own page with every setting: a [toggle](../toggle/), a [radial](../radial/), a [submenu](../submenu/) or a [trigger](../triggers/). To make something step by step, start with a guide, such as [Toggle clothing and accessories](../../guides/toggle-clothing/).
+
+The inspector shows the same view for every AvatarDoc component. Select the object that holds the component in the Hierarchy to see it.
+
+## Parts of the inspector
+
+### The mode row [#mode-row]
+
+At the top of the inspector, <Label k="ad.ui.mode.simple" /> shows only what most avatars need, and <Label k="ad.ui.mode.advanced" /> shows every tool. <Label k="ad.ui.mode.advanced" /> is the default. The choice is yours, not the component's: it applies to every AvatarDoc component and every open view, and nothing you made is hidden by it. [Simple or Advanced?](../../start-here/simple-or-advanced/) compares the two.
+
+The language list beside it chooses the language AvatarDoc is shown in. The Reference page for Languages describes it.
+
+### The header [#header]
+
+<Shot name="reference-inspector/header" alt="The header with 1 the mode switch, 2 the language, 3 the status, 4 Show, 5 Summary, 6 the problem list, 7 Component settings, 8 its settings." />
+
+1. The <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> switch.
+2. The language.
+3. The status line, here **1 warning**.
+4. <Label k="ad.ui.ready.show" />.
+5. <Label k="ad.ui.summary" />.
+6. The problem list, open.
+7. The <Label k="ad.ui.settings_fold" /> fold, open.
+8. The settings in the fold.
+
+The status line reads <Label k="ad.ui.ready" /> when nothing is wrong. Otherwise it counts the errors, such as **3 problems**, or the warnings once every error is gone, such as **2 warnings**.
+
+- <Label k="ad.ui.ready.show" /> selects the row of the next problem, opens the tree to it and puts the focus on the field the message is about. Press it again to go to the next problem.
+- The arrow at the start of the line opens the problem list: every error, then every warning. The same message for several rows shows once, with a count such as ×3. A line has its own <Label k="ad.ui.ready.show" /> when the message names a row. A saved change to a menu item that no longer exists has <Label k="ad.ui.edit.remove" /> instead, which clears the change. The list shows six lines, then a link to show the rest. It opens by itself the first time an error appears while you work.
+- <Label k="ad.ui.summary" /> opens a summary of the component that you can copy, for a store page or your own notes. The Reference page for Summary and lock describes it.
+
+Notes under the header say when the component is switched off, when it sits outside an avatar, and when the scene preview is off. <Label k="ad.ui.preview.reset" /> shows while any scene preview is set, and clears every one of them.
+
+### The memory bar [#memory-bar]
+
+The bar shows how much of VRChat's synced parameter memory the avatar uses: the avatar's own parameters, the share AvatarDoc adds, and what is still free. The line under it reads, for example, **Avatar 2 bits**, **AvatarDoc 17 bits** and **237 of 256 bits free**.
+
+Over the limit, the line says by how much, and an error stops the upload. When VRCFury is installed, it is a warning instead: VRCFury makes the parameters smaller at upload until they fit. [Fit in VRChat's parameter memory](../../guides/parameter-memory/) shows how to save memory.
+
+### The toolbar [#toolbar]
+
+The toolbar adds entries and opens the tools:
+
+- The adds, in this order: <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" />, <Label k="ad.ui.add.submenu" />, <Label k="ad.ui.add.trigger" />, <Label k="ad.ui.add.override" />, <Label k="ad.ui.add.preset" />, <Label k="ad.ui.add.grabbable" />, <Label k="ad.ui.add.animator" />, <Label k="ad.ui.add.menu_asset" />, <Label k="ad.ui.parameters.add" />, <Label k="ad.ui.add.outfit" /> and <Label k="ad.ui.add.contact" />.
+- <Label k="ad.ui.more" />: as many adds as the width allows show as buttons, and the rest are listed under <Label k="ad.ui.more" />, each with a one line description. At 360 pixels wide, the bar shows <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" /> and <Label k="ad.ui.add.submenu" />. <Label k="ad.ui.more" /> goes away when every add fits.
+- <Label k="ad.ui.toolbar.capture" />: draws an icon for every toggle, radial, submenu or preset of this component that has something to show and no icon yet.
+- <Label k="ad.ui.toolbar.convert" />: opens the window that turns toggles made with VRCFury, Modular Avatar or a hand made layer into AvatarDoc entries.
+- <Label k="ad.ui.wheel" />: shows the selected submenu the way VRChat's own menu draws it.
+
+On a narrow inspector, <Label k="ad.ui.toolbar.capture" /> and <Label k="ad.ui.wheel" /> show as icons. In Simple mode, the toolbar keeps <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" />, <Label k="ad.ui.add.submenu" /> and <Label k="ad.ui.add.outfit" />, and leaves out the other adds, <Label k="ad.ui.toolbar.capture" />, <Label k="ad.ui.toolbar.convert" /> and <Label k="ad.ui.wheel" />.
+
+A new entry lands inside the submenu that is selected in the tree, or in the same submenu as the selected entry. You can also drag objects from the Hierarchy onto the tree: each one becomes a toggle.
+
+### Search and filter [#search]
+
+The search field keeps only the rows whose name contains what you type, without counting capital letters or style tags. A submenu stays, dimmed, while something inside it matches, and every row is open while you search.
+
+The filter button beside it, in Advanced mode, lists the tags the tree has right now, grouped as <Label k="ad.ui.tagfilter.group.kind" />, <Label k="ad.ui.tagfilter.group.from" />, <Label k="ad.ui.tagfilter.group.state" /> and <Label k="ad.ui.tagfilter.group.platform" />. Two tags of one group show rows with either of them. Tags of different groups show only rows that have both. The ticked tags show as chips under the toolbar, and <Label k="ad.ui.tagfilter.clear" /> removes them all.
+
+While a search or a filter is active, rows cannot be dragged, and a note says what to clear.
+
+### The menu tree [#tree]
+
+The tree shows the avatar's whole menu as it will be built: the entries of this component, the entries of other AvatarDoc components, the items the avatar's own menu already has, and the items VRCFury or Modular Avatar add. Triggers and overrides sit in their own groups at the end, since they have no button in the menu. The title line says how many other components install into this menu.
+
+Each row shows the kind of the item, its name with its style, and chips:
+
+- a dot for a toggle that is on by default
+- the group and its number, such as **Outfits 1**, for a toggle in an [exclusive group](../exclusive-groups/)
+- a short form of its condition, for a trigger
+- <Label k="ad.ui.chip.pc_only" /> or <Label k="ad.ui.chip.quest_only" />, for an entry built on one platform only. While it is not built for the current platform, the row is dimmed.
+- the tool or component it comes from, such as <Label k="ad.ui.chip.vrcfury" />, or <Label k="ad.ui.existing" /> for an item of the avatar's own menu
+- <Label k="ad.ui.chip.asset" />, for an item from an installed menu asset
+- <Label k="ad.ui.disabled_chip" />, for an entry of a component that is switched off
+- <Label k="ad.ui.chip.no_menu" />, <Label k="ad.ui.chip.edited" />, <Label k="ad.ui.chip.hidden" /> or <Label k="ad.ui.chip.removed" />
+- a count such as **7 of 8**, for a submenu that is nearly full
+- <Label k="ad.ui.chip.problem" />, for a row with a message. Hold the pointer over it to read the messages.
+
+When the tree is narrower than 360 pixels, as in a narrow inspector, rows leave out the group, condition, source, asset and existing chips, and show a platform chip only while the entry is not built. Rows of other tools and of the avatar's own menu are dimmed at every width.
+
+Drag a row to move it. Its position left or right decides how deep it lands: move the pointer left to step out of a submenu, right to go one level in. Right click a row of this component for <Label k="ad.ui.menu.rename" />, <Label k="ad.ui.menu.duplicate" />, <Label k="ad.ui.menu.move" /> and <Label k="ad.ui.menu.delete" />. The Delete key deletes the selected row. Submenus start closed, and each component remembers which rows you left open.
+
+### The panel [#panel]
+
+The panel under the tree edits the selected row. Its title names the kind, with chips such as the platform. The first time you open a panel of a kind, a one line tip says what it is for. The settings follow, and messages about the row come last.
+
+An entry of another AvatarDoc component shows a note and <Label k="ad.ui.select_component" />, since it is edited on its own component. An item of the avatar's own menu, or one another tool adds, shows the panel described in [Change the avatar's existing menu](../../guides/change-the-existing-menu/).
+
+## Settings
+
+The settings of the component itself sit in the <Label k="ad.ui.settings_fold" /> fold of the header.
+
+### Component settings [#component-settings k=ad.ui.settings_fold]
+
+**Shown in:** Advanced, and Simple once <Label k="ad.ui.install" />, <Label k="ad.ui.install.mode" />, <Label k="ad.ui.prefix" /> or <Label k="ad.ui.platform" /> is not at its default · **Default:** closed · **Choices:** open, closed
+
+The fold is closed for a new component and remembers whether you left it open. While it is closed, a dot on it shows that one of its settings is not at its default. Its first line reads **Matches your avatar: Write Defaults on**, or off: the Write Defaults setting AvatarDoc's own layers use, matched to the avatar's own FX layers. When those layers mix on and off, AvatarDoc builds with Write Defaults on, and a warning names the layers. In Simple mode, the fold appears once any setting inside is not at its default, and then it shows every row.
+
+### Install into [#install-into k=ad.ui.install]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** empty, the avatar's root menu · **Choices:** a submenu path, such as Outfits/Summer
+
+The submenu this component's entries land in. The arrow button at the right end lists <Label k="ad.ui.install.root" /> and every submenu of the merged menu, except this component's own. A path that does not exist yet is made, and a note says so.
+
+### Install as [#install-as k=ad.ui.install.mode]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.install.mode.append" /> · **Choices:** <Label k="ad.ui.install.mode.append" />, <Label k="ad.ui.install.mode.submenu" />
+
+<Label k="ad.ui.install.mode.append" /> puts the entries straight into the place <Label k="ad.ui.install" /> names. <Label k="ad.ui.install.mode.submenu" /> wraps them all in one new submenu there, and shows <Label k="ad.ui.menu_name" /> and <Label k="ad.ui.menu_icon" />. Two components that install as a submenu of the same name in the same place share one submenu.
+
+### Submenu name [#submenu-name k=ad.ui.menu_name]
+
+**Shown in:** Advanced, and Simple once the fold shows, with <Label k="ad.ui.install.mode.submenu" /> · **Default:** empty, the name of the object that holds the component · **Choices:** any text, with style tags
+
+The name of the submenu <Label k="ad.ui.install.mode.submenu" /> makes.
+
+### Submenu icon [#submenu-icon k=ad.ui.menu_icon]
+
+**Shown in:** Advanced, and Simple once the fold shows, with <Label k="ad.ui.install.mode.submenu" /> · **Default:** none · **Choices:** any texture
+
+The icon on that submenu's button. VRChat's upload check applies, as for a [toggle's icon](../toggle/#icon).
+
+### Parameter prefix [#parameter-prefix k=ad.ui.prefix]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** AD · **Choices:** any text
+
+The start of every automatic parameter name of this component: a toggle named Hat gets AD/Hat. Changing the prefix renames every automatic parameter of the component at once.
+
+### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.platform.both" /> · **Choices:** <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which builds make this component's entries, for every entry whose own <Label k="ad.ui.platform" /> is <Label k="ad.ui.platform.inherit" />. The parameters are planned on both platforms either way, so both keep the same parameters. The line under it says which platform the editor builds for now. [Different setups for PC and Quest](../../guides/pc-and-quest/) explains it.
+
+### First-use tips [#first-use-tips k=ad.ui.tips_switch_label]
+
+**Shown in:** Advanced, and Simple once the fold shows
+
+<Label k="ad.ui.tips_switch" /> turns every tip you closed back on.
+
+## What AvatarDoc builds
+
+The inspector itself builds nothing. At upload, NDMF runs AvatarDoc on a copy of the avatar, and AvatarDoc adds the menu, the parameters and the layers the tree shows. Your scene and your assets stay as they are. How it works explains the steps.
+
+## Messages
+
+- [Synced parameters need more bits than VRChat allows](../messages/#ad-error-bits-exceeded): the upload stops.
+- [Over the limit, with VRCFury installed](../messages/#ad-warn-bits-exceeded-vrcfury).
+- [The avatar's own layers mix Write Defaults on and off](../messages/#ad-warn-write-defaults-mixed).
+- [The avatar has no FX layer](../messages/#ad-error-no-fx-layer).
+- [AvatarDoc made a submenu for the install path](../messages/#ad-info-path-created).
+- [An entry's submenu no longer exists](../messages/#ad-warn-orphan-entry): it moved to the top of its component.
+- [Two entries share an internal id](../messages/#ad-warn-duplicate-entry-id).
+- [A saved change to a menu item cannot apply](../messages/#ad-warn-edit-source-missing).
+
+## Related
+
+- [Simple or Advanced?](../../start-here/simple-or-advanced/)
+- [Organise the menu](../../guides/organise-the-menu/)
+- [Fit in VRChat's parameter memory](../../guides/parameter-memory/)
+- [Different setups for PC and Quest](../../guides/pc-and-quest/)
