@@ -324,7 +324,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Names the note in the panel that reads text.</summary>
-        static void NameNote(VisualElement panel, string text, string name)
+        internal static void NameNote(VisualElement panel, string text, string name)
         {
             var note = panel.Query<Label>(className: "ad-note").Where(l => l.text == text).First()
                 ?? throw new InvalidOperationException("The panel shows no note reading \"" + text + "\".");
@@ -332,7 +332,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Names the drawn tree row whose name reads text. The rows must be drawn first.</summary>
-        static void NameTreeRow(VisualElement tree, string text, string name)
+        internal static void NameTreeRow(VisualElement tree, string text, string name)
         {
             var row = tree.Query(className: "ad-tree-row").ToList().FirstOrDefault(r => r.Q<Label>(className: "ad-name")?.text == text)
                 ?? throw new InvalidOperationException("No drawn row of the tree reads \"" + text + "\".");

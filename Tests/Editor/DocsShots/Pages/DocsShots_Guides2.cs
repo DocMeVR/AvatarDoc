@@ -465,7 +465,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>A state on the FX controller's first layer playing a clip that moves one face shape from 0 to 100. The clip and the state go into added.</summary>
-        static void AddFxShapeClip(DocsAvatar avatar, string name, string shape, List<Object> added)
+        internal static void AddFxShapeClip(DocsAvatar avatar, string name, string shape, List<Object> added)
         {
             var clip = TestAvatar.ShapeClip(name, avatar.Face.name, shape, 0f, 100f);
             added.Add(clip);
@@ -473,7 +473,7 @@ namespace DocMe.AvatarDoctor.Editor
             AvatarPlanCache.Invalidate();
         }
 
-        static GameObject Child(DocsAvatar avatar, string name)
+        internal static GameObject Child(DocsAvatar avatar, string name)
         {
             var go = new GameObject(name);
             go.transform.SetParent(avatar.Root.transform, false);
@@ -481,7 +481,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>A picture of one tree row's panel alone, for a row that is not an entry: the row revealed by its key and selected, the mode row, the header and the tree left out.</summary>
-        static DocsShotSpec KeyPanelShot(AvatarDoc menu, string rowKey, string name, params (string, int)[] markers) => new DocsShotSpec
+        internal static DocsShotSpec KeyPanelShot(AvatarDoc menu, string rowKey, string name, params (string, int)[] markers) => new DocsShotSpec
         {
             Page = Page,
             Name = name,
@@ -542,7 +542,7 @@ namespace DocMe.AvatarDoctor.Editor
             chip.name = name;
         }
 
-        static void DestroyAll(List<Object> objects)
+        internal static void DestroyAll(List<Object> objects)
         {
             foreach (var obj in objects)
                 if (obj != null) Object.DestroyImmediate(obj);
@@ -550,7 +550,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Destroys a controller made in memory, with the state machines its layers made.</summary>
-        static void DestroyController(AnimatorController controller)
+        internal static void DestroyController(AnimatorController controller)
         {
             if (controller == null) return;
             DestroyMachines(controller.layers.Select(l => l.stateMachine).ToList());
