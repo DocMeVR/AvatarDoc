@@ -15,7 +15,7 @@ namespace DocMe.AvatarDoctor.Editor
         public string Page;
         public string Name;
         public VisualElement View;
-        public float Width = 360f;
+        public float Width = DocsShot.InspectorWidth;
         public float Height = 900f;
         public Action<VisualElement> Arrange;
         public (string elementName, int number)[] Markers = new (string, int)[0];

@@ -145,14 +145,14 @@ namespace DocMe.AvatarDoctor.Editor
 
             LayoutProbe.Measure(panel, () =>
             {
-                DocsShot.SettleLists(panel);
+                LayoutProbe.SettleLists(panel);
                 var rows = ShownRows(list);
                 Assert.That(rows.Count, Is.EqualTo(3), "all three rows drew");
 
                 rows[2].style.display = DisplayStyle.None;
                 LayoutProbe.Validate(panel);
 
-                var thrown = Assert.Throws<InvalidOperationException>(() => DocsShot.CheckRowsDrawn(panel));
+                var thrown = Assert.Throws<InvalidOperationException>(() => LayoutProbe.CheckRowsDrawn(panel));
                 Assert.That(thrown.Message, Does.Contain("docs-list-panel").And.Contain("2 rows"), "a list that fits without scrolling shows every row or stops the run");
             });
         }
@@ -196,7 +196,7 @@ namespace DocMe.AvatarDoctor.Editor
                         LayoutProbe.Measure(inspector, () =>
                         {
                             inspector.Q<AvatarDoctorView>().Tree.SelectEntry(hat.id);
-                            DocsShot.SettleLists(inspector);
+                            LayoutProbe.SettleLists(inspector);
 
                             var tips = inspector.Query(className: "ad-tip").ToList().Where(tip => tip.worldBound.height > 0f).Select(tip => tip.name).ToList();
                             if (showTips) Assert.That(tips, Is.SupersetOf(new[] { "ad-tip-header", "ad-tip-toggle" }), "a shot that asks for tips shows them");
@@ -257,7 +257,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 LayoutProbe.Measure(view, () =>
                 {
-                    DocsShot.SettleLists(view);
+                    LayoutProbe.SettleLists(view);
 
                     var rows = list.Query(className: BaseVerticalCollectionView.itemUssClassName).ToList()
                         .Where(row => row.resolvedStyle.display != DisplayStyle.None).ToList();
@@ -293,7 +293,7 @@ namespace DocMe.AvatarDoctor.Editor
                         Assert.That(view, Is.Not.Null, "the inspector holds AvatarDoc's view");
                         view.Tree.SelectEntry(hat.id);
 
-                        DocsShot.SettleLists(inspector);
+                        LayoutProbe.SettleLists(inspector);
 
                         var objects = ShownRows(view.Detail.Q<TargetListView>("ad-objects").Q<ListView>());
                         Assert.That(objects.Select(row => row.Q<ObjectField>("target")?.value), Is.EqualTo(new Object[] { avatar.Hat, avatar.Glasses }),

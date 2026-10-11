@@ -238,7 +238,7 @@ namespace DocMe.AvatarDoctor.Editor
             InspectorShots.InHostWindow(spec.View, spec.Width, spec.Height, (window, frame) =>
             {
                 spec.Arrange?.Invoke(spec.View);
-                DocsShot.SettleLists(spec.View);
+                LayoutProbe.SettleLists(spec.View);
                 var shot = new InspectorShots.ShotFrame(window, frame, (int)window.position.width, (int)window.position.height, inFront: true);
                 var area = DocsShot.CropAndMark(shot, spec.View, spec.Markers, new List<DocsShot.Marker>());
                 float top = frame.worldBound.y;
