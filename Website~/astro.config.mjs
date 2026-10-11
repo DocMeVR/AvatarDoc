@@ -3,11 +3,14 @@ import starlight from '@astrojs/starlight';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import site from './src/data/site.json' with { type: 'json' };
+import { unified } from '@astrojs/markdown-remark';
+import { headingIds } from './src/plugins/heading-ids.mjs';
 
 export default defineConfig({
   site: site.site,
   base: site.base,
   trailingSlash: 'always',
+  markdown: { processor: unified({ smartypants: false, remarkPlugins: [headingIds] }) },
   integrations: [
     starlight({
       title: 'AvatarDoc',
@@ -23,6 +26,9 @@ export default defineConfig({
       plugins: [starlightImageZoom(), starlightLinksValidator({ errorOnRelativeLinks: false })],
       sidebar: [
         { label: 'Start here', items: ['start-here/install'] },
+        { label: 'Reference', items: ['reference/messages'] },
+        { label: 'How it works', items: [{ autogenerate: { directory: 'how-it-works' } }] },
+        { label: 'Help', items: [{ autogenerate: { directory: 'help' } }] },
       ],
     }),
   ],
