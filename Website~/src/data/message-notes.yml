@@ -16,3 +16,14 @@ ad.info.curve_overwritten: Nothing to fix when the trigger should win there. Oth
 ad.info.animation_overridden: Nothing to fix when the toggle's own rows should win. Otherwise remove those rows from the toggle and let the clip set the values.
 ad.warn.animation_binding_missing: When the clip was made inside a prefab, set the row's **Path root** to the prefab's root object.
 ad.error.menu_icon_too_large: Select the texture in the Project window. In its import settings, set **Max Size** to 256 and **Compression** to anything but None, then press Apply.
+ad.warn.duplicate_entry_id: Nothing to fix. Select the object that holds the component in the Hierarchy once, and AvatarDoc gives the repeated ids new ones. The scene then shows as changed, so save it. Unlock the component first if it is locked.
+ad.info.drop_refused: Nothing was moved. The reason after the colon says why. Unlock the component, drop onto a submenu that is not inside the row you are dragging, or drop onto a row that can hold other rows.
+ad.info.grab_uses_existing_physbone: Nothing to fix. The PhysBone that is already on the object is used, and given a parameter name when it has none. To have AvatarDoc make its own, remove that PhysBone from the object.
+ad.info.override_applied: Nothing to fix. The number says how many animations the override changed on the avatar that is built.
+ad.info.removed_parameter: Nothing to fix. The item you removed was the last thing that used the parameter, so the parameter leaves the avatar and its synced bits are free. The summary lists it too.
+ad.info.removed_kept: Nothing to fix. The reason after the colon names what still needs the parameter. If the reason names something you own, remove that as well.
+ad.info.shape_set_count: Nothing to fix. The number is an upper limit. At upload, a shape that no animation moves is dropped from the rule, and a second note then says how many shapes the rule really holds.
+ad.info.shapes_always_on: Nothing to fix when the piece should always wear these shapes. To switch them with the piece, add a toggle or an animation that turns the piece on and off.
+ad.info.shapes_follow_kept_own: Nothing to fix when the animation's own values are what you want. To let the follow row write the shape there, remove that shape's curve from the animation.
+ad.info.shapes_larger_wins: Nothing to fix when the larger value is what you want. Otherwise give both pieces the same value, or put their toggles in one exclusive group, so that only one piece is on at a time.
+ad.info.shapes_never_on: Add a toggle, an outfit set or an animation that turns the object on, or take AvatarDoc Shapes off the piece. Leave it as it is for a piece that is meant to stay off.

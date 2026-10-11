@@ -1,0 +1,88 @@
+---
+title: Limits
+description: The limits of VRChat that AvatarDoc checks, and the places where AvatarDoc itself does less than you might expect.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-limits/more-page" alt="The memory bar and an Outfits submenu of nine toggles: 1 the bar, 2 its legend, 3 the submenu's row, 4 the More page, 5 the places used." />
+
+1. The memory bar.
+2. Its legend: the bits of the avatar, the bits of AvatarDoc and the bits still free.
+3. The row of the Outfits submenu.
+4. The **More (page 2)** row: the controls that did not fit on the page.
+5. The line that says how many places the submenu uses.
+
+## When to use it
+
+This page lists what limits an avatar, and what AvatarDoc does when you reach a limit. [Fit in VRChat's parameter memory](../../guides/parameter-memory/) shows how to save bits.
+
+## Limits of VRChat
+
+### Eight controls on a menu page
+
+VRChat shows at most eight controls on one page of the menu. When a page holds more than eight, AvatarDoc keeps the first seven where they are and moves the rest onto a **More** page that takes the eighth place. A More page that is itself full chains to another. The tree shows these pages as **More (page 2)**, **More (page 3)** and so on, so what you see there is what is built. A note tells you which submenu was split, and moving some controls into a submenu of their own avoids the extra page. A submenu's row shows a count such as **8 of 8** once it is nearly full.
+
+### 256 bits of synced parameters
+
+An avatar has 256 bits of synced parameter memory in total, shared by everything on it. A synced Bool costs 1 bit. A synced Int or a synced Float costs 8. A parameter that is not synced costs nothing. An exclusive group is one Int, so it costs 8 bits however many toggles it holds. The memory bar in the header shows the avatar's own bits, the bits AvatarDoc adds and the bits still free. Triggers, overrides and presets cost no synced bits.
+
+Over the limit, the bar says by how many bits and an error stops the upload. When VRCFury is installed, it is a warning instead, because VRCFury makes the parameters smaller at upload until they fit.
+
+### Menu icons
+
+VRChat's upload check rejects a menu icon that is larger than 256 pixels on a side while its import size allows more, or that is not compressed. An error names the control. Icons made by [Capture icon](../icon-capture/) are always 256 by 256 pixels and pass the check.
+
+### How complex a trigger may be
+
+A condition trigger can have at most 4 groups of at most 4 conditions each. Beyond that, VRChat cannot build the ways to turn it back off, and an error says so.
+
+## Limits of AvatarDoc
+
+### What it adds to the FX controller
+
+Each entry adds the layers its Builds line names. A toggle, a radial, a preset and a condition trigger add one layer each. A toggle or a trigger that holds a shape with **Pin**, or a shape set rule, adds one more layer when it also writes other things. An exclusive group shares one layer between its toggles. A blend shape trigger, a Fade trigger and a contact in Flip mode add one layer each. A toggle or radial that only drives a parameter adds none. A merged animator adds the layers of its controller. The tracking pauses of Fade triggers and held shapes share a few layers between entries.
+
+### AvatarDoc Shapes
+
+AvatarDoc Shapes writes into the FX controller only, and only into the clips that exist right after Modular Avatar. A clip that VRCFury adds later in the build is not seen, and a Gesture or Action clip is left alone. See [AvatarDoc Shapes](../avatardoc-shapes/).
+
+### Overrides
+
+An override rewrites the animations that exist when its two passes run: right after Modular Avatar, and again at the end of the build. It cannot reach a layer that some other tool adds after both. See [Overrides](../overrides/).
+
+### Icons
+
+The Capture icon window reads the scene exactly as it is, so a blend shape or a material effect shows its value in the scene, not the toggle's On state. A piece that is switched off in the scene is drawn anyway. See [Icon capture](../icon-capture/).
+
+### Convert
+
+Convert offers only a hand made layer that is one simple on and off layer with a plain animation clip, and only the Toggle features of VRCFury. A Modular Avatar item under a Merge Animator is offered as a toggle or a radial, and a Button there only as a parameter control. Anything else is listed with its reason. See [What Convert brings over](../import-window/).
+
+### Contacts and touch
+
+AvatarDoc builds contact receivers only. It cannot make a contact sender. A receiver is always a sphere, with no capsule. In Hold mode, <Label k="ad.ui.touch.closer" /> is a threshold: the effects switch on and off at the fraction you set and are not blended by distance. Only the Fade mode blends by distance. See [Touch triggers](../touch-triggers/).
+
+### Shrink suggestions
+
+The Outfit set window finds shrink shapes by name only. Nothing checks that a suggested shape is the right one. See [Outfit sets](../outfit-sets/).
+
+### Platform parity
+
+The check that a PC copy and a Quest copy of one avatar have the same parameter list compares only with another copy of the same avatar that is open in a scene right now. It cannot see a copy in a closed scene or in another project.
+
+## Messages
+
+- [The submenu has more controls than one page holds](../messages/#ad-info-menu-split).
+- [Synced parameters need more bits than VRChat allows](../messages/#ad-error-bits-exceeded).
+- [The same, with VRCFury installed](../messages/#ad-warn-bits-exceeded-vrcfury).
+- [The icon fails VRChat's upload check](../messages/#ad-error-menu-icon-too-large).
+- [A trigger has too many conditions](../messages/#ad-error-trigger-too-complex).
+- [Two copies of one avatar have different parameter lists](../messages/#ad-warn-platform-parity).
+
+## Related
+
+- [Fit in VRChat's parameter memory](../../guides/parameter-memory/)
+- [Different setups for PC and Quest](../../guides/pc-and-quest/)
+- [The inspector at a glance](../inspector/#memory-bar)

@@ -1,0 +1,106 @@
+---
+title: Scene preview
+description: How the Scene view shows an entry on or off without Play mode, and every control of the preview row.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-scene-preview/overview" alt="The header and the Hat toggle's panel with its preview set to On, with 1 the Default, On and Off choice and 2 the Reset preview button of the header." />
+
+1. The <Label k="ad.ui.preview" /> row with <Label k="ad.ui.preview.on" /> picked.
+2. <Label k="ad.ui.preview.reset" />, in the header. It shows while any preview is set.
+
+## When to use it
+
+The scene preview draws the avatar in the Scene view as if an entry were on, off or set to a value, without Play mode and without changing the avatar. Use it to check what a toggle, a radial, a preset or a trigger does while you build. It only draws: nothing in the build changes.
+
+For the situations the preview cannot show, such as your own animations or a merged animator, test in Play mode with Gesture Manager. See [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## Turning it on
+
+The preview is part of NDMF's previews. Turn it on in two places:
+
+1. **Tools > NDM Framework > Enable Previews** switches NDMF's previews on.
+2. **Tools > NDM Framework > Configure Previews** lists the preview nodes. The **AvatarDoc** node is on by default.
+
+While the preview is off, the header says <Label k="ad.ui.preview.off_note" /> The preview row still remembers what you choose, but nothing shows in the Scene view until the preview is on.
+
+The preview draws on temporary copies of the renderers that NDMF makes. It never writes to your own renderers, objects or materials.
+
+## Settings
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Advanced for a toggle and a radial; Simple and Advanced for a preset, a trigger and an override · **Default:** <Label k="ad.ui.preview.default" /> · **Choices:** <Label k="ad.ui.preview.default" />, <Label k="ad.ui.preview.on" />, <Label k="ad.ui.preview.off" />
+
+The row at the bottom of the panel. What it offers depends on the kind:
+
+- A toggle, a preset and a condition trigger: <Label k="ad.ui.preview.default" />, <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" />.
+- A radial: <Label k="ad.ui.preview.default" /> and a slider from 0 to 1.
+- A trigger that starts from a blend shape: no choice, only a note, such as **Follows Face/Smile in the scene.** It always follows the weight of its source shape in the scene, and cannot be forced on or off.
+- A contact or PhysBone trigger in Flip mode: only the <Label k="ad.ui.touch.simulate" /> button.
+- An override: the three choices, greyed out. Its pinned values are always part of the preview.
+- A merged animator, and a row of the avatar's own menu or of another tool: no preview row. The panel of a merged animator says so.
+
+A set preview belongs to the editor session, not to the avatar. Two copies of one avatar, such as a PC and a Quest twin, share it, and a script reload clears it all.
+
+#### Default [#default k=ad.ui.preview.default]
+
+**Shown in:** as the row
+
+Clears the preview of this entry, so it falls back to its own default state: a toggle to its <Label k="ad.ui.default_on" /> choice, a radial to its <Label k="ad.ui.default_value" />. A condition trigger falls back to idle: it shows nothing until you press <Label k="ad.ui.preview.on" /> or <Label k="ad.ui.preview.off" />. For a preset, <Label k="ad.ui.preview.default" /> clears the previews of the controls the preset names and leaves every other preview alone.
+
+#### On [#on k=ad.ui.preview.on]
+
+**Shown in:** as the row
+
+Forces the entry on. For a member of an exclusive group, the other members go off, as they would in the avatar. For a preset, it sets every control in its list to the state of its row, once, and it does not stay held the way a toggle's <Label k="ad.ui.preview.on" /> does. The rows under <Label k="ad.ui.preset.parameters" /> are not part of the preview. For a trigger, it draws the trigger's effects as if its condition were true, as long as its requirements and its gate allow it.
+
+#### Off [#off k=ad.ui.preview.off]
+
+**Shown in:** as the row
+
+Forces the entry off. For a preset, it forces every control in its list off, or to 0 for a radial.
+
+#### The slider [#slider]
+
+**Shown in:** Advanced · **Default:** the radial's own <Label k="ad.ui.default_value" /> · **Range:** 0 to 1
+
+Shown for a radial in place of <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" />. Dragging it draws the radial at that position, live.
+
+#### Simulate touch [#simulate-touch k=ad.ui.touch.simulate]
+
+**Shown in:** Simple and Advanced, for a contact or PhysBone trigger in Flip mode
+
+Flips the preview of the toggle that the trigger flips, once, the same as a real touch would. It changes the toggle's preview, never the trigger's own.
+
+### Reset preview [#reset-preview k=ad.ui.preview.reset]
+
+**Shown in:** Simple and Advanced, while any preview is set
+
+A button in the header. One press clears every preview you have set, on any entry and any avatar. The wheel's <Label k="ad.ui.wheel.reset" /> does the same. See [The AvatarDoc window and the wheel](../window-and-wheel/).
+
+### The note about requirements [#requirements-note]
+
+**Shown in:** Simple and Advanced, when a trigger or a preview has a requirement the Scene view cannot read
+
+A trigger or a Fade contact that has a parameter, a contact or a PhysBone as a requirement shows the note <Label k="ad.ui.preview.unchecked" /> A requirement that is a toggle is read from the preview's own state, the same as <Label k="ad.ui.trigger.gate" />. This also holds for a blend shape trigger and for a Fade trigger forced on.
+
+## What the preview shows
+
+The preview draws objects shown or hidden, blend shape weights, material swaps, material property values, the weights of AvatarDoc Shapes pieces, and the pinned values of overrides. It follows exclusive groups, and the toggle of a trigger's <Label k="ad.ui.trigger.gate" /> row. Custom animations are not part of it: the panel of an entry with an animation says so. A requirement on a parameter, a contact or a PhysBone counts as met.
+
+## What AvatarDoc builds
+
+The preview builds nothing. It is part of the editor only.
+
+## Messages
+
+The preview raises no messages. When it does not show, the header note about the preview being off is the only sign.
+
+## Related
+
+- [Test without Play mode, and preview in the scene](../../guides/test-and-preview/)
+- [The AvatarDoc window and the wheel](../window-and-wheel/)
+- [Toggle](../toggle/#scene-preview)

@@ -1,0 +1,124 @@
+---
+title: Overrides
+description: Every setting of an override, the rule that holds a blend shape at one value in every animation that moves it.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-overrides/overview" alt="A No tongue override: 1 Name, 2 the Builds line, 3 Capture, 4 its shape, 5 Pinned value, 6 the clips, 7 the preview row, 8 the Advanced fold." />
+
+1. <Label k="ad.ui.name" />.
+2. The Builds line.
+3. <Label k="ad.ui.shape_set.capture" />, in the <Label k="ad.ui.blendshapes" /> section.
+4. The button of the first row, which names the shape and its mesh.
+5. <Label k="ad.ui.override.value" />.
+6. The list of clips that already move the shape.
+7. The <Label k="ad.ui.preview" /> row, greyed out.
+8. The <Label k="ad.ui.advanced_fold" /> fold.
+
+## When to use it
+
+An override holds a blend shape at one value in every animation that moves it, all the time. It adds no button to the menu and costs no synced bits. Use it for a shape that must never move: for example, a tongue shape that your avatar's face tracking animations move, on a model with no good tongue.
+
+- To change a shape from the menu, use a [toggle](../toggle/) or a [radial](../radial/) with a <Label k="ad.ui.blendshapes" /> section.
+- To hold a shape only while a toggle is on, give the toggle a <Label k="ad.ui.blendshapes" /> row. See [Blend shape rows](../blend-shapes/).
+
+To add an override, press <Label k="ad.ui.add.override" /> in the toolbar. It needs <Label k="ad.ui.mode.advanced" /> mode, and on a narrow inspector it sits under <Label k="ad.ui.more" />. Overrides sit in the <Label k="ad.ui.overrides" /> group of the tree, after <Label k="ad.ui.triggers" />. The group's row says how many rules there are.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced · **Default:** New Override · **Choices:** any text
+
+The name of the rule. It shows in the tree and in the messages about the rule. An override has no menu button, so the name has no style row.
+
+### The Builds line [#builds-line]
+
+**Shown in:** Simple and Advanced
+
+The line under the name says what the entry adds to the avatar. For an override it always reads **Builds nothing yet** and a hint to add a target, even with rows in the list, because an override adds no menu control, no synced bit and no layer to count. Ignore it. The rule works as this page describes.
+
+### Blendshapes [#blendshapes k=ad.ui.blendshapes]
+
+**Shown in:** Simple and Advanced · **Default:** no rows · **Choices:** any blend shape of a mesh on the avatar
+
+The list of shapes the override holds. An override uses only its blend shape rows. Rows for other kinds of effects are never part of an override.
+
+#### + Add [#add k=ad.ui.add]
+
+**Shown in:** Simple and Advanced
+
+Opens the list of blend shapes of the avatar, with a search field. Picking one adds a row. A new row starts with <Label k="ad.ui.override.value" /> at 0, so the shape is switched off.
+
+#### Capture [#capture k=ad.ui.shape_set.capture]
+
+**Shown in:** Simple and Advanced
+
+Opens the list of meshes. Picking one adds a row for every shape of that mesh that is higher than 0 in the scene right now, at that weight. Set the weights in the Skinned Mesh Renderer first. When every shape of the mesh is at 0, the panel says so and adds nothing.
+
+#### The row's shape [#shape]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any blend shape of the avatar
+
+The button names the shape and its mesh. Press it to pick another shape. The **×** at the end of the row removes the row. A chip beside the shape says in how many clips of the avatar the shape moves already, for example **2 clips**.
+
+#### Pinned value [#pinned-value k=ad.ui.override.value]
+
+**Shown in:** Simple and Advanced · **Default:** 0 · **Range:** 0 to 100
+
+The weight the override holds the shape at. 0 switches the shape off. Any other number holds it there. When two rows of one override name the same shape, the last row decides.
+
+### Clips that move the shape [#clips]
+
+**Shown in:** Simple and Advanced
+
+Under the rows, the panel reads **Animated in 2 clips**, or **Animated in 1 clip**, and names each clip. Click a name to find the clip in the Project window. The list reads only the controllers that the avatar's Avatar Descriptor points at before an upload. Animations that Modular Avatar or VRCFury add at upload do not show here, but the override still reaches them.
+
+When nothing on the avatar moves the shape, the panel says <Label k="ad.ui.override.unused" />
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.preview.default" /> · **Choices:** none, the choice is greyed out
+
+The choice is greyed out, with the note <Label k="ad.ui.preview.always" /> An override is always part of the scene preview, so there is nothing to switch. See [Scene preview](../scene-preview/).
+
+### Advanced [#advanced k=ad.ui.advanced_fold]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** closed · **Choices:** open, closed
+
+The fold at the bottom of the panel. For an override it holds one setting.
+
+#### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build applies the override. A rule left out on a platform pins nothing there. See [Platform](../toggle/#platform) on the toggle page.
+
+## What AvatarDoc builds
+
+An override changes the avatar that is uploaded, never your animation files. It runs twice: once right after Modular Avatar, and once more at the end of the build, after the other tools. In each pass, every animation of the FX layers that moves the shape gets a flat curve at the pinned value. The second pass reaches animations that other tools add in between. It leaves a layer alone that a tool adds after both passes.
+
+The override also sets the shape on the uploaded avatar's mesh to its value. When no animation moves the shape, that is all it does, and a warning says so.
+
+An override wins over every toggle and trigger that changes the same shape, whatever their order in the menu. The Builds line stays at **Builds nothing yet**: an override adds no menu control, no parameter and no layer.
+
+## Messages
+
+- [The override holds the shape in some animations](../messages/#ad-info-override-applied): the count of animations it changed.
+- [The override found no animation that moves the shape](../messages/#ad-warn-override-unused).
+- [Two overrides hold the same shape at different values](../messages/#ad-warn-override-conflict): the one that comes later in the tree wins.
+- [The override's renderer no longer exists at build time](../messages/#ad-warn-override-target-gone).
+- [A control and an override write the same shape](../messages/#ad-info-target-shared-override).
+- [A clip of VRChat's own is left alone](../messages/#ad-warn-marker-clip-skipped).
+- [The override has no targets](../messages/#ad-warn-no-effects).
+- [A row points at a shape or an object that is gone](../messages/#ad-warn-target-missing).
+
+## Related
+
+- [Hold a blend shape in every animation](../../guides/overrides/)
+- [Blend shape rows](../blend-shapes/) describes the rows of a toggle, which work differently.
+- [Hold the rest of a face](../../guides/hold-the-rest/)

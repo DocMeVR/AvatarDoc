@@ -1,0 +1,160 @@
+---
+title: Presets
+description: Every setting of a preset, the menu button that puts several other controls into one state at once.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-presets/overview" alt="A Hoodie look preset: 1 Sets + Add, 2 a control, 3 On and Off, 4 a slider, 5 From preview, 6 Other parameters + Add, 7 a parameter, 8 Scene preview." />
+
+1. The <Label k="ad.ui.add" /> button of <Label k="ad.ui.preset.sets" />.
+2. The button of a row, which names its control.
+3. The <Label k="ad.ui.preset.on" /> and <Label k="ad.ui.preset.off" /> choice of a toggle's row.
+4. The slider of a radial's row.
+5. <Label k="ad.ui.preset.from_preview" />.
+6. The <Label k="ad.ui.add" /> button of <Label k="ad.ui.preset.parameters" />.
+7. The name of a parameter in <Label k="ad.ui.preset.parameters" />.
+8. The <Label k="ad.ui.preview" /> row.
+
+The last row under <Label k="ad.ui.preset.sets" /> in the picture has no control yet: its button reads <Label k="ad.ui.preset.pick" />.
+
+## When to use it
+
+A preset is one button in the menu that puts several other controls into a state in one press: put an outfit on, take the hat off and set a smile halfway, all together. Use it for a look, a mood or a "everything off".
+
+- To switch one thing, a [toggle](../toggle/) is enough.
+- To let only one of several outfits be on, use an [exclusive group](../exclusive-groups/). A preset can still pick which member is on.
+- To build a whole outfit menu in one step, use [Outfit sets](../outfit-sets/), which makes presets for you in <Label k="ad.ui.outfit.mode.mix" /> mode.
+
+To add a preset, press <Label k="ad.ui.add.preset" /> in the toolbar. It needs <Label k="ad.ui.mode.advanced" /> mode and sits under <Label k="ad.ui.more" /> on a narrow inspector. A new preset reads New Preset and sets nothing yet.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced · **Default:** New Preset · **Choices:** any text
+
+The text on the preset's button. It has the same style row as a toggle's name: see [Style](../toggle/#style).
+
+### Icon [#icon k=ad.ui.icon]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any texture
+
+The picture on the button, with <Label k="ad.ui.capture" /> at its right end. The capture draws the pieces of the controls that the preset turns on, and of the radials it sets. See [Icon capture](../icon-capture/).
+
+### Sets [#sets k=ad.ui.preset.sets]
+
+**Shown in:** Simple and Advanced · **Default:** no rows · **Choices:** one row for each control
+
+The controls the preset puts into a state when it is pressed. One row for each control.
+
+#### + Add [#add-state k=ad.ui.preset.add]
+
+**Shown in:** Simple and Advanced
+
+Adds a row with no control yet. Its button reads <Label k="ad.ui.preset.pick" />, and the row sets nothing until you pick a control.
+
+#### The row's control [#control]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any toggle or radial of the avatar, whichever component holds it
+
+The button names the control by its path in the menu, such as **Outfits/Hoodie**. Press it to pick another control from the list. The list does not offer presets: a preset cannot set another preset. When the control has been deleted since, the button reads <Label k="ad.ui.preset.missing" /> in amber, and you can still press it to point the row at another control.
+
+#### On and Off [#on-off]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.preset.on" /> · **Choices:** <Label k="ad.ui.preset.on" />, <Label k="ad.ui.preset.off" />
+
+Shown for a toggle and for a member of an exclusive group. Whether the control is switched on or off when the preset is pressed.
+
+For a member of an exclusive group, the preset writes the group's value only for the member that is on. If you list members of a group and turn all of them off, the preset sets the group to none once. Turning two members of one group on in the same preset is an error, and only the first one is applied. Two toggles that are not in a group but share one custom parameter behave the same way, because only one of them can be on.
+
+#### The slider [#slider]
+
+**Shown in:** Simple and Advanced · **Default:** 1 · **Range:** 0 to 1
+
+Shown in place of On and Off when the control is a radial. Where the radial is set when the preset is pressed.
+
+#### Remove [#remove]
+
+**Shown in:** Simple and Advanced
+
+The **×** at the end of a row removes the row.
+
+### From preview [#from-preview k=ad.ui.preset.from_preview]
+
+**Shown in:** Simple and Advanced
+
+Adds a row for every control that has a scene preview set right now, at the value it previews. A control that already has a row is updated, not added twice. Set the previews first, with the <Label k="ad.ui.preview" /> row of each control or with the wheel in Test mode, then press it. See [Scene preview](../scene-preview/).
+
+### Other parameters [#other-parameters k=ad.ui.preset.parameters]
+
+**Shown in:** Simple and Advanced · **Default:** no rows · **Choices:** one row for each parameter
+
+Sets a parameter that AvatarDoc does not own, such as one from VRCFury or Modular Avatar, to a value when the preset is pressed.
+
+#### + Add [#add-parameter k=ad.ui.add]
+
+**Shown in:** Simple and Advanced
+
+Adds a row with an empty name and the value 1.
+
+#### The row's name [#parameter-name]
+
+**Shown in:** Simple and Advanced · **Default:** empty · **Choices:** any parameter name
+
+The name of the parameter. Type it, or press the arrow button beside it to pick from the list of the avatar's parameters, its components' and VRChat's. A VRCFury toggle's global parameter works here too. A name that nothing on the avatar declares is written anyway, and a warning says so.
+
+#### The row's value [#parameter-value]
+
+**Shown in:** Simple and Advanced · **Default:** 1 · **Choices:** a number
+
+The value written to that parameter.
+
+### Nothing set [#none]
+
+**Shown in:** Simple and Advanced
+
+While both lists are empty, the panel says <Label k="ad.ui.preset.none" /> and a warning says the same.
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.preview.default" /> · **Choices:** <Label k="ad.ui.preview.default" />, <Label k="ad.ui.preview.on" />, <Label k="ad.ui.preview.off" />
+
+- <Label k="ad.ui.preview.on" /> sets the preview of every control in <Label k="ad.ui.preset.sets" /> to the state of its row, once. It does not stay held the way a toggle's <Label k="ad.ui.preview.on" /> does. Rows in <Label k="ad.ui.preset.parameters" /> are not part of the preview.
+- <Label k="ad.ui.preview.off" /> sets the preview of every control in the list to off, or to 0 for a radial.
+- <Label k="ad.ui.preview.default" /> clears the previews of the controls in the list and leaves every other preview as it is.
+
+See [Scene preview](../scene-preview/).
+
+### Advanced [#advanced k=ad.ui.advanced_fold]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** closed · **Choices:** open, closed
+
+#### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build makes the preset. See [Platform](../toggle/#platform) on the toggle page.
+
+## What AvatarDoc builds
+
+A preset adds one button to the menu, one FX layer and one parameter. The parameter is a Bool that is never saved and never synced, so the preset costs no synced bits. The layer has an idle state and a state that runs when the button is pressed. In that state, a parameter driver sets every control and every parameter in the lists, and it runs on your own client. The controls it sets are synced as usual, so other players see the result. When the button is let go, the layer goes back to idle.
+
+The Builds line of a preset with rows reads **Builds: 1 menu control, 1 FX layer**.
+
+## Messages
+
+- [The preset sets nothing yet](../messages/#ad-warn-preset-empty).
+- [A row has no control yet](../messages/#ad-info-preset-pick-control).
+- [A row points at a control that no longer exists](../messages/#ad-warn-preset-target-missing).
+- [The preset turns on two members of one group](../messages/#ad-error-preset-group-conflict).
+- [A parameter that nothing declares](../messages/#ad-warn-preset-parameter-unknown).
+
+## Related
+
+- [One button for several settings](../../guides/presets/)
+- [Outfit sets](../outfit-sets/)
+- [Make one-of-many choices](../../guides/one-of-many/)

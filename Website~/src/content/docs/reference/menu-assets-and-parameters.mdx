@@ -1,0 +1,176 @@
+---
+title: Menu assets and parameters
+description: Every setting of an installed menu asset and of the parameters a component declares itself.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use it
+
+A menu asset is a finished expressions menu that someone else built, with its own icons and controls. AvatarDoc installs it into the avatar's menu the way Modular Avatar's Menu Installer does, and never changes the asset itself. A declared parameter is a parameter name that you add to the avatar by hand, for the controls of a menu asset or the layers of a [merged animator](../merged-animators/) that no toggle of AvatarDoc provides.
+
+- To build your own controls, use a [toggle](../toggle/), a [radial](../radial/) or a [submenu](../submenu/).
+- To turn a Modular Avatar prefab into AvatarDoc entries, use [Convert](../convert-window/). A prefab shaped like a menu asset, a parameter list and a merged animator can also be taken over whole, which is described on [What Convert brings over](../import-window/).
+
+Both need <Label k="ad.ui.mode.advanced" /> mode to add. To install a menu asset, press <Label k="ad.ui.add.menu_asset" /> in the toolbar, or drag a menu asset from the Project window onto the tree. To declare a parameter, press <Label k="ad.ui.parameters.add" />. On a narrow inspector, both sit under <Label k="ad.ui.more" />.
+
+## Menu assets
+
+Installed menu assets sit in the <Label k="ad.ui.menu_assets" /> group of the tree, and a new one reads <Label k="ad.ui.menu_asset.unnamed" /> until you pick its asset.
+
+<Shot name="reference-menu-assets-and-parameters/menu-asset" alt="An installed Sparkles menu: 1 Menu asset, 2 Install path, 3 Place, 4 Name, 5 Platform, 6 its parameters, 7 one declared, 8 Add declaration." />
+
+1. <Label k="ad.ui.menu_asset.asset" />.
+2. <Label k="ad.ui.menu_asset.path" />.
+3. <Label k="ad.ui.menu_asset.place" />.
+4. <Label k="ad.ui.name" />.
+5. <Label k="ad.ui.platform" />.
+6. The list of <Label k="ad.ui.menu_asset.parameters" />.
+7. The note after the first parameter: nobody declares it.
+8. <Label k="ad.ui.menu_asset.declare" />, beside that parameter.
+
+### Menu asset [#menu-asset k=ad.ui.menu_asset.asset]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any expressions menu asset
+
+The finished menu to install. Its controls, with the submenus inside it, are read the way the avatar's own menu is read and written into the build as copies. Nothing is saved back into the asset. An install with no asset installs nothing, and a warning says so.
+
+### Install path [#install-path k=ad.ui.menu_asset.path]
+
+**Shown in:** Simple and Advanced · **Default:** empty · **Choices:** a submenu path such as Outfits/Summer, a single slash, or empty
+
+Where the menu goes, as a path of submenu names from the avatar's root menu. Empty installs it where this component installs its own entries. A single slash installs it into the avatar's root menu, whatever the component's own <Label k="ad.ui.install" /> is. A submenu on the path that the menu does not have yet is made, and a note says so.
+
+### Place [#place k=ad.ui.menu_asset.place]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.menu_asset.place.submenu" /> · **Choices:** <Label k="ad.ui.menu_asset.place.submenu" />, <Label k="ad.ui.menu_asset.place.append" />
+
+<Label k="ad.ui.menu_asset.place.submenu" /> wraps the whole asset in one new submenu at the install path. <Label k="ad.ui.menu_asset.place.append" /> puts the asset's own top level controls straight into the menu at that path. The appended controls count toward the eight places of that page, and any extra moves to a More page.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced, while <Label k="ad.ui.menu_asset.place.submenu" /> is picked · **Default:** empty, the asset's own name · **Choices:** any text
+
+The name of the new submenu. It can hold the same rich text tags as any other name. The field goes away while <Label k="ad.ui.menu_asset.place.append" /> is picked, because there is no submenu to name.
+
+### Icon [#icon k=ad.ui.icon]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any texture
+
+The picture on the new submenu's button. Used only with <Label k="ad.ui.menu_asset.place.submenu" />.
+
+### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build installs the menu. See [Platform](../toggle/#platform) on the toggle page.
+
+### Parameters [#asset-parameters k=ad.ui.menu_asset.parameters]
+
+**Shown in:** Simple and Advanced · **Default:** every parameter the asset's controls use · **Choices:** none, the list is read only
+
+One row for each parameter that a control of the asset drives, a puppet's sub parameters and the controls of its submenus included. A note after each name says who provides it:
+
+- The name of the AvatarDoc entry that plans it.
+- <Label k="ad.ui.menu_asset.declared" />: a parameter declared in this component covers it.
+- <Label k="ad.ui.animator.existing" />: the avatar already has it in its expression parameters or its FX controller.
+- <Label k="ad.ui.pick.parameter.vrchat" />: it is one of VRChat's own parameters.
+- <Label k="ad.ui.menu_asset.undeclared" />: nobody provides it. VRChat ignores a menu control whose parameter is not in the avatar's expression parameters, so the control does nothing. A warning says so.
+
+Controls that a menu edit hides or removes, and controls left out on this platform, are not checked.
+
+#### Add declaration [#add-declaration k=ad.ui.menu_asset.declare]
+
+**Shown in:** Simple and Advanced
+
+Shown beside every parameter that reads **nobody declares it**. Declares that parameter in this component, with the type its controls need: a Float for a puppet's sub parameter or for a toggle whose value is not a whole number, an Int for a toggle that sets a whole number other than 1, and a Bool otherwise. The row then reads <Label k="ad.ui.menu_asset.declared" />, and the parameter shows in the [Parameters table](#parameters-table).
+
+### The note under the list [#asset-note]
+
+**Shown in:** Simple and Advanced
+
+The panel ends with the note <Label k="ad.ui.menu_asset.note" />
+
+### Rows of the installed menu [#rows]
+
+**Shown in:** Simple and Advanced
+
+The controls of an installed menu show in the tree like the avatar's own items, with an <Label k="ad.ui.chip.asset" /> chip while the tree is at least 360 pixels wide. You can rename, re-icon, hide or move them with menu edits. See [Change the avatar's existing menu](../../guides/change-the-existing-menu/).
+
+## Declared parameters
+
+Declared parameters sit in one <Label k="ad.ui.parameters" /> group of the tree, which appears with the first declaration, with one row for each parameter under it. Selecting the group or any of its rows shows the same table. The panel opens with the note <Label k="ad.ui.parameters.tip" />
+
+<Shot name="reference-menu-assets-and-parameters/parameters" alt="The Parameters table with a Bool and a Float: 1 name, 2 type, 3 default value, 4 Saved, 5 Synced, 6 remove, 7 the total, 8 the + Parameter button." />
+
+1. The name of the first parameter.
+2. Its type: **Bool**, **Int** or **Float**.
+3. Its default value.
+4. <Label k="ad.ui.saved" />.
+5. <Label k="ad.ui.synced" />.
+6. The × that removes the parameter.
+7. The total bits of the table.
+8. <Label k="ad.ui.parameters.add" />.
+
+### Parameters [#parameters-table k=ad.ui.parameters]
+
+**Shown in:** Simple and Advanced · **Default:** no parameters
+
+One card for each declared parameter, with the bits it costs after its name, for example **9 bits** in the total at the bottom of the table. Declared parameters are planned after the parameters of every entry, in the order of the table, and the same on PC and Quest. A name that is empty is skipped.
+
+#### + Parameter [#add-parameter k=ad.ui.parameters.add]
+
+**Shown in:** Advanced
+
+Adds a card at the end of the table and selects the <Label k="ad.ui.parameters" /> row. Give it the name that the controls or the layers read.
+
+#### The name [#parameter-name]
+
+**Shown in:** Simple and Advanced · **Default:** New parameter · **Choices:** any text
+
+The parameter's name. Match a parameter the avatar has already to reuse it: then the avatar's own type, default, saved and synced settings apply, and the declaration costs no new bits. A declared name with another type than the avatar's expression parameter is an error. A name that an AvatarDoc entry already plans loses to that entry, with a warning.
+
+#### Type [#parameter-type]
+
+**Shown in:** Simple and Advanced · **Default:** Bool · **Choices:** Bool, Int, Float
+
+The kind of value the parameter holds.
+
+#### Default value [#parameter-default]
+
+**Shown in:** Simple and Advanced · **Default:** 0 · **Choices:** a number
+
+The value the parameter starts with when the avatar loads.
+
+#### Saved [#parameter-saved k=ad.ui.saved]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+Remembers the value between avatar loads.
+
+#### Synced [#parameter-synced k=ad.ui.synced]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+Lets other players see the value. A synced Bool costs 1 bit and a synced Int or Float costs 8. A parameter that is not synced costs 0 bits.
+
+## What AvatarDoc builds
+
+A menu asset adds copies of its controls to the avatar's menu, at the install path, in a new submenu or in place. A declared parameter adds one entry to the avatar's expression parameters. Neither adds a layer. The summary lists every installed menu with its number of controls and every declared parameter with its type and bits.
+
+## Messages
+
+- [Nothing declares a parameter that an installed control drives](../messages/#ad-warn-parameter-undeclared).
+- [The install has no menu asset](../messages/#ad-warn-menu-asset-missing).
+- [A declared name is already planned by an entry](../messages/#ad-warn-parameter-declared-twice).
+- [A declared parameter has another type than the avatar's](../messages/#ad-error-parameter-declared-type).
+- [A submenu on the install path was made](../messages/#ad-info-path-created).
+- [The submenu has more controls than one page holds](../messages/#ad-info-menu-split).
+- [Synced parameters need more bits than VRChat allows](../messages/#ad-error-bits-exceeded).
+
+## Related
+
+- [Bring your own animator or menu](../../guides/own-animator-or-menu/)
+- [Fit in VRChat's parameter memory](../../guides/parameter-memory/) explains what declared parameters cost.
+- [Merged animators](../merged-animators/)
