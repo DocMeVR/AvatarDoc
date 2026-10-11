@@ -1,0 +1,66 @@
+---
+title: Swap materials
+description: Put a different material on one slot of a mesh while a toggle is on, and the original back when it is off.
+sidebar:
+  order: 4
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a material swap when a whole material should change: another texture for a jacket, a metal version of a part, or a second colour set you made as its own material.
+
+To change one value of the material you already have, such as its colour or glow, see [Change a colour or glow](../colour-and-glow/). It needs no second material.
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default. In <Label k="ad.ui.mode.simple" /> mode, <Label k="ad.ui.add_effect" /> does not offer material swaps.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.toggle" />.
+
+3. In the toggle's panel, type a name into <Label k="ad.ui.name" />, such as Metal jacket, and press Enter.
+
+4. In the toggle's panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.materials" />.
+
+   You should now see a <Label k="ad.ui.materials" /> section with an empty row and <Label k="ad.ui.slot" /> at 0.
+
+5. On the row, drag the mesh from the Hierarchy onto the renderer field. You can also press the small circle at the field's right end and pick it from a list of your avatar's meshes.
+
+6. Set <Label k="ad.ui.slot" /> to the number of the material slot to swap.
+
+   Slots count from 0. In the mesh's own renderer component, the **Materials** list shows them as Element 0, Element 1 and so on.
+
+7. From the Project window, drag the new material onto the material field of the row.
+
+   <Shot name="guides/swap-materials-slot" alt="A Metal jacket toggle's Materials row with 1 the renderer, 2 the slot number and 3 the material it puts in that slot." />
+
+   In the picture, 1 is the renderer, 2 the <Label k="ad.ui.slot" /> and 3 the material the slot gets while the toggle is on.
+
+</Steps>
+
+To swap more than one slot, or slots on several meshes, add a row for each with <Label k="ad.ui.add" />.
+
+While the toggle is off, each slot shows the material it has in the scene.
+
+## Check it worked
+
+- In the toggle's panel, press <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" /> in the <Label k="ad.ui.preview" /> row. The Scene view shows the material change. Press <Label k="ad.ui.preview.default" /> to stop the preview.
+- In Play mode with Gesture Manager, press the toggle in the menu, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- A warning says the toggle has a missing target: the row has no renderer, or its slot number is past the mesh's last slot. AvatarDoc skips that row. See [the message](../../reference/messages/#ad-warn-target-missing).
+- The wrong part of the mesh changes: the slot number points at another material. Count the slots from 0 in the mesh's renderer component.
+- The material changes back during an animation: another toggle or animation on the avatar swaps the same slot.
+
+## Related
+
+- The Reference page for Material slots describes every field of the row.
+- [Change a colour or glow](../colour-and-glow/) changes one value instead of the whole material.

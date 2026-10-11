@@ -1,0 +1,108 @@
+---
+title: Link effects to another toggle or a parameter
+description: Turn effects on while a toggle is on or off, or while a parameter such as a hand gesture has a value, without another button in the menu.
+sidebar:
+  order: 11
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a trigger when something should follow a state the avatar already has: hide the hair strands while the Hat toggle is on, blush while the right hand shows a thumbs up, or change the face only while sitting. A trigger has no button in the menu and costs no synced bits.
+
+For a touch, see [React to touch](../react-to-touch/). For a PhysBone, see [React to PhysBone grabs, poses and stretches](../react-to-physbones/). For a shape that moves smoothly, see [Drive effects from a blend shape](../follow-a-blend-shape/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+### Follow a toggle
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.trigger" />. On a narrow inspector, it sits under <Label k="ad.ui.more" />.
+
+   You should now see a trigger named New Trigger, selected under <Label k="ad.ui.triggers" /> in the tree.
+
+3. In the trigger's panel, type a name into <Label k="ad.ui.name" />, such as Hat hair, and press Enter.
+
+   You should now see <Label k="ad.ui.trigger.when" /> set to <Label k="ad.ui.trigger.source.toggle" />, the start of every new trigger.
+
+4. In <Label k="ad.ui.trigger.toggle" />, pick the toggle to follow, such as Hat.
+
+   The list shows every toggle of every AvatarDoc component on the avatar. A toggle of another component shows that component's object name in brackets.
+
+5. In the list under it, choose <Label k="ad.ui.trigger.toggle.on" /> or <Label k="ad.ui.trigger.toggle.off" />.
+
+   You should now see the <Label k="ad.ui.fires" /> line spell out the rule, such as When "Hat" is on.
+
+6. Add the effects: drag objects onto <Label k="ad.ui.objects" />, or press <Label k="ad.ui.add_effect" /> for blend shapes, materials and properties. For the hair strands, set their rows to <Label k="ad.ui.seg.hidden" />.
+
+</Steps>
+
+### Follow a parameter
+
+A parameter is a value the avatar keeps, such as the gesture of each hand. VRChat sets many of them, and other tools add their own.
+
+<Steps>
+
+1. In the trigger's panel, set <Label k="ad.ui.trigger.when" /> to <Label k="ad.ui.trigger.source.parameter" />.
+
+2. Press the arrow button at the right end of <Label k="ad.ui.trigger.parameter" />.
+
+   You should now see a list of parameters, grouped by where they come from, with a search field.
+
+3. Type part of the name, such as `Gesture`, and pick the parameter, such as GestureRight.
+
+   <Shot name="guides/link-to-a-toggle-or-parameter-picker" alt="A trigger with 1 When set to A parameter and 2 the Parameter field, and the parameter list open with Gesture typed in its search field." />
+
+   In the picture, 1 is <Label k="ad.ui.trigger.when" /> and 2 the <Label k="ad.ui.trigger.parameter" /> field. The list under the arrow button shows the parameters that match the search, each with its type.
+
+4. In <Label k="ad.ui.trigger.condition" />, choose the test. For a parameter that is on or off, pick **Is True** or **Is False**. For a number, pick **Equals**, **Not Equals**, **Greater** or **Less**, and type the number into <Label k="ad.ui.trigger.value" />.
+
+   For example, GestureRight **Equals** 7 is true while the right hand shows a thumbs up.
+
+5. Add the effects, as in the first part.
+
+</Steps>
+
+The list groups the parameters under <Label k="ad.ui.pick.parameter.avatar" /> (the avatar's own and its components'), <Label k="ad.ui.pick.parameter.doctor" />, <Label k="ad.ui.pick.parameter.vrchat" /> (VRChat's own, such as GestureLeft or Seated) and <Label k="ad.ui.chip.vrcfury" /> when the avatar has VRCFury toggles with a global parameter. You can also type a name into <Label k="ad.ui.trigger.parameter" /> yourself.
+
+### Combine conditions
+
+<Steps>
+
+1. Under the <Label k="ad.ui.fires" /> line, press <Label k="ad.ui.when.add_and" /> to add a condition that must also be true.
+
+   You should now see a group: a box that holds the first condition and a new row. The new row starts as a <Label k="ad.ui.when.kind.toggle" /> condition. Change its kind in the list at the top of the row.
+
+2. To add a second way the trigger can fire, press <Label k="ad.ui.when.add_or" />.
+
+   You should now see a second group, with <Label k="ad.ui.when.any_of" /> between the groups.
+
+</Steps>
+
+Inside a group, every condition must be true (<Label k="ad.ui.when.all_of" />). The trigger fires while any group is fully true. The <Label k="ad.ui.fires" /> line always says the whole rule in words. Use at most 4 groups of 4 conditions each: <Label k="ad.ui.when.add_and" /> switches off once a group holds 4.
+
+To make the trigger work only while a menu switch is on, open the panel's <Label k="ad.ui.advanced_fold" /> fold. In <Label k="ad.ui.trigger.gate" />, pick a toggle and <Label k="ad.ui.trigger.toggle.on" /> or <Label k="ad.ui.trigger.toggle.off" />, or press <Label k="ad.ui.trigger.gate.add" /> to make a new toggle for it.
+
+## Check it worked
+
+- In the trigger's panel, press <Label k="ad.ui.preview.on" /> in the <Label k="ad.ui.preview" /> row. The Scene view shows the effects. Press <Label k="ad.ui.preview.default" /> to stop the preview.
+- In Play mode with Gesture Manager, turn the followed toggle on, or make the gesture, and watch the effects come on. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- A warning says the trigger refers to a toggle, parameter or blend shape that no longer exists: pick a new one under <Label k="ad.ui.trigger.when" />. See [the message](../../reference/messages/#ad-warn-trigger-source-missing).
+- A warning says nothing on the avatar declares the parameter: check the spelling, or pick the name from the list. See [the message](../../reference/messages/#ad-warn-parameter-type-unknown).
+- The effect fights with a toggle that changes the same thing: the one AvatarDoc builds later wins, and triggers come after every menu control. Give the trigger and the toggle different things to change. See [the message](../../reference/messages/#ad-info-target-shared).
+
+## Related
+
+- The Reference page for Triggers describes conditions, groups and <Label k="ad.ui.trigger.gate" />.
+- [React to touch](../react-to-touch/) uses the same groups for requirements.

@@ -1,0 +1,69 @@
+---
+title: Change a colour or glow
+description: Change a material's colour, glow or any other shader value while a toggle is on, without making a second material.
+sidebar:
+  order: 3
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a material property when one value of the material should change: a tint, an emission colour that makes a part glow, or a dissolve amount. The material itself stays the same.
+
+To put a different material on the mesh, see [Swap materials](../swap-materials/). To move the value smoothly with a dial instead of switching it, see [Add a slider](../sliders/).
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.toggle" />. To add the change to a toggle you already have, select that toggle in the tree instead.
+
+3. In the toggle's panel, type a name into <Label k="ad.ui.name" />, such as Glow, and press Enter.
+
+4. In the toggle's panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.targets.properties" />.
+
+   You should now see a <Label k="ad.ui.targets.properties" /> section with an empty row.
+
+5. On the row, drag the mesh from the Hierarchy onto the renderer field. You can also press the small circle at the field's right end and pick it from a list of your avatar's meshes.
+
+6. On the row, press <Label k="ad.ui.property.pick" />.
+
+   You should now see a list with a search field: <Label k="ad.ui.property.other" /> first, then the shader's properties grouped by their first letter.
+
+7. Type part of the property's name, such as `emission`, and pick the property.
+
+   <Label k="ad.ui.target.on_value" /> now holds the material's current value.
+
+8. Set <Label k="ad.ui.target.on_value" /> to the colour or number the property should have while the toggle is on.
+
+   <Shot name="guides/colour-and-glow-property" alt="A Glow toggle's Properties row with 1 the renderer, 2 the property button and 3 the On value colour." />
+
+   In the picture, 1 is the renderer, 2 the property and 3 the <Label k="ad.ui.target.on_value" />.
+
+</Steps>
+
+The property button shows the name the shader gives the property, which can be short, such as Color. Hold the pointer over the button to see the property's own name, such as `_EmissionColor`. The search finds a property by either name.
+
+The list shows the shader's colours, numbers and vectors. Textures are not in it. A property the shader hides from the material's inspector is not listed either: press <Label k="ad.ui.property.other" /> and type its name.
+
+The change applies to every material on that mesh that has the property. While the toggle is off, the property goes back to the material's own value. To use another value while the toggle is off, tick <Label k="ad.ui.target.explicit_off" />. An <Label k="ad.ui.target.off_value" /> field appears, starting at the material's current value.
+
+## Check it worked
+
+- In the toggle's panel, press <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" /> in the <Label k="ad.ui.preview" /> row (<Label k="ad.ui.mode.advanced" /> mode). The Scene view shows the material change. Press <Label k="ad.ui.preview.default" /> to stop the preview.
+- In Play mode with Gesture Manager, press the toggle in the menu, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- Nothing glows: many shaders draw no emission until it is switched on in the material. Switch emission on in the material with a black colour, and let the toggle change the colour.
+- The change shows in the editor but not in the game: some shaders, such as Poiyomi when its materials are locked, keep only the properties marked as animated. Mark the property as animated in the shader's own inspector, then lock the material again.
+- A warning says no material on the mesh has the property: AvatarDoc skips that row. Pick a property from the list of that mesh. See [the message](../../reference/messages/#ad-warn-property-missing).
+
+## Related
+
+- The Reference page for Material properties describes every field of the row.

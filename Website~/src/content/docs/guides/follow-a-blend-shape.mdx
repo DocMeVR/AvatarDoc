@@ -1,0 +1,85 @@
+---
+title: Drive effects from a blend shape
+description: Make effects follow a blend shape that an animation already moves, such as a blush that grows whenever the smile plays.
+sidebar:
+  order: 10
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a blend shape trigger when something should follow a shape that already moves: a blush that grows with the smile a gesture plays, or eyes that glow while an angry face is on. The shape can be moved by a gesture, face tracking, a toggle of yours, or an animation that Modular Avatar or VRCFury adds.
+
+If a toggle or a parameter should switch the effect, see [Link effects to another toggle or a parameter](../link-to-a-toggle-or-parameter/). It is simpler when the source is on or off.
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.trigger" />. On a narrow inspector, it sits under <Label k="ad.ui.more" />.
+
+   You should now see a trigger named New Trigger, selected under <Label k="ad.ui.triggers" /> in the tree.
+
+3. In the trigger's panel, type a name into <Label k="ad.ui.name" />, such as Smile blush, and press Enter.
+
+4. Set <Label k="ad.ui.trigger.when" /> to <Label k="ad.ui.trigger.source.blendshape" />.
+
+   You should now see a <Label k="ad.ui.trigger.shape" /> row, then <Label k="ad.ui.trigger.style" />, <Label k="ad.ui.trigger.smooth_start" />, <Label k="ad.ui.trigger.smooth_full" />, <Label k="ad.ui.trigger.swap_at" /> and <Label k="ad.ui.trigger.mode" />.
+
+5. Press the button on the <Label k="ad.ui.trigger.shape" /> row and pick the shape to follow, such as Smile.
+
+6. In <Label k="ad.ui.trigger.style" />, keep <Label k="ad.ui.trigger.style.smooth" /> to let the effects grow with the shape, or pick <Label k="ad.ui.trigger.style.switch" /> to turn them fully on at one weight.
+
+7. With <Label k="ad.ui.trigger.style.smooth" />, set where the effects start and where they are full:
+   - <Label k="ad.ui.trigger.smooth_start" /> is the shape's weight where the effects start, 0 for a new trigger.
+   - <Label k="ad.ui.trigger.smooth_full" /> is the weight where they are fully on, 100 for a new trigger.
+   - <Label k="ad.ui.trigger.swap_at" /> is the weight where objects switch and materials swap, 50 for a new trigger. These cannot grow, so they switch at one point.
+
+   With <Label k="ad.ui.trigger.style.switch" />, set <Label k="ad.ui.trigger.switch_at" /> instead: every effect is on once the shape reaches that weight, and off again when it drops back.
+
+   <Shot name="guides/follow-a-blend-shape-smooth" alt="A Smile blush trigger's panel with 1 the followed shape, 2 Style, 3 Starts at, 4 Fully on at and 5 Mode." />
+
+   In the picture, 1 is the shape the trigger follows, 2 <Label k="ad.ui.trigger.style" />, 3 <Label k="ad.ui.trigger.smooth_start" />, 4 <Label k="ad.ui.trigger.smooth_full" /> and 5 <Label k="ad.ui.trigger.mode" />.
+
+8. In the panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.blendshapes" />, and pick the shape that follows, such as Blush.
+
+   You should now see a row for Blush, set to <Label k="ad.ui.effect.fixed" />, at weight 100.
+
+</Steps>
+
+On a blend shape row, <Label k="ad.ui.effect.fixed" /> goes from rest to the row's weight as the trigger comes on. <Label k="ad.ui.effect.follow" /> copies the followed shape instead, times <Label k="ad.ui.effect.multiplier" />, and keeps the result between 0 and 100.
+
+<Label k="ad.ui.trigger.mode" /> decides what happens to the followed shape itself:
+- <Label k="ad.ui.trigger.mode.add" />, the default, lets the shape move as its own animations say, with the effects on top.
+- <Label k="ad.ui.trigger.mode.replace" /> takes the shape out of every FX animation that moves it. The shape stays at rest and only the effects show, still following where the shape would have been.
+
+To make the trigger work only while something else is true, press <Label k="ad.ui.when.add_and" /> in the box around the <Label k="ad.ui.trigger.shape" /> row. That group holds the shape and up to three requirements. While any requirement fails, the effects rest.
+
+### What AvatarDoc builds
+
+At upload, AvatarDoc copies the shape's weight into a hidden value in every FX animation that moves the shape, after Modular Avatar and VRCFury have added theirs. The trigger follows that copy. The value is not an expression parameter, so the trigger costs no synced bits: every player's copy of your avatar works it out from the same animations.
+
+Only animations in the FX layer reach the trigger. When the shape also moves in the Gesture, Action or Additive layer, the inspector warns and names those animations.
+
+## Check it worked
+
+- In Play mode with Gesture Manager, play the gesture or toggle that moves the followed shape. The effects follow it. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+- The <Label k="ad.ui.preview" /> row of the trigger says which shape it follows in the scene. When a toggle of yours moves that shape, preview the toggle with <Label k="ad.ui.preview.on" />, and the Scene view shows the trigger's effects follow.
+
+## If it does not work
+
+- A warning says VRChat moves the shape itself for blinking or lip sync: the trigger never sees those shapes move. Pick a shape your own animations move. See [the message](../../reference/messages/#ad-warn-link-source-tracked).
+- A warning says the shape also moves outside the FX layer: the trigger does not follow it there. Move that animation into the FX layer if the trigger should react to it. See [the message](../../reference/messages/#ad-warn-link-clips-outside-fx).
+- At upload, a message says no FX animation moves the shape: the effects stay where the shape's resting weight puts them. Animate the shape in an FX animation, or pick one that already moves. See [the message](../../reference/messages/#ad-warn-link-no-fx-clip).
+
+## Related
+
+- The Reference page for Blend shape triggers describes every setting.
+- [React to touch](../react-to-touch/) drives effects from how close a hand is instead.

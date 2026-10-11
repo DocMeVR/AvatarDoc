@@ -1,0 +1,66 @@
+---
+title: Toggle clothing and accessories
+description: Show or hide a piece of clothing, or several pieces at once, from one button in the avatar menu.
+sidebar:
+  order: 1
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a toggle when one press should show or hide something: a hat, a jacket, or a jacket and its scarf together. The same toggle can also hide one piece while it shows another.
+
+If only one of several outfits may be worn at a time, see [Make one-of-many choices](../one-of-many/). To build a whole outfit menu in one window, see [Your first outfit selector](../../start-here/first-outfit-selector/).
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.toggle" />.
+
+   You should now see a toggle named New Toggle, selected in the tree. Its panel has an empty <Label k="ad.ui.objects" /> section.
+
+3. In the toggle's panel, type a name into <Label k="ad.ui.name" />, such as Jacket, and press Enter.
+
+4. In the Hierarchy, drag the jacket onto the <Label k="ad.ui.objects" /> section of the panel.
+
+   You should now see a row with the jacket, set to <Label k="ad.ui.seg.shown" />.
+
+5. To change more pieces with the same press, drag each of them onto the section too. Each piece gets its own row.
+
+6. For a piece that should disappear while the toggle is on, press <Label k="ad.ui.seg.hidden" /> on its row.
+
+   <Shot name="guides/toggle-clothing-objects" alt="A Jacket toggle's panel with 1 its Objects rows, 2 the Shown and Hidden choice of a row, and 3 the Scene preview buttons." />
+
+   In the picture, 1 is the <Label k="ad.ui.objects" /> section, where the jacket is shown and the hoodie is hidden while the toggle is on. 2 is the choice on each row. 3 is the <Label k="ad.ui.preview" /> row you use in the next part.
+
+7. To start with the toggle on when the avatar loads, tick <Label k="ad.ui.default_on" />.
+
+</Steps>
+
+You can also press <Label k="ad.ui.add" /> in the <Label k="ad.ui.objects" /> section and then the small circle at the right end of the new row. A list of your avatar's objects opens, with a search field.
+
+To make many toggles at once, drag objects from the Hierarchy onto the menu tree instead. Each object becomes its own toggle, named after the object.
+
+While the toggle is off, AvatarDoc hides every <Label k="ad.ui.seg.shown" /> piece and shows every <Label k="ad.ui.seg.hidden" /> piece. It does this whatever the piece looks like in the scene, so you do not have to switch pieces on or off in the Hierarchy before you upload.
+
+## Check it worked
+
+- In the toggle's panel, press <Label k="ad.ui.preview.on" /> and then <Label k="ad.ui.preview.off" /> in the <Label k="ad.ui.preview" /> row (<Label k="ad.ui.mode.advanced" /> mode). The Scene view shows the pieces change. Press <Label k="ad.ui.preview.default" /> to stop the preview. The preview needs NDMF's previews: turn them on under **Tools > NDM Framework > Enable Previews**.
+- In Play mode with Gesture Manager, press the toggle in the menu, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- The Scene view does not change when you press <Label k="ad.ui.preview.on" />: NDMF's previews are off, or the AvatarDoc preview is off under **Tools > NDM Framework > Configure Previews**. The inspector's header says so while they are off.
+- The piece stays visible in the game: another toggle or animation on the avatar also switches that piece. Check the other toggles in the tree for a row with the same piece.
+- The toggle is not where you expect it in the menu: <Label k="ad.ui.in_menu" /> is off in its panel, or its submenu is full. A submenu holds eight controls, and AvatarDoc moves the extra ones to a More page.
+
+## Related
+
+- The Reference pages for Toggle and Objects describe every setting of the panel.
+- [Make one-of-many choices](../one-of-many/) turns several toggles into a group where only one is on.

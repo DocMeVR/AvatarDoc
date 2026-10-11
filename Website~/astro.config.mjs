@@ -26,6 +26,7 @@ export default defineConfig({
       plugins: [starlightImageZoom(), starlightLinksValidator({ errorOnRelativeLinks: false })],
       sidebar: [
         { label: 'Start here', items: [{ autogenerate: { directory: 'start-here' } }] },
+        { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },
         { label: 'Reference', items: ['reference/messages'] },
         { label: 'How it works', items: [{ autogenerate: { directory: 'how-it-works' } }] },
         { label: 'Help', items: [{ autogenerate: { directory: 'help' } }] },
