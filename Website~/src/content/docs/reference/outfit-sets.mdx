@@ -1,0 +1,111 @@
+---
+title: Outfit sets
+description: Every setting of the Outfit set window, which builds a whole outfit selector from objects of the avatar in one step.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-outfit-sets/overview" alt="The Outfit set window: 1 Set name, 2 Mode, 3 Add a None option, 4 the cards, 5 + Outfit, 6 Hidden while any outfit is on, 7 Capture icons, 8 Create." />
+
+1. <Label k="ad.ui.outfit.name" />.
+2. <Label k="ad.ui.outfit.mode" />.
+3. <Label k="ad.ui.outfit.none_option" />.
+4. The outfit cards: here Jacket, Hoodie and Shoes, one piece each.
+5. <Label k="ad.ui.outfit.add" />.
+6. <Label k="ad.ui.outfit.hidden" />, here with the Hat.
+7. <Label k="ad.ui.outfit.capture" />.
+8. <Label k="ad.ui.outfit.create" />.
+
+## When to use it
+
+The window turns a handful of objects into a finished outfit menu: a submenu, the toggles or presets that switch the outfits, and the shrink shapes that pull the body in under clothes. Everything it makes is an ordinary entry that you can rename, change or delete afterwards. Nothing is built until you press <Label k="ad.ui.outfit.create" />.
+
+- For a single piece of clothing, a [toggle](../toggle/) is enough.
+- To change an outfit set later, edit its entries. The window does not open them again.
+
+Press <Label k="ad.ui.add.outfit" /> in the toolbar, or <Label k="ad.ui.welcome.outfit" /> on the card of an empty menu. The button is in both <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" />. The window opens at 380 pixels wide, and it keeps what you set until it closes.
+
+## Settings
+
+The settings in the order the window shows them. The window starts with a short note: <Label k="ad.ui.outfit.intro" />
+
+### Set name [#set-name k=ad.ui.outfit.name]
+
+**Default:** empty · **Choices:** any text
+
+The name of the submenu. In <Label k="ad.ui.outfit.mode.one" /> it is also the name of the exclusive group. A name that is empty becomes **Outfits**. A group name that the avatar already uses gets a number added, such as **Outfits 2**, so a new set never joins an old one. The group name drops any style tags; the submenu keeps them.
+
+### Mode [#mode k=ad.ui.outfit.mode]
+
+**Default:** <Label k="ad.ui.outfit.mode.one" /> · **Choices:** <Label k="ad.ui.outfit.mode.one" />, <Label k="ad.ui.outfit.mode.mix" />
+
+- <Label k="ad.ui.outfit.mode.one" /> builds one toggle for each outfit, all in one [exclusive group](../exclusive-groups/), so only one outfit is on at a time.
+- <Label k="ad.ui.outfit.mode.mix" /> builds one toggle for each piece and lets several pieces be worn together. It also builds one [preset](../presets/) for each outfit, which switches that outfit's pieces on and every other piece of the set off, and a preset named **Everything off**.
+
+### Add a None option [#add-a-none-option k=ad.ui.outfit.none_option]
+
+**Shown in:** <Label k="ad.ui.outfit.mode.one" /> only · **Default:** Off · **Choices:** On, Off
+
+Adds a toggle named **None** to the group. It has no objects of its own, so choosing it leaves no outfit on. It is on by default only when the default outfit could not be built.
+
+The pieces under <Label k="ad.ui.outfit.hidden" /> are shown again while **None** is chosen, because only an outfit hides them.
+
+### The outfit cards [#outfit-cards]
+
+**Default:** none · **Choices:** one card for each outfit
+
+While the list is empty, the window shows <Label k="ad.ui.outfit.drop" /> and <Label k="ad.ui.outfit.add_piece" />. Drag objects from the Hierarchy onto it, or pick them with <Label k="ad.ui.outfit.add_piece" />. Dropping one object makes one outfit named after it. Dropping several offers a choice of <Label k="ad.ui.outfit.split.each" /> or <Label k="ad.ui.outfit.split.all" />. An object that is not part of this avatar is not accepted.
+
+A card holds:
+
+- The outfit's name, which is also the label of its toggle or preset.
+- The <Label k="ad.ui.outfit.default" /> chip. The first card is the default, the outfit that starts on. Click the chip of another card to make that one the default.
+- A **×** that removes the card.
+- One chip for each piece, with a **×** that removes the piece.
+- A drop area and <Label k="ad.ui.outfit.add_piece" /> for more pieces. A piece can be in several outfits.
+- The shrink suggestions for its pieces, when there are any.
+
+#### + Outfit [#add-outfit k=ad.ui.outfit.add]
+
+Adds an empty card.
+
+#### Shrink shapes found by name [#shrink-shapes k=ad.ui.outfit.shrinks]
+
+For each piece, the window looks at the blend shapes of the avatar's other skinned meshes. Both names are reduced to lower case letters and digits, a leading **shrink**, **hide**, **off**, **kisekae** or **cloth** is taken off the shape's name, and a shape is suggested when one name contains the other. A name under three characters never matches, on either side.
+
+Each suggestion is a tick box. A ticked suggestion becomes a blend shape row at the full weight 100 on the toggle that shows the piece. Tick only a shape that really belongs to the piece: the window cannot tell a real match from a name that looks alike. More than eight suggestions fold behind a **Show all** button that gives the number of suggestions.
+
+### Hidden while any outfit is on [#hidden k=ad.ui.outfit.hidden]
+
+**Shown in:** <Label k="ad.ui.outfit.mode.one" /> only · **Default:** none · **Choices:** any object of the avatar
+
+Objects that every outfit's toggle turns off, so they disappear once any outfit is worn. Use it for a base layer, such as underwear that every outfit covers. In <Label k="ad.ui.outfit.mode.mix" />, the list is not shown, because there is no single state of "any outfit is on". What you listed is kept in the window if you switch back, but it is not built in <Label k="ad.ui.outfit.mode.mix" />.
+
+### Capture icons [#capture-icons k=ad.ui.outfit.capture]
+
+**Default:** On · **Choices:** On, Off
+
+On: every entry the window makes that has pieces to show gets an icon, the way <Label k="ad.ui.toolbar.capture" /> does. The icons are saved as pictures in your project. See [Icon capture](../icon-capture/). The icons are made in a step of their own after the set, so one Undo does not take them away with the entries.
+
+### Create outfit set [#create-outfit-set k=ad.ui.outfit.create]
+
+Builds everything and closes the window. The inspector then selects the new submenu, and the entries are made in one Undo step. A component that is locked refuses, with the status line **This component is locked. Unlock it to make changes.** When no outfit has a piece and no None option is on, the window builds nothing and asks you to add at least one outfit with a piece. An outfit with no piece is skipped.
+
+## What AvatarDoc builds
+
+In <Label k="ad.ui.outfit.mode.one" />, the window makes one submenu and one toggle for each outfit that has a piece. Each toggle shows the outfit's pieces, hides the pieces of <Label k="ad.ui.outfit.hidden" />, and holds the ticked shrink shapes. All the toggles share one exclusive group, which costs 8 synced bits.
+
+In <Label k="ad.ui.outfit.mode.mix" />, the window makes one submenu, one toggle for each piece, and the presets. A toggle is on by default when its piece belongs to the default outfit. The presets cost no synced bits.
+
+## Messages
+
+- [The submenu has more controls than one page holds](../messages/#ad-info-menu-split): for a set of more than eight entries.
+- [The submenu joins one of the same name](../messages/#ad-info-same-submenu-merged).
+
+## Related
+
+- [Your first outfit selector](../../start-here/first-outfit-selector/)
+- [Make one-of-many choices](../../guides/one-of-many/)
+- [Shrink the body under clothes](../../guides/shrink-under-clothes/)
+- [Exclusive groups](../exclusive-groups/)

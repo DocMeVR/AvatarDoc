@@ -1,0 +1,53 @@
+---
+title: Languages
+description: How to change the language AvatarDoc is shown in, how it is shared with NDMF and Modular Avatar, and how to add a language.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-languages/picker" alt="The inspector with the language list open: 1 the Simple and Advanced switch, 2 the language button at the right end of its row." />
+
+1. The <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> switch.
+2. The language button. The list under it shows each language in its own name, with the current one ticked.
+
+## When to use it
+
+AvatarDoc speaks English, Japanese and Simplified Chinese. Use the language button when you want the tool, its messages and its tooltips in another language. The pages of this site are in English.
+
+## Settings
+
+### The language button [#language-button]
+
+**Shown in:** Simple and Advanced · **Default:** the language that NDMF has chosen, English when it has none · **Choices:** the languages that NDMF and AvatarDoc know
+
+The button sits at the right end of the row with the <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> switch, in both modes. It shows the current language in its own name, such as **English** or **日本語**. Click it and pick another language from the list.
+
+- **The setting is shared.** It is the language setting of NDMF, which Modular Avatar uses too. Choosing a language here changes theirs, and choosing it in Modular Avatar or NDMF changes AvatarDoc.
+- **Everything switches at once.** Every open AvatarDoc inspector and window, with the Convert, Outfit set and Capture icon windows, changes language right away.
+- **A missing text shows in English.** If a language has no text for a label yet, AvatarDoc shows the English text for it.
+- **Fonts.** Japanese and Chinese use NDMF's font for the language, the same one Modular Avatar uses, so the characters take the right form. English keeps Unity's own font.
+- **Only the editor changes.** The names in your menu stay as they are. A name that AvatarDoc writes for you, such as the **None** toggle of a new outfit set, is written in the language you use when you create it, and then stays.
+
+### The list [#list]
+
+**Shown in:** Simple and Advanced
+
+The list holds the languages that NDMF knows, the languages that AvatarDoc has files for, and the current one, sorted by code. A plain code such as **ja** is left out when a fuller code such as **ja-jp** is there. Each language is named the way NDMF's own switcher names it. A script such as **zh-Hans** is always named, because it tells two written forms apart. When two choices would read the same, their codes are added in brackets.
+
+## Adding a language
+
+A language is one text file named `AvatarDoctor.<code>.json`, for example `AvatarDoctor.ko-KR.json`. AvatarDoc finds a file by its name alone, anywhere in the project. Add the file, or save a change to one, and the list updates. You do not need to change any code. [Help translate](../../help/translate/) explains the file, the key names and the agreed words.
+
+## What AvatarDoc builds
+
+The language changes only what the editor shows. The built avatar is the same in every language. The messages that the build reports use the language setting too.
+
+## Messages
+
+The language button raises no messages.
+
+## Related
+
+- [Help translate](../../help/translate/)
+- [The inspector at a glance](../inspector/#mode-row)

@@ -1,0 +1,84 @@
+---
+title: What Convert brings over
+description: How the Convert window reads VRCFury toggles, Modular Avatar items and hand made layers, and what the entries it makes look like.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-import-window/rows" alt="The tree with 1 a VRCFury chip and 2 a Modular Avatar chip, and the Glasses row's panel with 3 the applied-at-build note and 4 In menu." />
+
+1. The <Label k="ad.ui.chip.vrcfury" /> chip of a row that VRCFury adds.
+2. The <Label k="ad.ui.chip.modular_avatar" /> chip of a row that Modular Avatar adds.
+3. The note in the panel of such a row: it is applied at build, after the other tool has added it.
+4. <Label k="ad.ui.in_menu" />. You can hide such a row without converting it.
+
+## When to use it
+
+This page explains what the [Convert window](../convert-window/) does with each kind of item: what it reads, what it makes, and what it leaves out. The rows of other tools show in AvatarDoc's tree with a chip, as in the picture, and you can convert any of them without opening the window: right click the row and pick <Label k="ad.ui.convert" />. The tree shows these chips while it is at least 360 pixels wide.
+
+Convert never deletes an asset. VRCFury and Modular Avatar components are removed from the scene with Undo, and everything else becomes an ordinary AvatarDoc entry or menu edit.
+
+## What Convert reads
+
+### VRCFury toggles [#vrcfury]
+
+Convert reads the toggles of VRCFury. It does not read other VRCFury features, such as a Full Controller. A toggle becomes an AvatarDoc toggle, or a radial when the toggle is a slider whose actions are all blend shapes. These actions are carried over:
+
+- Turning an object on or off.
+- A blend shape, on one renderer or on every renderer that has the shape.
+- A material in a slot.
+- A material property.
+- An animation clip. The clip's paths are kept as they are.
+
+Any other action is named in a note. The toggle also keeps whether it is saved, whether it is on by default, its icon, and a global parameter name as the entry's parameter name. Every converted toggle is synced, because VRCFury toggles are. Of the exclusive tags, the first becomes the exclusive group and the others are named in a note.
+
+### Modular Avatar items [#modular-avatar]
+
+These rows only show where Modular Avatar is installed. A Toggle menu item becomes an AvatarDoc toggle. These reactive components under it are read: Object Toggle, Shape Changer and Material Setter. A Shape Changer that deletes a shape, and an Inverted option, are named in a note and skipped. The item keeps its saved, synced and default settings, its icon, its parameter name and, when its value is not automatic, its parameter value. A Menu Installer on the same object that installs only this item goes with it.
+
+- **Items that share one parameter** are a set where only one is on at a time. Convert makes them one exclusive group named after the parameter, with the item marked as the default on by default, and they tick and convert together. If one item of the set cannot be converted, none is offered, and the item that blocks it shows its own reason. A set is not offered either when two items have the same fixed value, or one has the value 0, because a group cannot give those back.
+- **Items driven by a Merge Animator.** When the effect of a Toggle, Button or Radial Puppet lives in a controller that a Merge Animator brings in, Convert reads the layer of that controller the way it reads a hand made layer, and also reads a blend tree of two clips as a radial. Where that works, the item becomes a real entry with a new parameter of its own, and its old layer is left out of what stays merged. Where it does not, the item still comes in as a parameter control that keeps its old parameter name, so the menu keeps working. A Button never becomes a real entry. Every item of one Merge Animator, with the Merge Animator, is one group and converts together. A parameter that Modular Avatar would rename or make internal makes the whole set unsupported.
+- **A finished prefab.** A Menu Installer with a menu asset, a Parameters component and a Merge Animator on one prefab are taken over as one group, under <Label k="ad.ui.import.group.menu_asset" />. The installer becomes a [menu asset](../menu-assets-and-parameters/), and a single slash is its install path when the installer targeted the root menu. The declared parameters become declared parameters, and the Merge Animator becomes a [merged animator](../merged-animators/). A parameter that is not synced comes over as no declaration, as Modular Avatar gives it no expression parameter either.
+- **Shapes on a piece.** A Blendshape Sync becomes <Label k="ad.ui.shapes.follows" /> rows of an [AvatarDoc Shapes](../avatardoc-shapes/) component on the same piece, and a Shape Changer on a piece of its own becomes <Label k="ad.ui.shapes.while_on" /> rows, when every shape it changes is a Set. One that deletes a shape is listed with its reason. The component is added to the piece if it has none.
+
+### Hand made layers [#fx-layers]
+
+Convert reads a Toggle control of the avatar's own menu, except one whose parameter is one of VRChat's own. The layer behind it becomes a candidate only under strict rules:
+
+- The control's parameter drives exactly one layer of the FX controller, and nothing else reads it: no other layer, blend tree, motion time or speed field, and no other menu control.
+- The layer has an off state and an on state, with transitions that depend on that one parameter and no other. The layer plays no transition animation between them.
+- The on state plays a plain animation clip. The clip animates objects, blend shapes, material slots or material properties.
+- The layer has no state behaviours, no mask, a weight higher than zero (except the first layer), a name of its own, and no other layer copies its states. The avatar uses no animator layer control.
+- A layer that rests in its on state is read the other way round only when it is exactly two states and two mirrored transitions on a Bool parameter that starts as true.
+
+A rest clip on the off state is carried over as off values of the entry when it can be read as plain constant values. Anything else makes the row unsupported, because the converted toggle would rest somewhere else. Every row says why it was refused: see [the reasons](../convert-window/#what-each-reason-means).
+
+## What the entry looks like
+
+The entry keeps the item's name and icon and its place in the menu: submenus are made to match the old path, and an existing submenu of the same name is reused. If you had already renamed, re-iconed or moved the item with a menu edit, the entry takes the name, the icon and the place, and that edit goes away. A hide of the item is dropped, because you asked for the item to be converted. A converted hand made layer or item that was already converted is not offered twice.
+
+## What Remove originals does
+
+- **VRCFury toggle:** removes the toggle component.
+- **Modular Avatar item:** removes the Menu Item, its reactive components, and a Menu Installer that installs only this item. For a group that replaces a Merge Animator, it removes the menu items, their installer, the Merge Animator and its Parameters component together.
+- **Hand made layer:** hides the old menu control with a menu edit and leaves the old layer out of the avatar that is built. The controller is not changed. <Label k="ad.ui.import.restore" /> in the window undoes this for one layer.
+- **Shapes on a piece:** removes the Modular Avatar component after its rows are copied.
+
+## Limits
+
+- Only a hand made layer that fits those rules is offered. A VRCFury feature that is not a Toggle is not offered.
+- Without a Merge Animator, only a Toggle of Modular Avatar is offered. A two axis or four axis puppet and a submenu item are listed with their reason.
+- Anything outside the avatar that set the old parameter, such as an OSC app, must use the new parameter after a conversion. A note says so.
+
+## Messages
+
+- [A layer to leave out was already removed or renamed](../messages/#ad-warn-removed-layer-missing).
+- [A layer is not removed because of layer control](../messages/#ad-warn-converted-layer-unsafe).
+
+## Related
+
+- [Convert window](../convert-window/)
+- [Convert from VRCFury or Modular Avatar](../../guides/convert/)
+- [Use AvatarDoc next to VRCFury and Modular Avatar](../../guides/with-vrcfury-and-modular-avatar/)
+- [Change the avatar's existing menu](../../guides/change-the-existing-menu/)

@@ -1,0 +1,115 @@
+---
+title: The AvatarDoc window and the wheel
+description: The dockable AvatarDoc window, and the wheel that shows a submenu the way VRChat draws it, with its Test mode.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use it
+
+The AvatarDoc window shows the same tree, panel and wheel as the inspector, but side by side and docked wherever you like. Use it when the inspector is too narrow, or when you want the Hierarchy and the menu on screen at once. The wheel shows how a submenu looks in VRChat, and its Test mode tries toggles, radials, presets and triggers in the Scene view without Play mode.
+
+## The window
+
+Open it from the Unity menu with **Tools > DocMe > AvatarDoc**. The window is called AvatarDoc.
+
+<Shot name="reference-window-and-wheel/window" alt="The AvatarDoc window with 1 the mode row, 2 the toolbar, 3 the tree, 4 the wheel and 5 the panel of the selected Jacket toggle, side by side." />
+
+1. The <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> switch and the language.
+2. The toolbar.
+3. The tree.
+4. The wheel, showing the Outfits submenu.
+5. The panel of the selected row.
+
+The window has no fields of its own. It follows your selection in the Hierarchy:
+
+- If the selected object has an AvatarDoc component, the window shows it.
+- Otherwise, if the selected object is on an avatar, the window shows the first AvatarDoc component under that avatar.
+- Otherwise it shows the first component under the selected object.
+- With none of these, it says <Label k="ad.ui.window.none" />
+
+Selecting a plain object of the same avatar, or an asset, keeps the component on show with its selection, search and open rows. A selection change never switches the window while you drag a row of the tree.
+
+The window shares the <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> choice and the language with the inspector. It keeps its own choice of whether the wheel shows, and of <Label k="ad.ui.wheel.select" /> or <Label k="ad.ui.wheel.test" />.
+
+## The wheel
+
+### Wheel [#wheel k=ad.ui.wheel]
+
+**Shown in:** Advanced · **Default:** shown in the window, hidden in the inspector · **Choices:** shown, hidden
+
+The <Label k="ad.ui.wheel" /> button in the toolbar shows or hides the wheel under the tree. The wheel shows the submenu of the selected row, or the top of the menu when nothing is selected. It is not part of <Label k="ad.ui.mode.simple" /> mode. It hides itself while a trigger or an override is selected, because they take no menu slot.
+
+<Shot name="reference-window-and-wheel/wheel" alt="The wheel in Test mode in the Outfits submenu: 1 Wheel button, 2 crumb, 3 Select and Test, 4 ring, 5 Reset, 6 the Not in the menu strip." />
+
+1. The <Label k="ad.ui.wheel" /> button.
+2. The crumb back to the top of the menu.
+3. The <Label k="ad.ui.wheel.select" /> and <Label k="ad.ui.wheel.test" /> switch.
+4. The ring, with the Hoodie previewed on.
+5. <Label k="ad.ui.wheel.reset" />.
+6. The strip of toggles that are not in the menu.
+
+### The ring [#ring]
+
+**Shown in:** Advanced
+
+The ring has eight slots, as VRChat's menu does, filled clockwise from the top in the order of the menu. Each used slot shows the entry's icon, or a glyph for its kind when it has none, and its name. In the middle, the ring shows the name of the submenu and how many slots are used, such as **3 of 8**.
+
+The wheel shows what VRChat will show. A control that is out of the menu with <Label k="ad.ui.in_menu" /> off, or left out on the current platform, has no slot. Items that other tools add take a slot in a dimmer colour, and the avatar's own items take a slot too. A submenu has a slightly different colour, and the selected row's slot has the accent colour.
+
+### The crumbs [#crumbs]
+
+**Shown in:** Advanced
+
+Along the top of the wheel, one button for each parent of the shown submenu, beginning with <Label k="ad.ui.root_menu" />. Click one to step back to that submenu. The first one clears the selection and shows the top of the menu.
+
+### Select and Test [#select-and-test]
+
+**Shown in:** Advanced · **Default:** <Label k="ad.ui.wheel.select" /> · **Choices:** <Label k="ad.ui.wheel.select" />, <Label k="ad.ui.wheel.test" />
+
+<Label k="ad.ui.wheel.select" />: a click on a slot selects its row in the tree, the same as a click on the row. A click on a submenu slot also makes that submenu the shown one.
+
+<Label k="ad.ui.wheel.test" />: a click on a slot drives the scene preview instead of selecting anything, and changes none of your data. The choice is remembered, separately for the inspector and the window.
+
+- A toggle slot flips between on and off. For a member of an exclusive group, the other members go off.
+- A preset slot applies the preset once, the same as pressing <Label k="ad.ui.preview.on" /> in its panel.
+- A radial slot opens a slider from 0 to 1 under the ring. Dragging it changes the preview live. A second click on the slot closes the slider and keeps the value.
+- A submenu slot opens that submenu, as in <Label k="ad.ui.wheel.select" />.
+- A slot of the avatar's own menu or of another tool does nothing, because it has no scene preview.
+
+A toggle that is on, by its default or by your preview, shows its slot in the accent colour. A radial set higher than 0 shows its slot in the accent colour, with an arc as long as its value. A preset's slot does not change colour: the slots of the controls it sets do.
+
+The preview needs NDMF's previews to show on the avatar. Without them, a click still remembers the choice, and you will not see it on the mesh. See [Scene preview](../scene-preview/).
+
+### Reset [#reset k=ad.ui.wheel.reset]
+
+**Shown in:** Advanced, while <Label k="ad.ui.wheel.test" /> is picked
+
+Clears every scene preview you have set, on every avatar in the editor, the same as <Label k="ad.ui.preview.reset" /> in the header. Going back to <Label k="ad.ui.wheel.select" /> clears nothing, so you can keep a state on screen while you edit.
+
+### Triggers [#triggers k=ad.ui.triggers]
+
+**Shown in:** Advanced, in <Label k="ad.ui.wheel.test" />, when the avatar has a trigger that a click can simulate
+
+A row of buttons, one for each trigger whose source is a parameter, a contact or a PhysBone and that is built on this platform. A trigger that starts from a toggle or from a blend shape has none, because those work through their own slot or need no simulation. Press a button to set the trigger's preview on, and press it again to clear it. A trigger in Flip mode flips its target toggle's preview instead. A trigger whose <Label k="ad.ui.trigger.gate" /> toggle is not in the right state is greyed out, and pressing it does nothing, as a real touch would.
+
+### Not in the menu [#not-in-the-menu k=ad.ui.wheel.not_in_menu]
+
+**Shown in:** Advanced, in <Label k="ad.ui.wheel.test" />, when the shown submenu holds a toggle or a radial that is out of the menu
+
+A button for each such control. A toggle's button flips the toggle's preview, as its panel would, so you can try a toggle that only a trigger or a preset turns on. A radial that is out of the menu is listed, but its button does nothing.
+
+## What AvatarDoc builds
+
+The window and the wheel only show and preview. They build nothing, and the preview writes to the temporary copies that NDMF draws in the Scene view, never to your own renderers or objects. Previews belong to the editor session, not to one avatar: two copies of one avatar, such as a PC and a Quest twin, share them, and a script reload clears them.
+
+## Messages
+
+The window and the wheel raise no messages of their own.
+
+## Related
+
+- [Test without Play mode, and preview in the scene](../../guides/test-and-preview/)
+- [Scene preview](../scene-preview/)
+- [The inspector at a glance](../inspector/)

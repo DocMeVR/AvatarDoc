@@ -1,0 +1,111 @@
+---
+title: Merged animators
+description: Every setting of a merged animator, which joins the layers of a finished controller to the avatar's FX controller.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-merged-animators/overview" alt="A merged Sparkles FX animator: 1 Controller, 2 Path root, 3 Match write defaults, 4 Platform, 5 layers, 6 parameters, 7 Glow, 8 Add control." />
+
+1. <Label k="ad.ui.animator.controller" />.
+2. <Label k="ad.ui.animation.path_root" />.
+3. <Label k="ad.ui.animator.match_write_defaults" />.
+4. <Label k="ad.ui.platform" />.
+5. The list of <Label k="ad.ui.animator.layers" />, each with a tick box.
+6. The list of <Label k="ad.ui.animator.parameters" />.
+7. The note after the first parameter: the AvatarDoc toggle Glow looks after it.
+8. <Label k="ad.ui.animator.add_control" />, for the parameter that nothing looks after.
+
+## When to use it
+
+A merged animator brings the layers of an animator controller that someone else made into the avatar, the way Modular Avatar's Merge Animator does. Use it for a controller that comes with a shader or a gimmick and is not worth rebuilding as toggles. The controller asset is never changed: AvatarDoc works on a copy when it builds.
+
+- To turn simple on and off layers into real AvatarDoc entries, use [Convert](../convert-window/) instead.
+- A merged animator has no menu button of its own. To give one of its parameters a button, use <Label k="ad.ui.animator.add_control" />, or install a finished menu with a [menu asset](../menu-assets-and-parameters/).
+
+To add one, press <Label k="ad.ui.add.animator" /> in the toolbar, which needs <Label k="ad.ui.mode.advanced" /> mode and sits under <Label k="ad.ui.more" /> on a narrow inspector. You can also drag a controller from the Project window onto the tree. Merged animators sit in the <Label k="ad.ui.animators" /> group of the tree, and a new one reads <Label k="ad.ui.animator.unnamed" /> until you pick its controller.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Controller [#controller k=ad.ui.animator.controller]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any animator controller or animator override controller
+
+The controller whose layers join the build. An override controller is followed to the controller it overrides, and its own clips come with it. The asset itself is never changed. The row in the tree takes the controller's name.
+
+### Path root [#path-root k=ad.ui.animation.path_root]
+
+**Shown in:** Simple and Advanced · **Default:** empty, the avatar root · **Choices:** any object of this avatar
+
+Leave it empty when the controller's clips animate paths that start at the avatar root. When they were made inside a prefab, set it to the object of the avatar where that prefab's root now sits. AvatarDoc puts the path from the avatar root to that object in front of every path in the clips. An object outside the avatar is an error, and the controller is not merged.
+
+### Match write defaults [#match-write-defaults k=ad.ui.animator.match_write_defaults]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+On: the states of the merged layers use the same Write Defaults choice as the rest of your avatar, the choice the header shows as **Matches your avatar: Write Defaults on** or **off**. Off: they keep the choice the controller has. Two kinds of layer keep Write Defaults on either way, because they stop working without it: an additive layer, and a layer that is one state holding a direct blend tree.
+
+### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build merges the controller. A merge left out on a platform adds no layers there. The parameters that your entries and declarations drive stay the same on PC and Quest. See [Platform](../toggle/#platform) on the toggle page.
+
+### Layers [#layers k=ad.ui.animator.layers]
+
+**Shown in:** Simple and Advanced · **Default:** every layer ticked · **Choices:** tick or untick each layer
+
+One row for each layer of the controller. Unticking a layer leaves it out of the merge. The layers that stay come after the layers the avatar had and the layers AvatarDoc builds, in the order of the controller. The first layer of a controller always plays at full weight in its own controller, and AvatarDoc keeps that. A layer whose name is taken gets a number added, such as **Sparkles (2)**.
+
+Two cases refuse to leave a layer out. The build then merges nothing from that controller, so the whole controller is missing from the built avatar, and it raises an error:
+
+- the controller changes layer weights by position with an animator layer control behaviour, because leaving a layer out would point it at the wrong layer;
+- a kept layer copies the states of a layer that is left out.
+
+### Parameters [#parameters k=ad.ui.animator.parameters]
+
+**Shown in:** Simple and Advanced · **Default:** every parameter of the controller · **Choices:** none, the list is read only
+
+One row for each parameter of the controller, with a note about who looks after it:
+
+- The name of the AvatarDoc entry that drives it, such as **Glow**.
+- <Label k="ad.ui.animator.existing" />: the avatar already has the parameter in its expression parameters or in its FX controller.
+- <Label k="ad.ui.animator.not_synced" />: nothing looks after it. It stays a plain animator value that VRChat does not sync, and nothing in the menu sets it.
+
+A parameter that you declare under [Parameters](../menu-assets-and-parameters/#parameters-table) also reads <Label k="ad.ui.animator.not_synced" /> in this list today.
+
+#### Add control [#add-control k=ad.ui.animator.add_control]
+
+**Shown in:** Simple and Advanced
+
+Shown beside every parameter that reads **not synced**. Gives that parameter a button in the menu without adding a layer. A Float parameter gets a radial. Any other type gets a toggle. The new entry uses the parameter's name for its own parameter, and its panel says <Label k="ad.ui.parameter_control_note" /> in place of the effects. The merged layers do the work. If nothing on the avatar reads the parameter, a warning says so.
+
+### Scene preview [#scene-preview]
+
+**Shown in:** Simple and Advanced
+
+A merged animator has no preview row. The panel says <Label k="ad.ui.animator.no_preview" /> Test them in Play mode.
+
+## What AvatarDoc builds
+
+At upload, AvatarDoc copies the controller and its clips, puts the path root in front of the clip paths, adds the controller's parameters to the avatar's FX controller, and appends the layers you kept. It costs no synced bits and adds no menu button. A parameter that already exists with another type is an error, unless AvatarDoc planned that name itself for a parameter control or a declaration and nothing else reads it. Then the controller's type wins and nothing is reported.
+
+## Messages
+
+- [The merged animator has no controller](../messages/#ad-warn-merge-no-controller).
+- [The override controller has no controller of its own](../messages/#ad-warn-merge-override-no-controller).
+- [The Path root is outside the avatar](../messages/#ad-error-merge-outside-avatar).
+- [A layer named in the list does not exist](../messages/#ad-warn-merge-skip-missing).
+- [The avatar already has a parameter of the controller as another type](../messages/#ad-error-merge-parameter-type).
+- [A kept layer is synced to a layer that is left out](../messages/#ad-error-merge-synced-layer).
+- [The controller changes layer weights by position](../messages/#ad-error-merge-layer-control).
+- [A parameter control drives a parameter nothing reads](../messages/#ad-warn-parameter-control-unused).
+
+## Related
+
+- [Bring your own animator or menu](../../guides/own-animator-or-menu/)
+- [Convert from VRCFury or Modular Avatar](../../guides/convert/) turns a Modular Avatar Merge Animator into entries, and keeps what it cannot convert as a merged animator.
+- [Menu assets and parameters](../menu-assets-and-parameters/)

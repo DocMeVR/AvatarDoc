@@ -1,0 +1,116 @@
+---
+title: Summary and lock
+description: The copyable summary of a component for a store page, and the lock that makes a shared prefab read only.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use it
+
+If you share or sell a prefab with an AvatarDoc component on it, the summary writes down what the component adds to an avatar, ready to paste into a store page or a readme. The lock keeps the people who use your prefab from changing its entries by accident. Neither changes what the avatar builds.
+
+## The summary
+
+Press <Label k="ad.ui.summary" /> in the header to open it. It takes the place of the panel of the selected row, and selecting a row of the tree closes it again.
+
+<Shot name="reference-summary-and-lock/summary" alt="The open Summary with 1 the Summary button, 2 Plain and Markdown, 3 the text, 4 Copy, 5 the Lock switch and 6 Note for users." />
+
+1. <Label k="ad.ui.summary" />, in the header.
+2. <Label k="ad.ui.summary.plain" /> and <Label k="ad.ui.summary.markdown" />.
+3. The summary text.
+4. <Label k="ad.ui.summary.copy" />.
+5. <Label k="ad.ui.lock" />.
+6. <Label k="ad.ui.lock.note" />.
+
+### Summary [#summary k=ad.ui.summary]
+
+**Shown in:** Simple and Advanced · **Default:** closed
+
+Opens and closes the summary panel. The summary describes this one component, not the whole avatar.
+
+### Plain and Markdown [#format]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.summary.plain" /> · **Choices:** <Label k="ad.ui.summary.plain" />, <Label k="ad.ui.summary.markdown" />
+
+<Label k="ad.ui.summary.plain" /> suits a store page. <Label k="ad.ui.summary.markdown" /> adds a table of the parameters, for a place that renders it, and writes lists as bullets.
+
+### The text [#text]
+
+**Shown in:** Simple and Advanced
+
+A read only box with the whole summary. You can select and copy from it directly. It lists, in this order, and leaves out any part that is empty:
+
+- The component's name, and how many synced bits it adds, next to AvatarDoc's total on the avatar.
+- The parameters: name, type, whether it is synced (a parameter that is not synced is marked **local**), whether it is saved, the default, and a note when the parameter uses one the avatar has or is shared with another component. Hidden copies of blend shape trigger shapes are listed as animator only.
+- The menu: its install path, and the entries of this component as an indented tree. Each submenu shows how many of the eight slots it uses on the platform the editor builds for. An entry limited to one platform is marked **PC only** or **Quest only**.
+- The toggles and radials that are not in the menu.
+- The shape set rules, follows and grabbables of this component.
+- The merged animators, with how many layers each merges, the installed menu assets with their number of controls, and the declared parameters with their type and bits.
+- What the removals free: the menu items you removed from the avatar, with the parameters and layers that go with them.
+- Every piece of the avatar that carries an AvatarDoc Shapes component, with how many rows it has. This part lists the whole avatar.
+- What it needs: NDMF and the VRChat SDK always, and Modular Avatar or VRCFury only when a trigger or a preset reads a parameter that one of them provides.
+- How many contact receivers and PhysBones it uses, with the platform notes.
+- The condition sentence of every trigger that keeps its conditions in cards, and the toggle that gates a trigger.
+- The platform choice of the component.
+- The warnings and errors it raises right now.
+- A last line, **Made with AvatarDoc**.
+
+Menu items that a menu edit hides are left out entirely, because they do not build.
+
+### Copy [#copy k=ad.ui.summary.copy]
+
+**Shown in:** Simple and Advanced
+
+Puts the text on the clipboard. The word <Label k="ad.ui.summary.copied" /> shows beside the button for about a second and a half.
+
+## The lock
+
+### Lock [#lock k=ad.ui.lock]
+
+**Shown in:** Simple and Advanced · **Default:** Off · **Choices:** On, Off
+
+Open Summary and use the Lock switch under the text.
+
+Makes the component read only for whoever uses the prefab. While it is on:
+
+- The add buttons of the toolbar, <Label k="ad.ui.toolbar.convert" /> and the Outfit set wizard are greyed out, and dragging objects onto the tree does nothing.
+- Every row's menu and every entry's own panel are disabled, and rows cannot be dragged to a new place.
+- A window that was already open, such as Convert, the Outfit set wizard or the icon capture, refuses when you press its own button, and says <Label k="ad.ui.locked.refused" />
+
+These settings stay editable, because a buyer sets them for their own avatar: <Label k="ad.ui.install" />, <Label k="ad.ui.install.mode" />, <Label k="ad.ui.menu_name" />, <Label k="ad.ui.menu_icon" />, <Label k="ad.ui.prefix" /> and <Label k="ad.ui.platform" />, all in <Label k="ad.ui.settings_fold" />. The Simple and Advanced switch, the language and the summary stay usable too.
+
+While the component is locked, a banner runs across the top of the whole view.
+
+<Shot name="reference-summary-and-lock/locked" alt="A locked component: 1 the banner, 2 Unlock, 3 the settings that stay editable, 4 the greyed out add buttons, 5 the tree." />
+
+1. The banner: <Label k="ad.ui.locked" /> followed by your note.
+2. <Label k="ad.ui.unlock" />.
+3. The settings in <Label k="ad.ui.settings_fold" />, which stay editable.
+4. The toolbar, with its add buttons greyed out.
+5. The tree.
+
+### Note for users [#note-for-users k=ad.ui.lock.note]
+
+**Shown in:** Simple and Advanced · **Default:** empty · **Choices:** any text
+
+A line that the banner shows after its own text, for whoever uses the prefab. Leave it empty for no line.
+
+### Unlock [#unlock k=ad.ui.unlock]
+
+**Shown in:** Simple and Advanced
+
+The button in the banner. It turns the lock off, and the component can be edited again. The <Label k="ad.ui.lock" /> switch in the summary does the same.
+
+## What AvatarDoc builds
+
+The summary and the lock build nothing and change nothing in the build. A locked component builds exactly what it did before.
+
+## Messages
+
+The summary lists the messages the component raises, but it raises none of its own.
+
+## Related
+
+- [The inspector at a glance](../inspector/)
+- [Toggle](../toggle/) describes the Component settings fields in the header.

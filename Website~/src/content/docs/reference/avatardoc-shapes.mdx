@@ -1,0 +1,160 @@
+---
+title: AvatarDoc Shapes
+description: Every field of the AvatarDoc Shapes component, which sits on an outfit piece and holds or copies blend shapes for it.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-avatardoc-shapes/overview" alt="AvatarDoc Shapes on a Sweater: 1 Source mesh, 2 Source shape, 3 On this piece, 4 Add, 5 Add matching shapes, 6 Mesh, 7 Value, 8 Platform." />
+
+1. <Label k="ad.ui.shapes.source_mesh" /> of a follow row.
+2. <Label k="ad.ui.shapes.source_shape" /> of that row.
+3. <Label k="ad.ui.shapes.local_shape" />, here <Label k="ad.ui.shapes.same_name" />.
+4. <Label k="ad.ui.shapes.add" />, under <Label k="ad.ui.shapes.follows" />.
+5. <Label k="ad.ui.shapes.add_matching" />.
+6. <Label k="ad.ui.shapes.mesh" /> of a row under <Label k="ad.ui.shapes.while_on" />.
+7. <Label k="ad.ui.shapes.value" /> of that row.
+8. <Label k="ad.ui.platform" />.
+
+## When to use it
+
+AvatarDoc Shapes sits on the outfit piece itself, so the piece carries its own body fixes wherever you drop it. It does two jobs. It holds blend shapes of the avatar at a value while the piece is on, for example the body's shrink shapes under a jacket. And it makes the piece's own shapes copy the body's, so the piece keeps fitting when you change the body. It adds no parameter and no layer.
+
+- To change shapes from one toggle of your own, give that toggle a <Label k="ad.ui.blendshapes" /> section. See [Blend shape rows](../blend-shapes/).
+- To hold a shape all the time, use an [override](../overrides/).
+
+To add it, select the piece in the Hierarchy, press **Add Component** and pick **DocMe > AvatarDoc Shapes**. For the <Label k="ad.ui.shapes.follows" /> section, add it on the object that carries the piece's skinned mesh. This inspector has no Simple and Advanced switch: it always shows every field.
+
+The inspector starts with a note: <Label k="ad.ui.shapes.note" />
+
+## Settings
+
+The settings in the order the inspector shows them.
+
+### Follows [#follows k=ad.ui.shapes.follows]
+
+**Shown in:** Simple and Advanced · **Default:** no rows · **Choices:** one row for each shape
+
+The piece's own mesh copies a shape of another mesh. The section says: <Label k="ad.ui.shapes.follows.note" /> With no rows, it reads <Label k="ad.ui.shapes.none" /> The rows need a skinned mesh on the same object as the component, and an error says so when there is none.
+
+Every animation of the FX layers that moves the source shape now moves the piece's shape with it, and the piece starts at the weight the source shape has in the scene.
+
+#### Add [#add-follow k=ad.ui.shapes.add]
+
+**Shown in:** Simple and Advanced
+
+Adds an empty row to fill in.
+
+#### Add matching shapes [#add-matching-shapes k=ad.ui.shapes.add_matching]
+
+**Shown in:** Simple and Advanced
+
+Opens the list of meshes. Picking one adds a row for every shape name that both that mesh and the piece's own mesh have, and skips every shape that already has a row. It does nothing when the component is not on a skinned mesh.
+
+#### Source mesh [#source-mesh k=ad.ui.shapes.source_mesh]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any skinned mesh of this avatar that has blend shapes
+
+The mesh to read, usually the body. A mesh outside the avatar is an error.
+
+#### Source shape [#source-shape k=ad.ui.shapes.source_shape]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.pick.shape" /> · **Choices:** any blend shape of the source mesh
+
+The shape to copy. Picking a shape fills in <Label k="ad.ui.shapes.source_mesh" /> with the mesh it belongs to. A shape that is not on the mesh is skipped with a warning.
+
+#### On this piece [#on-this-piece k=ad.ui.shapes.local_shape]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.shapes.same_name" /> · **Choices:** <Label k="ad.ui.shapes.same_name" />, or any blend shape of the piece's own mesh
+
+The shape this row writes on the piece. <Label k="ad.ui.shapes.same_name" /> uses the source shape's own name. The **x** at the end of the row's first line removes the row.
+
+### While this object is on [#while-this-object-is-on k=ad.ui.shapes.while_on]
+
+**Shown in:** Simple and Advanced · **Default:** no rows · **Choices:** one row for each shape
+
+Any mesh of the avatar holds a shape at a value while the piece is on. The section says: <Label k="ad.ui.shapes.while_on.note" />
+
+#### Add [#add-while-on k=ad.ui.shapes.add]
+
+**Shown in:** Simple and Advanced
+
+Adds an empty row. A new row starts with <Label k="ad.ui.shapes.value" /> at 100.
+
+#### Mesh [#mesh k=ad.ui.shapes.mesh]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any skinned mesh of this avatar that has blend shapes
+
+The mesh to change, usually the body. The piece's own mesh is allowed too.
+
+#### Shape [#shape k=ad.ui.shapes.shape]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.pick.shape" /> · **Choices:** any blend shape of the mesh
+
+The shape to hold. Picking a shape fills in <Label k="ad.ui.shapes.mesh" /> with the mesh it belongs to.
+
+#### Value [#value k=ad.ui.shapes.value]
+
+**Shown in:** Simple and Advanced · **Default:** 100 · **Range:** 0 to 100
+
+How far the shape is held while the piece is on. While the piece is off, the shape goes back to the weight the mesh has in the scene before the build.
+
+### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build uses the rules. A piece left out on a platform writes none of its shape values there. <Label k="ad.ui.platform.inherit" /> means both here, because no AvatarDoc component encloses this one.
+
+### Messages in the inspector [#messages-box]
+
+**Shown in:** Simple and Advanced
+
+At the bottom, the inspector lists what is wrong with the rows of this component, in the same boxes as the AvatarDoc inspector. The list is empty when every row is whole.
+
+## What counts as switching the piece
+
+The component writes into the animations that already switch the piece. It counts as switching the piece:
+
+- An animation that turns the piece's own object on or off.
+- An animation that turns a parent on or off, while the piece and every object between the piece and that parent are on in the scene and nothing animates them.
+
+The animation must set the piece's active state to one fixed value. An animation that fades it in and out is left alone, and a warning names it. If the piece is on in the scene and nothing switches it, the value is applied once and a note says so. If it is off in the scene and nothing switches it, the shapes are never applied, and a note says that too.
+
+Which animations are covered: every clip of the avatar's FX controller at the moment the pass runs, which is right after Modular Avatar. That includes AvatarDoc's own toggles, outfit sets, presets and triggers, merged animators, and what Modular Avatar merged. Clips that VRCFury adds later are not seen, and a Gesture or Action clip that switches the piece is left alone. An animation that already writes the shape itself keeps its own values, and a note or a warning says so.
+
+## When two pieces hold one shape
+
+What switches the two pieces decides:
+
+- One animation turns both on, or nothing switches either and both stay on: the larger value wins while both are on, and a note says so.
+- One exclusive group switches them: only one of them is on at a time, so each holds its own value.
+- Different layers switch them: a warning names the pair, and the later layer decides the shape. While the later piece is on, its value holds. While it is off, the shape goes back to rest, even when the other piece is on. A piece that nothing switches loses to one that is switched. Put both pieces on one toggle, or in one exclusive group.
+
+The order of the layers, from first to last, is: the avatar's own FX layers, AvatarDoc's toggles and exclusive groups in menu order, its condition triggers, its merged animators, what Modular Avatar adds, and last AvatarDoc's blend shape triggers and contact triggers in Fade mode.
+
+The inspector knows only the avatar's own FX layers and AvatarDoc's own controls and merged animators. The warning at upload also covers pieces that Modular Avatar switches. Pieces that VRCFury switches are not seen at all.
+
+## What AvatarDoc builds
+
+The pass adds curves to existing clips, sets start weights on the uploaded copy, and then removes the component. It adds no parameter, no layer and no menu button. The summary lists every piece that carries the component, with how many rows it has.
+
+## Messages
+
+- [A row's mesh is missing or outside the avatar](../messages/#ad-error-shapes-outside-avatar).
+- [The object has no skinned mesh for its follow rows](../messages/#ad-error-shapes-no-mesh).
+- [A row's shape is not on its mesh](../messages/#ad-warn-shapes-missing-shape).
+- [An animation fades the piece in and out](../messages/#ad-warn-shapes-active-not-constant).
+- [An animation already writes the shape itself](../messages/#ad-warn-shapes-clip-owns-shape).
+- [A clip already writes the piece's own shape](../messages/#ad-info-shapes-follow-kept-own).
+- [Two pieces hold one shape, switched by different layers](../messages/#ad-warn-shapes-conflict).
+- [Two pieces hold one shape at different values in one animation](../messages/#ad-info-shapes-larger-wins).
+- [Nothing turns the object on](../messages/#ad-info-shapes-never-on).
+- [The object is always on](../messages/#ad-info-shapes-always-on).
+- [A clip of VRChat's own is left alone](../messages/#ad-warn-marker-clip-skipped).
+
+## Related
+
+- [Shrink the body under clothes](../../guides/shrink-under-clothes/)
+- [Convert from VRCFury or Modular Avatar](../../guides/convert/) turns Modular Avatar's Blendshape Sync and Shape Changer into rows of this component.
+- [Outfit sets](../outfit-sets/)

@@ -1,0 +1,82 @@
+---
+title: Icon capture window
+description: Every control of the Capture icon window, which draws an entry's own pieces and saves the picture as its menu icon.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-icon-capture/overview" alt="The Capture icon window showing a hat, with 1 the preview, 2 Background, 3 Fit, 4 Fill and 5 Save icon." />
+
+1. The preview: exactly the picture that <Label k="ad.ui.capture.save" /> would save.
+2. <Label k="ad.ui.capture.background" />.
+3. <Label k="ad.ui.capture.fit" />.
+4. <Label k="ad.ui.capture.fill" />.
+5. <Label k="ad.ui.capture.save" />.
+
+## When to use it
+
+VRChat shows a small picture on every menu button. The Capture icon window draws only the pieces of one entry, on a clear or a coloured background, and saves the picture as that entry's icon. Nothing in the scene changes.
+
+Open it with <Label k="ad.ui.capture" /> at the end of the <Label k="ad.ui.icon" /> field of a toggle, a radial, a submenu or a preset. It is the same in <Label k="ad.ui.mode.simple" /> and <Label k="ad.ui.mode.advanced" /> mode. To give every entry that has none an icon in one go, use <Label k="ad.ui.toolbar.capture" /> in the toolbar, which needs <Label k="ad.ui.mode.advanced" /> mode. [Organise the menu](../../guides/organise-the-menu/) shows both.
+
+The window is called <Label k="ad.ui.capture.title" /> and opens at 300 pixels wide.
+
+## What the picture shows
+
+The window draws the entry's own pieces and nothing else on the avatar:
+
+- A toggle or a radial: the renderers under its objects, and the renderers of its blend shape, material and property rows.
+- A submenu: the pieces of every toggle, radial and preset inside it, together.
+- A preset: the pieces of the controls it turns on, and of the radials it sets.
+
+The window reads the scene as it is right now. A blend shape or a material effect shows its value in the scene, not the toggle's On state, so set the shape in the Skinned Mesh Renderer before you capture it. A piece that is switched off in the scene is drawn anyway, without being switched on. The lights of the open scenes light the picture.
+
+When the entry has nothing to show, the window says <Label k="ad.ui.capture.none" /> and greys out <Label k="ad.ui.capture.fit" /> and <Label k="ad.ui.capture.save" />.
+
+## Settings
+
+The controls in the order the window shows them.
+
+### The preview [#preview]
+
+The preview follows the Scene view camera: move the Scene view to change the angle. When no Scene view is open, the window uses a fixed view from the front. It draws again, at most five times a second, when the Scene view moves, when the avatar changes, or when something the picture shows is edited, such as a piece that moves or a material. A window left open while nothing changes draws nothing.
+
+### Background [#background k=ad.ui.capture.background]
+
+**Default:** <Label k="ad.ui.capture.transparent" /> · **Choices:** <Label k="ad.ui.capture.transparent" />, <Label k="ad.ui.capture.solid" />
+
+<Label k="ad.ui.capture.transparent" /> clears to nothing, so the menu's own background shows through. <Label k="ad.ui.capture.solid" /> fills behind the pieces, and a colour field appears beside the choice. The colour starts white. A choice you made stays when the window shows another entry.
+
+### Fit [#fit k=ad.ui.capture.fit]
+
+Points the camera at this entry's pieces and freezes the framing, so moving the Scene view no longer changes the picture. It keeps the direction of the Scene view at the moment you press it. Press it again to frame again. Opening the window for another entry unfreezes it.
+
+### Fill [#fill k=ad.ui.capture.fill]
+
+**Default:** On · **Choices:** On, Off
+
+On: the picture is cropped to what is actually drawn, with a small margin, so the piece fills the icon. Off: the picture shows the whole frame as it is. AvatarDoc remembers the choice for every window.
+
+### Save icon [#save-icon k=ad.ui.capture.save]
+
+Draws the picture once more at full quality and saves it. A locked component refuses.
+
+- The icon is always 256 by 256 pixels, saved as a PNG in `Assets/AvatarDoc Icons/`, in a folder named after the avatar, with the entry's name as the file name. A project that already has an `AvatarDoctor Icons` folder and no `AvatarDoc Icons` folder keeps using the old one. Characters that a file name cannot hold become underscores.
+- The picture is imported with a maximum size of 256, transparency from its alpha, no mip maps and clamped edges. These settings pass VRChat's upload check.
+- The entry gets the picture as its icon. Undo takes the icon off the entry again; the file stays in the project.
+- Capturing the same entry again replaces the same file, as long as only that entry uses the picture. A picture you brought yourself is never overwritten. A new file gets a different name when the name is taken.
+- The line under the buttons reads **Saved** with the path of the file, and says the icon is assigned.
+
+## What AvatarDoc builds
+
+The window changes nothing in the build. The saved picture is an ordinary texture that the entry uses as its icon.
+
+## Messages
+
+- [The icon fails VRChat's upload check](../messages/#ad-error-menu-icon-too-large): for a picture that was not made by this window, or that was changed after.
+
+## Related
+
+- [Organise the menu](../../guides/organise-the-menu/)
+- [Submenu](../submenu/), [Toggle](../toggle/) and [Preset](../presets/) each have an icon field with this button.
