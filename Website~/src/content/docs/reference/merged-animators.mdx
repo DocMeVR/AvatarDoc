@@ -73,15 +73,14 @@ One row for each parameter of the controller, with a note about who looks after 
 
 - The name of the AvatarDoc entry that drives it, such as **Glow**.
 - <Label k="ad.ui.animator.existing" />: the avatar already has the parameter in its expression parameters or in its FX controller.
+- <Label k="ad.ui.animator.declared_synced" /> or <Label k="ad.ui.animator.declared_local" />: a component declares the parameter under [Parameters](../menu-assets-and-parameters/#parameters-table), and the note says whether the declaration is synced.
 - <Label k="ad.ui.animator.not_synced" />: nothing looks after it. It stays a plain animator value that VRChat does not sync, and nothing in the menu sets it.
-
-A parameter that you declare under [Parameters](../menu-assets-and-parameters/#parameters-table) also reads <Label k="ad.ui.animator.not_synced" /> in this list today.
 
 #### Add control [#add-control k=ad.ui.animator.add_control]
 
 **Shown in:** Simple and Advanced
 
-Shown beside every parameter that reads **not synced**. Gives that parameter a button in the menu without adding a layer. A Float parameter gets a radial. Any other type gets a toggle. The new entry uses the parameter's name for its own parameter, and its panel says <Label k="ad.ui.parameter_control_note" /> in place of the effects. The merged layers do the work. If nothing on the avatar reads the parameter, a warning says so.
+Shown beside every parameter that no menu control drives, which includes the ones that read **declared, synced** or **declared, not synced**. Gives that parameter a button in the menu without adding a layer. A Float parameter gets a radial. Any other type gets a toggle. The new entry uses the parameter's name for its own parameter, and its panel says <Label k="ad.ui.parameter_control_note" /> in place of the effects. The merged layers do the work. If nothing on the avatar reads the parameter, a warning says so.
 
 ### Scene preview [#scene-preview]
 

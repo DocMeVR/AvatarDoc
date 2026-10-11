@@ -40,7 +40,7 @@ The name of the rule. It shows in the tree and in the messages about the rule. A
 
 **Shown in:** Simple and Advanced
 
-The line under the name says what the entry adds to the avatar. For an override it always reads **Builds nothing yet** and a hint to add a target, even with rows in the list, because an override adds no menu control, no synced bit and no layer to count. Ignore it. The rule works as this page describes.
+The line under the name says what the entry adds to the avatar. For an override it counts the clips the override rewrites, such as **Builds: rewrites 2 clips**, or **Builds: rewrites 1 clip**. These are the clips that the list under the rows names as **Animated in 2 clips**, so it has the same limit: it reads the avatar's own controllers and cannot see animations that Modular Avatar or VRCFury add at upload. When no clip uses the shape, it reads **Builds nothing yet: no animation on this avatar uses this shape.** With no row at all, it asks for a target. An override adds no menu control, no synced bit and no layer, so there is nothing else to count.
 
 ### Blendshapes [#blendshapes k=ad.ui.blendshapes]
 
@@ -104,7 +104,7 @@ An override changes the avatar that is uploaded, never your animation files. It 
 
 The override also sets the shape on the uploaded avatar's mesh to its value. When no animation moves the shape, that is all it does, and a warning says so.
 
-An override wins over every toggle and trigger that changes the same shape, whatever their order in the menu. The Builds line stays at **Builds nothing yet**: an override adds no menu control, no parameter and no layer.
+An override wins over every toggle and trigger that changes the same shape, whatever their order in the menu. The Builds line counts the clips that are rewritten. An override adds no menu control, no parameter and no layer.
 
 ## Messages
 
