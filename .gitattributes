@@ -1,2 +1,4 @@
 # Store every file exactly as it is: no line ending conversion on commit or checkout.
 * -text
+Website~/** text eol=lf
+Website~/**/*.png binary

@@ -82,7 +82,7 @@ When two pieces hold the same shape, what switches them decides:
 - One exclusive group switches them: only one of them is on at a time, so each holds its own value.
 - Different things switch them: the one that comes later decides the shape. While its piece is on, that piece's value holds. While it is off, the shape goes back where it rests, even when the other piece is on. A piece that nothing switches always loses to one that is switched. Put both pieces on one toggle, or in one exclusive group.
 
-From first to last, the order is: your avatar's own FX layers, then AvatarDoc's toggles and exclusive groups in menu order, its other triggers, its merged animators, what Modular Avatar adds, and last AvatarDoc's blend shape triggers and contact triggers set to Fade.
+From first to last, the order is: your avatar's own FX layers, then AvatarDoc's toggles and exclusive groups in menu order, its other triggers, its merged animators, what Modular Avatar adds, and last AvatarDoc's blend shape triggers and contact triggers set to Fade, followed by its pin layers. [Layers, Write Defaults and pinned layers](../../how-it-works/layers-and-pins/#the-order-of-the-layers) gives the same order.
 
 A warning names the piece that wins. Before an upload, the inspector and the scene preview know only AvatarDoc's own toggles, triggers and merged animators and your avatar's own FX layers. The warning at upload also covers pieces that Modular Avatar switches. Pieces that VRCFury switches are not seen at all, as said above.
 
@@ -105,3 +105,4 @@ A warning names the piece that wins. Before an upload, the inspector and the sce
 
 - [AvatarDoc Shapes](../../reference/avatardoc-shapes/) describes every field.
 - [Convert from VRCFury or Modular Avatar](../convert/) turns Modular Avatar's Blendshape Sync and Shape Changer into AvatarDoc Shapes rows.
+- [Two pieces fight over a shape](../../help/troubleshooting/#shapes-conflict) in Troubleshooting.

@@ -1,0 +1,51 @@
+---
+title: Working with VRCFury and Modular Avatar
+description: In which order AvatarDoc, Modular Avatar and VRCFury run, what AvatarDoc can and cannot see of the other two, and why it needs a pass on both sides of them.
+sidebar:
+  order: 5
+---
+
+import Label from '../../../components/Label.astro';
+
+You do not need this to use AvatarDoc; it explains why it behaves as it does.
+
+## Three tools, one copy of the avatar
+
+AvatarDoc, Modular Avatar and VRCFury all change the same copy of your avatar at upload. None of them needs the others. AvatarDoc works with neither installed, with one, or with both.
+
+- **Modular Avatar** is an NDMF tool, like AvatarDoc. AvatarDoc uses its components only when the package is installed, and reads them through its public API.
+- **VRCFury** is not an NDMF tool. It runs its whole build as one step, after Modular Avatar. AvatarDoc has no code that uses VRCFury. It finds VRCFury's components by their name and reads their saved settings, which is how it can list a VRCFury toggle in the tree and convert it.
+
+## The order
+
+1. AvatarDoc's main pass builds your menu, parameters and layers. It runs before Modular Avatar, so that Modular Avatar works on the menu and the animator that AvatarDoc built.
+2. Modular Avatar runs.
+3. AvatarDoc runs a second time: [AvatarDoc Shapes](../../reference/avatardoc-shapes/), the override pass and the menu changes for Modular Avatar's items. They need the animations and the menu items that Modular Avatar has added.
+4. VRCFury runs.
+5. AvatarDoc runs a last time, before the Avatar Optimizer. It is the first point where every layer of every tool is in the controller. It holds the override shapes in the animations VRCFury added, decides which Hold the rest curves are needed, hands pinned shapes back to rest, moves its pin layers to the end, and applies the menu changes for VRCFury's items.
+
+[What happens when you upload](../upload/) lists the passes. [Layers, Write Defaults and pinned layers](../layers-and-pins/) explains the last one.
+
+## What AvatarDoc cannot see
+
+The items that VRCFury and Modular Avatar add to the menu do not exist when AvatarDoc's main pass runs. This has consequences:
+
+- The tree shows their rows as dimmed, read only rows, taken from their components. A change you make to one, such as a new name or a new place, is stored by AvatarDoc and applied after the tool has added the item. If the tool has renamed or moved the item by then, the change cannot apply, and the header lists it.
+- Their items never count toward the eight places of AvatarDoc's submenus, because each tool fills pages of its own.
+- <Label k="ad.ui.existing.remove" /> works only for the avatar's own menu. Their items are not there to remove. Hide them or convert them.
+- AvatarDoc Shapes writes only into the animations that exist right after Modular Avatar. It does not see clips that VRCFury adds.
+- An override runs twice, once after each tool, so it reaches the animations of both.
+- A VRCFury toggle is documented to get a new parameter name at every upload unless it uses a global parameter. To let a trigger or a preset read a VRCFury toggle, give the toggle a global parameter.
+
+## Where VRCFury changes AvatarDoc's work
+
+- **Parameter memory.** VRCFury makes the parameters smaller at upload until they fit in 256 bits, AvatarDoc's included. With VRCFury installed, going over the limit is a warning for AvatarDoc, not an error.
+- **Write Defaults.** VRCFury can check that all layers use the same Write Defaults and offer to fix them. AvatarDoc's pin layers, and its layers that fade with distance or pause blinking, are meant to have Write Defaults off. If you let VRCFury fix them, AvatarDoc turns them off again in its last pass.
+- **Tracking.** VRCFury collects every request to pause eye or mouth tracking into one layer. AvatarDoc keeps its pause for that reason. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
+
+## Related
+
+- [Use AvatarDoc next to VRCFury and Modular Avatar](../../guides/with-vrcfury-and-modular-avatar/)
+- [Convert from VRCFury or Modular Avatar](../../guides/convert/)
+- [Change the avatar's existing menu](../../guides/change-the-existing-menu/)
+- [Fit in VRChat's parameter memory](../../guides/parameter-memory/)

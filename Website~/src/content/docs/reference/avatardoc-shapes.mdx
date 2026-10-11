@@ -131,7 +131,7 @@ What switches the two pieces decides:
 - One exclusive group switches them: only one of them is on at a time, so each holds its own value.
 - Different layers switch them: a warning names the pair, and the later layer decides the shape. While the later piece is on, its value holds. While it is off, the shape goes back to rest, even when the other piece is on. A piece that nothing switches loses to one that is switched. Put both pieces on one toggle, or in one exclusive group.
 
-The order of the layers, from first to last, is: the avatar's own FX layers, AvatarDoc's toggles and exclusive groups in menu order, its condition triggers, its merged animators, what Modular Avatar adds, and last AvatarDoc's blend shape triggers and contact triggers in Fade mode.
+The order of the layers, from first to last, is: the avatar's own FX layers, AvatarDoc's toggles and exclusive groups in menu order, its condition triggers, its merged animators, what Modular Avatar adds, and last AvatarDoc's blend shape triggers and contact triggers in Fade mode, followed by its pin layers. [Layers, Write Defaults and pinned layers](../../how-it-works/layers-and-pins/#the-order-of-the-layers) gives the same order.
 
 The inspector knows only the avatar's own FX layers and AvatarDoc's own controls and merged animators. The warning at upload also covers pieces that Modular Avatar switches. Pieces that VRCFury switches are not seen at all.
 

@@ -1,0 +1,72 @@
+---
+title: Parameters, sync and memory
+description: How AvatarDoc names and counts the parameters of your controls, what costs synced bits, and why the order of parameters matters between PC and Quest.
+sidebar:
+  order: 3
+---
+
+import Label from '../../../components/Label.astro';
+
+You do not need this to use AvatarDoc; it explains why it behaves as it does.
+
+## What a parameter is
+
+A parameter is a named value. A menu control writes it, and the animator layers read it. A toggle writes true or false, an exclusive group writes a whole number, and a radial writes a number with decimals. VRChat calls these types Bool, Int and Float.
+
+Some parameters are synced: VRChat sends them to the other players, so they see the toggle change. VRChat gives an avatar 256 bits of memory for synced parameters. A parameter can also be saved, which keeps its value between avatar loads. Saving costs 0 bits: only synced parameters count.
+
+## What costs bits
+
+| Parameter | Bits |
+|---|---|
+| A synced Bool, such as a toggle | 1 |
+| A synced Int or Float, such as an exclusive group or a radial | 8 |
+| A parameter that is not synced | 0 |
+
+Two choices in AvatarDoc follow from this table:
+
+- An exclusive group is one Int, so it costs 8 bits however many toggles it holds. Ten separate toggles cost 10 bits, and ten toggles in a group cost 8.
+- A toggle that is not <Label k="ad.ui.synced" /> costs nothing, but other players never see it change.
+
+These cost no synced bits at all:
+
+- a trigger, an override and a Hold the rest rule, which read what exists or change the animations
+- a contact receiver or a PhysBone, whose values every player's copy of the avatar works out by itself
+- the hidden value that a blend shape trigger uses, which stays inside the animator
+- a preset, which has a parameter of its own that is never synced or saved
+
+[Fit in VRChat's parameter memory](../../guides/parameter-memory/) shows how to save bits. [Limits](../../reference/limits/#256-bits-of-synced-parameters) lists the limit.
+
+## How AvatarDoc names parameters
+
+An entry with an automatic name gets the component's <Label k="ad.ui.prefix" />, a slash and the entry's name, such as **AD/Hat**. A slash inside the entry's name becomes an underscore. When another entry or a parameter the avatar already has would get the same name, the second gets a space and a 2, the third a 3, in menu order.
+
+An entry can use a custom name instead. If the avatar already has a parameter of that name, AvatarDoc reuses it. It adds nothing to the avatar's list, takes the type and the settings of the existing parameter, and a note says so. If only an animator has the name, AvatarDoc binds to it and adds no parameter to the Expression Parameters. If the name is new, AvatarDoc picks its type from the values that use it: a Bool for the value 1, an Int for another whole number, a Float for a number with decimals. Several controls on one new name widen the type as far as needed.
+
+A control whose value the existing type cannot hold, such as a radial on an Int, is an error.
+
+## The order of the parameters
+
+At upload, AvatarDoc copies the avatar's Expression Parameters asset and adds the new parameters at the end of the copy, in menu order. Your own asset is not changed.
+
+VRChat syncs parameters by their place in the list, not by their name. A PC version and a Quest version of one avatar must therefore have the same list, or one platform shows the other platform's players the wrong toggles.
+
+This is why the <Label k="ad.ui.platform" /> setting of an entry does not remove its parameter. On the other platform, the entry builds no menu control and no layers, but its parameter stays in the list, in the same place. AvatarDoc also compares the list with another copy of the same avatar when that copy is open in a scene with the same blueprint id, and warns at the first place where the two differ. [Different setups for PC and Quest](../../guides/pc-and-quest/) shows the settings.
+
+## The memory check
+
+Before it builds, AvatarDoc adds the bits of the avatar's existing synced parameters to the bits of the parameters it is about to add. It takes away the bits that your removals free. The memory bar in the inspector shows the same count.
+
+If the total is more than 256, the build stops with an error. When VRCFury is installed, the same check is a warning instead, because VRCFury makes the parameters smaller at upload until they fit. [The message](../../reference/messages/#ad-error-bits-exceeded) says how many bits are over.
+
+## Removing frees bits
+
+<Label k="ad.ui.existing.remove" /> takes a menu item of the avatar out of the build. AvatarDoc also removes the parameter and the animator layers that nothing else needs, and counts the freed bits. It keeps a parameter that something else still reads, and the inspector names what keeps it. See [Remove things from the avatar](../../guides/remove-things/).
+
+## Related
+
+- [Fit in VRChat's parameter memory](../../guides/parameter-memory/)
+- [Different setups for PC and Quest](../../guides/pc-and-quest/)
+- [Toggle](../../reference/toggle/#advanced)
+- [Menu assets and parameters](../../reference/menu-assets-and-parameters/)
+- [Remove things from the avatar](../../guides/remove-things/)
