@@ -433,6 +433,11 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var row = new VisualElement();
             row.AddToClassList("ad-target");
+            // The controls wrap onto another line inside this box when the inspector is narrow; the remove button
+            // sits beside it, so it stays at the row's top right however many lines the controls take.
+            var main = new VisualElement { name = "ad-target-main" };
+            main.AddToClassList("ad-target-main");
+            row.Add(main);
             VisualElement offLine = null;
             switch (kind)
             {
@@ -441,8 +446,8 @@ namespace DocMe.AvatarDoctor.Editor
                     var target = RowObject(row, nameof(ObjectTarget.target), typeof(GameObject), true, PickKind.GameObject);
                     target.name = "target";
                     target.tooltip = L.Text("ad.ui.target.object.tip");
-                    target.AddToClassList("ad-grow");
-                    row.Add(target);
+                    target.AddToClassList("ad-target-object");
+                    main.Add(target);
                     var mode = new SegmentedChoice(new List<string> { L.Text("ad.ui.seg.shown"), L.Text("ad.ui.seg.hidden") }) { name = "mode", tooltip = L.Text("ad.ui.target.mode.tip") };
                     mode.AddToClassList("ad-w-132");
                     // Registered once here, not in BindRow: the ListView recycles this row across indices, so a
@@ -455,13 +460,15 @@ namespace DocMe.AvatarDoctor.Editor
                         active.boolValue = newIndex == 0;
                         owner.ApplyAndRefresh();
                     };
-                    row.Add(mode);
+                    main.Add(mode);
                     break;
                 }
                 case Kind.BlendShapes:
                 {
-                    var shape = new Button { name = "shape", tooltip = L.Text("ad.ui.target.shape.tip") };
-                    shape.AddToClassList("ad-w-140");
+                    // A long renderer and shape name ends in an ellipsis; the tooltip BindRow writes names it in full,
+                    // so Unity's own tooltip for elided text is switched off rather than left to replace it.
+                    var shape = new Button { name = "shape", tooltip = L.Text("ad.ui.target.shape.tip"), displayTooltipWhenElided = false };
+                    shape.AddToClassList("ad-shape-button");
                     // The row element is recycled across indices, so the element this click belongs to is pinned
                     // down by its property path here; by the time the picker closes the row may stand for another one.
                     shape.clicked += () =>
@@ -470,24 +477,28 @@ namespace DocMe.AvatarDoctor.Editor
                         var path = list.GetArrayElementAtIndex((int)row.userData).propertyPath;
                         ShapePicker.Show(shape, owner.Plan.AvatarRoot, (r, s) => SetShape(path, r, s));
                     };
-                    row.Add(shape);
+                    main.Add(shape);
                     var usage = new Label();
                     usage.AddToClassList("ad-chip");
                     usage.AddToClassList("ad-chip-usage");
                     usage.pickingMode = PickingMode.Position;
-                    row.Add(usage);
+                    main.Add(usage);
                     if (radial)
                     {
+                        // The two ends share a line of their own under the shape, one under the other only when the row is too narrow for both.
+                        var range = Group("range");
+                        range.AddToClassList("ad-target-range");
                         var min = RowFloat(row, nameof(BlendShapeTarget.minWeight), L.Text("ad.ui.min"));
                         min.name = "min";
                         min.tooltip = L.Text("ad.ui.min.tip");
-                        min.AddToClassList("ad-w-70");
-                        row.Add(min);
+                        min.AddToClassList("ad-target-number");
+                        range.Add(min);
                         var max = RowFloat(row, nameof(BlendShapeTarget.maxWeight), L.Text("ad.ui.max"));
                         max.name = "max";
                         max.tooltip = L.Text("ad.ui.max.tip");
-                        max.AddToClassList("ad-w-70");
-                        row.Add(max);
+                        max.AddToClassList("ad-target-number");
+                        range.Add(max);
+                        main.Add(range);
                     }
                     else if (link)
                     {
@@ -504,25 +515,27 @@ namespace DocMe.AvatarDoctor.Editor
                             modeProperty.enumValueIndex = modeChoices.IndexOf(e.newValue);
                             owner.ApplyAndRefresh();
                         });
-                        row.Add(mode);
+                        main.Add(mode);
                         var weight = RowSlider(row, nameof(BlendShapeTarget.weight), L.Text("ad.ui.weight"), 0f, 100f);
                         weight.name = "weight";
                         weight.tooltip = L.Text("ad.ui.weight.tip");
-                        weight.AddToClassList("ad-grow");
-                        row.Add(weight);
+                        weight.AddToClassList("ad-target-slider");
+                        weight.AddToClassList("ad-weight-slider");
+                        main.Add(weight);
                         var multiplier = RowFloat(row, nameof(BlendShapeTarget.multiplier), L.Text("ad.ui.effect.multiplier"));
                         multiplier.name = "multiplier";
                         multiplier.tooltip = L.Text("ad.ui.effect.multiplier.tip");
-                        multiplier.AddToClassList("ad-grow");
-                        row.Add(multiplier);
+                        multiplier.AddToClassList("ad-target-number");
+                        main.Add(multiplier);
                     }
                     else if (pinned)
                     {
                         var weight = RowSlider(row, nameof(BlendShapeTarget.weight), L.Text("ad.ui.override.value"), 0f, 100f);
                         weight.name = "weight";
                         weight.tooltip = L.Text("ad.ui.override.value.tip");
-                        weight.AddToClassList("ad-grow");
-                        row.Add(weight);
+                        weight.AddToClassList("ad-target-slider");
+                        weight.AddToClassList("ad-weight-slider");
+                        main.Add(weight);
                     }
                     else
                     {
@@ -538,12 +551,13 @@ namespace DocMe.AvatarDoctor.Editor
                             int index = (int)row.userData;
                             SetShapeMode(index, newIndex == 1 ? ShapeEffectMode.Pin : ShapeEffectMode.Fixed);
                         };
-                        row.Add(mode);
+                        main.Add(mode);
                         var weight = RowSlider(row, nameof(BlendShapeTarget.weight), L.Text("ad.ui.weight"), 0f, 100f);
                         weight.name = "weight";
                         weight.tooltip = L.Text("ad.ui.weight.tip");
-                        weight.AddToClassList("ad-grow");
-                        row.Add(weight);
+                        weight.AddToClassList("ad-target-slider");
+                        weight.AddToClassList("ad-weight-slider");
+                        main.Add(weight);
                         var explicitOff = new Toggle(L.Text("ad.ui.target.explicit_off")) { name = "explicit-off", tooltip = L.Text("ad.ui.target.explicit_off.tip") };
                         explicitOff.AddToClassList("ad-compact");
                         // Registered once here, not in BindRow, for the same reason the mode choice above is.
@@ -557,6 +571,8 @@ namespace DocMe.AvatarDoctor.Editor
                         var offValue = RowSlider(row, nameof(BlendShapeTarget.minWeight), L.Text("ad.ui.target.off_value"), 0f, 100f);
                         offValue.name = "off-value";
                         offValue.tooltip = L.Text("ad.ui.target.off_value.tip");
+                        offValue.AddToClassList("ad-target-slider");
+                        offValue.AddToClassList("ad-weight-slider");
                         offLine.Add(offValue);
                     }
                     break;
@@ -566,30 +582,29 @@ namespace DocMe.AvatarDoctor.Editor
                     var renderer = RowObject(row, nameof(MaterialTarget.renderer), typeof(Renderer), true, PickKind.Renderer);
                     renderer.name = "renderer";
                     renderer.tooltip = L.Text("ad.ui.target.renderer.tip");
-                    renderer.AddToClassList("ad-grow");
-                    row.Add(renderer);
+                    renderer.AddToClassList("ad-target-object");
+                    main.Add(renderer);
                     var slot = RowInt(row, nameof(MaterialTarget.slot), L.Text("ad.ui.slot"));
                     slot.name = "slot";
                     slot.tooltip = L.Text("ad.ui.slot.tip");
-                    slot.AddToClassList("ad-w-60");
-                    row.Add(slot);
+                    slot.AddToClassList("ad-target-number");
+                    main.Add(slot);
                     var material = RowObject(row, nameof(MaterialTarget.material), typeof(Material), false);
                     material.name = "material";
                     material.tooltip = L.Text("ad.ui.target.material.tip");
-                    material.AddToClassList("ad-grow");
-                    row.Add(material);
+                    material.AddToClassList("ad-target-object");
+                    main.Add(material);
                     break;
                 }
                 case Kind.Properties:
                 {
-                    row.AddToClassList("ad-property-target");
                     var renderer = RowObject(row, nameof(MaterialPropertyTarget.renderer), typeof(Renderer), true, PickKind.Renderer);
                     renderer.name = "renderer";
                     renderer.tooltip = L.Text("ad.ui.property.renderer.tip");
-                    renderer.AddToClassList("ad-grow");
-                    row.Add(renderer);
-                    var pick = new Button { name = "property", tooltip = L.Text("ad.ui.property.pick_button.tip") };
-                    pick.AddToClassList("ad-grow");
+                    renderer.AddToClassList("ad-target-object");
+                    main.Add(renderer);
+                    var pick = new Button { name = "property", tooltip = L.Text("ad.ui.property.pick_button.tip"), displayTooltipWhenElided = false };
+                    pick.AddToClassList("ad-target-pick");
                     // Registered once here, not in BindRow: the ListView recycles this row across indices, so a
                     // handler added on every bind would pile up one closure per bind, each reading a stale index.
                     pick.clicked += () =>
@@ -600,10 +615,10 @@ namespace DocMe.AvatarDoctor.Editor
                         var currentRenderer = element.FindPropertyRelative(nameof(MaterialPropertyTarget.renderer)).objectReferenceValue as Renderer;
                         ShowPropertyMenu(pick, currentRenderer, element.propertyPath);
                     };
-                    row.Add(pick);
+                    main.Add(pick);
                     var values = new VisualElement { name = "values" };
                     values.AddToClassList("ad-property-values");
-                    row.Add(values);
+                    main.Add(values);
                     if (!radial) offLine = OffLine();
                     break;
                 }
@@ -612,14 +627,14 @@ namespace DocMe.AvatarDoctor.Editor
                     var clip = RowObject(row, nameof(AnimationTarget.clip), typeof(AnimationClip), false);
                     clip.name = "clip";
                     clip.tooltip = L.Text("ad.ui.target.clip.tip");
-                    clip.AddToClassList("ad-grow");
-                    row.Add(clip);
+                    clip.AddToClassList("ad-target-object");
+                    main.Add(clip);
                     var pathRoot = RowObject(row, nameof(AnimationTarget.pathRoot), typeof(Transform), true, PickKind.Transform);
                     pathRoot.name = "path-root";
                     pathRoot.label = L.Text("ad.ui.animation.path_root");
                     pathRoot.tooltip = L.Text("ad.ui.animation.path_root.tip");
-                    pathRoot.AddToClassList("ad-grow");
-                    row.Add(pathRoot);
+                    pathRoot.AddToClassList("ad-target-object");
+                    main.Add(pathRoot);
                     break;
                 }
                 case Kind.Follows:
@@ -627,13 +642,13 @@ namespace DocMe.AvatarDoctor.Editor
                     var target = RowObject(row, nameof(FollowTarget.target), typeof(GameObject), true, PickKind.GameObject);
                     target.name = "target";
                     target.tooltip = L.Text("ad.ui.target.follow_object.tip");
-                    target.AddToClassList("ad-grow");
-                    row.Add(target);
+                    target.AddToClassList("ad-target-object");
+                    main.Add(target);
                     var follows = RowObject(row, nameof(FollowTarget.follows), typeof(Transform), true, PickKind.Transform);
                     follows.name = "follows";
                     follows.tooltip = L.Text("ad.ui.target.follow_target.tip");
-                    follows.AddToClassList("ad-grow");
-                    row.Add(follows);
+                    follows.AddToClassList("ad-target-object");
+                    main.Add(follows);
                     // Keep offset used to sit as a third control crammed onto the same line as the two grow object
                     // fields: with both already claiming the row's width, its own 112px label column left the
                     // checkbox pushed past the row's right edge, cut off. It now gets a real labelled row of its
@@ -657,6 +672,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
             var remove = new Button { text = "×", name = "remove" };
             remove.AddToClassList("ad-target-value");
+            remove.AddToClassList("ad-target-remove");
             remove.AddToClassList("ad-w-24");
             remove.clicked += () => RemoveAt((int)row.userData);
             row.Add(remove);
@@ -675,6 +691,14 @@ namespace DocMe.AvatarDoctor.Editor
             var line = new VisualElement { name = "off-line" };
             line.AddToClassList("ad-target-off");
             return line;
+        }
+
+        /// <summary>Controls that belong together, such as two of a vector's four numbers: a narrow row moves them to the next line as one.</summary>
+        static VisualElement Group(string name)
+        {
+            var group = new VisualElement { name = name };
+            group.AddToClassList("ad-target-group");
+            return group;
         }
 
         void BindRow(VisualElement row, int index)
@@ -705,7 +729,9 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     var renderer = element.FindPropertyRelative(nameof(BlendShapeTarget.renderer)).objectReferenceValue as SkinnedMeshRenderer;
                     var shape = element.FindPropertyRelative(nameof(BlendShapeTarget.shape)).stringValue;
-                    row.Q<Button>("shape").text = (renderer != null ? renderer.name : "?") + " › " + shape;
+                    var shapeButton = row.Q<Button>("shape");
+                    shapeButton.text = (renderer != null ? renderer.name : "?") + " › " + shape;
+                    shapeButton.tooltip = shapeButton.text + "\n" + L.Text("ad.ui.target.shape.tip");
                     var usage = row.Q<Label>(className: "ad-chip-usage");
                     var clips = owner.Plan.Usage.ClipsFor(renderer, shape);
                     usage.EnableInClassList("ad-hidden", clips.Count == 0);
@@ -793,7 +819,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             var pick = row.Q<Button>("property");
             pick.text = string.IsNullOrEmpty(propertyName) ? L.Text("ad.ui.property.pick") : (hasMatch ? match.DisplayName : propertyName);
-            pick.tooltip = string.IsNullOrEmpty(propertyName) ? L.Text("ad.ui.property.pick_button.tip") : propertyName;
+            // A long display name ends in an ellipsis, so the tooltip names it in full, with the shader's own name when it differs.
+            pick.tooltip = string.IsNullOrEmpty(propertyName) ? L.Text("ad.ui.property.pick_button.tip")
+                : hasMatch && match.DisplayName != propertyName ? match.DisplayName + "\n" + propertyName : propertyName;
 
             var typeProperty = element.FindPropertyRelative(nameof(MaterialPropertyTarget.type));
             var values = row.Q<VisualElement>("values");
@@ -831,37 +859,30 @@ namespace DocMe.AvatarDoctor.Editor
             var explicitOffProperty = element.FindPropertyRelative(nameof(MaterialPropertyTarget.explicitOff));
             var elementPath = element.propertyPath;
 
+            // Each value carries its caption as its own label, so a narrow row moves a caption to the next line
+            // together with its value instead of leaving it behind at the end of a line.
+            string minCaption = L.Text("ad.ui.min");
+            string valueCaption = L.Text(radial ? "ad.ui.max" : "ad.ui.target.on_value");
+            string offCaption = L.Text("ad.ui.target.off_value");
+            string valueTip = L.Text(radial ? "ad.ui.property.max.tip" : "ad.ui.property.value.tip");
+            string minTip = L.Text("ad.ui.property.min.tip");
+            string offTip = L.Text("ad.ui.target.off_value.tip");
             switch (type)
             {
                 case PropertyValueType.Color:
-                    if (radial)
-                    {
-                        values.Add(Caption(L.Text("ad.ui.property.min"), L.Text("ad.ui.property.min.tip")));
-                        values.Add(ColorControl(minColorProperty, "min", L.Text("ad.ui.property.min.tip")));
-                        values.Add(Caption(L.Text("ad.ui.property.max"), L.Text("ad.ui.property.max.tip")));
-                    }
-                    values.Add(ColorControl(colorProperty, "value", L.Text(radial ? "ad.ui.property.max.tip" : "ad.ui.property.value.tip")));
-                    if (!radial) AddExplicitOffControls(offLine, explicitOffProperty, elementPath, () => ColorControl(minColorProperty, "off-value", L.Text("ad.ui.target.off_value.tip")));
+                    if (radial) values.Add(ColorControl(minColorProperty, "min", minTip, minCaption));
+                    values.Add(ColorControl(colorProperty, "value", valueTip, valueCaption));
+                    if (!radial) AddExplicitOffControls(offLine, explicitOffProperty, elementPath, () => ColorControl(minColorProperty, "off-value", offTip, offCaption));
                     break;
                 case PropertyValueType.Vector:
-                    if (radial)
-                    {
-                        values.Add(Caption(L.Text("ad.ui.property.min"), L.Text("ad.ui.property.min.tip")));
-                        values.Add(VectorControl(minVectorProperty, "min", L.Text("ad.ui.property.min.tip")));
-                        values.Add(Caption(L.Text("ad.ui.property.max"), L.Text("ad.ui.property.max.tip")));
-                    }
-                    values.Add(VectorControl(vectorProperty, "value", L.Text(radial ? "ad.ui.property.max.tip" : "ad.ui.property.value.tip")));
-                    if (!radial) AddExplicitOffControls(offLine, explicitOffProperty, elementPath, () => VectorControl(minVectorProperty, "off-value", L.Text("ad.ui.target.off_value.tip")));
+                    if (radial) values.Add(VectorControl(minVectorProperty, "min", minTip, minCaption));
+                    values.Add(VectorControl(vectorProperty, "value", valueTip, valueCaption));
+                    if (!radial) AddExplicitOffControls(offLine, explicitOffProperty, elementPath, () => VectorControl(minVectorProperty, "off-value", offTip, offCaption));
                     break;
                 default:
-                    if (radial)
-                    {
-                        values.Add(Caption(L.Text("ad.ui.property.min"), L.Text("ad.ui.property.min.tip")));
-                        values.Add(FloatControl(minValueProperty, "min", isRangeFloat, rangeMin, rangeMax, L.Text("ad.ui.property.min.tip")));
-                        values.Add(Caption(L.Text("ad.ui.property.max"), L.Text("ad.ui.property.max.tip")));
-                    }
-                    values.Add(FloatControl(valueProperty, "value", isRangeFloat, rangeMin, rangeMax, L.Text(radial ? "ad.ui.property.max.tip" : "ad.ui.property.value.tip")));
-                    if (!radial) AddExplicitOffControls(offLine, explicitOffProperty, elementPath, () => FloatControl(minValueProperty, "off-value", isRangeFloat, rangeMin, rangeMax, L.Text("ad.ui.target.off_value.tip")));
+                    if (radial) values.Add(FloatControl(minValueProperty, "min", isRangeFloat, rangeMin, rangeMax, minTip, minCaption));
+                    values.Add(FloatControl(valueProperty, "value", isRangeFloat, rangeMin, rangeMax, valueTip, valueCaption));
+                    if (!radial) AddExplicitOffControls(offLine, explicitOffProperty, elementPath, () => FloatControl(minValueProperty, "off-value", isRangeFloat, rangeMin, rangeMax, offTip, offCaption));
                     break;
             }
         }
@@ -879,9 +900,7 @@ namespace DocMe.AvatarDoctor.Editor
                 SetPropertyExplicitOff(elementPath, e.newValue);
             });
             values.Add(toggle);
-            if (!explicitOffProperty.boolValue) return;
-            values.Add(Caption(L.Text("ad.ui.target.off_value"), L.Text("ad.ui.target.off_value.tip")));
-            values.Add(makeOffValueControl());
+            if (explicitOffProperty.boolValue) values.Add(makeOffValueControl());
         }
 
         /// <summary>Applies a pick from a row's explicit-off switch by index, exactly as clicking it would.</summary>
@@ -933,7 +952,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var choices = new List<string> { L.Text("ad.ui.property.type.float"), L.Text("ad.ui.property.type.color"), L.Text("ad.ui.property.type.vector") };
             var field = new SegmentedChoice(choices, Mathf.Clamp(typeProperty.enumValueIndex, 0, choices.Count - 1)) { name = "type" };
-            field.AddToClassList("ad-w-132");
+            field.AddToClassList("ad-target-choice");
             field.Changed += index =>
             {
                 if (Locked || !Begin()) return;
@@ -945,39 +964,40 @@ namespace DocMe.AvatarDoctor.Editor
             return field;
         }
 
+        /// <summary>A caption in the look of a field's own label, for a control that has none of its own.</summary>
         static VisualElement Caption(string text, string tooltip = null)
         {
             var label = new Label(text) { tooltip = tooltip };
-            label.AddToClassList("ad-note");
+            label.AddToClassList("ad-label");
             label.AddToClassList("ad-caption");
             return label;
         }
 
-        VisualElement FloatControl(SerializedProperty property, string name, bool isRange, float min, float max, string tip = null)
+        VisualElement FloatControl(SerializedProperty property, string name, bool isRange, float min, float max, string tip, string caption)
         {
             var path = property.propertyPath;
             if (isRange)
             {
-                var slider = new Slider(min, max) { showInputField = true, name = name, tooltip = tip };
-                slider.AddToClassList("ad-grow");
+                var slider = new Slider(caption, min, max) { showInputField = true, name = name, tooltip = tip };
+                slider.AddToClassList("ad-target-slider");
                 slider.SetValueWithoutNotify(property.floatValue);
                 slider.RegisterValueChangedCallback(e => WritePath(path, p => p.floatValue = e.newValue,
                     () => slider.SetValueWithoutNotify(ReadPath(path, p => p.floatValue)), true));
                 return slider;
             }
-            var field = new FloatField { name = name, tooltip = tip };
-            field.AddToClassList("ad-w-70");
+            var field = new FloatField(caption) { name = name, tooltip = tip };
+            field.AddToClassList("ad-target-number");
             field.SetValueWithoutNotify(property.floatValue);
             field.RegisterValueChangedCallback(e => WritePath(path, p => p.floatValue = e.newValue,
                 () => field.SetValueWithoutNotify(ReadPath(path, p => p.floatValue)), true));
             return field;
         }
 
-        VisualElement ColorControl(SerializedProperty property, string name, string tip = null)
+        VisualElement ColorControl(SerializedProperty property, string name, string tip, string caption)
         {
             var path = property.propertyPath;
-            var field = new ColorField { hdr = true, showAlpha = true, name = name, tooltip = tip };
-            field.AddToClassList("ad-grow");
+            var field = new ColorField(caption) { hdr = true, showAlpha = true, name = name, tooltip = tip };
+            field.AddToClassList("ad-target-color");
             field.SetValueWithoutNotify(property.colorValue);
             field.RegisterValueChangedCallback(e => WritePath(path, p => p.colorValue = e.newValue,
                 () => field.SetValueWithoutNotify(ReadPath(path, p => p.colorValue)), true));
@@ -986,20 +1006,28 @@ namespace DocMe.AvatarDoctor.Editor
 
         static readonly string[] VectorAxes = { "x", "y", "z", "w" };
 
-        VisualElement VectorControl(SerializedProperty vectorProperty, string name, string tip = null)
+        /// <summary>Four number fields after an optional caption, in two pairs: a narrow row puts Z and W under X and Y, never one field alone on a line.</summary>
+        VisualElement VectorControl(SerializedProperty vectorProperty, string name, string tip, string caption)
         {
             var container = new VisualElement { name = name, tooltip = tip };
             container.AddToClassList("ad-property-vector");
+            if (caption != null) container.Add(Caption(caption, tip));
+            VisualElement pair = null;
             foreach (var axis in VectorAxes)
             {
+                if (pair == null || pair.childCount == 2)
+                {
+                    pair = Group(name + "-pair");
+                    container.Add(pair);
+                }
                 var axisProperty = vectorProperty.FindPropertyRelative(axis);
                 var axisPath = axisProperty.propertyPath;
                 var field = new FloatField { name = name + "-" + axis, tooltip = tip };
-                field.AddToClassList("ad-w-60");
+                field.AddToClassList("ad-target-number");
                 field.SetValueWithoutNotify(axisProperty.floatValue);
                 field.RegisterValueChangedCallback(e => WritePath(axisPath, p => p.floatValue = e.newValue,
                     () => field.SetValueWithoutNotify(ReadPath(axisPath, p => p.floatValue)), true));
-                container.Add(field);
+                pair.Add(field);
             }
             return container;
         }
