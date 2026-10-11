@@ -260,7 +260,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
-        public void TwoPiecesOnOneShapeWarnAndTheLargerValueWins()
+        public void OneAnimationTurningTwoPiecesOnHoldsTheLargerValue()
         {
             var second = new GameObject("Skirt");
             second.transform.SetParent(avatar.Root.transform);
@@ -268,13 +268,244 @@ namespace DocMe.AvatarDoctor.Editor
             AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve("Skirt", typeof(GameObject), "m_IsActive"),
                 new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(1f, 1f)));
             avatar.AddFxClip("Wear", clip);
-            WhileOn(AddShapes(), avatar.Body, "Eye_Big", 40f);
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 40f);
             WhileOn(AddShapes(second), avatar.Body, "Eye_Big", 90f);
+            var inspector = ShapesModel.PlanFor(jacketShapes).Messages;
 
             var errors = RunShapes();
 
             Assert.That(ShapeCurve(State(Fx(), "Base", "Wear").motion, "Body", "Eye_Big").Evaluate(0f), Is.EqualTo(90f));
-            Assert.That(Said(errors, "ad.warn.shapes_conflict"), Is.True);
+            Assert.That(Said(errors, "ad.info.shapes_larger_wins"), Is.True, "one animation turns both on, so the larger value really wins, and a note says so");
+            Assert.That(Said(errors, "ad.warn.shapes_conflict"), Is.False, "the two pieces never fight: one clip switches both");
+            Assert.That(inspector.Select(m => m.Key), Does.Contain("ad.info.shapes_larger_wins").And.Not.Contain("ad.warn.shapes_conflict"), "the inspector says the same before a build");
+        }
+
+        /// <summary>
+        /// Two pieces on separate toggles hold one body shape. Each toggle's layer writes the piece's value in its On
+        /// state and the rest value in its Off state, and with Write Defaults off the later FX layer decides the shape.
+        /// The preview follows the same rule, and the warning names the piece that wins.
+        /// </summary>
+        [Test]
+        public void TwoPiecesOnSeparateTogglesShowTheLaterLayerNotTheLargerValue()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            var menu = avatar.AddMenu();
+            var jacket = PieceToggle(menu);
+            var socksToggle = PieceToggle(menu, socks, "Socks");
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+            WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 60f);
+            int eyeBig = avatar.Body.sharedMesh.GetBlendShapeIndex("Eye_Big");
+
+            float Previewed(bool jacketOn, bool socksOn)
+            {
+                var shapes = PreviewModel.Compute(avatar.Root.transform, new[] { menu },
+                    new Dictionary<string, float> { { jacket.id, jacketOn ? 1f : 0f }, { socksToggle.id, socksOn ? 1f : 0f } }, SceneReader.Direct);
+                return shapes.TryGetValue(avatar.Body, out var body) && body.Shapes.TryGetValue(eyeBig, out var weight) ? weight : avatar.Body.GetBlendShapeWeight(eyeBig);
+            }
+            var preview = new[] { Previewed(true, false), Previewed(false, true), Previewed(true, true) };
+            var inspector = ShapesModel.PlanFor(jacketShapes).Messages.Single(m => m.Key == "ad.warn.shapes_conflict");
+
+            var errors = RunBuildAndShapes();
+
+            Assert.That(errors.Where(e => e.TheError.Severity == nadena.dev.ndmf.ErrorSeverity.Error), Is.Empty);
+            var fx = Fx();
+            var layers = fx.layers.Select(l => l.name).ToList();
+            int jacketLayer = layers.FindIndex(n => n.Contains("Jacket"));
+            int socksLayer = layers.FindIndex(n => n.Contains("Socks"));
+            Assert.That(jacketLayer, Is.GreaterThanOrEqualTo(0));
+            Assert.That(socksLayer, Is.GreaterThan(jacketLayer), "the Socks toggle comes later in the menu, so its layer comes later in FX");
+            float Value(int layer, string state) => ShapeCurve(State(fx, layers[layer], state).motion, "Body", "Eye_Big").Evaluate(0f);
+            Assert.That((Value(jacketLayer, "On"), Value(jacketLayer, "Off")), Is.EqualTo((100f, 0f)), "the jacket's layer: its value while on, the rest value while off");
+            Assert.That((Value(socksLayer, "On"), Value(socksLayer, "Off")), Is.EqualTo((60f, 0f)), "the socks' layer the same");
+
+            float Built(bool jacketOn, bool socksOn) => Value(socksLayer, socksOn ? "On" : "Off");
+            Assert.That((preview[0], Built(true, false)), Is.EqualTo((0f, 0f)), "jacket on, socks off: the socks' Off state puts the shape back, in the preview as in the build");
+            Assert.That((preview[1], Built(false, true)), Is.EqualTo((60f, 60f)), "socks on, jacket off: the socks' value");
+            Assert.That((preview[2], Built(true, true)), Is.EqualTo((60f, 60f)), "both on: the later layer's value, not the larger one");
+
+            Assert.That(Said(errors, "ad.warn.shapes_conflict"), Is.True, "the build warns as the inspector does");
+            Assert.That(new[] { inspector.Args[0], inspector.Args[1] }, Is.EqualTo(new object[] { "Jacket", "Socks" }), "the Socks piece wins: its toggle comes later");
+            Assert.That(inspector.Severity, Is.EqualTo(MessageSeverity.Warning));
+        }
+
+        [Test]
+        public void PiecesOnSeparateTogglesWarnEvenAtTheSameValue()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            var menu = avatar.AddMenu();
+            PieceToggle(menu);
+            PieceToggle(menu, socks, "Socks");
+            var jacketShapes = AddShapes();
+            var socksShapes = AddShapes(socks);
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+            WhileOn(socksShapes, avatar.Body, "Eye_Big", 100f);
+
+            var inspector = ShapesModel.PlanFor(jacketShapes).Messages.Where(m => m.Key == "ad.warn.shapes_conflict").ToList();
+            var errors = RunBuildAndShapes();
+
+            Assert.That(inspector.Count, Is.EqualTo(1), "switching the later toggle off still undoes the other piece's value");
+            Assert.That(inspector[0].Args, Has.Member(jacketShapes).And.Member(socksShapes), "both pieces' own inspectors show it");
+            Assert.That(Said(errors, "ad.warn.shapes_conflict"), Is.True, "and the build says it too");
+        }
+
+        [Test]
+        public void PiecesOfOneExclusiveGroupDoNotConflict()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            var menu = avatar.AddMenu();
+            PieceToggle(menu).exclusiveGroup = "Outfits";
+            PieceToggle(menu, socks, "Socks").exclusiveGroup = "Outfits";
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+            WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 60f);
+
+            var inspector = ShapesModel.PlanFor(jacketShapes).Messages;
+            var errors = RunBuildAndShapes();
+
+            Assert.That(inspector.Any(m => m.Key == "ad.warn.shapes_conflict" || m.Key == "ad.info.shapes_larger_wins"), Is.False,
+                "one layer switches both, and only one of them is on at a time");
+            Assert.That(Said(errors, "ad.warn.shapes_conflict") || Said(errors, "ad.info.shapes_larger_wins"), Is.False);
+        }
+
+        [Test]
+        public void APieceThatIsAlwaysOnLosesToAToggledOne()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            var menu = avatar.AddMenu();
+            PieceToggle(menu, socks, "Socks");
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+            WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 60f);
+
+            var conflict = ShapesModel.PlanFor(jacketShapes).Messages.Single(m => m.Key == "ad.warn.shapes_conflict");
+
+            Assert.That(new[] { conflict.Args[0], conflict.Args[1] }, Is.EqualTo(new object[] { "Jacket", "Socks" }),
+                "nothing switches the jacket, so its value sits under the Socks toggle, whose Off state puts the shape back");
+        }
+
+        /// <summary>The names a shapes conflict gives, loser then winner, in the inspector and in the build's report.</summary>
+        static object[] Pair(ModelMessage message) => new[] { message.Args[0], message.Args[1] };
+
+        static object[] Pair(List<ErrorContext> errors)
+        {
+            var error = errors.Select(e => e.TheError).OfType<SimpleError>().Single(s => s.TitleKey == "ad.warn.shapes_conflict");
+            return new object[] { error.TitleSubst[0], error.TitleSubst[1] };
+        }
+
+        [Test]
+        public void TheWinnerIsThePieceOfTheLaterLayerNotTheLaterObject()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            var menu = avatar.AddMenu();
+            PieceToggle(menu);
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+            WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 60f);
+
+            var inspector = ShapesModel.PlanFor(jacketShapes).Messages.Single(m => m.Key == "ad.warn.shapes_conflict");
+            var errors = RunBuildAndShapes();
+
+            Assert.That(Pair(inspector), Is.EqualTo(new object[] { "Socks", "Jacket" }),
+                "the Socks come later in the hierarchy, but nothing switches them, so the Jacket toggle's layer decides");
+            Assert.That(Pair(errors), Is.EqualTo(new object[] { "Socks", "Jacket" }), "and the build names the same winner");
+            Assert.That(L.Text("ad.warn.shapes_conflict"), Does.Contain("one exclusive group"));
+            using (L.UseTestLanguage("ja-JP", null)) Assert.That(L.Text("ad.warn.shapes_conflict"), Does.Contain("排他グループ"));
+            using (L.UseTestLanguage("zh-Hans", null))
+            {
+                Assert.That(L.Text("ad.warn.shapes_conflict"), Does.Contain("互斥组"));
+                Assert.That(L.Text("ad.warn.shapes_conflict"), Does.Not.Contain("切换"), "切换 is the blend shape trigger's Switch style");
+            }
+        }
+
+        [Test]
+        public void AMergedAnimatorComesAfterTheToggles()
+        {
+            const string folder = GeneratedAssets.Folder;
+            GeneratedAssets.Ensure();
+            try
+            {
+                var socks = new GameObject("Socks");
+                socks.transform.SetParent(avatar.Root.transform);
+                var controller = AnimatorController.CreateAnimatorControllerAtPath(folder + "/ShapesSocks.controller");
+                var wear = ActiveClip("Wear socks", "Socks", 1f, 1f);
+                var bare = ActiveClip("Bare feet", "Socks", 0f, 0f);
+                AssetDatabase.AddObjectToAsset(wear, controller);
+                AssetDatabase.AddObjectToAsset(bare, controller);
+                controller.AddMotion(bare);
+                controller.AddMotion(wear);
+                AssetDatabase.SaveAssets();
+                var menu = avatar.AddMenu();
+                menu.animators.Add(AnimatorMerge.Create(controller));
+                PieceToggle(menu);
+                var jacketShapes = AddShapes();
+                WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+                WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 60f);
+
+                var inspector = ShapesModel.PlanFor(jacketShapes).Messages.Single(m => m.Key == "ad.warn.shapes_conflict");
+                var errors = RunBuildAndShapes();
+
+                Assert.That(Pair(inspector), Is.EqualTo(new object[] { "Jacket", "Socks" }), "merged animators join FX after every toggle, so the merged Socks layer decides");
+                Assert.That(Pair(errors), Is.EqualTo(new object[] { "Jacket", "Socks" }), "as in the build");
+            }
+            finally
+            {
+                GeneratedAssets.CleanUp();
+            }
+        }
+
+        [Test]
+        public void ABlendShapeTriggerComesAfterEveryOtherLayer()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            avatar.AddFxClip("Smile", TestAvatar.ShapeClip("Smile", "Body", "Blush", 0f, 100f));
+            var menu = avatar.AddMenu();
+            var link = menu.AddEntry(EntryKind.Trigger, "Blushing jacket");
+            link.source = TriggerSource.BlendShape;
+            link.sourceRenderer = avatar.Body;
+            link.sourceShape = "Blush";
+            link.objects.Add(new ObjectTarget { target = piece, activeWhenOn = true });
+            var thumbs = menu.AddEntry(EntryKind.Trigger, "Thumbs up socks");
+            thumbs.source = TriggerSource.Parameter;
+            thumbs.sourceParameter = "GestureRight";
+            thumbs.condition = ParameterCondition.Equals;
+            thumbs.conditionValue = 7f;
+            thumbs.objects.Add(new ObjectTarget { target = socks, activeWhenOn = true });
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 100f);
+            WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 60f);
+
+            var inspector = ShapesModel.PlanFor(jacketShapes).Messages.Single(m => m.Key == "ad.warn.shapes_conflict");
+            var errors = RunBuildAndShapes();
+
+            Assert.That(Pair(inspector), Is.EqualTo(new object[] { "Socks", "Jacket" }),
+                "the blend shape trigger comes first in the menu, but its layer goes after every other one, so it decides");
+            Assert.That(Pair(errors), Is.EqualTo(new object[] { "Socks", "Jacket" }), "as in the build");
+        }
+
+        [Test]
+        public void TwoPiecesThatStayOnHoldTheLargerValue()
+        {
+            var socks = new GameObject("Socks");
+            socks.transform.SetParent(avatar.Root.transform);
+            var jacketShapes = AddShapes();
+            WhileOn(jacketShapes, avatar.Body, "Eye_Big", 40f);
+            WhileOn(AddShapes(socks), avatar.Body, "Eye_Big", 90f);
+
+            var note = ShapesModel.PlanFor(jacketShapes).Messages.Single(m => m.Key == "ad.info.shapes_larger_wins");
+            var errors = RunShapes();
+
+            Assert.That(note.Args[3], Is.EqualTo("90"));
+            Assert.That(Said(errors, "ad.info.shapes_larger_wins"), Is.True);
+            Assert.That(avatar.Body.GetBlendShapeWeight(avatar.Body.sharedMesh.GetBlendShapeIndex("Eye_Big")), Is.EqualTo(90f), "nothing switches either, so the larger value is set once on the avatar");
+            Assert.That(L.Text("ad.info.shapes_larger_wins"), Does.Contain("both stay on"), "the note covers pieces that stay on, not only ones an animation turns on");
         }
 
         [Test]

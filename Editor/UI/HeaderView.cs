@@ -158,7 +158,8 @@ namespace DocMe.AvatarDoctor.Editor
             installRow.Add(pick);
             settingsFoldContent.Add(installRow);
 
-            var mode = fields.EnumChoice(owner.SerializedObject.FindProperty(nameof(AvatarDoc.installMode)), L.Text("ad.ui.install.mode"));
+            var mode = fields.EnumChoice(owner.SerializedObject.FindProperty(nameof(AvatarDoc.installMode)), L.Text("ad.ui.install.mode"),
+                new List<string> { L.Text("ad.ui.install.mode.append"), L.Text("ad.ui.install.mode.submenu") });
             mode.name = "ad-install-mode";
             mode.tooltip = L.Text("ad.ui.install.mode.tip");
             settingsFoldContent.Add(Row(mode));
@@ -363,7 +364,7 @@ namespace DocMe.AvatarDoctor.Editor
             legendDoctor.text = UiText.Count(plan.AvatarDoctorBits, "ad.ui.memory.ad.one", "ad.ui.memory.ad");
             int free = limit - plan.AvatarBits - plan.AvatarDoctorBits;
             bool overBudget = free < 0;
-            legendFree.text = overBudget ? string.Format(L.Text("ad.ui.memory.over"), -free) : string.Format(L.Text("ad.ui.memory.free_bits"), free, limit);
+            legendFree.text = overBudget ? UiText.Count(-free, "ad.ui.memory.over.one", "ad.ui.memory.over") : string.Format(L.Text("ad.ui.memory.free_bits"), free, limit);
             legendDoctorSwatch.EnableInClassList("ad-legend-swatch-error", overBudget);
             disabledNote.EnableInClassList("ad-hidden", owner.Menu.enabled);
             noAvatarNote.EnableInClassList("ad-hidden", plan.AvatarRoot != null);

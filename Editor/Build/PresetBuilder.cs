@@ -6,7 +6,6 @@ using nadena.dev.ndmf.animator;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
-using VRC.SDK3.Avatars.ScriptableObjects;
 using VRC.SDKBase;
 
 namespace DocMe.AvatarDoctor.Editor
@@ -14,13 +13,24 @@ namespace DocMe.AvatarDoctor.Editor
     /// <summary>One FX layer per preset: Idle and Apply, with a parameter driver on Apply that sets every state and named parameter the preset names.</summary>
     public static class PresetBuilder
     {
-        public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, ParameterPlan plan, ICollection<string> pinLayerNames = null)
+        /// <summary>
+        /// Builds every preset's layer. alsoKnown names the parameters the avatar's other tools provide, so a preset
+        /// that sets one of them by name is not warned about.
+        /// </summary>
+        public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, ParameterPlan plan, ICollection<string> pinLayerNames = null, IEnumerable<string> alsoKnown = null)
         {
             var messages = new List<ModelMessage>();
             if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return messages;
             bool writeDefaults = AnimatorBuilder.DecideWriteDefaults(fx, pinLayerNames);
             var descriptor = tree.AvatarRoot != null ? tree.AvatarRoot.GetComponent<VRCAvatarDescriptor>() : null;
             var expressionParameters = descriptor != null ? descriptor.expressionParameters : null;
+
+            var known = new HashSet<string>(fx.Parameters.Keys);
+            if (expressionParameters != null && expressionParameters.parameters != null)
+                foreach (var p in expressionParameters.parameters)
+                    if (p != null && !string.IsNullOrEmpty(p.name)) known.Add(p.name);
+            if (alsoKnown != null) known.UnionWith(alsoKnown);
+            messages.AddRange(Check(tree, plan, known));
 
             foreach (var control in tree.Controls)
             {
@@ -32,11 +42,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 AnimatorBuilder.EnsureParameter(fx, binding.Parameter.Name, binding.Parameter.Type, binding.Parameter.Default);
 
-                var operations = Operations(entry, tree, plan, messages);
-                var component = tree.Components.FirstOrDefault(c => c.entries.Contains(entry));
-                foreach (var op in operations)
-                    if (!IsKnownParameter(op.parameter, fx, expressionParameters, plan))
-                        messages.Add(ModelMessage.Warning("ad.warn.preset_parameter_unknown", op.parameter, entry.PlainName, component).For(entry.id));
+                var operations = Operations(entry, tree, plan, new List<ModelMessage>());
 
                 var name = AnimatorBuilder.UniqueLayerName(fx, "AD: " + entry.PlainName + " (preset)");
                 var layer = fx.AddLayer(LayerPriority.Default, name);
@@ -62,7 +68,32 @@ namespace DocMe.AvatarDoctor.Editor
                 idle.Transitions = ImmutableList.Create(AnimatorBuilder.Transition(apply, onCondition));
                 apply.Transitions = ImmutableList.Create(AnimatorBuilder.Transition(idle, offCondition));
             }
-            // The model reports a missing target while it validates, so the build does not say it again.
+            return messages;
+        }
+
+        /// <summary>
+        /// What the presets say before anything is built: two members of one exclusive group turned on at once, an
+        /// error, and an Other parameter nothing knows, a warning. A parameter is known when the plan adds it, when
+        /// known names it (the avatar's FX controller, its expression parameters, its other tools), or when VRCFury
+        /// adds it later in the build under its global name. The build reports these, and the inspector shows the
+        /// same before an upload. A missing control is the model's to report, so it is not said again here.
+        /// </summary>
+        public static List<ModelMessage> Check(MenuTree tree, ParameterPlan plan, ICollection<string> known)
+        {
+            var messages = new List<ModelMessage>();
+            HashSet<string> vrcFuryGlobals = null;
+            bool Knows(string name) => known.Contains(name) || plan.Parameters.Any(p => p.Name == name)
+                || (vrcFuryGlobals ?? (vrcFuryGlobals = new HashSet<string>(VrcFuryReader.GlobalParameters(tree.AvatarRoot)))).Contains(name);
+
+            foreach (var control in tree.Controls)
+            {
+                var entry = control.Entry;
+                if (entry.kind != EntryKind.Preset || control.Excluded || !plan.Bindings.ContainsKey(control)) continue;
+                var component = tree.Components.FirstOrDefault(c => c.entries.Contains(entry));
+                foreach (var op in Operations(entry, tree, plan, messages))
+                    if (!Knows(op.parameter))
+                        messages.Add(ModelMessage.Warning("ad.warn.preset_parameter_unknown", op.parameter, entry.PlainName, component).For(entry.id));
+            }
             messages.RemoveAll(m => m.Key == "ad.warn.preset_target_missing");
             return messages;
         }
@@ -82,6 +113,8 @@ namespace DocMe.AvatarDoctor.Editor
 
             foreach (var state in preset.presetStates)
             {
+                // A row that never had a control sets nothing; the model already asks for one.
+                if (string.IsNullOrEmpty(state.entryId)) continue;
                 var target = tree.FindControl(state.entryId);
                 if (target == null)
                 {
@@ -126,15 +159,6 @@ namespace DocMe.AvatarDoctor.Editor
             return result;
         }
 
-        /// <summary>True when the avatar already knows this parameter: its FX controller declares it (AvatarDoctor's own controls included, ensured there before a preset is built), its expression parameters declare it, or the plan is about to add it.</summary>
-        static bool IsKnownParameter(string name, VirtualAnimatorController fx, VRCExpressionParameters expressionParameters, ParameterPlan plan)
-        {
-            if (fx.Parameters.ContainsKey(name)) return true;
-            if (expressionParameters != null && expressionParameters.parameters != null)
-                foreach (var p in expressionParameters.parameters)
-                    if (p.name == name) return true;
-            return plan.Parameters.Any(p => p.Name == name);
-        }
     }
 }
 #endif

@@ -380,6 +380,7 @@ namespace DocMe.AvatarDoctor.Editor
             title.Add(spacer);
             othersNote.AddToClassList("ad-note");
             title.Add(othersNote);
+            captureNote.name = "ad-capture-note";
             captureNote.AddToClassList("ad-note");
             title.Add(captureNote);
             Add(title);
@@ -636,7 +637,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
             if (row.Kind == RowKind.Parameter && row.Declaration != null)
             {
-                var note = new Label(row.Declaration.type + ", " + string.Format(L.Text("ad.ui.parameters.bits"), row.Declaration.Bits));
+                var note = new Label(string.Format(L.Text(UiText.CountKey(row.Declaration.Bits, "ad.ui.parameter.bits")), row.Declaration.type, row.Declaration.Bits));
                 note.AddToClassList("ad-note");
                 meta.Add(note);
             }
@@ -994,6 +995,19 @@ namespace DocMe.AvatarDoctor.Editor
             return install;
         }
 
+        /// <summary>Declares one more parameter of this component, a Bool at first, and selects the Parameters row that shows the table. The first declaration starts that row. Refused while locked.</summary>
+        public ParameterDeclaration AddDeclaration()
+        {
+            if (Locked) return null;
+            var declaration = EntryEditing.AddDeclaration(owner.Menu, EntryEditing.NewDeclarationName(owner.Menu), PlannedType.Bool);
+            if (declaration == null) return null;
+            AvatarPlanCache.NoteSelfEdit(owner.Menu);
+            AvatarPlanCache.InvalidateMenu(owner.Plan?.AvatarRoot);
+            owner.Refresh();
+            RevealKey(TreeRow.ParametersRowKey);
+            return declaration;
+        }
+
         /// <summary>Removes an installed menu asset. Refused while locked.</summary>
         public bool RemoveMenuAsset(MenuAssetInstall install)
         {
@@ -1149,7 +1163,7 @@ namespace DocMe.AvatarDoctor.Editor
             string source = allVrcFury ? L.Text("ad.ui.chip.vrcfury")
                 : allModular ? L.Text("ad.ui.chip.modular_avatar")
                 : L.Text("ad.ui.welcome.convert.mixed_source");
-            return string.Format(L.Text("ad.ui.welcome.convert"), supported.Count, source);
+            return string.Format(L.Text(UiText.CountKey(supported.Count, "ad.ui.welcome.convert")), supported.Count, source);
         }
 
         // ---- the "+ More" menu ------------------------------------------------------------------------------
@@ -1165,6 +1179,7 @@ namespace DocMe.AvatarDoctor.Editor
                 ("ad.ui.add.grabbable", "ad.ui.add.grabbable.tip", () => AddGrabbable()),
                 ("ad.ui.add.animator", "ad.ui.add.animator.tip", () => AddAnimator(null)),
                 ("ad.ui.add.menu_asset", "ad.ui.add.menu_asset.tip", () => AddMenuAsset(null)),
+                ("ad.ui.parameters.add", "ad.ui.parameters.add.tip", () => AddDeclaration()),
                 ("ad.ui.add.outfit", "ad.ui.add.outfit.tip", OpenOutfitWindow),
             };
         }
@@ -1179,6 +1194,7 @@ namespace DocMe.AvatarDoctor.Editor
                 case "ad.ui.add.grabbable": return "ad-add-grabbable";
                 case "ad.ui.add.animator": return "ad-add-animator";
                 case "ad.ui.add.menu_asset": return "ad-add-menu-asset";
+                case "ad.ui.parameters.add": return "ad-add-parameter";
                 case "ad.ui.add.outfit": return "ad-outfit-open";
                 default: return nameKey;
             }
@@ -1493,7 +1509,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (owner.Menu == null || Locked) return 0;
             var plan = owner.Plan ?? AvatarPlanCache.GetFor(owner.Menu);
             int made = IconBatch.CaptureMissing(owner.Menu, plan.Tree, plan.AvatarRoot);
-            captureNote.text = made > 0 ? string.Format(L.Text("ad.ui.capture_missing.done"), made) : "";
+            captureNote.text = made > 0 ? UiText.Count(made, "ad.ui.capture_missing.done.one", "ad.ui.capture_missing.done") : "";
             if (made > 0)
             {
                 AvatarPlanCache.NoteSelfEdit(owner.Menu);
@@ -2222,6 +2238,9 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>Formats a count with its real singular or plural text: never a bare "(s)" suffix. Both keys take the count as {0}.</summary>
         public static string Count(int n, string singularKey, string pluralKey) => string.Format(L.Text(n == 1 ? singularKey : pluralKey), n);
+
+        /// <summary>The key to say a count of n with: the ".one" twin of key for one, key itself otherwise. For a text whose count is not {0}, and for a message, which names its key.</summary>
+        public static string CountKey(int n, string key) => n == 1 ? key + ".one" : key;
     }
 }
 #endif

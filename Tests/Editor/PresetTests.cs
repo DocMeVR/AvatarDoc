@@ -227,6 +227,104 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void ARowThatNeverHadAControlAsksForOne()
+        {
+            var hat = Toggle("Hat", avatar.Hat);
+            var preset = Preset("Look");
+            preset.presetStates.Add(new PresetState { entryId = hat.id, on = true });
+            preset.presetStates.Add(new PresetState { entryId = "", on = true });
+            preset.presetStates.Add(new PresetState { entryId = "", on = false });
+            var (tree, plan) = Model();
+
+            var ask = tree.Messages.Single(m => m.Key == "ad.info.preset_pick_control");
+            Assert.That(ask.Severity, Is.EqualTo(MessageSeverity.Info), "a new row is not a mistake yet");
+            Assert.That(ask.EntryIds, Does.Contain(preset.id));
+            Assert.That(tree.Messages.Any(m => m.Key == "ad.warn.preset_target_missing"), Is.False, "nothing was deleted, so nothing is missing");
+
+            var messages = new List<ModelMessage>();
+            var ops = PresetBuilder.Operations(preset, tree, plan, messages);
+            Assert.That(ops.Count, Is.EqualTo(1), "the build sets the Hat and passes over the empty rows");
+            Assert.That(messages, Is.Empty, "without saying it again");
+        }
+
+        [Test]
+        public void AnEmptyRowsButtonAsksToPickAControl()
+        {
+            Toggle("Hat", avatar.Hat);
+            var preset = Preset("Look");
+            preset.presetStates.Add(new PresetState { entryId = "", on = true });
+            preset.presetStates.Add(new PresetState { entryId = "gone", on = true });
+            var view = new AvatarDoctorView(new SerializedObject(menu), menu);
+
+            view.Tree.SelectEntry(preset.id);
+
+            var buttons = UnityEngine.UIElements.UQueryExtensions.Query<UnityEngine.UIElements.Button>(view.Detail, "ad-preset-control").ToList();
+            Assert.That(buttons[0].text, Is.EqualTo(L.Text("ad.ui.preset.pick")));
+            Assert.That(buttons[0].ClassListContains("ad-text-warn"), Is.False, "a row that never had a control is no warning");
+            Assert.That(buttons[1].text, Is.EqualTo(L.Text("ad.ui.preset.missing")), "a control that was deleted still says so");
+            Assert.That(buttons[1].ClassListContains("ad-text-warn"), Is.True);
+        }
+
+        [Test]
+        public void TwoGroupMembersOnShowAsAnErrorBeforeTheBuild()
+        {
+            var a = Toggle("Casual", avatar.Hat); a.exclusiveGroup = "Outfits";
+            var b = Toggle("Suit", avatar.Glasses); b.exclusiveGroup = "Outfits";
+            var preset = Preset("Conflict");
+            preset.presetStates.Add(new PresetState { entryId = a.id, on = true });
+            preset.presetStates.Add(new PresetState { entryId = b.id, on = true });
+            AvatarPlanCache.Invalidate();
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            var error = plan.Messages.Single(m => m.Key == "ad.error.preset_group_conflict");
+            Assert.That(error.Severity, Is.EqualTo(MessageSeverity.Error), "the same severity the build gives it");
+            Assert.That(error.EntryIds, Does.Contain(preset.id), "shown on the preset's own row");
+            Assert.That(plan.MessagesForId(preset.id).Any(m => m.Key == "ad.error.preset_group_conflict"), Is.True);
+        }
+
+        [Test]
+        public void AnUnknownOtherParameterWarnsBeforeTheBuild()
+        {
+            var preset = Preset("SetMood");
+            preset.presetParameters.Add(new PresetParameter { name = "Mystery", value = 1f });
+            preset.presetParameters.Add(new PresetParameter { name = "Existing", value = 1f });
+            AvatarPlanCache.Invalidate();
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            var warnings = plan.Messages.Where(m => m.Key == "ad.warn.preset_parameter_unknown").ToList();
+            Assert.That(warnings.Select(w => w.Args[0]), Is.EqualTo(new[] { "Mystery" }), "the avatar's own Existing is known");
+            Assert.That(warnings[0].Severity, Is.EqualTo(MessageSeverity.Warning), "the same severity the build gives it");
+            Assert.That(warnings[0].EntryIds, Does.Contain(preset.id));
+
+            BuildWithPresets(out var errors, out _);
+            Assert.That(errors.Count(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.preset_parameter_unknown"), Is.EqualTo(1), "the build says the same, once");
+        }
+
+        [Test]
+        public void AVrcFuryGlobalParameterIsKnownToAPresetInTheInspectorAndTheBuild()
+        {
+            Assume.That(VrcFuryTestHelper.VrcFuryType, Is.Not.Null);
+            var furyGo = new GameObject("Fury");
+            furyGo.transform.SetParent(avatar.Root.transform);
+            var toggle = VrcFuryTestHelper.AddToggle(furyGo, "Fury/Toggle");
+            VrcFuryTestHelper.ConfigureToggle(toggle, t =>
+            {
+                VrcFuryTestHelper.SetField(t, "useGlobalParam", true);
+                VrcFuryTestHelper.SetField(t, "globalParam", "MyGlobalParam");
+            });
+            var preset = Preset("Fury on");
+            preset.presetParameters.Add(new PresetParameter { name = "MyGlobalParam", value = 1f });
+            AvatarPlanCache.Invalidate();
+
+            Assert.That(AvatarPlanCache.GetFor(menu).Messages.Any(m => m.Key == "ad.warn.preset_parameter_unknown"), Is.False,
+                "VRCFury adds it later in the build, so the preset may set it");
+            BuildWithPresets(out var errors, out _);
+            Assert.That(errors.Any(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.preset_parameter_unknown"), Is.False, "and the build agrees");
+        }
+
+        [Test]
         public void UnknownNamedParameterWarns()
         {
             var preset = Preset("SetMood");

@@ -1158,7 +1158,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var tree = MenuModel.Build(avatar.Root.transform, avatar.ExpressionsMenu, new[] { menu });
 
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.error.trigger_too_complex" && m.EntryIds.Contains(trigger.id)), Is.False);
+            Assert.That(tree.Messages.Any(m => m.Says("ad.error.trigger_too_complex") && m.EntryIds.Contains(trigger.id)), Is.False);
             Assert.That(tree.HasErrors, Is.False);
         }
 

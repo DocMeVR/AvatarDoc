@@ -735,7 +735,7 @@ namespace DocMe.AvatarDoctor.Editor
                     var usage = row.Q<Label>(className: "ad-chip-usage");
                     var clips = owner.Plan.Usage.ClipsFor(renderer, shape);
                     usage.EnableInClassList("ad-hidden", clips.Count == 0);
-                    usage.text = string.Format(L.Text("ad.ui.usage.chip"), clips.Count);
+                    usage.text = UiText.Count(clips.Count, "ad.ui.usage.chip.one", "ad.ui.usage.chip");
                     usage.tooltip = clips.Count > 0 ? L.Text("ad.ui.usage.chip.tip") + "\n" + string.Join("\n", clips.Select(c => c.name)) : L.Text("ad.ui.usage.chip.tip");
                     if (radial)
                     {

@@ -1,8 +1,10 @@
 #if DOCME_NDMF
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEditor;
 
@@ -116,6 +118,145 @@ namespace DocMe.AvatarDoctor.Editor
                     .Select(e => f.Code + ": \"" + e.Key + "\" calls the tool AvatarDoctor, its old inside name. Write AvatarDoc."))
                 .ToList();
             AssertNone(problems);
+        }
+
+        [Test]
+        public void EveryCountHasARealSingular()
+        {
+            AssertNone(CountProblems(RealEnglish(), NotSingularCounts));
+        }
+
+        [Test]
+        public void EveryKeyTheCodeAsksForIsInEnglish()
+        {
+            var english = new HashSet<string>(RealEnglish().Entries.Select(e => e.Key));
+            var listed = new HashSet<string>(L.KnownKeys.Concat(L.UiKeys));
+            var root = Path.GetFullPath(Path.Combine(LanguageTables.PackageRoot() ?? "", "Editor"));
+            var problems = new List<string>();
+            int found = 0;
+            foreach (var file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories))
+            {
+                foreach (var (key, line) in KeysAskedFor(File.ReadAllText(file)))
+                {
+                    found++;
+                    string where = Path.GetFileName(file) + ":" + line;
+                    if (!english.Contains(key))
+                        problems.Add(where + " asks for \"" + key + "\", but AvatarDoctor.en-US.json has no text for it, so the creator would see <" + key + ">. Add the text to all three tables and the key to L.UiKeys or L.KnownKeys.");
+                    else if (!listed.Contains(key))
+                        problems.Add(where + " asks for \"" + key + "\", which L.cs does not list. Add it to L.UiKeys or L.KnownKeys, beside its neighbours.");
+                }
+            }
+            Assert.That(found, Is.GreaterThan(500), "expected to find the L.Text calls under " + root);
+            AssertNone(problems);
+        }
+
+        [Test]
+        public void EveryCountTheCodeSaysPicksItsSingular()
+        {
+            var table = RealEnglish().ToTable();
+            var root = Path.GetFullPath(Path.Combine(LanguageTables.PackageRoot() ?? "", "Editor"));
+            var problems = new List<string>();
+            foreach (var file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories))
+            {
+                var text = File.ReadAllText(file);
+                foreach (Match m in TextCall.Matches(text))
+                {
+                    var key = Regex.Unescape(m.Groups[1].Value);
+                    if (!table.TryGetValue(key, out var english) || !table.ContainsKey(key + ".one") || !Regex.IsMatch(english, @"\{\d+\}")) continue;
+                    if (text.Contains("\"" + key + ".one\"")) continue;
+                    problems.Add(Path.GetFileName(file) + ":" + LineOf(text, m.Index) + " says \"" + key + "\" with L.Text, which never picks its singular \"" + key
+                        + ".one\". Say it with UiText.Count or UiText.CountKey.");
+                }
+            }
+            AssertNone(problems);
+        }
+
+        // ---- counts and the keys the code asks for ---------------------------------------------------------------
+
+        /// <summary>
+        /// Placeholders a plural noun follows that never stand for one, so they need no singular: a limit, or a value
+        /// that is only said above one. Each with the reason, by key and placeholder.
+        /// </summary>
+        static readonly Dictionary<string, string> NotSingularCounts = new Dictionary<string, string>
+        {
+            { "ad.error.bits_exceeded {0}", "only said above VRChat's limit of 256 bits" },
+            { "ad.warn.bits_exceeded_vrcfury {0}", "only said above VRChat's limit of 256 bits" },
+            { "ad.error.menu_icon_too_large {2}", "the height of a picture size, written as {1}x{2} pixels" },
+            { "ad.warn.removed_layer_ambiguous {1}", "only said when two or more layers share a name" },
+            { "ad.ui.memory.free_bits {1}", "VRChat's limit of 256 bits" },
+            { "ad.summary.menu.slots {1}", "VRChat's limit of 8 controls on a page" },
+            { "ad.error.follow_too_many_sources {1}", "only said above the limit" },
+            { "ad.error.follow_too_many_sources {2}", "the limit, followed by the verb allows" },
+            { "ad.ui.when.add_and.limit.tip {0}", "the fixed limit of conditions in a group" },
+            { "ad.ui.when.add_and.limit_driver.tip {0}", "the fixed limit of rows in a card" },
+        };
+
+        /// <summary>Words ending in s that follow a placeholder without counting it: verbs, and the unit ms.</summary>
+        static readonly HashSet<string> NotCountNouns = new HashSet<string> { "is", "has", "was", "its", "this", "stays", "equals", "as", "does", "ms" };
+
+        /// <summary>A placeholder and the one or two words after it: "{0} bits", "{1} synced bits".</summary>
+        static readonly Regex CountPlaceholder = new Regex(@"\{(\d+)\}((?:\s+[A-Za-z]+){1,2})");
+
+        /// <summary>
+        /// Every English text that counts something without a real singular: a "(s)" anywhere, or a placeholder a plural
+        /// noun follows in a key with no ".one" twin, unless the list names that placeholder with a reason. A name in
+        /// the list that no longer reads like a count is named too, so the list never outlives its texts.
+        /// </summary>
+        static List<string> CountProblems(LanguageFile english, IReadOnlyDictionary<string, string> notCounts)
+        {
+            var keys = new HashSet<string>(english.Entries.Select(e => e.Key));
+            var problems = new List<string>();
+            var used = new HashSet<string>();
+            foreach (var entry in english.Entries)
+            {
+                if (entry.Text.Contains("(s)"))
+                    problems.Add("\"" + entry.Key + "\" says \"(s)\". Write the plural, and give the key a \".one\" twin with the singular.");
+                if (entry.Key.EndsWith(".one") || keys.Contains(entry.Key + ".one")) continue;
+                foreach (Match m in CountPlaceholder.Matches(entry.Text))
+                {
+                    var words = m.Groups[2].Value.Split(new[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (!words.Any(w => w.EndsWith("s") && !NotCountNouns.Contains(w))) continue;
+                    var id = entry.Key + " {" + m.Groups[1].Value + "}";
+                    if (notCounts.ContainsKey(id))
+                    {
+                        used.Add(id);
+                        continue;
+                    }
+                    problems.Add("\"" + entry.Key + "\" counts with {" + m.Groups[1].Value + "} (\"" + m.Value.Trim() + "\") but has no singular. Add \"" + entry.Key
+                        + ".one\" with the text for one and pick it with UiText.Count or UiText.CountKey; if {" + m.Groups[1].Value + "} is never one, add \"" + id + "\" to NotSingularCounts with the reason.");
+                }
+            }
+            foreach (var stale in notCounts.Keys.Where(k => !used.Contains(k)))
+                problems.Add("NotSingularCounts names " + stale + ", which no longer reads like a count. Take it off the list.");
+            return problems;
+        }
+
+        static readonly Regex TextCall = new Regex("L\\.Text\\s*\\(\\s*\"((?:[^\"\\\\]|\\\\.)*)\"\\s*\\)");
+        static readonly Regex KeyLiteral = new Regex("\"(ad\\.[a-z0-9_.]*[a-z0-9_])\"");
+        static readonly Regex CountKeyCall = new Regex(@"UiText\.CountKey\s*\(");
+        static readonly Regex Literal = new Regex("^\"((?:[^\"\\\\]|\\\\.)*)\"$");
+
+        static int LineOf(string text, int index) => text.Take(index).Count(c => c == '\n') + 1;
+
+        /// <summary>
+        /// Every key a source file names, with its line: every "ad..." string literal, whatever it is handed to (L.Text,
+        /// a toolbar add, a message, a caption), and the ".one" twin UiText.CountKey(n, "key") picks for one. A literal
+        /// that ends in a dot is a prefix, not a key.
+        /// </summary>
+        static List<(string key, int line)> KeysAskedFor(string text)
+        {
+            var found = new List<(string key, int line)>();
+            foreach (Match m in KeyLiteral.Matches(text))
+                found.Add((m.Groups[1].Value, LineOf(text, m.Index)));
+            foreach (Match m in CountKeyCall.Matches(text))
+            {
+                var inner = MessageGuardTests.ExtractBalanced(text, m.Index + m.Length - 1);
+                if (inner == null) continue;
+                var args = MessageGuardTests.SplitTopLevelArgs(inner);
+                var key = args.Count >= 2 ? Literal.Match(args[1]) : Match.Empty;
+                if (key.Success) found.Add((Regex.Unescape(key.Groups[1].Value) + ".one", LineOf(text, m.Index)));
+            }
+            return found;
         }
 
         // ---- finding the files --------------------------------------------------------------------------------
@@ -354,6 +495,34 @@ namespace DocMe.AvatarDoctor.Editor
             var shipped = LanguageCheck.All(english, Make("ja-JP", json, shipped: true));
             Assert.That(shipped.Single(), Does.Contain("ja-JP").And.Contain("\"b\"").And.Contain("missing").And.Contain("every English key"));
             Assert.That(LanguageCheck.All(english, Make("ko-KR", json)), Is.Empty, "a language of your own may leave keys out; English shows for them");
+        }
+
+        [Test]
+        public void ACountWithoutASingularIsNamed()
+        {
+            var english = Make("en-US", "{ \"a\": \"Frees {0} bits\", \"b\": \"{0} bits\", \"b.one\": \"{0} bit\", \"c\": \"{0} is on\", \"d\": \"Show {0} more\", \"e\": \"{0} value(s)\", \"f\": \"{1} of {0} slots\" }", shipped: true);
+            var problems = CountProblems(english, new Dictionary<string, string> { { "f {0}", "a limit" }, { "gone {0}", "no longer in the table" } });
+
+            Assert.That(problems.Count, Is.EqualTo(3), "\n" + string.Join("\n", problems));
+            Assert.That(problems.Single(p => p.StartsWith("\"a\"")), Does.Contain("{0}").And.Contain("\"a.one\"").And.Contain("NotSingularCounts"));
+            Assert.That(problems.Single(p => p.StartsWith("\"e\"")), Does.Contain("(s)"));
+            Assert.That(problems.Single(p => p.Contains("gone {0}")), Does.Contain("Take it off"));
+        }
+
+        [Test]
+        public void EveryWayTheCodeAsksForAKeyIsRead()
+        {
+            var source = "var a = L.Text(\"ad.ui.first\");\n"
+                + "var b = UiText.Count(n, \"ad.ui.second.one\", \"ad.ui.second\");\n"
+                + "var c = string.Format(L.Text(UiText.CountKey(Mathf.Max(n, 0), \"ad.ui.third\")), n);\n"
+                + "AddAction(bar, \"ad-fourth\", \"ad.ui.fourth\", \"ad.ui.fourth.tip\", run);\n"
+                + "if (key.StartsWith(\"ad.error.\")) return;";
+
+            Assert.That(KeysAskedFor(source), Is.EquivalentTo(new[]
+            {
+                ("ad.ui.first", 1), ("ad.ui.second.one", 2), ("ad.ui.second", 2), ("ad.ui.third", 3), ("ad.ui.third.one", 3),
+                ("ad.ui.fourth", 4), ("ad.ui.fourth.tip", 4),
+            }), "every key literal, whoever takes it, and the singular a count key picks; a prefix is no key");
         }
     }
 }

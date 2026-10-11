@@ -37,7 +37,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             int total = declarations.Where(d => d != null).Sum(d => d.Bits);
-            var totalLabel = new Label(string.Format(L.Text("ad.ui.parameters.total"), total)) { name = "ad-parameters-total" };
+            var totalLabel = new Label(UiText.Count(total, "ad.ui.parameters.total.one", "ad.ui.parameters.total")) { name = "ad-parameters-total" };
             totalLabel.AddToClassList("ad-note");
             Add(totalLabel);
 
@@ -59,7 +59,7 @@ namespace DocMe.AvatarDoctor.Editor
             nameField.tooltip = L.Text("ad.ui.parameters.row_name.tip");
             nameField.AddToClassList("ad-grow");
             head.Add(nameField);
-            var bits = new Label(string.Format(L.Text("ad.ui.parameters.bits"), declaration.Bits));
+            var bits = new Label(UiText.Count(declaration.Bits, "ad.ui.parameters.bits.one", "ad.ui.parameters.bits"));
             bits.AddToClassList("ad-note");
             head.Add(bits);
             var remove = new Button(() => detail.RemoveDeclarationRow(declaration)) { text = "x", name = "ad-parameter-remove-" + index };

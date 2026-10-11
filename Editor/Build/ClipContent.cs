@@ -312,7 +312,7 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 customCurves.Add((binding, curve, keys));
             }
-            if (overridden.Count > 0) messages.Add(ModelMessage.Info("ad.info.animation_overridden", entry.PlainName, overridden.Count).For(entry.id));
+            if (overridden.Count > 0) messages.Add(ModelMessage.Info(UiText.CountKey(overridden.Count, "ad.info.animation_overridden"), entry.PlainName, overridden.Count).For(entry.id));
         }
 
         /// <summary>Writes the scene value of every custom binding that resolves on the avatar (skipping one this content already writes), so a Write-Defaults-off avatar returns to rest after a custom clip plays. A binding that never resolved is left out and reported once with the count.</summary>
@@ -336,7 +336,7 @@ namespace DocMe.AvatarDoctor.Editor
                     else missing++;
                 }
             }
-            if (missing > 0) messages.Add(ModelMessage.Warning("ad.warn.animation_binding_missing", entry.PlainName, missing).For(entry.id));
+            if (missing > 0) messages.Add(ModelMessage.Warning(UiText.CountKey(missing, "ad.warn.animation_binding_missing"), entry.PlainName, missing).For(entry.id));
         }
 
         void ApplyLoopFromFirstClip(MenuEntry entry)

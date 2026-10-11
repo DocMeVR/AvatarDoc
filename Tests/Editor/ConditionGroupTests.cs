@@ -402,7 +402,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var tree = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
 
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.error.trigger_too_complex" && m.EntryIds.Contains(trigger.id)), Is.True,
+            Assert.That(tree.Messages.Any(m => m.Says("ad.error.trigger_too_complex") && m.EntryIds.Contains(trigger.id)), Is.True,
                 "4 groups of 4 conditions are 256 ways to stop, past the 64 the layer may hold");
             Assert.That(ConditionLogic.TooComplex(trigger.EffectiveWhen, out int groupCount, out int leaveCount), Is.True);
             Assert.That(groupCount, Is.EqualTo(4));
@@ -420,7 +420,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var (plans, messages) = PlanTriggers();
 
-            var message = messages.SingleOrDefault(m => m.Key == "ad.error.trigger_too_complex" && m.EntryIds.Contains(trigger.id));
+            var message = messages.SingleOrDefault(m => m.Says("ad.error.trigger_too_complex") && m.EntryIds.Contains(trigger.id));
             Assert.That(message, Is.Not.Null, "the expanded alternatives are what counts");
             Assert.That(int.Parse(message.Args[2].ToString()), Is.GreaterThan(ConditionLogic.MaxLeaveTransitions), "the message names the real count");
             Assert.That(plans.Any(p => p.Entry == trigger), Is.False, "a trigger that is too complex builds nothing");
@@ -618,7 +618,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var (plans, messages) = PlanTriggers();
 
-            var message = messages.SingleOrDefault(m => m.Key == "ad.error.trigger_too_complex" && m.EntryIds.Contains(trigger.id));
+            var message = messages.SingleOrDefault(m => m.Says("ad.error.trigger_too_complex") && m.EntryIds.Contains(trigger.id));
             Assert.That(message, Is.Not.Null, "the flip layer is counted before the build ever reaches it");
             Assert.That(int.Parse(message.Args[2].ToString()), Is.GreaterThan(ConditionLogic.MaxLeaveTransitions));
             Assert.That(plans.Any(p => p.Entry == trigger), Is.False, "a flip trigger builds its layer in TouchBuilder, not here");
@@ -640,9 +640,9 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(watch.ElapsedMilliseconds, Is.LessThan(200), "a rule past the caps is refused before anything is multiplied out, or every refresh stalls");
             Assert.That(plans.Any(p => p.Entry == trigger), Is.False, "and it builds nothing");
             var tree = MenuModel.Build(avatar.Root.transform, avatar.ExpressionsMenu, new[] { menu });
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.error.trigger_too_complex" && m.EntryIds.Contains(trigger.id)), Is.True, "the model says why");
+            Assert.That(tree.Messages.Any(m => m.Says("ad.error.trigger_too_complex") && m.EntryIds.Contains(trigger.id)), Is.True, "the model says why");
             var shown = AvatarPlanCache.GetFor(menu);
-            Assert.That(shown.Messages.Any(m => m.Key == "ad.error.trigger_too_complex" && m.EntryIds.Contains(trigger.id)), Is.True, "and so does the inspector's own plan");
+            Assert.That(shown.Messages.Any(m => m.Says("ad.error.trigger_too_complex") && m.EntryIds.Contains(trigger.id)), Is.True, "and so does the inspector's own plan");
         }
 
         [Test]
@@ -654,7 +654,7 @@ namespace DocMe.AvatarDoctor.Editor
             var (plans, messages) = PlanTriggers();
 
             Assert.That(plans.Any(p => p.Entry == trigger), Is.True, "the cap only refuses what the model already calls too complex");
-            Assert.That(messages.Any(m => m.Key == "ad.error.trigger_too_complex"), Is.False);
+            Assert.That(messages.Any(m => m.Says("ad.error.trigger_too_complex")), Is.False);
         }
 
         [Test]

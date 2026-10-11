@@ -500,7 +500,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var warnings = errors.Where(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.override_unused").ToList();
             Assert.That(warnings, Has.Count.EqualTo(1), "only the rule that never found anything warns");
-            var applied = errors.Where(e => e.TheError is SimpleError s && s.TitleKey == "ad.info.override_applied").ToList();
+            var applied = errors.Where(e => e.TheError is SimpleError s && (s.TitleKey == "ad.info.override_applied" || s.TitleKey == "ad.info.override_applied.one")).ToList();
             Assert.That(applied, Has.Count.EqualTo(2), "each rule that pinned something says so once");
 
             var fx = avatar.Descriptor.baseAnimationLayers.Single(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX).animatorController as AnimatorController;
@@ -555,7 +555,7 @@ namespace DocMe.AvatarDoctor.Editor
             });
             context.DeactivateAllExtensionContexts();
 
-            var applied = errors.Where(e => e.TheError is SimpleError s && s.TitleKey == "ad.info.override_applied").ToList();
+            var applied = errors.Where(e => e.TheError is SimpleError s && (s.TitleKey == "ad.info.override_applied" || s.TitleKey == "ad.info.override_applied.one")).ToList();
             Assert.That(applied, Has.Count.EqualTo(1), "what the rule did pin is still reported");
             Assert.That(errors.Any(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.override_target_gone"), Is.False,
                 "and the renderer was there when it mattered, so nothing complains about it");

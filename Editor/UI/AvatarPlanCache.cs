@@ -20,6 +20,9 @@ namespace DocMe.AvatarDoctor.Editor
         public List<TriggerPlan> Triggers = new List<TriggerPlan>();
         public List<ModelMessage> Messages = new List<ModelMessage>();
         public AnimationUsage Usage = AnimationUsage.Empty;
+        PieceSwitches pieceSwitches;
+        /// <summary>The animations the build will find switching the avatar's outfit pieces, worked out once per plan.</summary>
+        public PieceSwitches PieceSwitches => pieceSwitches ?? (pieceSwitches = ShapesModel.PredictSwitches(AvatarRoot, Tree, Usage));
         public int AvatarBits;
         public int AvatarDoctorBits;
         public int Version;
@@ -85,6 +88,8 @@ namespace DocMe.AvatarDoctor.Editor
         public MenuTree Tree;
         public ParameterPlan Plan;
         public string Components = "";
+        /// <summary>The animations the build will find switching the outfit pieces; the preview works them out once per plan.</summary>
+        public PieceSwitches PieceSwitches;
     }
 
     /// <summary>
@@ -967,6 +972,8 @@ namespace DocMe.AvatarDoctor.Editor
             result.Messages.AddRange(tree.Messages);
             result.Messages.AddRange(plan.Messages);
             result.Messages.AddRange(triggerMessages);
+            // The build says these when it makes the preset layers; here they show before an upload.
+            result.Messages.AddRange(PresetBuilder.Check(tree, plan, existing.Keys));
             var parity = PlatformParity.Check(avatarRoot);
             if (parity != null) result.Messages.Add(parity);
             result.AvatarDoctorBits = plan.NewSyncedBits;

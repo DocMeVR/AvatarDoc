@@ -345,8 +345,8 @@ namespace DocMe.AvatarDoctor.Editor
                     Rehearse(spec, view =>
                     {
                         Assert.That(Selected(view)?.name, Is.EqualTo("Hoodie"));
-                        Assert.That(view.Q<TextField>(DocsShots_Guides1.GroupFieldName).value, Is.EqualTo("Outfits"));
-                        Assert.That(view.Q<Toggle>(DocsShots_Guides1.DefaultOnName).value, Is.False);
+                        Assert.That(view.Q<TextField>("ad-group").value, Is.EqualTo("Outfits"));
+                        Assert.That(view.Q<Toggle>("ad-default-on").value, Is.False);
                     });
                 }
                 finally
@@ -682,6 +682,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var spec = DocsShots_Guides2.ConvertWindow(avatar);
                 try
                 {
+                    Assert.That(spec.Width, Is.EqualTo(ImportWindow.OpeningWidth), "the picture shows the window at the width it opens at");
                     var candidates = ImportScanner.Scan(avatar.Root.transform, AvatarPlanCache.GetFor(MenuOf(avatar)).Tree);
 #if DOCME_MA
                     int supported = 3;
@@ -763,7 +764,7 @@ namespace DocMe.AvatarDoctor.Editor
                         Assert.That(doctor.Tree.Selected.Excluded, Is.False, "built on PC, so not left out");
                         Assert.That(view.Q<Label>(DocsShots_Guides2.PlatformChipName).text, Is.EqualTo(L.Text("ad.ui.chip.pc_only")));
                         Assert.That(doctor.Detail.Q<AdvancedFold>().IsOpen, Is.True);
-                        Assert.That(view.Q<DropdownField>(DocsShots_Guides2.EntryPlatformName).value, Is.EqualTo(L.Text("ad.ui.platform.pc")));
+                        Assert.That(view.Q<DropdownField>("ad-entry-platform").value, Is.EqualTo(L.Text("ad.ui.platform.pc")));
                     });
                 }
                 finally
@@ -855,7 +856,7 @@ namespace DocMe.AvatarDoctor.Editor
                         Assert.That((row.Name, row.Removed), Is.EqualTo(("Dance", true)));
                         Assert.That(view.Q<Toggle>("ad-existing-remove").value, Is.True);
                         Assert.That(view.Q<Toggle>("ad-existing-in-menu").enabledSelf, Is.False, "a removed item is out of the menu by that alone");
-                        Assert.That(view.Q<Label>("ad-existing-remove-note").text, Is.EqualTo(string.Format(L.Text("ad.ui.existing.remove_frees"), 8, 2)));
+                        Assert.That(view.Q<Label>("ad-existing-remove-note").text, Is.EqualTo("Frees 8 bits and 2 layers"), "the line the page quotes");
                     });
                 }
                 finally

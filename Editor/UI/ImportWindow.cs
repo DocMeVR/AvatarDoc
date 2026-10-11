@@ -25,11 +25,15 @@ namespace DocMe.AvatarDoctor.Editor
         Button importButton;
         Label status;
 
+        /// <summary>The width the window opens at: its smallest size, which the docs picture shows too.</summary>
+        public const float OpeningWidth = 360f;
+        const float OpeningHeight = 420f;
+
         public static void Open(AvatarDoc menu)
         {
             var window = GetWindow<ImportWindow>(true, L.Text("ad.ui.import"));
             window.Init(menu);
-            window.minSize = new Vector2(360f, 420f);
+            window.minSize = new Vector2(OpeningWidth, OpeningHeight);
             window.Show();
         }
 
@@ -424,32 +428,35 @@ namespace DocMe.AvatarDoctor.Editor
             return candidate.Draft != null && candidate.Draft.kind == EntryKind.Radial ? L.Text("ad.ui.detail.radial") : L.Text("ad.ui.detail.toggle");
         }
 
-        static string Summary(ImportCandidate candidate)
+        /// <summary>The counts a candidate's row shows at its right: what it changes, or what a takeover or a merge keeps.</summary>
+        public static string Summary(ImportCandidate candidate)
         {
             if (candidate.ShapesDraft != null)
-                return string.Format(L.Text("ad.ui.import.summary.shapes"), candidate.ShapesDraft.Follow.Count, candidate.ShapesDraft.WhileOn.Count);
+                return ShapesModel.RowCounts(candidate.ShapesDraft.Follow.Count, candidate.ShapesDraft.WhileOn.Count);
             if (candidate.MenuAssetDraft != null)
             {
-                int controls = MenuAssetPanel.ParametersOf(candidate.MenuAssetDraft.menu).Count;
-                return string.Format(L.Text("ad.ui.import.summary.takeover"), controls, candidate.ParameterDrafts.Count);
+                int parameters = MenuAssetPanel.ParametersOf(candidate.MenuAssetDraft.menu).Count;
+                return L.JoinList(new[]
+                {
+                    UiText.Count(parameters, "ad.ui.import.summary.parameters.one", "ad.ui.import.summary.parameters"),
+                    UiText.Count(candidate.ParameterDrafts.Count, "ad.ui.import.summary.declarations.one", "ad.ui.import.summary.declarations"),
+                });
             }
             if (candidate.MergeDraft != null)
             {
-                int merged = MergeBuilder.LayerNames(candidate.MergeDraft.controller).Count - candidate.MergeDraft.skipLayers.Count;
-                return string.Format(L.Text("ad.ui.import.summary.merged_layers"), Mathf.Max(merged, 0));
+                int merged = Mathf.Max(MergeBuilder.LayerNames(candidate.MergeDraft.controller).Count - candidate.MergeDraft.skipLayers.Count, 0);
+                return UiText.Count(merged, "ad.ui.import.summary.merged_layers.one", "ad.ui.import.summary.merged_layers");
             }
             var draft = candidate.Draft;
             if (draft == null) return "";
             var parts = new List<string>();
-            if (draft.objects.Count > 0) parts.Add(Count(draft.objects.Count, "ad.ui.import.summary.object", "ad.ui.import.summary.objects"));
-            if (draft.blendShapes.Count > 0) parts.Add(Count(draft.blendShapes.Count, "ad.ui.import.summary.blendshape", "ad.ui.import.summary.blendshapes"));
-            if (draft.materials.Count > 0) parts.Add(Count(draft.materials.Count, "ad.ui.import.summary.material", "ad.ui.import.summary.materials"));
-            if (draft.properties.Count > 0) parts.Add(Count(draft.properties.Count, "ad.ui.import.summary.property", "ad.ui.import.summary.properties"));
-            if (draft.animations.Count > 0) parts.Add(Count(draft.animations.Count, "ad.ui.import.summary.animation", "ad.ui.import.summary.animations"));
+            if (draft.objects.Count > 0) parts.Add(UiText.Count(draft.objects.Count, "ad.ui.import.summary.objects.one", "ad.ui.import.summary.objects"));
+            if (draft.blendShapes.Count > 0) parts.Add(UiText.Count(draft.blendShapes.Count, "ad.ui.import.summary.blendshapes.one", "ad.ui.import.summary.blendshapes"));
+            if (draft.materials.Count > 0) parts.Add(UiText.Count(draft.materials.Count, "ad.ui.import.summary.materials.one", "ad.ui.import.summary.materials"));
+            if (draft.properties.Count > 0) parts.Add(UiText.Count(draft.properties.Count, "ad.ui.import.summary.properties.one", "ad.ui.import.summary.properties"));
+            if (draft.animations.Count > 0) parts.Add(UiText.Count(draft.animations.Count, "ad.ui.import.summary.animations.one", "ad.ui.import.summary.animations"));
             return L.JoinList(parts);
         }
-
-        static string Count(int n, string singularKey, string pluralKey) => string.Format(L.Text(n == 1 ? singularKey : pluralKey), n);
 
         /// <summary>Sets Keep as it is on every candidate of this group: the menu, the declarations and the merged animator are one decision.</summary>
         void SetKeepAsItIs(ImportCandidate candidate, bool value)

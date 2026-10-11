@@ -154,12 +154,6 @@ namespace DocMe.AvatarDoctor.Editor
             return field;
         }
 
-        /// <summary>An enum property as a dropdown of its inspector names, written back by position.</summary>
-        public DropdownField EnumChoice(SerializedProperty property, string label, Action commit = null)
-        {
-            return EnumChoice(property, label, new List<string>(property.enumDisplayNames), commit);
-        }
-
         /// <summary>An enum property as a dropdown of the given labels, one per value in order, written back by position.</summary>
         public DropdownField EnumChoice(SerializedProperty property, string label, IReadOnlyList<string> labels, Action commit = null)
         {

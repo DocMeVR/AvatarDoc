@@ -152,9 +152,14 @@ namespace DocMe.AvatarDoctor.Editor
             stateRow.AddToClassList("ad-target");
             stateRow.AddToClassList("ad-preset-state");
 
-            var pick = new Button { text = control != null ? control.Path : L.Text("ad.ui.preset.missing"), name = "ad-preset-control", tooltip = L.Text("ad.ui.preset.control.tip") };
+            bool neverPicked = string.IsNullOrEmpty(entryIdProperty.stringValue);
+            var pick = new Button
+            {
+                text = control != null ? control.Path : L.Text(neverPicked ? "ad.ui.preset.pick" : "ad.ui.preset.missing"),
+                name = "ad-preset-control", tooltip = L.Text("ad.ui.preset.control.tip"),
+            };
             pick.AddToClassList("ad-grow");
-            pick.EnableInClassList("ad-text-warn", control == null);
+            pick.EnableInClassList("ad-text-warn", control == null && !neverPicked);
             pick.clicked += () => ShowControlPicker(pick, index, entryIdProperty.stringValue);
             stateRow.Add(pick);
 

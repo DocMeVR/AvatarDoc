@@ -83,7 +83,7 @@ namespace DocMe.AvatarDoctor.Editor
 
         // ---- call sites: every argument list is at least as long as its text needs -----------------------------
 
-        static List<string> SplitTopLevelArgs(string s)
+        internal static List<string> SplitTopLevelArgs(string s)
         {
             var args = new List<string>();
             int depth = 0;
@@ -113,7 +113,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>The text strictly between the parenthesis that opens at openParenIndex and its match, or null when unbalanced.</summary>
-        static string ExtractBalanced(string source, int openParenIndex)
+        internal static string ExtractBalanced(string source, int openParenIndex)
         {
             int depth = 0;
             bool inString = false;
@@ -138,9 +138,36 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         static readonly Regex KeyLiteral = new Regex("^\"((?:[^\"\\\\]|\\\\.)*)\"$");
-        static readonly Regex LTextLiteral = new Regex("^L\\.Text\\s*\\(\\s*\"((?:[^\"\\\\]|\\\\.)*)\"\\s*\\)$");
+        static readonly Regex CountKeyCall = new Regex(@"^UiText\.CountKey\s*\(");
+        static readonly Regex TextCall = new Regex(@"^L\.Text\s*\(");
 
-        /// <summary>Every (key, argument count, file) a message is raised with, through ModelMessage.Error/Warning/Info directly or through string.Format(L.Text("key"), ...).</summary>
+        /// <summary>The keys one key argument names: a literal, or both forms of UiText.CountKey(n, "key").</summary>
+        static List<string> KeysOf(string argument)
+        {
+            var literal = KeyLiteral.Match(argument);
+            if (literal.Success) return new List<string> { Regex.Unescape(literal.Groups[1].Value) };
+            var call = CountKeyCall.Match(argument);
+            if (!call.Success) return new List<string>();
+            var inner = ExtractBalanced(argument, call.Index + call.Length - 1);
+            var args = inner != null ? SplitTopLevelArgs(inner) : new List<string>();
+            var key = args.Count >= 2 ? KeyLiteral.Match(args[1]) : Match.Empty;
+            if (!key.Success) return new List<string>();
+            var name = Regex.Unescape(key.Groups[1].Value);
+            return new List<string> { name, name + ".one" };
+        }
+
+        /// <summary>The keys the first argument of string.Format names: L.Text("key"), or L.Text(UiText.CountKey(n, "key")).</summary>
+        static List<string> TextKeysOf(string argument)
+        {
+            var call = TextCall.Match(argument);
+            if (!call.Success) return new List<string>();
+            int open = call.Index + call.Length - 1;
+            var inner = ExtractBalanced(argument, open);
+            bool whole = inner != null && open + inner.Length + 2 == argument.Length;
+            return whole ? KeysOf(inner.Trim()) : new List<string>();
+        }
+
+        /// <summary>Every (key, argument count, file) a message is raised with, through ModelMessage.Error/Warning/Info directly or through string.Format(L.Text("key"), ...), with both forms of a count's key.</summary>
         static IEnumerable<(string key, int argCount, string file)> ScanCallSites(string root)
         {
             foreach (var file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories))
@@ -153,9 +180,7 @@ namespace DocMe.AvatarDoctor.Editor
                     if (inner == null) continue;
                     var args = SplitTopLevelArgs(inner);
                     if (args.Count == 0) continue;
-                    var keyMatch = KeyLiteral.Match(args[0]);
-                    if (!keyMatch.Success) continue;
-                    yield return (Regex.Unescape(keyMatch.Groups[1].Value), args.Count - 1, file);
+                    foreach (var key in KeysOf(args[0])) yield return (key, args.Count - 1, file);
                 }
                 foreach (Match m in Regex.Matches(text, @"[Ss]tring\.Format\s*\("))
                 {
@@ -164,9 +189,7 @@ namespace DocMe.AvatarDoctor.Editor
                     if (inner == null) continue;
                     var args = SplitTopLevelArgs(inner);
                     if (args.Count == 0) continue;
-                    var ltMatch = LTextLiteral.Match(args[0]);
-                    if (!ltMatch.Success) continue;
-                    yield return (Regex.Unescape(ltMatch.Groups[1].Value), args.Count - 1, file);
+                    foreach (var key in TextKeysOf(args[0])) yield return (key, args.Count - 1, file);
                 }
             }
         }

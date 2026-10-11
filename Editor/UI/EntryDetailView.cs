@@ -635,7 +635,7 @@ namespace DocMe.AvatarDoctor.Editor
         public ParameterDeclaration AddDeclarationRow()
         {
             if (Refuses) return null;
-            var declaration = EntryEditing.AddDeclaration(owner.Menu, L.Text("ad.ui.parameters.new"), PlannedType.Bool);
+            var declaration = EntryEditing.AddDeclaration(owner.Menu, EntryEditing.NewDeclarationName(owner.Menu), PlannedType.Bool);
             if (declaration == null) return null;
             AvatarPlanCache.NoteSelfEdit(owner.Menu);
             AvatarPlanCache.InvalidateMenu(owner.Plan?.AvatarRoot);
@@ -768,7 +768,7 @@ namespace DocMe.AvatarDoctor.Editor
                 parameterName.text = binding.Parameter.Name;
                 int bits = binding.Parameter.Bits;
                 bool none = binding.Parameter.ReusesExisting || binding.Parameter.IsAnimatorOnly || bits == 0;
-                text = none ? string.Format(L.Text("ad.ui.parameter.no_bits"), binding.Parameter.Type) : string.Format(L.Text("ad.ui.parameter.bits"), binding.Parameter.Type, bits);
+                text = none ? string.Format(L.Text("ad.ui.parameter.no_bits"), binding.Parameter.Type) : string.Format(L.Text(UiText.CountKey(bits, "ad.ui.parameter.bits")), binding.Parameter.Type, bits);
             }
             else parameterName.text = "";
             parameterNote.text = text;
@@ -893,7 +893,7 @@ namespace DocMe.AvatarDoctor.Editor
                 container.Add(none);
                 return container;
             }
-            var title = new Label(string.Format(L.Text("ad.ui.override.usage"), clips.Count));
+            var title = new Label(UiText.Count(clips.Count, "ad.ui.override.usage.one", "ad.ui.override.usage"));
             title.AddToClassList("ad-section");
             container.Add(title);
             foreach (var clip in clips)
@@ -1029,7 +1029,7 @@ namespace DocMe.AvatarDoctor.Editor
                 L.Text("ad.ui.platform.pc"), L.Text("ad.ui.platform.quest"),
             };
             var field = fields.EnumChoice(property.FindPropertyRelative(nameof(MenuEntry.platform)), L.Text("ad.ui.platform"), labels);
-            field.name = "ad-platform";
+            field.name = "ad-entry-platform";
             field.tooltip = L.Text("ad.ui.platform.tip");
             return Bound(field);
         }
@@ -1157,6 +1157,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (includeDefault)
             {
                 var defaultOn = BoundToggle(L.Text("ad.ui.default_on"), property.FindPropertyRelative(nameof(MenuEntry.defaultOn)));
+                defaultOn.name = "ad-default-on";
                 defaultOn.tooltip = L.Text("ad.ui.default_on.tip");
                 toggles.Add(defaultOn);
             }
@@ -1368,6 +1369,7 @@ namespace DocMe.AvatarDoctor.Editor
             var container = new VisualElement();
             container.AddToClassList("ad-row");
             var field = fields.Text(groupProperty, L.Text("ad.ui.group"));
+            field.name = "ad-group";
             field.tooltip = L.Text("ad.ui.group.tip");
             container.Add(field);
             Button pick = null;
@@ -1386,6 +1388,7 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 AdMenu.Open(pick.worldBound, pick, popup);
             });
+            pick.name = "ad-group-pick";
             AddDropdownIcon(pick);
             container.Add(pick);
             return container;
@@ -1479,7 +1482,7 @@ namespace DocMe.AvatarDoctor.Editor
             line.Add(parameterCustom);
             container.Add(line);
 
-            parameterNote = new Label();
+            parameterNote = new Label { name = "ad-parameter-bits" };
             parameterNote.AddToClassList("ad-note");
             parameterNote.AddToClassList("ad-note-indent");
             container.Add(parameterNote);
@@ -1570,7 +1573,7 @@ namespace DocMe.AvatarDoctor.Editor
                     pick.clicked += () => ParameterPicker.Show(pick, owner.Plan, SetSourceParameter);
                     row2.Add(pick);
                     body.Add(row2);
-                    var conditionField = fields.EnumChoice(property.FindPropertyRelative(nameof(MenuEntry.condition)), L.Text("ad.ui.trigger.condition"));
+                    var conditionField = fields.EnumChoice(property.FindPropertyRelative(nameof(MenuEntry.condition)), L.Text("ad.ui.trigger.condition"), ConditionGroupsPanel.ComparisonLabels);
                     conditionField.name = "ad-trigger-condition";
                     conditionField.tooltip = L.Text("ad.ui.trigger.condition.tip");
                     body.Add(Bound(conditionField));

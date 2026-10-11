@@ -362,7 +362,7 @@ namespace DocMe.AvatarDoctor.Editor
             view.Tree.SelectEntry(questHat.id);
             var chips = view.Detail.Query<Label>(className: "ad-chip").ToList();
             Assert.That(chips.Select(c => c.text), Does.Contain(L.Text("ad.ui.chip.quest_only")));
-            Assert.That(view.Detail.Q<DropdownField>("ad-platform"), Is.Not.Null);
+            Assert.That(view.Detail.Q<DropdownField>("ad-entry-platform"), Is.Not.Null);
             Assert.That(view.Header.Q<SegmentedChoice>("ad-platform"), Is.Not.Null);
             Assert.That(view.Header.Q<Label>("ad-platform-note").text,
                 Is.EqualTo(string.Format(L.Text("ad.ui.platform.current"), L.Text("ad.ui.platform.name.pc"))));

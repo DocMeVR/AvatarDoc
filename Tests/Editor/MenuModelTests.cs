@@ -544,6 +544,31 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void OverridesThatHoldAShapeAtTheSameValueDoNotConflict()
+        {
+            var menu = avatar.AddMenu();
+            var first = MenuEntry.Create(EntryKind.Override, "No blush");
+            first.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 20f });
+            var second = MenuEntry.Create(EntryKind.Override, "No blush either");
+            second.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 20f });
+            menu.entries.Add(first);
+            menu.entries.Add(second);
+
+            var same = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
+
+            Assert.That(same.Messages.Any(m => m.Key == "ad.warn.override_conflict"), Is.False, "both hold the shape at 20, so whichever wins, the avatar looks the same");
+
+            var third = MenuEntry.Create(EntryKind.Override, "Some blush");
+            third.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 60f });
+            menu.entries.Add(third);
+
+            var differ = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
+
+            var conflict = differ.Messages.Single(m => m.Key == "ad.warn.override_conflict");
+            Assert.That(conflict.EntryIds, Is.EquivalentTo(new[] { second.id, third.id }), "only the pair that holds it at different values");
+        }
+
+        [Test]
         public void ConflictingOverridesWarnAcrossComponents()
         {
             var first = avatar.AddMenu();

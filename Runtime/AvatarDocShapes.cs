@@ -31,7 +31,7 @@ namespace DocMe.AvatarDoctor
     /// shapes anywhere on the avatar hold a value while the piece is on. Costs no parameter and no layer: the
     /// build adds the values to the clips that already switch the piece.
     /// </summary>
-    [AddComponentMenu("AvatarDoc/AvatarDoc Shapes")]
+    [AddComponentMenu("DocMe/AvatarDoc Shapes")]
     public sealed class AvatarDocShapes : MonoBehaviour
 #if DOCME_VRCSDK_BASE
         , VRC.SDKBase.IEditorOnly

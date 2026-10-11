@@ -293,6 +293,7 @@
 .ad-capture .ad-capture-save:hover { opacity: 0.85; }
 .ad-import-row { margin-bottom: 6px; }
 .ad-import-row.ad-unsupported { opacity: 0.55; }
+.ad-import-row > .ad-row > .ad-w-24 { flex-grow: 0; flex-shrink: 0; margin: 0 4px 0 0; }
 .ad-import-path { flex-direction: row; flex-grow: 1; flex-shrink: 1; min-width: 0; overflow: hidden; margin: 0 6px; }
 .ad-import-path > .ad-note { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; }
 .ad-import-meta { flex-shrink: 0; margin-left: 6px; color: var(--ad-muted); font-size: 10px; }

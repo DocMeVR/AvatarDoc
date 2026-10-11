@@ -140,7 +140,7 @@ namespace DocMe.AvatarDoctor.Editor
             long leave = (long)ConditionLogic.LeaveEstimate(met) + ConditionLogic.LeaveEstimate(gate);
             if (leave <= ConditionLogic.MaxLeaveTransitions) return false;
             if (!ConditionLogic.TooComplex(node.Entry.EffectiveWhen, out _, out _))
-                messages.Add(ModelMessage.Error("ad.error.trigger_too_complex", node.Entry.PlainName,
+                messages.Add(ModelMessage.Error(UiText.CountKey(node.Entry.EffectiveWhen.Count, "ad.error.trigger_too_complex"), node.Entry.PlainName,
                     node.Entry.EffectiveWhen.Count.ToString(),
                     Math.Min(leave, int.MaxValue).ToString()).For(node.Entry.id));
             return true;
