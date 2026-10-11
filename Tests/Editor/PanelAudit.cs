@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 9 Part D: walks every visible descendant of a real, laid out panel (through LayoutProbe) and
+    /// Walks every visible descendant of a real, laid out panel (through LayoutProbe) and
     /// fails, naming the element, on any of the five shapes the creator's screenshots flagged: a clipped right
     /// edge, a label or field off the row's own left edge or the 112px column, a boolean pushed to a row's far end
     /// by a growing sibling instead of sitting at a field's own column, a single line row whose height or vertical

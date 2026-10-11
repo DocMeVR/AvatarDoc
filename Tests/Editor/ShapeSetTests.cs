@@ -475,7 +475,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(ShapeSetModel.HeldShapes(face, effective[0], null).Count, Is.EqualTo(2));
         }
 
-        /// <summary>Plan 17 task H: a rule now costs only the shapes something else moves, so even a large one no longer warns.</summary>
+        /// <summary>A rule now costs only the shapes something else moves, so even a large one no longer warns.</summary>
         [Test]
         public void LargeRuleWarns()
         {

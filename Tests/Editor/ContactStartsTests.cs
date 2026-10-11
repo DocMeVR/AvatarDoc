@@ -13,7 +13,7 @@ using VRC.SDK3.Dynamics.Contact.Components;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 13 task 8: the three ready made Follow distance contact starts (Headpat, Eye touch, Nose boop).</summary>
+    /// <summary>The three ready made Follow distance contact starts (Headpat, Eye touch, Nose boop).</summary>
     public class ContactStartsTests
     {
         TestAvatar avatar;

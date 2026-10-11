@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 12 task 4, plan item 8: one dismissible first-use tip per panel kind, and "Tips" in the Component settings fold turning them all back on.</summary>
+    /// <summary>One dismissible first-use tip per panel kind, and "Tips" in the Component settings fold turning them all back on.</summary>
     public class FirstUseTipTests
     {
         TestAvatar avatar;

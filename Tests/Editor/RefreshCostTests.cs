@@ -10,7 +10,7 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Plan 13 task D, review 2 finding 11: refresh work that grew with the avatar.</summary>
+    /// <summary>Refresh work that grew with the avatar.</summary>
     public class RefreshCostTests
     {
         TestAvatar avatar;

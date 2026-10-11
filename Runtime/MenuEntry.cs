@@ -66,7 +66,7 @@ namespace DocMe.AvatarDoctor
         /// <summary>Toggles and radials only: the entry keeps its parameter, layer, group membership and default exactly as if this were false, but gets no menu control and takes no menu slot. False by default, so old data loads as shown in the menu.</summary>
         public bool hiddenFromMenu;
 
-        // Trigger (phase 3)
+        // Trigger
         public TriggerSource source;
         public string sourceToggleId = "";
         public bool sourceToggleOn = true;
@@ -103,7 +103,7 @@ namespace DocMe.AvatarDoctor
         /// <summary>Whether the stored Start and Full cross, so the build has to move Full above Start. The model reports it.</summary>
         public bool SmoothRangeCrossed => linkStyle == BlendShapeLinkStyle.Smooth && smoothFull > 0f && Mathf.Clamp(smoothFull, 0f, 100f) <= EffectiveSmoothStart;
 
-        // Trigger sources: Contact (phase 8)
+        // Trigger sources: Contact
         public Transform contactAnchor;
         public Vector3 contactOffset;
         public float contactRadius = 0.05f;
@@ -122,7 +122,7 @@ namespace DocMe.AvatarDoctor
         /// </summary>
         public float EffectiveContactFullAt => Mathf.Clamp(contactFullAt <= 0f ? 0.8f : contactFullAt, 0.05f, 1f);
 
-        // Trigger sources: PhysBone (phase 8)
+        // Trigger sources: PhysBone
 #if DOCME_VRCSDK_BASE
         public VRC.SDK3.Dynamics.PhysBone.Components.VRCPhysBone physBone;
 #else
@@ -131,15 +131,15 @@ namespace DocMe.AvatarDoctor
         public PhysBoneEvent physBoneEvent;
         public float physBoneThreshold = 0.5f;
 
-        // Contact and PhysBone: hold effects, or flip another toggle (phase 8)
+        // Contact and PhysBone: hold effects, or flip another toggle
         public TouchMode touchMode;
         public string flipToggleId = "";
 
-        // Trigger: several conditions (phase 9)
+        // Trigger: several conditions
         /// <summary>The trigger is met when any group is met, and a group is met when all of its conditions are. Empty means the trigger works from its flat source fields above, which is how every scene saved before this existed loads.</summary>
         public List<ConditionGroup> when = new List<ConditionGroup>();
 
-        // Trigger: menu switch gate (phase 9)
+        // Trigger: menu switch gate
         /// <summary>The id of an AvatarDoctor toggle that must be in the chosen state for this trigger to work. Empty means always. On a blend shape trigger or a Fade contact it is one more requirement.</summary>
         public string gateToggleId = "";
         public bool gateToggleOn = true;
@@ -156,7 +156,7 @@ namespace DocMe.AvatarDoctor
         /// <summary>Meshes whose other shapes this entry holds, at 0 or at their default, while it is on. Toggles and triggers with effects of their own only (<see cref="OffersShapeSets"/>).</summary>
         public List<ShapeSetRule> shapeSets = new List<ShapeSetRule>();
 
-        // Grabbable (phase 11): the whole "hold this in a hand" arrangement in one entry.
+        // Grabbable: the whole "hold this in a hand" arrangement in one entry.
         /// <summary>The object a creator can pick up. Grabbable only.</summary>
         public GameObject grabObject;
         /// <summary>Which hand or hands may hold it. Both builds one claim per hand.</summary>
@@ -172,7 +172,7 @@ namespace DocMe.AvatarDoctor
         /// <summary>Off (the default): the entry is not a menu control, has no icon and takes no menu slot, like a hidden toggle. On: a normal toggle that allows grabbing at all, with a parameter and a menu slot like any toggle's.</summary>
         public bool grabMenuToggle;
 
-        // Preset (phase 7)
+        // Preset
         public List<PresetState> presetStates = new List<PresetState>();
         public List<PresetParameter> presetParameters = new List<PresetParameter>();
 

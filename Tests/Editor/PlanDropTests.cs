@@ -16,7 +16,7 @@ using Object = UnityEngine.Object;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Plan 13 task D: a cached plan is dropped only when something it reads changed. Every editor event is handed
+    /// A cached plan is dropped only when something it reads changed. Every editor event is handed
     /// to AvatarPlanCache the way Unity hands it over: a batch of change events built with Unity's own stream
     /// builder, the hierarchy and undo handlers taken from Unity's own handler lists.
     /// </summary>

@@ -13,7 +13,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Plan 17 task 10: the links from the tool into the online guide.</summary>
+    /// <summary>The links from the tool into the online guide.</summary>
     public class DocsLinksTests
     {
         TestAvatar avatar;
@@ -190,6 +190,110 @@ namespace DocMe.AvatarDoctor.Editor
                 Click(button);
             });
             Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Page("reference/messages") + "#ad-error-trigger-too-complex" }));
+        }
+
+        [Test]
+        public void TheCaptureStatusLineShowsTheButton()
+        {
+            var menu = avatar.AddMenu();
+            avatar.AddBodyShapes("Blush");
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f });
+            var view = View(menu);
+            view.Tree.SelectEntry(face.id);
+            view.Detail.Q<TargetListView>("ad-blendshapes").CaptureFrom(avatar.Body);
+            var status = view.Detail.Q<Label>("ad-shape-set-status");
+            Assert.That(status, Is.Not.Null);
+            var button = status.parent.Q<Button>(className: "ad-learn-more");
+            Assert.That(button, Is.Not.Null, "the status line has a Learn more button");
+            LayoutProbe.Measure(view, () =>
+            {
+                BringIntoView(view, button);
+                Click(button);
+            });
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Message("ad.info.capture_nothing_above_zero") }));
+        }
+
+        [Test]
+        public void ARefusedDropShowsTheButton()
+        {
+            var menu = avatar.AddMenu();
+            var outer = menu.AddEntry(EntryKind.Submenu, "Outer");
+            var inner = menu.AddEntry(EntryKind.Submenu, "Inner", outer.id);
+            var view = View(menu);
+            Assert.That(view.Tree.ApplyStructure(new[] { (view.Tree.RowFor(outer.id), view.Tree.RowFor(inner.id), 0) }), Is.False);
+            var refusal = view.Tree.Q<VisualElement>("ad-drop-refusal");
+            var button = refusal.Q<Button>(className: "ad-learn-more");
+            Assert.That(button, Is.Not.Null, "the refusal has a Learn more button");
+            LayoutProbe.Measure(view, () =>
+            {
+                BringIntoView(view, button);
+                Click(button);
+            });
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Message("ad.info.drop_refused") }));
+        }
+
+        [Test]
+        public void TheShapeSetRuleNoteShowsTheButtonAndFitsAt300And400()
+        {
+            var menu = avatar.AddMenu();
+            avatar.AddBodyShapes("Blush");
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            face.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Zero });
+            var view = View(menu);
+            foreach (float width in new[] { 300f, 400f })
+            {
+                LayoutProbe.Measure(view, () =>
+                {
+                    view.Tree.SelectEntry(face.id);
+                    LayoutProbe.Validate(view);
+                    var note = view.Detail.Q<Label>("ad-shape-set-note");
+                    var button = note.parent.Q<Button>(className: "ad-learn-more");
+                    Assert.That(button, Is.Not.Null, "the count note has a Learn more button");
+                    Assert.That(button.worldBound.xMax, Is.LessThanOrEqualTo(view.Detail.worldBound.xMax + 0.5f), width + ": the button stays inside the panel");
+                    Assert.That(note.worldBound.xMax, Is.LessThanOrEqualTo(button.worldBound.xMin + 0.5f), width + ": the note ends before the button");
+                    Assert.That(note.worldBound.height, Is.GreaterThan(0f), width + ": the note shows");
+                }, width);
+            }
+            LayoutProbe.Measure(view, () =>
+            {
+                view.Tree.SelectEntry(face.id);
+                LayoutProbe.Validate(view);
+                var button = view.Detail.Q<Label>("ad-shape-set-note").parent.Q<Button>(className: "ad-learn-more");
+                BringIntoView(view, button);
+                Click(button);
+            });
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Message("ad.info.shape_set_count") }));
+        }
+
+        [Test]
+        public void TheCaptureAndDropLinesFitAt300And400()
+        {
+            var menu = avatar.AddMenu();
+            var outer = menu.AddEntry(EntryKind.Submenu, "Outer");
+            var inner = menu.AddEntry(EntryKind.Submenu, "Inner", outer.id);
+            avatar.AddBodyShapes("Blush");
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f });
+            var view = View(menu);
+            view.Tree.ApplyStructure(new[] { (view.Tree.RowFor(outer.id), view.Tree.RowFor(inner.id), 0) });
+            view.Tree.SelectEntry(face.id);
+            view.Detail.Q<TargetListView>("ad-blendshapes").CaptureFrom(avatar.Body);
+            foreach (float width in new[] { 300f, 400f })
+            {
+                LayoutProbe.Measure(view, () =>
+                {
+                    foreach (var line in new[] { view.Tree.Q<VisualElement>("ad-drop-refusal"), view.Detail.Q<VisualElement>("ad-shape-set-status-box") })
+                    {
+                        var button = line.Q<Button>(className: "ad-learn-more");
+                        var text = line.Q<Label>();
+                        Assert.That(button, Is.Not.Null);
+                        Assert.That(button.worldBound.xMax, Is.LessThanOrEqualTo(view.worldBound.xMax + 0.5f), width + ": " + line.name + " keeps its button inside");
+                        Assert.That(text.worldBound.xMax, Is.LessThanOrEqualTo(button.worldBound.xMin + 0.5f), width + ": " + line.name + " text ends before its button");
+                    }
+                }, width);
+            }
         }
 
         [Test]

@@ -8,9 +8,9 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// The pictures of the first twelve Reference pages: the inspector, toggles, radials, submenus, exclusive groups,
-    /// objects, blend shape rows, material properties, material slots, triggers, touch triggers and blend shape
-    /// triggers. One overview per page, plus the header with its folds open and a toggle's Advanced fold, which a
+    /// The pictures of the first thirteen Reference pages: the inspector, toggles, radials, submenus, exclusive groups,
+    /// objects, blend shape rows, material properties, material slots, triggers, touch triggers, blend shape
+    /// triggers and grabbables. One overview per page, plus the header with its folds open and a toggle's Advanced fold, which a
     /// closed fold hides. The inspector's own overview is DocsShots_Home.InspectorOverview. Each picture shows a
     /// healthy avatar except the header one, which needs a warning to show the problem list.
     /// DocsShotSetupTests runs every setup without the screen read.
@@ -25,6 +25,7 @@ namespace DocMe.AvatarDoctor.Editor
         internal const string GroupChipName = "docs-group-chip";
         internal const string SubmenuRowName = "docs-submenu-row";
         internal const string DropAreaName = "docs-objects-drop";
+        internal const string GrabFoldName = "docs-grab-fold";
 
         [Test] public void InspectorHeader() { using (var avatar = DocsAvatar.Create()) InspectorHeader(avatar).Take(); }
         [Test] public void ToggleOverview() { using (var avatar = DocsAvatar.Create()) ToggleOverview(avatar).Take(); }
@@ -39,6 +40,7 @@ namespace DocMe.AvatarDoctor.Editor
         [Test] public void TriggersOverview() { using (var avatar = DocsAvatar.Create()) TriggersOverview(avatar).Take(); }
         [Test] public void TouchTriggersOverview() { using (var avatar = DocsAvatar.Create()) TouchTriggersOverview(avatar).Take(); }
         [Test] public void BlendShapeTriggersOverview() { using (var avatar = DocsAvatar.Create()) BlendShapeTriggersOverview(avatar).Take(); }
+        [Test] public void GrabbableOverview() { using (var avatar = DocsAvatar.Create()) GrabbableOverview(avatar).Take(); }
 
         /// <summary>
         /// The header alone, with the problem list and Component settings open, on a menu whose Scarf toggle has no
@@ -296,6 +298,31 @@ namespace DocMe.AvatarDoctor.Editor
             return Panel("reference-blend-shape-triggers", "overview", menu, blush,
                 ("ad-trigger-source", 1), ("ad-trigger-shape", 2), ("ad-trigger-style", 3), ("ad-trigger-smooth-start", 4), ("ad-trigger-smooth-full", 5),
                 ("ad-trigger-threshold", 6), ("ad-trigger-mode", 7), ("effect-mode", 8));
+        }
+
+        /// <summary>
+        /// A grabbable on the glasses with the More options fold open: 1 Object, 2 Hands, 3 Keep offset, 4 More options,
+        /// 5 Anyone may grab, 6 Return time, 7 Reach, 8 Menu toggle.
+        /// </summary>
+        internal static DocsShotSpec GrabbableOverview(DocsAvatar avatar)
+        {
+            var menu = avatar.AddMenu();
+            var grab = menu.AddEntry(EntryKind.Grabbable, "Glasses");
+            grab.grabObject = avatar.Glasses;
+            var spec = Panel("reference-grabbable", "overview", menu, grab,
+                (GrabFoldName, 4), ("ad-grab-object", 1), ("ad-grab-hands", 2), ("ad-grab-keep-offset", 3),
+                ("ad-grab-anyone", 5), ("ad-grab-return-seconds", 6), ("ad-grab-reach", 7), ("ad-grab-menu-toggle", 8));
+            var select = spec.Arrange;
+            spec.Arrange = root =>
+            {
+                select(root);
+                var view = root.Q<AvatarDoctorView>();
+                var fold = view.Detail.Q<Foldout>("ad-grab-fold-toggle") ?? throw new InvalidOperationException("The grabbable panel has no More options fold.");
+                fold.value = true;
+                fold.Q<Toggle>().name = GrabFoldName;
+                LayoutProbe.SettleLists(view);
+            };
+            return spec;
         }
 
         static (AvatarDoc menu, MenuEntry hat) HatToggle(DocsAvatar avatar)

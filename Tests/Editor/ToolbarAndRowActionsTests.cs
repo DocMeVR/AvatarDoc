@@ -10,10 +10,10 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 3: the slim toolbar's four add buttons and its "+ More" list. Phase 12 task 6 rebuilt the same
+    /// The slim toolbar's four add buttons and its "+ More" list. An earlier version rebuilt the same
     /// top bar with the right Unity control for each job (a real Toolbar, ToolbarButton, ToolbarMenu, ToolbarToggle
     /// and ToolbarSearchField) and gave Move to, Duplicate and Delete built in icons on the row's own visible
-    /// buttons; those tests lived here too. Phase 12 task 12 replaced every one of those mixed control types with a
+    /// buttons; those tests lived here too. A later version replaced every one of those mixed control types with a
     /// single ToolbarButton and moved every row action to the right click menu, so the tests below now check the
     /// one control type and RowActions as the menu's own single source instead.
     /// </summary>

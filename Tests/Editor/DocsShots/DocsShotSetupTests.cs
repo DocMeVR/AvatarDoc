@@ -1233,6 +1233,32 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheReferenceGrabbableShotShowsTheOpenFoldOnAGrabbableThatBuildsWithoutAProblem()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.GrabbableOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var grab = menu.entries.Single();
+                    Assert.That((grab.kind, grab.grabObject, grab.grabHands), Is.EqualTo((EntryKind.Grabbable, avatar.Glasses, GrabHands.Both)));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(grab));
+                        Assert.That(view.Q<Foldout>("ad-grab-fold-toggle").value, Is.True, "the picture shows what is inside More options");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
         public void TheReferenceBlendShapeTriggerShotFollowsTheSmileWithAFollowSourceRow()
         {
             using (var avatar = DocsAvatar.Create())

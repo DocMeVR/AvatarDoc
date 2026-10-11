@@ -74,25 +74,25 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.error.grab_no_object", "ad.error.grab_outside_avatar", "ad.error.grab_no_hand", "ad.info.grab_uses_existing_physbone",
             "ad.error.grab_inside_physbone", "ad.warn.grab_existing_physbone_unsuitable",
 
-            // Phase 12 task 2: upload style checks mirrored from the VRChat SDK's own build validation.
+            // Upload style checks mirrored from the VRChat SDK's own build validation.
             "ad.error.menu_icon_too_large", "ad.warn.write_defaults_mixed",
 
-            // Phase 12 task 4: the tag filter's own drag-off note, split by which filter is active.
+            // The tag filter's own drag-off note, split by which filter is active.
             "ad.info.drag_needs_no_search_or_tags", "ad.info.drag_needs_no_tags",
 
-            // Phase 13 task 7: contacts that follow distance.
+            // Contacts that follow distance.
             "ad.warn.follow_distance_one_contact", "ad.warn.follow_distance_no_follows", "ad.warn.follow_distance_tracking_left_to",
 
-            // Phase 13 task 8: ready made contact starts.
+            // Ready made contact starts.
             "ad.error.contact_start_no_head",
 
-            // Plan 14 task S: smooth blend shape triggers and requirements.
+            // Smooth blend shape triggers and requirements.
             "ad.warn.link_clips_outside_fx", "ad.warn.link_source_tracked", "ad.warn.smooth_range", "ad.warn.requirements_one_card", "ad.warn.link_no_fx_clip",
         };
 
         public static readonly string[] UiKeys =
         {
-            "ad.ui.title", "ad.ui.menu", "ad.ui.install", "ad.ui.install.root", "ad.ui.install.pick", "ad.ui.install.mode", "ad.ui.install.mode.append", "ad.ui.install.mode.submenu", "ad.ui.menu_name", "ad.ui.menu_icon",
+            "ad.ui.menu", "ad.ui.install", "ad.ui.install.root", "ad.ui.install.pick", "ad.ui.install.mode", "ad.ui.install.mode.append", "ad.ui.install.mode.submenu", "ad.ui.menu_name", "ad.ui.menu_icon",
             "ad.ui.prefix", "ad.ui.memory.avatar", "ad.ui.memory.avatar.one", "ad.ui.memory.ad", "ad.ui.memory.ad.one", "ad.ui.memory.free", "ad.ui.memory.free_bits", "ad.ui.memory.over", "ad.ui.memory.over.one", "ad.ui.disabled", "ad.ui.no_avatar",
             "ad.ui.other_components", "ad.ui.other_components.one", "ad.ui.add.toggle", "ad.ui.add.radial", "ad.ui.add.submenu", "ad.ui.triggers", "ad.ui.triggers.note", "ad.ui.triggers.note.one",
             "ad.ui.existing", "ad.ui.disabled_chip", "ad.ui.drop.tree", "ad.ui.detail.toggle", "ad.ui.detail.radial", "ad.ui.detail.submenu",
@@ -100,7 +100,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.synced", "ad.ui.group", "ad.ui.group.none", "ad.ui.group.settings", "ad.ui.parameter", "ad.ui.parameter.auto",
             "ad.ui.parameter.custom", "ad.ui.parameter.use_custom", "ad.ui.parameter.bits", "ad.ui.parameter.bits.one", "ad.ui.parameter.no_bits",
             "ad.ui.parameter.value", "ad.ui.parameter.group_note", "ad.ui.group.value", "ad.ui.group.number", "ad.ui.slots",
-            "ad.ui.objects", "ad.ui.blendshapes", "ad.ui.materials", "ad.ui.add", "ad.ui.shown_when_on", "ad.ui.hidden_when_on",
+            "ad.ui.objects", "ad.ui.blendshapes", "ad.ui.materials", "ad.ui.add",
             "ad.ui.seg.shown", "ad.ui.seg.hidden", "ad.ui.drop.objects",
             "ad.ui.weight", "ad.ui.min", "ad.ui.max", "ad.ui.slot", "ad.ui.other_component", "ad.ui.select_component", "ad.ui.existing_note",
             "ad.ui.trigger_note", "ad.ui.menu.rename", "ad.ui.menu.duplicate", "ad.ui.menu.delete", "ad.ui.menu.move", "ad.ui.menu.move.root", "ad.ui.pick.shape",
@@ -109,19 +109,19 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.trigger.parameter", "ad.ui.trigger.condition", "ad.ui.trigger.condition.is_true", "ad.ui.trigger.condition.is_false",
             "ad.ui.trigger.condition.equals", "ad.ui.trigger.condition.not_equals", "ad.ui.trigger.condition.greater", "ad.ui.trigger.condition.less", "ad.ui.trigger.value", "ad.ui.trigger.shape",
             "ad.ui.trigger.mode", "ad.ui.trigger.link_note", "ad.ui.trigger.parameter_note", "ad.ui.effect.fixed", "ad.ui.effect.follow",
-            "ad.ui.effect.pin", "ad.ui.seg.fixed", "ad.ui.seg.pin", "ad.ui.effect.multiplier", "ad.ui.override.value", "ad.ui.override.usage", "ad.ui.override.usage.one", "ad.ui.override.unused",
+            "ad.ui.seg.fixed", "ad.ui.seg.pin", "ad.ui.effect.multiplier", "ad.ui.override.value", "ad.ui.override.usage", "ad.ui.override.usage.one", "ad.ui.override.unused",
             "ad.ui.usage.chip", "ad.ui.usage.chip.one", "ad.ui.pick.parameter.avatar", "ad.ui.pick.parameter.doctor",
             "ad.ui.pick.parameter.vrchat", "ad.ui.preview", "ad.ui.preview.default", "ad.ui.preview.on", "ad.ui.preview.off",
             "ad.ui.preview.follows", "ad.ui.preview.off_note", "ad.ui.preview.reset", "ad.ui.preview.always",
-            "ad.ui.wheel", "ad.ui.wheel.count", "ad.ui.wheel.select", "ad.ui.wheel.test", "ad.ui.wheel.reset", "ad.ui.copy", "ad.ui.root_menu", "ad.ui.window.none", "ad.ui.search",
+            "ad.ui.wheel", "ad.ui.wheel.count", "ad.ui.wheel.select", "ad.ui.wheel.test", "ad.ui.wheel.reset", "ad.ui.copy", "ad.ui.root_menu", "ad.ui.window.none",
             "ad.ui.chip.trigger_off", "ad.ui.trigger.source_disabled",
             "ad.ui.add.override", "ad.ui.overrides", "ad.ui.overrides.note", "ad.ui.overrides.note.one", "ad.ui.detail.override", "ad.ui.override_note",
-            "ad.ui.style", "ad.ui.style.preview", "ad.ui.style.color", "ad.ui.style.bold", "ad.ui.style.italic", "ad.ui.style.raw", "ad.ui.style.raw_label", "ad.ui.style.custom",
+            "ad.ui.style", "ad.ui.style.preview", "ad.ui.style.bold", "ad.ui.style.italic", "ad.ui.style.raw_label", "ad.ui.style.custom",
             "ad.ui.capture", "ad.ui.capture.title", "ad.ui.capture.fit", "ad.ui.capture.background", "ad.ui.capture.transparent",
             "ad.ui.capture.solid", "ad.ui.capture.save", "ad.ui.capture.none", "ad.ui.capture.saved",
             "ad.ui.capture.fill", "ad.ui.capture.fill.tip",
             "ad.ui.chip.modular_avatar", "ad.ui.chip.vrcfury",
-            "ad.ui.existing.title", "ad.ui.existing.move", "ad.ui.existing.stay", "ad.ui.existing.hidden", "ad.ui.existing.reset",
+            "ad.ui.existing.title", "ad.ui.existing.move", "ad.ui.existing.stay", "ad.ui.existing.reset",
             "ad.ui.existing.late_note", "ad.ui.existing.original", "ad.ui.existing.hide", "ad.ui.existing.show",
             "ad.ui.existing.move_refused",
             "ad.ui.existing.remove", "ad.ui.existing.remove.tip", "ad.ui.existing.remove_frees", "ad.ui.existing.remove_frees.bits", "ad.ui.existing.remove_frees.bits.one",
@@ -129,7 +129,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.chip.edited", "ad.ui.chip.hidden", "ad.ui.chip.removed", "ad.ui.edit.remove",
             "ad.ui.add.preset", "ad.ui.detail.preset", "ad.ui.preset.sets", "ad.ui.preset.add", "ad.ui.preset.from_preview",
             "ad.ui.preset.from_preview.tip", "ad.ui.preset.on", "ad.ui.preset.off", "ad.ui.preset.parameters",
-            "ad.ui.preset.parameters.tip", "ad.ui.preset.apply", "ad.ui.preset.reset", "ad.ui.preset.none", "ad.ui.preset.missing", "ad.ui.preset.pick",
+            "ad.ui.preset.parameters.tip", "ad.ui.preset.none", "ad.ui.preset.missing", "ad.ui.preset.pick",
             "ad.ui.targets.properties", "ad.ui.targets.animations", "ad.ui.property.pick", "ad.ui.property.other",
             "ad.ui.property.type.float", "ad.ui.property.type.color",
             "ad.ui.property.type.vector", "ad.ui.animation.path_root", "ad.ui.animation.path_root.tip",
@@ -178,7 +178,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.trigger.gate", "ad.ui.trigger.gate.always", "ad.ui.trigger.gate.add",
             "ad.ui.in_menu", "ad.ui.chip.no_menu", "ad.ui.chip.problem", "ad.ui.wheel.not_in_menu",
             "ad.summary.hidden", "ad.summary.gated_triggers", "ad.summary.gated_triggers.line",
-            "ad.ui.when.title", "ad.ui.fires", "ad.ui.when.any_of", "ad.ui.when.all_of", "ad.ui.when.add_and", "ad.ui.when.add_or",
+            "ad.ui.fires", "ad.ui.when.any_of", "ad.ui.when.all_of", "ad.ui.when.add_and", "ad.ui.when.add_or",
             "ad.ui.when.remove", "ad.ui.when.remove_group", "ad.ui.when.settings", "ad.ui.when.chip_more", "ad.ui.when.kind.toggle", "ad.ui.when.kind.parameter",
             "ad.ui.when.kind.contact", "ad.ui.when.kind.physbone", "ad.ui.when.note", "ad.ui.when.pick_toggle",
             "ad.ui.when.sentence", "ad.ui.when.and", "ad.ui.when.or", "ad.ui.when.nothing",
@@ -197,7 +197,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.menu_asset.declared", "ad.ui.menu_asset.undeclared", "ad.ui.chip.asset",
             "ad.ui.parameters", "ad.ui.parameters.note", "ad.ui.parameters.tip",
             "ad.ui.parameters.none", "ad.ui.parameters.total", "ad.ui.parameters.total.one", "ad.ui.parameters.bits", "ad.ui.parameters.bits.one",
-            "ad.ui.parameters.add", "ad.ui.parameters.new", "ad.ui.parameters.default",
+            "ad.ui.parameters.add", "ad.ui.parameters.new",
             "ad.ui.import.group.menu_asset", "ad.ui.import.kind.menu_asset", "ad.ui.import.summary.parameters", "ad.ui.import.summary.parameters.one",
             "ad.ui.import.summary.declarations", "ad.ui.import.summary.declarations.one",
             "ad.ui.import.keep", "ad.ui.import.keep.tip", "ad.summary.menu_assets",
@@ -220,7 +220,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.grab.hands.both", "ad.ui.grab.hands.left", "ad.ui.grab.hands.right", "ad.ui.grab.summary",
             "ad.ui.grab.anyone", "ad.ui.grab.return_seconds", "ad.ui.grab.menu_toggle", "ad.ui.grab.reach", "ad.ui.grab.fold",
 
-            // Phase 10 task 2: one sentence tooltips on every labelled control.
+            // One sentence tooltips on every labelled control.
             "ad.ui.select_component.tip", "ad.ui.icon.tip", "ad.ui.capture.tip", "ad.ui.platform.tip",
             "ad.ui.default_on.tip", "ad.ui.saved.tip", "ad.ui.synced.tip", "ad.ui.in_menu.tip", "ad.ui.group.tip", "ad.ui.group.value.tip", "ad.ui.group.number.tip",
             "ad.ui.parameter.tip", "ad.ui.parameter.use_custom.tip", "ad.ui.parameter.value.tip",
@@ -231,7 +231,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.trigger.gate.tip", "ad.ui.trigger.gate_state.tip", "ad.ui.trigger.gate.add.tip",
             "ad.ui.name.tip", "ad.ui.style.tip", "ad.ui.style.color.tip", "ad.ui.style.clear_color.tip",
             "ad.ui.style.bold.tip", "ad.ui.style.italic.tip", "ad.ui.style.raw.tip", "ad.ui.style.preview.tip",
-            "ad.ui.existing.move.tip", "ad.ui.existing.hidden.tip", "ad.ui.existing.reset.tip",
+            "ad.ui.existing.move.tip", "ad.ui.existing.reset.tip",
             "ad.ui.animator.controller.tip", "ad.ui.animator.match_write_defaults.tip", "ad.ui.animator.layers.tip",
             "ad.ui.animator.parameters.tip", "ad.ui.animator.add_control.tip",
             "ad.ui.menu_asset.asset.tip", "ad.ui.menu_asset.place.tip", "ad.ui.menu_asset.name.tip",
@@ -239,14 +239,13 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.parameters.add.tip", "ad.ui.parameters.row_name.tip", "ad.ui.parameters.type.tip", "ad.ui.parameters.default.tip",
             "ad.ui.preset.sets.tip", "ad.ui.preset.add.tip", "ad.ui.preset.parameters.add.tip", "ad.ui.preset.control.tip",
             "ad.ui.preset.value.tip", "ad.ui.preset.on.tip", "ad.ui.preset.param_name.tip", "ad.ui.preset.param_value.tip",
-            "ad.ui.preset.apply.tip", "ad.ui.preset.reset.tip",
             "ad.ui.touch.anchor.tip", "ad.ui.touch.radius.tip", "ad.ui.touch.offset.tip", "ad.ui.touch.who.tip",
             "ad.ui.touch.self.tip", "ad.ui.touch.others.tip", "ad.ui.touch.tags.tip", "ad.ui.touch.more_tags.tip",
             "ad.ui.touch.custom_tag_chip.tip", "ad.ui.touch.custom_tag.tip", "ad.ui.touch.distance.tip",
             "ad.ui.touch.proximity.tip", "ad.ui.touch.physbone.tip", "ad.ui.touch.event.tip", "ad.ui.touch.threshold.tip",
             "ad.ui.touch.mode.tip", "ad.ui.touch.flip_target.tip", "ad.ui.touch.fullat.tip", "ad.ui.touch.radius_follow.tip",
             "ad.ui.touch.hold.tip", "ad.ui.touch.flip.tip", "ad.ui.touch.follow.tip",
-            "ad.ui.when.title.tip", "ad.ui.fires.tip", "ad.ui.when.add_and.tip", "ad.ui.when.add_and.limit.tip", "ad.ui.when.add_or.tip", "ad.ui.when.all_of.tip",
+            "ad.ui.fires.tip", "ad.ui.when.add_and.tip", "ad.ui.when.add_and.limit.tip", "ad.ui.when.add_or.tip", "ad.ui.when.all_of.tip",
             "ad.ui.when.kind.tip", "ad.ui.when.settings.tip", "ad.ui.when.any_of.tip",
             "ad.ui.objects.tip", "ad.ui.blendshapes.tip", "ad.ui.materials.tip", "ad.ui.targets.properties.tip", "ad.ui.targets.animations.tip",
             "ad.ui.objects.add.tip", "ad.ui.blendshapes.add.tip", "ad.ui.materials.add.tip", "ad.ui.targets.properties.add.tip", "ad.ui.targets.animations.add.tip",
@@ -283,20 +282,20 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.add.grabbable.tip", "ad.ui.grab.object.tip", "ad.ui.grab.hands.tip", "ad.ui.grab.anyone.tip",
             "ad.ui.grab.return_seconds.tip", "ad.ui.grab.menu_toggle.tip", "ad.ui.grab.reach.tip", "ad.ui.grab.fold.tip",
 
-            // Phase 11 task 4: search disables reordering, so a visible note explains it while it does.
+            // Search disables reordering, so a visible note explains it while it does.
             "ad.info.drag_needs_no_search",
 
-            // Phase 11 task 5: a drop the tree cannot apply says why once instead of reverting silently.
+            // A drop the tree cannot apply says why once instead of reverting silently.
             "ad.info.drop_refused", "ad.info.drop_refused.locked", "ad.info.drop_refused.own_descendant", "ad.info.drop_refused.not_a_container",
 
-            // Phase 11 task 7: a one line preview of where a drag will land, from the pointer's horizontal position.
+            // A one line preview of where a drag will land, from the pointer's horizontal position.
             "ad.ui.drag_target.into", "ad.ui.drag_target.root",
 
-            // Phase 12 task 2: ready to upload, and costs where they are added.
+            // Ready to upload, and costs where they are added.
             "ad.ui.slots.chip", "ad.ui.more_page",
             "ad.ui.synced.cost.none", "ad.ui.synced.cost.bit", "ad.ui.synced.cost.bits",
             "ad.ui.ready", "ad.ui.ready.problems", "ad.ui.ready.problems.one", "ad.ui.ready.warnings", "ad.ui.ready.warnings.one", "ad.ui.ready.show", "ad.ui.ready.show.tip", "ad.ui.ready.tip",
-            "ad.ui.problems.arrow_closed", "ad.ui.problems.arrow_open", "ad.ui.problems.arrow.tip", "ad.ui.problems.more", "ad.ui.problems.line_count",
+            "ad.ui.problems.arrow.tip", "ad.ui.problems.more", "ad.ui.problems.line_count",
             "ad.ui.message.learn_more", "ad.ui.message.learn_more.tip", "ad.ui.quickstart.full_guide", "ad.ui.quickstart.full_guide.tip",
             "ad.ui.write_defaults", "ad.ui.write_defaults.on", "ad.ui.write_defaults.off", "ad.ui.write_defaults.tip",
             "ad.ui.builds.line", "ad.ui.builds.controls", "ad.ui.builds.controls.one", "ad.ui.builds.bits", "ad.ui.builds.bits.one", "ad.ui.builds.layers", "ad.ui.builds.layers.one",
@@ -306,7 +305,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.part.blinking", "ad.ui.part.lipsync",
             "ad.ui.builds.nothing.platform", "ad.ui.builds.nothing.empty", "ad.ui.builds.nothing.no_clips", "ad.ui.builds.clips", "ad.ui.builds.clips.one", "ad.ui.builds.nothing.disabled", "ad.ui.builds.tip",
 
-            // Phase 12 task 3: a first screen that invites, a slim toolbar, visible row actions, and a tag filter.
+            // A first screen that invites, a slim toolbar, visible row actions, and a tag filter.
             "ad.ui.detail.select_hint",
             "ad.ui.settings_fold", "ad.ui.settings_fold.tip", "ad.ui.settings_fold.dot.tip",
             "ad.ui.toolbar.convert", "ad.ui.more", "ad.ui.more.tip",
@@ -324,7 +323,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.tagfilter.group.kind", "ad.ui.tagfilter.group.from", "ad.ui.tagfilter.group.state", "ad.ui.tagfilter.group.platform",
             "ad.ui.tagfilter.from.avatardoc", "ad.ui.tagfilter.from.avatar_menu", "ad.ui.tagfilter.state.has_problems",
 
-            // Phase 12 task 4: panels that grow with you, one name for one idea, and first-use tips.
+            // Panels that grow with you, one name for one idea, and first-use tips.
             "ad.ui.advanced_fold", "ad.ui.advanced_fold.tip", "ad.ui.advanced_fold.dot.tip",
             "ad.ui.add_effect", "ad.ui.add_effect.tip",
             "ad.ui.add_effect.objects", "ad.ui.add_effect.blendshapes", "ad.ui.add_effect.materials",
@@ -333,7 +332,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.tip.toggle", "ad.tip.radial", "ad.tip.submenu", "ad.tip.trigger", "ad.tip.override",
             "ad.tip.preset", "ad.tip.grabbable", "ad.tip.animator", "ad.tip.menu_asset", "ad.tip.header",
 
-            // Phase 13 task 8: ready made contact starts.
+            // Ready made contact starts.
             "ad.ui.add.contact_starts",
             "ad.ui.add.contact_starts.headpat", "ad.ui.add.contact_starts.headpat.tip",
             "ad.ui.add.contact_starts.eye_touch", "ad.ui.add.contact_starts.eye_touch.tip",
@@ -344,10 +343,10 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.log.menu_closed.undo", "ad.log.menu_closed.window_focus", "ad.log.menu_closed.focus_taken",
             "ad.log.menu_closed.other_app", "ad.log.menu_closed.nothing", "ad.log.ids_repaired", "ad.log.plan_reused",
 
-            // Plan 13 task G: the Simple and Advanced switch.
+            // The Simple and Advanced switch.
             "ad.ui.mode.simple", "ad.ui.mode.advanced", "ad.ui.mode.tip", "ad.ui.advanced_item.note", "ad.tip.header.simple",
 
-            // Plan 14 task S: smooth blend shape triggers and requirements.
+            // Smooth blend shape triggers and requirements.
             "ad.ui.trigger.style", "ad.ui.trigger.style.tip", "ad.ui.trigger.style.smooth", "ad.ui.trigger.style.smooth.tip",
             "ad.ui.trigger.style.switch", "ad.ui.trigger.style.switch.tip", "ad.ui.trigger.smooth_start", "ad.ui.trigger.smooth_start.tip",
             "ad.ui.trigger.smooth_full", "ad.ui.trigger.smooth_full.tip", "ad.ui.trigger.switch_at", "ad.ui.trigger.switch_at.tip",
@@ -356,14 +355,14 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.when.requirements_note", "ad.ui.preview.unchecked", "ad.ui.builds.smooth", "ad.ui.builds.switch", "ad.ui.builds.mirror",
             "ad.summary.parameters.mirror", "ad.ui.when.ignored", "ad.ui.when.ignored.tip", "ad.ui.builds.pauses_blink_shape", "ad.ui.builds.pauses_lipsync_shape",
 
-            // Plan 16 task L: the language picker beside the Simple and Advanced switch.
+            // The language picker beside the Simple and Advanced switch.
             "ad.ui.language.tip",
 
-            // Plan 16 task L: punctuation and words the code puts between pieces of text.
+            // Punctuation and words the code puts between pieces of text.
             "ad.ui.list.separator", "ad.ui.aside", "ad.ui.brackets", "ad.ui.quoted", "ad.ui.labelled",
             "ad.summary.parameters.name", "ad.summary.parameters.type", "ad.summary.parameters.notes", "ad.ui.blend.unit",
 
-            // Plan 16 task Q: the search field at the top of every picker.
+            // The search field at the top of every picker.
             "ad.ui.pick.search.tip", "ad.ui.pick.no_match", "ad.ui.pick.more", "ad.ui.pick.more.one",
         };
 

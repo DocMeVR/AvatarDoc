@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 12 task 3: the empty tree's welcome card, the empty detail panel's hint, and the header's Component settings fold.</summary>
+    /// <summary>The empty tree's welcome card, the empty detail panel's hint, and the header's Component settings fold.</summary>
     public class WelcomeCardTests
     {
         TestAvatar avatar;

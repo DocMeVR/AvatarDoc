@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Plan 17 task 10 part B: the product bugs the reference pages found.</summary>
+    /// <summary>The product bugs the reference pages found.</summary>
     public class DocsFixesTests
     {
         TestAvatar avatar;

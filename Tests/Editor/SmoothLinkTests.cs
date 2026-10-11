@@ -17,7 +17,7 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Plan 14 task S: blend shape triggers follow their shape through a hidden copy of its weight (an animated
+    /// Blend shape triggers follow their shape through a hidden copy of its weight (an animated
     /// animator parameter) into a layer of their own, smoothly or as a switch, and they and Fade contacts take
     /// "+ And" requirements.
     /// </summary>
@@ -509,7 +509,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(leave, Is.EquivalentTo(new[] { "AD/Contact/Pat Less", "AD/Hat IfNot" }), "the hand leaving, or the requirement failing, each leaves on its own");
         }
 
-        /// <summary>Regression guard: passes before and after task S by design. Its one red run came from a locale bug in Words, since fixed.</summary>
+        /// <summary>Regression guard: passes before and after the change it guards by design. Its one red run came from a locale bug in Words, since fixed.</summary>
         [Test]
         public void AFadeContactWithoutRequirementsKeepsItsTwoTransitions()
         {
@@ -609,7 +609,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(AnimationUtility.GetEditorCurve((AnimationClip)smile, MirrorBinding("AD/Shape/Old link")), Is.Not.Null);
         }
 
-        // ---- Fix round 1: the pause, clips outside FX, the source switch, the copy's default, the provider ------
+        // ---- The pause, clips outside FX, the source switch, the copy's default, the provider ------
 
         void BlinkWith(string shape)
         {

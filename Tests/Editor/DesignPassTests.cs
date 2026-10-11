@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 11: the design pass from the creator's real screenshots. One test per finding that can be
+    /// The design pass from the creator's real screenshots. One test per finding that can be
     /// measured, against a real, laid out panel (LayoutProbe) wherever position or clipping is what changed.
     /// </summary>
     public class DesignPassTests
@@ -164,7 +164,7 @@ namespace DocMe.AvatarDoctor.Editor
         public void OnlyTheSelectedRowKeepsVisibleActionsAfterARefresh()
         {
             // Kept under its old name: the row's own visible action buttons this test used to guard against a
-            // pooled row wrongly keeping (Part B of phase 12 task 12) are gone at every selection now, Move to,
+            // pooled row wrongly keeping are gone at every selection now, Move to,
             // Duplicate and Delete having all moved to the right click menu, so a refresh has nothing of the kind
             // left to leak onto the wrong row. This confirms the removal itself instead.
             var menu = avatar.AddMenu();

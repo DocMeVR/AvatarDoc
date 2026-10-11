@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Measures a view's real, laid out geometry for the phase 12 task 9 alignment tests (Part B and Part D). A
+    /// Measures a view's real, laid out geometry for the alignment tests. A
     /// plain, unattached VisualElement tree never actually resolves a layout pass inside a synchronous test method:
     /// every resolvedStyle and worldBound stays NaN or zero with no frame ever pumped between test steps, the same
     /// limitation ViewTests already worked around for MeasureIndent by testing its math on synthetic inputs instead

@@ -10,13 +10,13 @@ using UnityEngine;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 1's permanent guard: every error, warning and info message names the exact thing, says what
+    /// Every error, warning and info message names the exact thing, says what
     /// to do, in the words the creator sees on screen, never in AvatarDoc's own internal words, and every call
     /// site passes enough arguments to fill every placeholder its text uses.
     /// </summary>
     public class MessageGuardTests
     {
-        /// <summary>Words the UI never shows. Found from the phase 12 audit of the actual message texts.</summary>
+        /// <summary>Words the UI never shows. Found by auditing the actual message texts.</summary>
         static readonly string[] BannedWords =
         {
             "gate", "claim", "binding", "occurrence", "pin layer", "explicit off", "skiplayers", "parameter control",

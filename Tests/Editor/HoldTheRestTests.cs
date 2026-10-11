@@ -14,8 +14,8 @@ using VRC.SDKBase;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Plan 15 task R: a toggle or a trigger holds every other shape of a mesh at its default or at 0 while it is on,
-    /// with the descriptor's blink and viseme shapes left free unless the rule holds them too. Plan 17 task H: one switch
+    /// A toggle or a trigger holds every other shape of a mesh at its default or at 0 while it is on,
+    /// with the descriptor's blink and viseme shapes left free unless the rule holds them too. One switch
     /// for the blink shapes and one for the viseme shapes, each pausing only its own part of tracking.
     /// </summary>
     public class HoldTheRestTests
@@ -198,7 +198,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Plan 17 task H: a rule saved with the one blink and viseme switch loads with both new switches set the way it was.</summary>
+        /// <summary>A rule saved with the one blink and viseme switch loads with both new switches set the way it was.</summary>
         [TestCase(true)]
         [TestCase(false)]
         public void ARuleSavedWithTheOneSwitchLoadsWithBothSwitchesSetTheSame(bool saved)
@@ -860,7 +860,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(view.Detail.Q<SegmentedChoice>("ad-shape-set-value"), Is.Not.Null);
         }
 
-        /// <summary>Plan 17 task H: Hold blink shows only for a mesh the descriptor blinks with, Hold visemes only for one it speaks with.</summary>
+        /// <summary>Hold blink shows only for a mesh the descriptor blinks with, Hold visemes only for one it speaks with.</summary>
         [TestCase(true)]
         [TestCase(false)]
         public void EachSwitchShowsOnlyForItsKindOfMesh(bool blinkMesh)
@@ -956,7 +956,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Plan 17 task H: Hold blink holds only the blink shape and pauses only blinking; Hold visemes holds only the viseme shape and pauses only lip sync.</summary>
+        /// <summary>Hold blink holds only the blink shape and pauses only blinking; Hold visemes holds only the viseme shape and pauses only lip sync.</summary>
         [TestCase(true)]
         [TestCase(false)]
         public void EachSwitchPausesOnlyItsOwnPart(bool blink)
@@ -1187,7 +1187,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Plan 17 task H: the large rule warning is gone, since a rule now costs only the shapes something else moves;
+        /// The large rule warning is gone, since a rule now costs only the shapes something else moves;
         /// the error still speaks of holding, for triggers too.
         /// </summary>
         [Test]

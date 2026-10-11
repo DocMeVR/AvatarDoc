@@ -13,7 +13,7 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>A menu switch that gates a trigger (phase 9 task 6), and toggles hidden from the menu (its addition).</summary>
+    /// <summary>A menu switch that gates a trigger, and toggles hidden from the menu (its addition).</summary>
     public class TriggerGateTests
     {
         TestAvatar avatar;

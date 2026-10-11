@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 12 task 4, plan item 7: Convert everywhere, In menu everywhere, and one preview control for every kind.</summary>
+    /// <summary>Convert everywhere, In menu everywhere, and one preview control for every kind.</summary>
     public class NamingConsistencyTests
     {
         TestAvatar avatar;

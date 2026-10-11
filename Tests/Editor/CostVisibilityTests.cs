@@ -8,7 +8,7 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 12 task 2, plan item 3: costs shown where they are added, and the "What this builds" line.</summary>
+    /// <summary>Costs shown where they are added, and the "What this builds" line.</summary>
     public class CostVisibilityTests
     {
         TestAvatar avatar;

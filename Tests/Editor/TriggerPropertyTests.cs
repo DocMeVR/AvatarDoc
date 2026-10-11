@@ -14,7 +14,7 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Plan 14 task P: material properties on every trigger that holds effects of its own (Toggle, Parameter,
+    /// Material properties on every trigger that holds effects of its own (Toggle, Parameter,
     /// Contact and PhysBone sources, Hold and Fade), built with the same rest and release rules as the rest of
     /// the trigger, shown by the scene preview, checked by the plan and offered by "+ Add effect".
     /// </summary>
