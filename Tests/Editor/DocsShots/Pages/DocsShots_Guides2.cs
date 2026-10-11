@@ -498,7 +498,7 @@ namespace DocMe.AvatarDoctor.Editor
         };
 
         /// <summary>A picture of the toolbar, the tree and the selected row's panel: select runs first, then the mode row and the header are left out.</summary>
-        static DocsShotSpec TreeAndPanelShot(AvatarDoc menu, Action<AvatarDoctorView> select, string name, params (string, int)[] markers) => new DocsShotSpec
+        internal static DocsShotSpec TreeAndPanelShot(AvatarDoc menu, Action<AvatarDoctorView> select, string name, params (string, int)[] markers) => new DocsShotSpec
         {
             Page = Page,
             Name = name,
@@ -535,7 +535,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Names the first chip in the tree that reads text. The rows must be drawn first.</summary>
-        static void NameChip(VisualElement tree, string text, string name)
+        internal static void NameChip(VisualElement tree, string text, string name)
         {
             var chip = tree.Q<Label>(name) ?? tree.Query<Label>(className: "ad-chip").Where(l => l.text == text).First();
             if (chip == null) throw new InvalidOperationException("No row of the tree shows the chip \"" + text + "\".");

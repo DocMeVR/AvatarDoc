@@ -866,6 +866,401 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        [Test]
+        public void TheReferenceHeaderShotOpensTheProblemListAndComponentSettings()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.InspectorHeader(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Problems(menu), Is.EqualTo(new[] { "ad.warn.no_effects" }), "one warning, so the status line counts it and offers Show");
+                    Rehearse(spec, view =>
+                    {
+                        var doctor = view.Q<AvatarDoctorView>();
+                        Assert.That(doctor.Header.ProblemsOpen, Is.True, "the problem list is open");
+                        Assert.That(doctor.Header.SettingsFoldOpen, Is.True, "Component settings is open");
+                        Assert.That(doctor.Content.resolvedStyle.display, Is.EqualTo(DisplayStyle.None), "the picture shows the header alone");
+                        Assert.That(view.Q<Label>("ad-ready-label").text, Is.EqualTo(UiText.Count(1, "ad.ui.ready.warnings.one", "ad.ui.ready.warnings")));
+                        Assert.That(view.Q("ad-problems-list").childCount, Is.EqualTo(1), "one line for the one warning");
+                        Assert.That(view.Q<TextField>("ad-install-path").value, Is.Empty, "Install into at its default, the avatar's root menu");
+                        Assert.That(view.Q<DropdownField>("ad-install-mode").value, Is.EqualTo(L.Text("ad.ui.install.mode.append")));
+                        Assert.That(view.Q<TextField>("ad-parameter-prefix").value, Is.EqualTo("AD"));
+                        Assert.That(view.Q<SegmentedChoice>("ad-platform").Index, Is.EqualTo((int)PlatformChoice.Both));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceToggleShotShowsANewToggleWithTheHat()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ToggleOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var hat = menu.entries.Single();
+                    Assert.That((hat.kind, hat.objects.Single().target, hat.objects.Single().activeWhenOn), Is.EqualTo((EntryKind.Toggle, avatar.Hat, true)));
+                    Assert.That((hat.defaultOn, hat.hiddenFromMenu, hat.saved, hat.synced, hat.exclusiveGroup, hat.blendSeconds), Is.EqualTo((false, false, true, true, "", 0f)),
+                        "every other setting at a new toggle's default, as the page lists them");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(hat));
+                        Assert.That(view.Q<Toggle>("ad-default-on").value, Is.False);
+                        Assert.That(view.Q<TextField>("ad-group").value, Is.Empty);
+                        Assert.That(view.Q<Label>("ad-builds-line").text, Is.EqualTo(string.Format(L.Text("ad.ui.builds.line"), L.JoinList(new[]
+                        {
+                            UiText.Count(1, "ad.ui.builds.controls.one", "ad.ui.builds.controls"),
+                            UiText.Count(1, "ad.ui.builds.bits.one", "ad.ui.builds.bits"),
+                            UiText.Count(1, "ad.ui.builds.layers.one", "ad.ui.builds.layers"),
+                        }))), "one menu control, one synced bit and one FX layer");
+                        Assert.That(view.Q<AdvancedFold>().IsOpen, Is.False, "the Advanced fold has its own picture");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceToggleAdvancedShotOpensTheFoldAtItsDefaults()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ToggleAdvanced(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var hat = menu.entries.Single();
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(hat));
+                        Assert.That(view.Q<AdvancedFold>().IsOpen, Is.True);
+                        Assert.That(view.Q<DropdownField>("ad-entry-platform").value, Is.EqualTo(L.Text("ad.ui.platform.inherit")));
+                        Assert.That(view.Q<Toggle>(DocsShots_Reference1.SavedName).value && view.Q<Toggle>(DocsShots_Reference1.SyncedName).value, Is.True, "Saved and Synced start on");
+                        Assert.That(view.Q<Label>("ad-synced-cost").text, Is.EqualTo(L.Text("ad.ui.synced.cost.bit")));
+                        Assert.That(view.Q<FloatField>("ad-blend").value, Is.EqualTo(0f));
+                        Assert.That(view.Q<Label>("ad-parameter-name").text, Is.EqualTo("AD/Hat"), "the automatic name: the prefix, a slash and the name");
+                        Assert.That(view.Q<Toggle>("ad-parameter-custom").value, Is.False);
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceRadialShotStartsTheSmileAQuarterOfTheWay()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.RadialOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var smile = menu.entries.Single();
+                    Assert.That((smile.kind, smile.defaultValue), Is.EqualTo((EntryKind.Radial, 0.25f)));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(smile));
+                        Assert.That(view.Q<Slider>("ad-default-value").value, Is.EqualTo(0.25f));
+                        Assert.That((view.Q<FloatField>("min").value, view.Q<FloatField>("max").value), Is.EqualTo((0f, 100f)));
+                        Assert.That(view.Q<Slider>("ad-preview-slider").value, Is.EqualTo(0.25f), "with no preview set, the slider sits at Default");
+                        Assert.That(view.Q<Label>("ad-builds-line").text, Does.Contain(UiText.Count(8, "ad.ui.builds.bits.one", "ad.ui.builds.bits")), "a radial costs 8 bits");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceSubmenuShotShowsOutfitsOpenWithThreeOfEightPlacesUsed()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.SubmenuOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var outfits = menu.entries.Single(e => e.kind == EntryKind.Submenu);
+                    Assert.That(menu.entries.Count(e => e.parentId == outfits.id), Is.EqualTo(3));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var tree = view.Q<AvatarDoctorView>().Tree;
+                        Assert.That(Selected(view), Is.SameAs(outfits));
+                        Assert.That(tree.Tree.IsExpanded(tree.RowFor(outfits.id).Id), Is.True, "the submenu is open in the tree");
+                        Assert.That(view.Q<Label>(DocsShots_Reference1.SlotsNoteName).text, Is.EqualTo(string.Format(L.Text("ad.ui.slots"), 3, 8)));
+                        Assert.That(view.Q<Label>("ad-builds-line").text, Is.EqualTo(string.Format(L.Text("ad.ui.builds.line"), UiText.Count(1, "ad.ui.builds.controls.one", "ad.ui.builds.controls"))),
+                            "a submenu builds one menu control and nothing else");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceGroupShotShowsTheHoodieWithTheGroupNotesInItsAdvancedFold()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ExclusiveGroupsOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(menu.entries.Select(e => e.exclusiveGroup), Is.EqualTo(new[] { "Outfits", "Outfits", "Outfits" }));
+                    Assert.That(menu.entries.Select(e => e.defaultOn), Is.EqualTo(new[] { true, false, false }));
+                    Assert.That(menu.entries.Last().objects, Is.Empty, "No outfit is the group's empty choice");
+                    Assert.That(Problems(menu), Is.Empty, "an empty toggle in a group is a choice, not a warning");
+                    var parameter = AvatarPlanCache.GetFor(menu).Plan.Parameters.Single(p => p.GroupName == "Outfits");
+                    Assert.That((parameter.Name, parameter.Type, parameter.Bits, parameter.Saved, parameter.Synced), Is.EqualTo(("AD/Outfits", PlannedType.Int, 8, true, true)),
+                        "one saved and synced Int of 8 bits, named from the prefix and the group");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Hoodie"));
+                        Assert.That(view.Q<TextField>("ad-group").value, Is.EqualTo("Outfits"));
+                        Assert.That(view.Q<Label>(DocsShots_Reference1.GroupChipName).text, Is.EqualTo("Outfits 1"), "the Jacket is the group's first choice");
+                        Assert.That(view.Q<AdvancedFold>().IsOpen, Is.True);
+                        Assert.That(view.Q<Label>(className: "ad-flags-note").text, Is.EqualTo(L.Text("ad.ui.group.settings")));
+                        Assert.That(view.Q<Label>("ad-blend-note").text, Is.EqualTo(L.Text("ad.ui.blend.group_note")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceObjectsShotShowsTheJacketShownAndTheHoodieHidden()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ObjectsOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(menu.entries.Single().objects.Select(o => (o.target, o.activeWhenOn)), Is.EqualTo(new[] { (avatar.Jacket, true), (avatar.Hoodie, false) }));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Query<ObjectField>("target").ToList().Select(f => f.value), Is.EqualTo(new UnityEngine.Object[] { avatar.Jacket, avatar.Hoodie }));
+                        Assert.That(view.Query<SegmentedChoice>("mode").ToList().Select(c => c.Index), Is.EqualTo(new[] { 0, 1 }), "Shown, then Hidden");
+                        Assert.That(view.Q<Label>(DocsShots_Reference1.DropAreaName).text, Is.EqualTo(L.Text("ad.ui.drop.objects")), "the marked drop area is the section's own");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceBlendShapeShotShowsAFixedRowWithAnOffValueAPinRowAndARule()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.BlendShapesOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var smile = menu.entries.Single();
+                    Assert.That(smile.blendShapes.Select(t => (t.shape, t.mode, t.explicitOff)), Is.EqualTo(new[] { ("Smile", ShapeEffectMode.Fixed, true), ("Smile_Eyes", ShapeEffectMode.Pin, false) }));
+                    var rule = smile.shapeSets.Single();
+                    Assert.That((rule.mesh, rule.On, rule.value), Is.EqualTo((avatar.Face, true, ShapeSetValue.Default)), "Hold the rest adds a rule at Default");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Query<SegmentedChoice>("effect-mode").ToList().Select(c => c.Index), Is.EqualTo(new[] { 0, 1 }), "Fixed, then Pin");
+                        Assert.That(view.Query<Toggle>("explicit-off").ToList().First().value, Is.True);
+                        Assert.That(view.Query<Slider>("off-value").ToList().First().value, Is.EqualTo(10f));
+                        Assert.That(view.Q("hold-blink"), Is.Not.Null, "the face is the mesh the avatar blinks with");
+                        int count = ShapeSetModel.CoveredShapeCount(smile, rule, ShapeSetModel.ContextFor(avatar.Root.transform));
+                        Assert.That(view.Q<Label>("ad-shape-set-note").text, Is.EqualTo(UiText.Count(count, "ad.info.shape_set_count.default.one", "ad.info.shape_set_count.default")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferencePropertyShotShowsAGlowColourWithAnOffValueAndASmoothnessSlider()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.MaterialPropertiesOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var rows = menu.entries.Single().properties;
+                    var glasses = avatar.Glasses.GetComponent<MeshRenderer>();
+                    Assert.That(PropertyPicker.Choices(glasses).Single(c => c.PropertyName == "_Glossiness").IsRange, Is.True, "Smoothness is a range, so its row shows a slider");
+                    Assert.That(rows.Select(r => (r.property, r.type, r.explicitOff)), Is.EqualTo(new[] { ("_EmissionColor", PropertyValueType.Color, true), ("_Glossiness", PropertyValueType.Float, false) }));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Query<ColorField>("value").ToList().Single().value, Is.EqualTo(rows[0].color));
+                        Assert.That(view.Query<Toggle>("explicit-off").ToList().First().value, Is.True);
+                        Assert.That(view.Q<ColorField>("off-value").value, Is.EqualTo(Color.black));
+                        Assert.That(view.Query<Slider>("value").ToList().Single().value, Is.EqualTo(0.9f));
+                        Assert.That(view.Q("type"), Is.Null, "both properties are ones the shader lists, so no row asks for a type");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceSlotShotSwapsTheJacketAndTheShoesToMetal()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.MaterialSlotsOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(menu.entries.Single().materials.Select(m => (m.slot, m.material)), Is.EqualTo(new[] { (0, avatar.Metal), (0, avatar.Metal) }));
+                    Assert.That(Problems(menu), Is.Empty, "slot 0 exists on both");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Query<ObjectField>("renderer").ToList().Select(f => f.value),
+                            Is.EqualTo(new UnityEngine.Object[] { avatar.Jacket.GetComponent<MeshRenderer>(), avatar.Shoes.GetComponent<MeshRenderer>() }));
+                        Assert.That(view.Query<ObjectField>("material").ToList().Select(f => f.value), Is.EqualTo(new UnityEngine.Object[] { avatar.Metal, avatar.Metal }));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceTriggerShotShowsTwoCardsAndAGateInsteadOfWhen()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.TriggersOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var trigger = menu.entries.Single(e => e.kind == EntryKind.Trigger);
+                    Assert.That(trigger.when.Count, Is.EqualTo(2));
+                    Assert.That(menu.FindEntry(trigger.gateToggleId)?.name, Is.EqualTo("Hair hiding"));
+                    Assert.That(Problems(menu), Is.Empty, "a menu switch that a trigger uses as its gate needs no targets");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(trigger));
+                        Assert.That(view.Query("ad-when-card").ToList().Count, Is.EqualTo(2));
+                        Assert.That(view.Q<Label>("ad-when-sentence").text, Does.Contain("Hat").And.Contain("Hoodie"), "the sentence names both menu switches");
+                        Assert.That(view.Q("ad-trigger-source"), Is.Null, "a trigger with cards has no When list: each row picks its own kind");
+                        Assert.That(view.Q<DropdownField>("ad-trigger-gate").value, Is.EqualTo("Hair hiding"), "Only while shows in the panel once a toggle is picked");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceTouchShotShowsAHoldContactThatFiresCloserThanHalfTheRadius()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.TouchTriggersOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var boop = menu.entries.Single();
+                    Assert.That((boop.source, boop.touchMode, boop.contactAnchor), Is.EqualTo((TriggerSource.Contact, TouchMode.Hold, avatar.Test.HeadBone)));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(boop));
+                        Assert.That(view.Q<SegmentedChoice>("ad-touch-mode").Index, Is.EqualTo(0), "Hold");
+                        Assert.That(view.Q<SegmentedChoice>("ad-touch-distance").Index, Is.EqualTo(1), "Closer than");
+                        Assert.That(view.Q<Slider>("ad-touch-proximity").value, Is.EqualTo(0.5f));
+                        Assert.That(view.Q<Toggle>("ad-touch-tag-Finger").value && view.Q<Toggle>("ad-touch-tag-Hand").value, Is.True, "a new trigger's tags");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheReferenceBlendShapeTriggerShotFollowsTheSmileWithAFollowSourceRow()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.BlendShapeTriggersOverview(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var blush = menu.entries.Single();
+                    Assert.That((blush.linkStyle, blush.EffectiveSmoothStart, blush.EffectiveSmoothFull, blush.sourceThreshold), Is.EqualTo((BlendShapeLinkStyle.Smooth, 20f, 80f, 50f)));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(blush));
+                        Assert.That(view.Q<DropdownField>("ad-trigger-source").value, Is.EqualTo(L.Text("ad.ui.trigger.source.blendshape")));
+                        Assert.That(view.Q<Slider>("ad-trigger-threshold").label, Is.EqualTo(L.Text("ad.ui.trigger.swap_at")), "Smooth names the switch point Swaps at");
+                        Assert.That(view.Q<DropdownField>("effect-mode").value, Is.EqualTo(L.Text("ad.ui.effect.follow")));
+                        Assert.That(view.Q<FloatField>("multiplier").value, Is.EqualTo(0.6f));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
         static AvatarDoc MenuOf(DocsAvatar avatar) => avatar.Root.GetComponentsInChildren<AvatarDoc>(true).Single();
 
         static MenuEntry Selected(VisualElement view) => view.Q<AvatarDoctorView>()?.Tree.Selected?.Entry;
@@ -895,6 +1290,7 @@ namespace DocMe.AvatarDoctor.Editor
                     Assert.That(bound.width > 0f && bound.height > 0f, Is.True, spec.Name + ": \"" + elementName + "\" is shown");
                     Assert.That(bound.yMax - top, Is.LessThanOrEqualTo(area.height + 0.5f), spec.Name + ": \"" + elementName + "\" ends inside the picture");
                 }
+                Assert.That(spec.Markers.Length, Is.LessThanOrEqualTo(8), spec.Name + ": a picture numbers at most 8 markers");
                 check(spec.View, top + area.height);
             });
         }
