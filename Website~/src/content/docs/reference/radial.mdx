@@ -1,0 +1,121 @@
+---
+title: Radial
+description: Every setting of a radial, the menu dial that moves blend shapes and material values between two ends.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-radial/overview" alt="A Smile radial's panel with 1 Icon, 2 Default, 3 In menu, 4 Blendshapes, 5 Min and Max, 6 + Add effect, 7 the preview slider, 8 the Advanced fold." />
+
+1. <Label k="ad.ui.icon" />, with <Label k="ad.ui.capture" /> at its right end.
+2. <Label k="ad.ui.default_value" />, where the dial sits when the avatar loads.
+3. <Label k="ad.ui.in_menu" />.
+4. The <Label k="ad.ui.blendshapes" /> section.
+5. A row's <Label k="ad.ui.min" /> and <Label k="ad.ui.max" />.
+6. <Label k="ad.ui.add_effect" />.
+7. The <Label k="ad.ui.preview" /> slider.
+8. The <Label k="ad.ui.advanced_fold" /> fold.
+
+<Label k="ad.ui.name" /> and the Builds line sit at the top of the panel, as on a [toggle](../toggle/).
+
+## When to use it
+
+A radial is a dial in the avatar's menu. As you turn it from 0 to 1, each of its rows moves from its <Label k="ad.ui.min" /> to its <Label k="ad.ui.max" />: a smile that grows, a glow that gets brighter, a hue that shifts.
+
+- For a plain on and off, a [toggle](../toggle/) is simpler and costs 1 synced bit instead of 8.
+- A radial has no on and off, so it cannot show or hide objects, swap materials, follow, or hold the rest of a mesh. Use a toggle for those.
+
+To add a radial, press <Label k="ad.ui.add.radial" /> in the toolbar.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced · **Default:** New Radial · **Choices:** any text
+
+The text the menu shows for the dial. It has the same style row as a toggle's name: see [Style](../toggle/#style).
+
+### Icon [#icon k=ad.ui.icon]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any texture
+
+The picture VRChat shows on the dial's button, with <Label k="ad.ui.capture" /> at its right end. It works as a [toggle's icon](../toggle/#icon) does.
+
+### Default [#default-value k=ad.ui.default_value]
+
+**Shown in:** Simple and Advanced · **Default:** 0 · **Range:** 0 to 1
+
+Where the dial sits when the avatar loads. 0 is the lowest point of the dial and every row's <Label k="ad.ui.min" />, 1 the highest point and every row's <Label k="ad.ui.max" />.
+
+### In menu [#in-menu k=ad.ui.in_menu]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+Off removes the dial's button from the menu and frees its place there. The radial keeps its parameter and its effects, so a preset can still set it. The tree shows the row dimmed, with a <Label k="ad.ui.chip.no_menu" /> chip.
+
+### Blendshapes [#blendshapes k=ad.ui.blendshapes]
+
+**Shown in:** Simple and Advanced, always · **Default:** no rows · **Choices:** blend shapes of this avatar's meshes
+
+The blend shapes the dial moves. Each row has <Label k="ad.ui.min" />, the weight at the lowest point of the dial, and <Label k="ad.ui.max" />, the weight at the highest point. A new row starts at 0 and 100. All rows move together.
+
+<Label k="ad.ui.shape_set.capture" /> picks a mesh and adds a row for every shape of it that is higher than 0 in the scene, with that weight as <Label k="ad.ui.max" /> and 0 as <Label k="ad.ui.min" />. [Blend shape rows and shape set rules](../blend-shapes/) describes the rows.
+
+### Properties [#properties k=ad.ui.targets.properties]
+
+**Shown in:** Simple and Advanced, once it has a row · **Default:** no rows · **Choices:** a renderer and a shader property
+
+The shader values the dial moves, such as an emission strength. Each row has <Label k="ad.ui.min" /> and <Label k="ad.ui.max" /> instead of a toggle's on value. [Material properties](../material-properties/) describes the rows.
+
+### Animations [#animations k=ad.ui.targets.animations]
+
+**Shown in:** Advanced; Simple once it has a row · **Default:** no rows · **Choices:** an animation clip, and a <Label k="ad.ui.animation.path_root" />
+
+Your own animation clip. A radial with a clip plays that clip with the dial's value as its position, from its start at 0 to its end at 1, instead of blending its two ends. The <Label k="ad.ui.preview" /> slider does not show custom animations.
+
+### + Add effect [#add-effect k=ad.ui.add_effect]
+
+**Shown in:** Simple and Advanced
+
+Adds a section for another kind of effect. The list offers <Label k="ad.ui.blendshapes" />, <Label k="ad.ui.targets.properties" /> and <Label k="ad.ui.targets.animations" />. In Simple mode, it offers <Label k="ad.ui.blendshapes" /> and <Label k="ad.ui.targets.properties" /> only.
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Advanced · **Default:** <Label k="ad.ui.preview.default" /> · **Range:** 0 to 1
+
+The slider shows the dial at any point in the Scene view, without changing anything in the build. While no preview is set, it sits at <Label k="ad.ui.default_value" />. The <Label k="ad.ui.preview.default" /> button beside it stops the preview.
+
+### Advanced [#advanced k=ad.ui.advanced_fold]
+
+**Shown in:** Advanced, and Simple once a setting inside is not at its default · **Default:** closed · **Choices:** open, closed
+
+The fold at the bottom of the panel holds the same settings as a [toggle's](../toggle/#advanced), except <Label k="ad.ui.blend" /> and the custom <Label k="ad.ui.parameter.value" />. In Simple mode, the fold appears once any setting inside is not at its default, and then it shows every row. The settings are:
+
+- [Platform](../toggle/#platform): which build makes the radial.
+- [Saved](../toggle/#saved): remembers the dial between avatar loads.
+- [Synced](../toggle/#synced): lets other players see the dial. A radial's parameter is a number, so the note beside it reads <Label k="ad.ui.synced.cost.bits" />.
+- [Parameter](../toggle/#parameter) and [Custom name](../toggle/#custom-name). A custom name for a radial must be a Float parameter. One with no effects of its own only drives that parameter.
+
+## What AvatarDoc builds
+
+At upload, a radial adds one dial to the menu, one Float parameter (8 synced bits while <Label k="ad.ui.synced" /> is on) and one layer to the avatar's FX animator. The layer blends every row from its <Label k="ad.ui.min" /> to its <Label k="ad.ui.max" /> as the parameter moves from 0 to 1. A radial with a custom animation plays that clip by the parameter instead.
+
+## Messages
+
+- [The radial has no targets](../messages/#ad-warn-no-effects): nothing was built for it.
+- [A target is missing](../messages/#ad-warn-target-missing).
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [More than one control changes the same thing](../messages/#ad-info-target-shared).
+- [The icon fails VRChat's upload check](../messages/#ad-error-menu-icon-too-large).
+- [The custom parameter has another type](../messages/#ad-error-parameter-type-conflict).
+- [The custom parameter already exists on the avatar](../messages/#ad-info-parameter-reused).
+- [The custom parameter only exists in an animator](../messages/#ad-info-parameter-animator-only).
+- [Nothing reads the parameter the radial drives](../messages/#ad-warn-parameter-control-unused).
+
+## Related
+
+- [Add a slider](../../guides/sliders/)
+- [Change a colour or glow](../../guides/colour-and-glow/)

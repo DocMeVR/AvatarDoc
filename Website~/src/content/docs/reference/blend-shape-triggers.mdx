@@ -1,0 +1,136 @@
+---
+title: Blend shape triggers
+description: Every setting of a trigger whose effects follow a blend shape that the avatar's animations already move.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-blend-shape-triggers/overview" alt="A Smile blush trigger with 1 When, 2 the shape, 3 Style, 4 Starts at, 5 Fully on at, 6 Swaps at, 7 Mode, 8 a row set to Follow source." />
+
+1. <Label k="ad.ui.trigger.when" />, set to <Label k="ad.ui.trigger.source.blendshape" />.
+2. <Label k="ad.ui.trigger.shape" />: the shape the trigger follows, the first row of its group.
+3. <Label k="ad.ui.trigger.style" />.
+4. <Label k="ad.ui.trigger.smooth_start" />.
+5. <Label k="ad.ui.trigger.smooth_full" />.
+6. <Label k="ad.ui.trigger.swap_at" />.
+7. <Label k="ad.ui.trigger.mode" />.
+8. The effect row's <Label k="ad.ui.effect.fixed" /> or <Label k="ad.ui.effect.follow" /> choice, here <Label k="ad.ui.effect.follow" /> with its <Label k="ad.ui.effect.multiplier" />.
+
+## When to use it
+
+Use a blend shape trigger when something should follow a shape that already moves: a blush that grows with the smile a gesture plays, or eyes that glow while an angry face is on. The shape can be moved by a gesture, face tracking, a toggle of yours, or an animation that Modular Avatar or VRCFury adds.
+
+- When the source is only on or off, a trigger that follows a [toggle or a parameter](../triggers/) is simpler.
+- To react to how close a hand is, use a <Label k="ad.ui.touch.follow" /> [touch trigger](../touch-triggers/).
+
+Add a trigger with <Label k="ad.ui.add.trigger" />, then set <Label k="ad.ui.trigger.when" /> to <Label k="ad.ui.trigger.source.blendshape" />. Only Advanced mode adds triggers.
+
+## Settings
+
+The settings in the order the panel shows them. The name, <Label k="ad.ui.trigger.gate" /> and the effect sections work as on [every trigger](../triggers/).
+
+### When [#when k=ad.ui.trigger.when]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.trigger.source.toggle" /> · **Choices:** <Label k="ad.ui.trigger.source.blendshape" /> for a blend shape trigger
+
+A blend shape trigger keeps <Label k="ad.ui.trigger.when" /> even with requirements, since its shape is not a condition. Switching to another source turns the requirements into the trigger's conditions, with the new source first.
+
+### Shape [#shape k=ad.ui.trigger.shape]
+
+**Shown in:** Simple and Advanced · **Default:** none picked · **Choices:** blend shapes of this avatar's meshes
+
+The shape the trigger follows. The button shows the mesh and the shape, such as Face › Smile. Press it to pick another shape from a list with a search field.
+
+A shape that VRChat moves itself for blinking or lip sync cannot be followed, since no animation moves it, and a warning says so.
+
+### Requirements [#requirements]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** up to three, each a toggle, a parameter, a contact or a PhysBone
+
+The shape is the first row of a group captioned <Label k="ad.ui.when.all_of" />. <Label k="ad.ui.when.add_and" /> in that group adds a requirement. While any requirement fails, the effects rest. While all of them hold, the shape moves the effects. The group holds the shape and up to three requirements, and there is no <Label k="ad.ui.when.add_or" />. <Label k="ad.ui.trigger.gate" /> counts as one more requirement.
+
+A group left over from before shows under the caption <Label k="ad.ui.when.ignored" />. Its conditions are kept but not read, and a warning says so.
+
+### Style [#style k=ad.ui.trigger.style]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.trigger.style.smooth" /> · **Choices:** <Label k="ad.ui.trigger.style.smooth" />, <Label k="ad.ui.trigger.style.switch" />
+
+- <Label k="ad.ui.trigger.style.smooth" /> blends the blend shapes and material values in as the shape moves, from <Label k="ad.ui.trigger.smooth_start" /> to <Label k="ad.ui.trigger.smooth_full" />. Objects and material slots cannot blend, so they switch at <Label k="ad.ui.trigger.swap_at" />.
+- <Label k="ad.ui.trigger.style.switch" /> turns every effect fully on once the shape reaches <Label k="ad.ui.trigger.switch_at" />, and off again when it drops back.
+
+### Starts at [#starts-at k=ad.ui.trigger.smooth_start]
+
+**Shown in:** Simple and Advanced, in the <Label k="ad.ui.trigger.style.smooth" /> style · **Default:** 0 · **Range:** 0 to 100
+
+The shape's weight where the effects start to come in.
+
+### Fully on at [#fully-on-at k=ad.ui.trigger.smooth_full]
+
+**Shown in:** Simple and Advanced, in the <Label k="ad.ui.trigger.style.smooth" /> style · **Default:** 100 · **Range:** 0 to 100
+
+The shape's weight where the effects are fully on. When it is not higher than <Label k="ad.ui.trigger.smooth_start" />, the effects are fully on right after <Label k="ad.ui.trigger.smooth_start" />, and a warning says so.
+
+### Swaps at [#swaps-at k=ad.ui.trigger.swap_at]
+
+**Shown in:** Simple and Advanced, in the <Label k="ad.ui.trigger.style.smooth" /> style · **Default:** 50 · **Range:** 0 to 100
+
+The shape's weight where objects switch and material slots swap.
+
+### Switch at [#switch-at k=ad.ui.trigger.switch_at]
+
+**Shown in:** Simple and Advanced, in the <Label k="ad.ui.trigger.style.switch" /> style · **Default:** 50 · **Range:** 0 to 100
+
+The shape's weight where the whole trigger switches on. It is the same setting as <Label k="ad.ui.trigger.swap_at" />, named for what it moves in each style.
+
+### Mode [#mode k=ad.ui.trigger.mode]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.trigger.mode.add" /> · **Choices:** <Label k="ad.ui.trigger.mode.add" />, <Label k="ad.ui.trigger.mode.replace" />
+
+What happens to the followed shape itself:
+
+- <Label k="ad.ui.trigger.mode.add" /> lets the shape move as its own animations say, with the effects on top.
+- <Label k="ad.ui.trigger.mode.replace" /> takes the shape out of every FX animation that moves it. The shape stays at rest and only the effects show, still following where the shape would have been. A <Label k="ad.ui.trigger.mode.replace" /> trigger with no effect it can build keeps the shape's animation, and says so.
+
+### Effect rows [#effect-rows]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.objects" />, empty · **Choices:** <Label k="ad.ui.objects" />, <Label k="ad.ui.blendshapes" />, <Label k="ad.ui.materials" />, <Label k="ad.ui.targets.properties" />
+
+A blend shape row offers <Label k="ad.ui.effect.fixed" />, the default, which goes from the shape's rest to the row's <Label k="ad.ui.weight" /> as the trigger comes on, or <Label k="ad.ui.effect.follow" />, which copies the followed shape times <Label k="ad.ui.effect.multiplier" /> and keeps the result between 0 and 100. [Blend shape rows](../blend-shapes/#fixed-weight-follow-source) describes them. A property row blends from its rest to its value the same way.
+
+There is no <Label k="ad.ui.targets.follows" /> section, since the trigger has no plain on and off for a follow. A row for the followed shape itself is ignored, with a warning.
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Simple and Advanced
+
+The row has no buttons. It says which shape the trigger follows in the scene. When a toggle of yours moves that shape, preview the toggle with <Label k="ad.ui.preview.on" />, and the Scene view shows the trigger's effects follow.
+
+## What AvatarDoc builds
+
+At upload, after Modular Avatar and VRCFury have added their animations, AvatarDoc copies the shape's weight into a hidden value in every FX animation that moves the shape. The hidden value is named after the parameter prefix, Shape and the trigger's name, such as AD/Shape/Smile blush. It is not an expression parameter, so it costs no synced bits: every player's copy of your avatar works it out from the same animations.
+
+The trigger gets one layer of its own, named AD: and the trigger's name with (shape) after it, placed after everything Modular Avatar and VRCFury add. While the effects rest, it leaves every shape and property to whatever else moves them, and never holds a shape VRChat blinks or speaks with. When an effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effects are on.
+
+The Builds line reads, for example, **Builds: 1 FX layer, blends from 0 to 100, a hidden copy of the shape's weight, no synced bits**.
+
+Only animations in the FX layer reach the trigger. When the shape also moves in the Gesture, Action or Additive layer, a warning names those animations. VRChat's own proxy animations cannot be changed, so the trigger does not follow the shape while one plays.
+
+## Messages
+
+- [The shape is one VRChat moves itself](../messages/#ad-warn-link-source-tracked).
+- [The shape also moves outside the FX layer](../messages/#ad-warn-link-clips-outside-fx).
+- [No FX animation moves the shape](../messages/#ad-warn-link-no-fx-clip): the effects stay where the shape rests. Reported at upload.
+- [The trigger lists its own shape as an effect](../messages/#ad-warn-link-effect-is-source).
+- [Fully on at is not higher than Starts at](../messages/#ad-warn-smooth-range).
+- [A Replace trigger has no effect it can build](../messages/#ad-warn-replace-kept-source).
+- [A proxy animation was left alone](../messages/#ad-warn-marker-clip-skipped).
+- [An animation moves something the trigger also moves](../messages/#ad-info-curve-overwritten).
+- [Only the shape's group is read](../messages/#ad-warn-requirements-one-card).
+- [The trigger's shape is gone](../messages/#ad-warn-trigger-source-missing).
+- [Blinking or lip sync is left to another system](../messages/#ad-warn-follow-distance-tracking-left-to).
+
+## Related
+
+- [Drive effects from a blend shape](../../guides/follow-a-blend-shape/)
+- [Hold the rest of a face](../../guides/hold-the-rest/)

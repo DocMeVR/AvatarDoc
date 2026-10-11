@@ -1,0 +1,62 @@
+---
+title: Objects
+description: The Objects section of a toggle or a trigger, which shows or hides parts of the avatar.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-objects/overview" alt="A Jacket toggle's Objects section with 1 the section, 2 a row's object, 3 its Shown or Hidden choice, 4 its remove button, 5 the drop area." />
+
+1. The <Label k="ad.ui.objects" /> section, with the number of rows and <Label k="ad.ui.add" /> in its title line.
+2. The row's object.
+3. The row's <Label k="ad.ui.seg.shown" /> or <Label k="ad.ui.seg.hidden" /> choice.
+4. The × that removes the row.
+5. The drop area: drag objects from the Hierarchy onto it, or anywhere on the section.
+
+## When to use it
+
+Use the <Label k="ad.ui.objects" /> section to show or hide whole parts of the avatar: a hat, a jacket, glasses, a prop. One toggle can show some pieces and hide others in the same press.
+
+- To change a shape of a mesh, such as a smile, use [Blend shape rows](../blend-shapes/).
+- To change only a colour or a value of a material, use [Material properties](../material-properties/).
+
+A [toggle](../toggle/) and a [trigger](../triggers/) have this section. A radial does not, since it has no on and off. On a toggle, and on a trigger that has effects of its own, the section always shows, even while it is empty. A trigger in <Label k="ad.ui.touch.flip" /> mode has none.
+
+## Settings
+
+### Objects [#objects k=ad.ui.objects]
+
+**Shown in:** Simple and Advanced, always · **Default:** no rows · **Choices:** objects of this avatar
+
+The list of objects. Drag one or more objects from the Hierarchy onto the section to add a row for each. An object the section already lists is not added twice. <Label k="ad.ui.add" /> adds an empty row to fill in. Drag a row by its left edge to change the order. On a narrow inspector, a row's controls wrap onto a second line, and the × that removes the row stays at its top right.
+
+### The object [#object]
+
+**Shown in:** Simple and Advanced · **Default:** empty · **Choices:** an object of this avatar
+
+The object the row shows or hides. Drag it from the Hierarchy onto the field, or press the small circle at the field's right end. A list opens with the avatar's own objects only, and a search field. An object that is switched off in the Hierarchy is listed too, marked <Label k="ad.ui.pick.inactive" />.
+
+### Shown or Hidden [#shown-hidden]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.seg.shown" /> · **Choices:** <Label k="ad.ui.seg.shown" />, <Label k="ad.ui.seg.hidden" />
+
+<Label k="ad.ui.seg.shown" /> shows the object while the toggle is on and hides it while it is off. <Label k="ad.ui.seg.hidden" /> does the opposite: it hides the object while the toggle is on, for a piece that the new one covers.
+
+AvatarDoc sets the object this way whatever it looks like in the scene, so you do not have to switch pieces on or off in the Hierarchy before you upload. On a trigger, on means while the trigger fires.
+
+## What AvatarDoc builds
+
+Each row switches its object on in one state of the entry's layer and off in the other. A toggle and a trigger that both switch the same object fight over it while both are on. The one AvatarDoc builds later wins, and a note says so. Triggers come after every menu control.
+
+## Messages
+
+- [A target is missing](../messages/#ad-warn-target-missing): a row has no object, or its object is gone. AvatarDoc skips the row.
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [More than one control changes the same thing](../messages/#ad-info-target-shared).
+
+## Related
+
+- [Toggle clothing and accessories](../../guides/toggle-clothing/)
+- [Make one-of-many choices](../../guides/one-of-many/)
+- [Your first toggle](../../start-here/first-toggle/)

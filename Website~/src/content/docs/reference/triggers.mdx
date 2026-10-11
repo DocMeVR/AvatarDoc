@@ -1,0 +1,169 @@
+---
+title: Triggers
+description: Every setting of a trigger that follows a toggle or a parameter, and the conditions, groups and Only while every trigger shares.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-triggers/overview" alt="A Hide hair trigger with 1 Fires, 2 its first group, 3 a row's kind, 4 + And, 5 Any of these, 6 + Or, 7 Only while, 8 Objects." />
+
+1. <Label k="ad.ui.fires" />: the whole rule in words.
+2. The first group of conditions, captioned <Label k="ad.ui.when.all_of" />. This one holds one condition: the Hat toggle is on.
+3. The kind of the condition: <Label k="ad.ui.when.kind.toggle" />, <Label k="ad.ui.when.kind.parameter" />, <Label k="ad.ui.when.kind.contact" /> or <Label k="ad.ui.when.kind.physbone" />.
+4. The group's own <Label k="ad.ui.when.add_and" />.
+5. <Label k="ad.ui.when.any_of" />, between the groups.
+6. <Label k="ad.ui.when.add_or" />, which adds another group.
+7. <Label k="ad.ui.trigger.gate" />, set to the Hair hiding toggle.
+8. The <Label k="ad.ui.objects" /> section: the trigger hides the hair.
+
+## When to use it
+
+A trigger is a rule. It turns its effects on while its condition is true, with no button in the menu and no synced bits. Use it when something should follow a state the avatar already has: hide the hair while the hat is on, blush while the right hand shows a thumbs up, change the face only while sitting.
+
+This page covers triggers that follow a toggle or a parameter, and the parts every trigger shares: the conditions, the groups and <Label k="ad.ui.trigger.gate" />.
+
+- For a touch or a PhysBone, see [Touch triggers](../touch-triggers/).
+- For a shape that moves smoothly, see [Blend shape triggers](../blend-shape-triggers/).
+- For a button that switches things itself, use a [toggle](../toggle/).
+
+To add a trigger, press <Label k="ad.ui.add.trigger" /> in the toolbar. On a narrow inspector, it sits under <Label k="ad.ui.more" />. Only Advanced mode can add a trigger. A trigger that exists shows its whole panel in both modes; in Simple mode, the panel starts with a note that it is an advanced item. Triggers sit under <Label k="ad.ui.triggers" /> at the end of the tree, where each row shows a short form of its condition when the tree is at least 360 pixels wide.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced · **Default:** New Trigger · **Choices:** any text
+
+The trigger's name in the tree and in messages. A trigger has no button in the menu, so its name has no style row.
+
+### When [#when k=ad.ui.trigger.when]
+
+**Shown in:** Simple and Advanced, while the trigger has one condition · **Default:** <Label k="ad.ui.trigger.source.toggle" /> · **Choices:** <Label k="ad.ui.trigger.source.toggle" />, <Label k="ad.ui.trigger.source.parameter" />, <Label k="ad.ui.trigger.source.blendshape" />, <Label k="ad.ui.trigger.source.contact" />, <Label k="ad.ui.trigger.source.physbone" />
+
+What starts the trigger. The fields under it change with the choice. Once <Label k="ad.ui.when.add_and" /> or <Label k="ad.ui.when.add_or" /> adds a group, <Label k="ad.ui.trigger.when" /> goes away and each row in the groups picks its own kind. When removing rows leaves one condition, the groups go away and <Label k="ad.ui.trigger.when" /> comes back with that condition. A blend shape trigger always keeps <Label k="ad.ui.trigger.when" />.
+
+### Toggle [#toggle k=ad.ui.trigger.toggle]
+
+**Shown in:** Simple and Advanced, with <Label k="ad.ui.trigger.source.toggle" /> · **Default:** none picked · **Choices:** every toggle of every AvatarDoc component on the avatar
+
+The toggle the trigger follows. A toggle of another component shows that component's object name beside it. The list under it chooses <Label k="ad.ui.trigger.toggle.on" />, the default, or <Label k="ad.ui.trigger.toggle.off" />.
+
+A toggle on a component that is switched off is not built, so a note says the trigger will not fire.
+
+### Parameter [#parameter k=ad.ui.trigger.parameter]
+
+**Shown in:** Simple and Advanced, with <Label k="ad.ui.trigger.source.parameter" /> · **Default:** empty · **Choices:** any parameter name
+
+The parameter the trigger watches, such as GestureRight. Type the name, or press the arrow button at the right end. The list has a search field and groups the parameters by where they come from, each with its type:
+
+- <Label k="ad.ui.pick.parameter.avatar" />: the avatar's own parameters and those its components provide.
+- <Label k="ad.ui.pick.parameter.doctor" />: the parameters AvatarDoc plans for its own controls.
+- <Label k="ad.ui.pick.parameter.vrchat" />: VRChat's own, such as GestureLeft or Seated.
+- <Label k="ad.ui.chip.vrcfury" />: VRCFury toggles that use a global parameter, when the avatar has any.
+
+A parameter that nothing on the avatar declares is read as a Float, and a warning says so.
+
+### Condition [#condition k=ad.ui.trigger.condition]
+
+**Shown in:** Simple and Advanced, with <Label k="ad.ui.trigger.source.parameter" /> · **Default:** <Label k="ad.ui.trigger.condition.is_true" /> · **Choices:** <Label k="ad.ui.trigger.condition.is_true" />, <Label k="ad.ui.trigger.condition.is_false" />, <Label k="ad.ui.trigger.condition.equals" />, <Label k="ad.ui.trigger.condition.not_equals" />, <Label k="ad.ui.trigger.condition.greater" />, <Label k="ad.ui.trigger.condition.less" />
+
+How the parameter's value must compare. For a parameter that is on or off, use <Label k="ad.ui.trigger.condition.is_true" /> or <Label k="ad.ui.trigger.condition.is_false" />. For a number, the other four compare it with <Label k="ad.ui.trigger.value" />.
+
+On a whole number, <Label k="ad.ui.trigger.condition.is_true" /> means not 0. On a Float, it means more than 0.5, and <Label k="ad.ui.trigger.condition.equals" /> means within 0.005 of the value.
+
+### Value [#value k=ad.ui.trigger.value]
+
+**Shown in:** Simple and Advanced, with <Label k="ad.ui.trigger.condition.equals" />, <Label k="ad.ui.trigger.condition.not_equals" />, <Label k="ad.ui.trigger.condition.greater" /> or <Label k="ad.ui.trigger.condition.less" /> · **Default:** 0 · **Choices:** any number
+
+The number the condition compares with. GestureRight <Label k="ad.ui.trigger.condition.equals" /> 7 is true while the right hand shows a thumbs up.
+
+### Fires [#fires k=ad.ui.fires]
+
+**Shown in:** Simple and Advanced
+
+The line that spells out the whole rule, built from every condition, such as When "Hat" is on, and only while "Hair hiding" is on. The summary prints the same sentence.
+
+### + And [#add-and k=ad.ui.when.add_and]
+
+**Shown in:** Simple and Advanced
+
+Adds a condition that must also be true. The first press moves the trigger's condition into a group, a box captioned <Label k="ad.ui.when.all_of" />, and adds a new row to it, set to <Label k="ad.ui.when.kind.toggle" />. Each group has its own <Label k="ad.ui.when.add_and" />.
+
+A group holds at most 4 conditions. The button switches off at 4, and its tooltip says to start another group with <Label k="ad.ui.when.add_or" />.
+
+### + Or [#add-or k=ad.ui.when.add_or]
+
+**Shown in:** Simple and Advanced, on a trigger that follows a toggle, a parameter, or a touch in <Label k="ad.ui.touch.hold" /> or <Label k="ad.ui.touch.flip" /> mode
+
+Adds another group: one more way the trigger can fire. <Label k="ad.ui.when.any_of" /> sits between the groups. The trigger fires while any group is fully true, and a group is true while all of its conditions are.
+
+Use at most 4 groups of 4 conditions each. A larger rule, or one that would need more than 64 ways to turn the trigger back off, is refused with an error that names the counts.
+
+### Rows in a group [#rows]
+
+**Shown in:** Simple and Advanced, once the trigger has groups · **Default:** a new row is a <Label k="ad.ui.when.kind.toggle" /> condition · **Choices:** <Label k="ad.ui.when.kind.toggle" />, <Label k="ad.ui.when.kind.parameter" />, <Label k="ad.ui.when.kind.contact" />, <Label k="ad.ui.when.kind.physbone" />
+
+Each row starts with a list that picks its kind, and an x that removes it. The x on a group's caption line removes the whole group.
+
+- A <Label k="ad.ui.when.kind.toggle" /> row has <Label k="ad.ui.trigger.toggle" />, which starts at <Label k="ad.ui.when.pick_toggle" />, and <Label k="ad.ui.trigger.toggle.on" /> or <Label k="ad.ui.trigger.toggle.off" />.
+- A <Label k="ad.ui.when.kind.parameter" /> row has <Label k="ad.ui.trigger.parameter" />, <Label k="ad.ui.trigger.condition" /> and <Label k="ad.ui.trigger.value" />, as described on this page.
+- A <Label k="ad.ui.when.kind.contact" /> or <Label k="ad.ui.when.kind.physbone" /> row shows its condition in words and a <Label k="ad.ui.when.settings" /> button. The button opens its settings, which [Touch triggers](../touch-triggers/) describes, and the Scene view handle of a contact.
+
+### Only while [#only-while k=ad.ui.trigger.gate]
+
+**Shown in:** Simple and Advanced: in the <Label k="ad.ui.advanced_fold" /> fold while it is <Label k="ad.ui.trigger.gate.always" />, in the panel once a toggle is picked · **Default:** <Label k="ad.ui.trigger.gate.always" /> · **Choices:** <Label k="ad.ui.trigger.gate.always" />, or any toggle on the avatar, with <Label k="ad.ui.trigger.toggle.on" /> or <Label k="ad.ui.trigger.toggle.off" />
+
+A menu switch for the trigger: it works only while the chosen toggle is on, or off. <Label k="ad.ui.trigger.gate.always" /> means no such limit.
+
+<Label k="ad.ui.trigger.gate.add" /> makes a new toggle named after the trigger, on by default, saved and synced, with no effects of its own. It sets the toggle as the trigger's <Label k="ad.ui.trigger.gate" /> and selects it in the tree, all in one step.
+
+The scene preview and the wheel's Test mode respect <Label k="ad.ui.trigger.gate" /> too. On a contact trigger, the contact stays on the avatar while the switch is off: only its effects wait. On a blend shape trigger and a <Label k="ad.ui.touch.follow" /> contact, <Label k="ad.ui.trigger.gate" /> counts as one more requirement.
+
+### Effects [#effects]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.objects" />, empty · **Choices:** <Label k="ad.ui.objects" />, <Label k="ad.ui.blendshapes" />, <Label k="ad.ui.materials" />, <Label k="ad.ui.targets.properties" />, <Label k="ad.ui.targets.follows" />
+
+A trigger has the same effect sections as a toggle, except <Label k="ad.ui.targets.animations" />. A trigger in <Label k="ad.ui.touch.flip" /> mode has none, and a blend shape trigger and a <Label k="ad.ui.touch.follow" /> contact have no <Label k="ad.ui.targets.follows" />. The sections are [Objects](../objects/), [Blend shape rows](../blend-shapes/), [Material slots](../material-slots/), [Material properties](../material-properties/) and [Follows](../toggle/#follows). <Label k="ad.ui.add_effect" /> adds a section. A trigger can also hold the rest of a mesh while it fires, with <Label k="ad.ui.shape_set.hold" />.
+
+On means while the trigger fires, and off while it does not.
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.preview.default" /> · **Choices:** <Label k="ad.ui.preview.default" />, <Label k="ad.ui.preview.on" />, <Label k="ad.ui.preview.off" />
+
+<Label k="ad.ui.preview.on" /> shows the trigger's effects in the Scene view as if its condition were true. <Label k="ad.ui.preview.default" /> stops the preview.
+
+### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Simple and Advanced, in the <Label k="ad.ui.advanced_fold" /> fold · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build makes the trigger. A trigger sits in no submenu, so <Label k="ad.ui.platform.inherit" /> takes the component's <Label k="ad.ui.platform" />.
+
+## What AvatarDoc builds
+
+At upload, a trigger adds one layer to the avatar's FX animator, named AD: and the trigger's name, with an off state and an on state. Its conditions become the moves between them. It adds no parameter, no menu button and no synced bits: it reads parameters that already exist. A trigger with <Label k="ad.ui.seg.pin" /> rows or a rule that holds the rest puts those in a layer of its own, like a toggle.
+
+When a trigger and a menu control change the same thing, the one AvatarDoc builds later wins. Triggers come after every menu control.
+
+## Messages
+
+- [The trigger has no condition](../messages/#ad-warn-trigger-no-condition): it never fires.
+- [A group has no conditions](../messages/#ad-warn-condition-group-empty).
+- [The rule has too many conditions](../messages/#ad-error-trigger-too-complex).
+- [The trigger's toggle, parameter or shape is gone](../messages/#ad-warn-trigger-source-missing).
+- [Nothing declares the parameter](../messages/#ad-warn-parameter-type-unknown): it is read as a Float.
+- [The toggle for Only while is missing or cannot be used](../messages/#ad-error-gate-target).
+- [The trigger has no targets](../messages/#ad-warn-no-effects).
+- [A target is missing](../messages/#ad-warn-target-missing).
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [More than one control changes the same thing](../messages/#ad-info-target-shared).
+- [A follow row cannot follow, since the trigger's condition cannot be read](../messages/#ad-warn-follow-claim-unresolved).
+
+## Related
+
+- [Link effects to another toggle or a parameter](../../guides/link-to-a-toggle-or-parameter/)
+- [React to touch](../../guides/react-to-touch/)
+- [Drive effects from a blend shape](../../guides/follow-a-blend-shape/)

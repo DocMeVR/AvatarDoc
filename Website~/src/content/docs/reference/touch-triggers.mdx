@@ -1,0 +1,183 @@
+---
+title: Touch triggers
+description: Every setting of a trigger that reacts to a touch, through a contact on the avatar or one of its PhysBones.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-touch-triggers/overview" alt="A Nose boop contact trigger with 1 When, 2 Mode, 3 Anchor, 4 Radius, 5 Offset, 6 Touched by, 7 Who, 8 Distance set to Closer than." />
+
+1. <Label k="ad.ui.trigger.when" />, set to <Label k="ad.ui.trigger.source.contact" />.
+2. <Label k="ad.ui.touch.mode" />: <Label k="ad.ui.touch.hold" />, <Label k="ad.ui.touch.flip" /> or <Label k="ad.ui.touch.follow" />.
+3. <Label k="ad.ui.touch.anchor" />: the bone the touch area follows.
+4. <Label k="ad.ui.touch.radius" />.
+5. <Label k="ad.ui.touch.offset" />.
+6. <Label k="ad.ui.touch.tags" />.
+7. <Label k="ad.ui.touch.who" />: <Label k="ad.ui.touch.self" /> and <Label k="ad.ui.touch.others" />.
+8. <Label k="ad.ui.touch.distance" />, here <Label k="ad.ui.touch.closer" /> half the radius.
+
+Under these sit <Label k="ad.ui.fires" />, <Label k="ad.ui.when.add_and" /> and <Label k="ad.ui.when.add_or" />, and the effect sections, as on every [trigger](../triggers/).
+
+## When to use it
+
+A touch trigger reacts to the avatar's body instead of a menu button:
+
+- A <Label k="ad.ui.trigger.source.contact" /> trigger is a touch area on the avatar, for a headpat, a boop on the nose or a poke on the cheek.
+- A <Label k="ad.ui.trigger.source.physbone" /> trigger reads a PhysBone the avatar already has, for a tail that is pulled or ears that are grabbed.
+
+For a ready-made headpat, eye touch or nose boop, press <Label k="ad.ui.more" />, then <Label k="ad.ui.add.contact" />. On a wide inspector, it sits on the toolbar itself. It offers <Label k="ad.ui.add.contact_starts.headpat" />, <Label k="ad.ui.add.contact_starts.eye_touch" /> and <Label k="ad.ui.add.contact_starts.nose_boop" />: Headpat and Nose boop each make one <Label k="ad.ui.touch.follow" /> trigger, and Eye touch makes one for each eye. Each is placed from the avatar's own head and eyes, with a blend shape row guessed from the face's shape names. Nudge the sphere in the Scene view if it sits off. An avatar with no Head bone refuses the start and says so.
+
+To make one by hand, add a trigger with <Label k="ad.ui.add.trigger" /> and set <Label k="ad.ui.trigger.when" /> to <Label k="ad.ui.trigger.source.contact" /> or <Label k="ad.ui.trigger.source.physbone" />. Only Advanced mode adds triggers. [Triggers](../triggers/) describes the name, the conditions, the groups, <Label k="ad.ui.trigger.gate" /> and the effects.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### When [#when k=ad.ui.trigger.when]
+
+**Shown in:** Simple and Advanced, while the trigger has one condition · **Default:** <Label k="ad.ui.trigger.source.toggle" /> · **Choices:** <Label k="ad.ui.trigger.source.contact" /> or <Label k="ad.ui.trigger.source.physbone" /> for a touch trigger
+
+A new trigger already carries a contact's defaults, so picking <Label k="ad.ui.trigger.source.contact" /> shows <Label k="ad.ui.touch.radius" /> at 0.05, <Label k="ad.ui.touch.tags" /> set to **Finger** and **Hand**, and both <Label k="ad.ui.touch.self" /> and <Label k="ad.ui.touch.others" /> on. Once the trigger has groups, each row picks its own kind, as on [Triggers](../triggers/#rows).
+
+### Mode [#mode k=ad.ui.touch.mode]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.touch.hold" /> · **Choices:** <Label k="ad.ui.touch.hold" />, <Label k="ad.ui.touch.flip" />, and <Label k="ad.ui.touch.follow" /> for a contact
+
+- <Label k="ad.ui.touch.hold" /> applies the trigger's effects while the touch lasts, and stops the moment it ends.
+- <Label k="ad.ui.touch.flip" /> turns a toggle on or off with each new touch. The trigger has no effects of its own: a <Label k="ad.ui.touch.flip_target" /> field takes the place of the effect sections.
+- <Label k="ad.ui.touch.follow" /> lets the effects grow as a hand comes closer, from the edge of the sphere to <Label k="ad.ui.touch.fullat" />. A PhysBone trigger does not offer it.
+
+The mode belongs to the trigger, so a trigger with groups shows it once, under the groups.
+
+### Toggle [#flip-toggle k=ad.ui.touch.flip_target]
+
+**Shown in:** Simple and Advanced, in <Label k="ad.ui.touch.flip" /> mode · **Default:** none picked · **Choices:** every toggle of every AvatarDoc component on the avatar
+
+The toggle each touch flips. The flip sets the toggle's own parameter, so its button in the menu, its saved state and other players all follow it, the same as a press in the menu. Another player can flip it through a contact only while <Label k="ad.ui.touch.others" /> is on. Through a PhysBone, the PhysBone's own grab and pose settings decide who can.
+
+### Fully on at [#fully-on-at k=ad.ui.touch.fullat]
+
+**Shown in:** Simple and Advanced, in <Label k="ad.ui.touch.follow" /> mode · **Default:** 0.8 · **Range:** 0.05 to 1
+
+How close the hand must get, as a part of the radius, before the effects are fully on. The effects start at the edge of the sphere. In this mode <Label k="ad.ui.touch.distance" /> goes away, since the effects follow the distance itself.
+
+### Anchor [#anchor k=ad.ui.touch.anchor]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** empty · **Choices:** any object of this avatar
+
+The object the touch area follows, usually a bone. Press the small circle at the field's right end: the avatar's bones come first in the list, under <Label k="ad.ui.pick.bones" />, when it has a humanoid rig.
+
+While the trigger is selected, the Scene view shows the touch area as a sphere, with a handle to move it and one to change its size. Dragging them writes <Label k="ad.ui.touch.offset" /> and <Label k="ad.ui.touch.radius" />. The panel says so under the contact's settings.
+
+### Radius [#radius k=ad.ui.touch.radius]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** 0.05 · **Range:** 0.005 to 1
+
+The size of the touch area. In <Label k="ad.ui.touch.follow" /> mode it is also where the effects start to fade in.
+
+### Offset [#offset k=ad.ui.touch.offset]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** 0, 0, 0 · **Choices:** a position next to the anchor
+
+How far the sphere sits from the anchor, in the anchor's own directions.
+
+### Touched by [#touched-by k=ad.ui.touch.tags]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** **Finger** and **Hand** · **Choices:** VRChat's contact tags, and tags of your own
+
+Which body parts count as a touch. **Finger**, **Hand**, **Head**, **Torso** and **Foot** are always shown. With none ticked, nothing can touch the contact.
+
+### More tags [#more-tags k=ad.ui.touch.more_tags]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** closed · **Choices:** open, closed
+
+Shows the rest of VRChat's own tags: **HandL**, **HandR**, **FootL**, **FootR**, **FingerL**, **FingerR**, **FingerIndex**, **FingerMiddle**, **FingerRing** and **FingerLittle**.
+
+### Custom tag [#custom-tag k=ad.ui.touch.custom_tag]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** empty · **Choices:** any tag
+
+Adds any other contact tag. Type it and press Enter. It shows as a chip with an x that removes it.
+
+### Who [#who k=ad.ui.touch.who]
+
+**Shown in:** Simple and Advanced, for a contact · **Default:** <Label k="ad.ui.touch.self" /> and <Label k="ad.ui.touch.others" /> on · **Choices:** <Label k="ad.ui.touch.self" />, <Label k="ad.ui.touch.others" />, or both
+
+<Label k="ad.ui.touch.self" /> lets your own body touch the contact, <Label k="ad.ui.touch.others" /> lets other players' bodies touch it. With both off, the contact can never fire.
+
+### Distance [#distance k=ad.ui.touch.distance]
+
+**Shown in:** Simple and Advanced, for a contact in <Label k="ad.ui.touch.hold" /> or <Label k="ad.ui.touch.flip" /> mode · **Default:** <Label k="ad.ui.touch.touch" /> · **Choices:** <Label k="ad.ui.touch.touch" />, <Label k="ad.ui.touch.closer" />
+
+<Label k="ad.ui.touch.touch" /> fires only on contact. <Label k="ad.ui.touch.closer" /> fires once something is near, and a slider from 0 to 1 says how near, as a part of the radius. It starts at 0.5.
+
+### PhysBone [#physbone k=ad.ui.touch.physbone]
+
+**Shown in:** Simple and Advanced, for a PhysBone · **Default:** empty · **Choices:** a PhysBone of this avatar
+
+The PhysBone the trigger watches. Press the small circle at the field's right end: the list shows only this avatar's PhysBones. Several triggers can watch the same PhysBone.
+
+### Event [#event k=ad.ui.touch.event]
+
+**Shown in:** Simple and Advanced, for a PhysBone · **Default:** <Label k="ad.ui.touch.event.grabbed" /> · **Choices:** <Label k="ad.ui.touch.event.grabbed" />, <Label k="ad.ui.touch.event.posed" />, <Label k="ad.ui.touch.event.angle" />, <Label k="ad.ui.touch.event.stretch" />, <Label k="ad.ui.touch.event.squish" />
+
+- <Label k="ad.ui.touch.event.grabbed" />: while someone holds the PhysBone.
+- <Label k="ad.ui.touch.event.posed" />: while it stays in a pose someone left it in.
+- <Label k="ad.ui.touch.event.angle" />, <Label k="ad.ui.touch.event.stretch" /> and <Label k="ad.ui.touch.event.squish" />: once the bend, the stretch or the squish goes past <Label k="ad.ui.touch.threshold" />.
+
+### Amount [#amount k=ad.ui.touch.threshold]
+
+**Shown in:** Simple and Advanced, for the three events that go past an amount · **Default:** 0.5 · **Range:** 0 to 1
+
+How far the PhysBone has to bend, stretch or squish before the trigger fires.
+
+### Requirements [#requirements]
+
+**Shown in:** Simple and Advanced, in <Label k="ad.ui.touch.follow" /> mode · **Default:** none · **Choices:** up to three, each a toggle, a parameter, a contact or a PhysBone
+
+In <Label k="ad.ui.touch.follow" /> mode, the first contact drives the fade, so the panel offers <Label k="ad.ui.when.add_and" /> but no <Label k="ad.ui.when.add_or" />. Each <Label k="ad.ui.when.add_and" /> adds a requirement to the group of the driving contact. While any requirement fails, the effects rest. The group holds the driving contact and up to three requirements. <Label k="ad.ui.trigger.gate" /> counts as one more requirement. A contact requirement gets its own contact on the avatar, with its own <Label k="ad.ui.touch.distance" />: only the driving contact fades.
+
+### Simulate touch [#simulate-touch k=ad.ui.touch.simulate]
+
+**Shown in:** Simple and Advanced, in <Label k="ad.ui.touch.flip" /> mode
+
+Takes the place of the <Label k="ad.ui.preview" /> buttons. Each press flips the preview of the target toggle once, as a real touch would.
+
+## What each mode does to the effects
+
+In <Label k="ad.ui.touch.hold" /> mode, the effects behave as on any trigger, and the blend shape rows offer <Label k="ad.ui.seg.fixed" /> or <Label k="ad.ui.seg.pin" />.
+
+In <Label k="ad.ui.touch.follow" /> mode, every blend shape row and property row fades from its rest to its value in the same way, so the rows hide their <Label k="ad.ui.seg.fixed" /> or <Label k="ad.ui.seg.pin" /> choice. <Label k="ad.ui.add_effect" /> does not offer <Label k="ad.ui.targets.follows" />, since a follow cannot fade. While no hand is near, the trigger never holds the shapes VRChat blinks or speaks with. When its effects move one of them, VRChat's blinking or lip sync pauses while the effects are on, and comes back when they rest.
+
+## What AvatarDoc builds
+
+AvatarDoc adds the touch parts to the avatar it uploads, never to your scene:
+
+- A contact becomes a VRChat contact receiver on a new object under the anchor, named AD Contact and the trigger's name. Every player's copy of your avatar senses the touch, so a contact costs no synced bits.
+- A PhysBone trigger reads the PhysBone's own parameter. If the PhysBone has none, AvatarDoc gives it one. Triggers on the same PhysBone share it, and it costs no synced bits.
+- <Label k="ad.ui.touch.hold" /> builds the same layer as any trigger. <Label k="ad.ui.touch.flip" /> builds a small layer that flips the toggle's parameter with each touch. <Label k="ad.ui.touch.follow" /> builds a layer of its own, placed after everything Modular Avatar and VRCFury add, face tracking included.
+
+The scene preview cannot sense a real touch or a grab. Check that the contact sits in the right place in Play mode, for example with Gesture Manager's **Clickable Contacts**, or in VRChat.
+
+## Messages
+
+- [The contact has no Anchor](../messages/#ad-error-contact-no-anchor).
+- [No tag is ticked under Touched by](../messages/#ad-error-contact-no-tags).
+- [Self and Others are both off](../messages/#ad-error-contact-nobody).
+- [The Anchor or the PhysBone belongs to another avatar](../messages/#ad-error-touch-outside-avatar).
+- [No PhysBone is picked](../messages/#ad-error-physbone-missing).
+- [The PhysBone's parameter has another type](../messages/#ad-error-touch-parameter-type).
+- [Modular Avatar renames the PhysBone's parameter](../messages/#ad-warn-physbone-renamed).
+- [The trigger cannot flip its toggle](../messages/#ad-error-flip-target).
+- [The toggle it flips is not built on this platform](../messages/#ad-info-flip-target-excluded).
+- [Fade reads only the group of its first contact](../messages/#ad-warn-follow-distance-one-contact).
+- [Follows cannot fade with distance](../messages/#ad-warn-follow-distance-no-follows).
+- [Blinking or lip sync is left to another system](../messages/#ad-warn-follow-distance-tracking-left-to).
+- [The avatar has no Head bone for a ready-made start](../messages/#ad-error-contact-start-no-head).
+
+## Related
+
+- [React to touch](../../guides/react-to-touch/)
+- [React to PhysBone grabs, poses and stretches](../../guides/react-to-physbones/)
+- [Your first headpat](../../start-here/first-headpat/)

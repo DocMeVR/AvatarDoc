@@ -1,0 +1,64 @@
+---
+title: Material slots
+description: The Materials section, which puts another material into a slot of a mesh while the entry is on.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-material-slots/overview" alt="A Metal look toggle's Materials section with 1 the section, 2 a row's renderer, 3 its Slot number, 4 the material it puts in that slot." />
+
+1. The <Label k="ad.ui.materials" /> section.
+2. The row's renderer: the mesh whose slot changes.
+3. <Label k="ad.ui.slot" />: which material slot, counted from 0.
+4. The material the slot gets while the toggle is on.
+
+## When to use it
+
+Use the <Label k="ad.ui.materials" /> section to put a whole other material on part of a mesh: another texture for a jacket, a metal version of a part, a second colour set made as its own material.
+
+- To change one value of the material the mesh already has, such as a colour, use [Material properties](../material-properties/). It needs no second material.
+- A radial cannot swap materials, since a material cannot blend. A [blend shape trigger](../blend-shape-triggers/) swaps it at one weight.
+
+A [toggle](../toggle/) and a [trigger](../triggers/) have this section. It shows once it has a row. Add it with <Label k="ad.ui.add_effect" />, which offers it in Advanced mode.
+
+## Settings
+
+### Materials [#materials k=ad.ui.materials]
+
+**Shown in:** Advanced, and Simple once it has a row · **Default:** no rows · **Choices:** a renderer, a slot and a material
+
+The list of material rows. <Label k="ad.ui.add" /> adds an empty row with <Label k="ad.ui.slot" /> at 0. Add a row for each slot to swap, on one mesh or on several.
+
+### Renderer [#renderer]
+
+**Shown in:** Advanced, and Simple once the section shows · **Default:** empty · **Choices:** a mesh of this avatar
+
+The mesh whose slot the row swaps. Drag it from the Hierarchy onto the field, or press the small circle at its right end and pick it from the avatar's meshes.
+
+### Slot [#slot k=ad.ui.slot]
+
+**Shown in:** Advanced, and Simple once the section shows · **Default:** 0 · **Range:** 0 up to the mesh's last slot
+
+Which material slot of the mesh the row swaps, counted from 0. In the mesh's own renderer component, the **Materials** list shows the slots as Element 0, Element 1 and so on. A slot number past the mesh's last slot is a missing target.
+
+### Material [#material]
+
+**Shown in:** Advanced, and Simple once the section shows · **Default:** empty · **Choices:** any material in the project
+
+The material the slot gets while the toggle is on, or while the trigger fires. Drag it from the Project window onto the field. While the toggle is off, the slot shows the material it has in the scene.
+
+## What AvatarDoc builds
+
+The material goes into the on state of the entry's layer, and the slot's material in the scene goes into its off state. On a blend shape trigger, the slot swaps at <Label k="ad.ui.trigger.swap_at" /> in the <Label k="ad.ui.trigger.style.smooth" /> style, or at <Label k="ad.ui.trigger.switch_at" /> in the <Label k="ad.ui.trigger.style.switch" /> style.
+
+## Messages
+
+- [A target is missing](../messages/#ad-warn-target-missing): the row has no renderer, or its slot number is past the mesh's last slot. AvatarDoc skips the row.
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [More than one control changes the same thing](../messages/#ad-info-target-shared).
+
+## Related
+
+- [Swap materials](../../guides/swap-materials/)
+- [Change a colour or glow](../../guides/colour-and-glow/)

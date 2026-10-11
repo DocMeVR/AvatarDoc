@@ -1,0 +1,230 @@
+---
+title: Toggle
+description: Every setting of a toggle, the menu button that switches objects, blend shapes and materials on or off.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-toggle/overview" alt="A Hat toggle's panel with 1 Name, 2 the Builds line, 3 Icon, 4 Exclusive group, 5 Default on and In menu, 6 Objects, 7 + Add effect, 8 Scene preview." />
+
+1. <Label k="ad.ui.name" />, with the style row under it.
+2. The Builds line: what this toggle adds to the avatar when it builds.
+3. <Label k="ad.ui.icon" />, with <Label k="ad.ui.capture" /> at its right end.
+4. <Label k="ad.ui.group" />, with the arrow button that lists the groups.
+5. <Label k="ad.ui.default_on" /> and <Label k="ad.ui.in_menu" />.
+6. The <Label k="ad.ui.objects" /> section.
+7. <Label k="ad.ui.add_effect" />, which adds a section for another kind of effect.
+8. The <Label k="ad.ui.preview" /> row.
+
+The panel ends with the <Label k="ad.ui.advanced_fold" /> fold and any messages about this toggle.
+
+## When to use it
+
+A toggle is one button in the avatar's menu. Each press switches its effects on or off: show a hat, hide a jacket, set a face, swap a material or change a colour.
+
+- For a dial that moves its effects smoothly, use a [radial](../radial/).
+- For several toggles where only one may be on, put them in an [exclusive group](../exclusive-groups/).
+- For an effect that follows another toggle, a parameter, a touch or a blend shape, with no button of its own, use a [trigger](../triggers/).
+
+To add a toggle, press <Label k="ad.ui.add.toggle" /> in the toolbar, or drag objects from the Hierarchy onto the menu tree. Each dropped object becomes its own toggle, named after the object.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Name [#name k=ad.ui.name]
+
+**Shown in:** Simple and Advanced · **Default:** New Toggle · **Choices:** any text
+
+The text the menu shows for this toggle. Type the name and press Enter, or click outside the field.
+
+The parameter and the layer AvatarDoc makes use the name without its colour and style tags.
+
+### Style [#style k=ad.ui.style]
+
+**Shown in:** Advanced, and Simple while the name has a style · **Default:** no style · **Choices:** a colour, bold, italic
+
+The row under the name styles the whole name at once: the colour swatch, the x that takes the colour away, <Label k="ad.ui.style.bold" /> for bold and <Label k="ad.ui.style.italic" /> for italic. Once the name has a style, an <Label k="ad.ui.style.preview" /> line shows it the way VRChat draws it. The tree draws the styled name too.
+
+### Rich text tags [#rich-text-tags k=ad.ui.style.raw_label]
+
+**Shown in:** Advanced, and Simple while the name has a style · **Default:** Off · **Choices:** On, Off
+
+On shows the name with its tags written out, so you can style only part of it, such as `<color=#ff8080>Summer</color> hat`. When the tags are more than one colour plus bold and italic, the swatch and the buttons switch off, and a note asks you to go on editing the tags.
+
+### Icon [#icon k=ad.ui.icon]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any texture
+
+The picture VRChat shows on this toggle's button. Drag a texture from the Project window onto the field.
+
+VRChat's upload check refuses an icon larger than 256 by 256 pixels, or one that is not compressed. AvatarDoc runs the same check and shows an error before you upload.
+
+### Capture icon [#capture-icon k=ad.ui.capture]
+
+**Shown in:** Simple and Advanced
+
+Opens a window that draws only this toggle's own pieces and saves the picture as its icon. The Reference page for the Icon capture window describes it.
+
+### Exclusive group [#exclusive-group k=ad.ui.group]
+
+**Shown in:** Advanced, and Simple while the toggle is in a group · **Default:** empty, no group · **Choices:** any name, or <Label k="ad.ui.group.none" /> and the names in the arrow button's list
+
+Toggles that share a group name form a group, and only one of them can be on at a time. The arrow button at the right end lists <Label k="ad.ui.group.none" /> and every group name already used on the avatar. [Exclusive groups](../exclusive-groups/) describes what a group changes.
+
+### Default on [#default-on k=ad.ui.default_on]
+
+**Shown in:** Simple and Advanced · **Default:** Off · **Choices:** On, Off
+
+Starts the toggle on when the avatar loads. A toggle that starts on begins in its on state, so <Label k="ad.ui.blend" /> does not fade it in at every load. In a group, only one toggle should be <Label k="ad.ui.default_on" />.
+
+### In menu [#in-menu k=ad.ui.in_menu]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+Off removes the toggle's button from the menu and frees its place there. The toggle keeps its parameter, its effects, its group and its default, so a [trigger](../triggers/) can still read it and a preset or a <Label k="ad.ui.touch.flip" /> trigger can still turn it on or off. The tree shows the row dimmed, with a <Label k="ad.ui.chip.no_menu" /> chip.
+
+### Objects [#objects k=ad.ui.objects]
+
+**Shown in:** Simple and Advanced, always · **Default:** no rows · **Choices:** objects of this avatar
+
+The objects the toggle shows or hides. Drag objects from the Hierarchy onto the section. [Objects](../objects/) describes the rows.
+
+### Blendshapes [#blendshapes k=ad.ui.blendshapes]
+
+**Shown in:** Simple always; Advanced once it has a row or a rule · **Default:** no rows · **Choices:** blend shapes of this avatar's meshes
+
+The blend shape weights the toggle sets, with <Label k="ad.ui.shape_set.capture" /> and <Label k="ad.ui.shape_set.hold" /> beside <Label k="ad.ui.add" />. [Blend shape rows and shape set rules](../blend-shapes/) describes the rows and the rules.
+
+### Materials [#materials k=ad.ui.materials]
+
+**Shown in:** Advanced; Simple once it has a row · **Default:** no rows · **Choices:** a renderer, a slot and a material
+
+The material slots the toggle swaps while it is on. [Material slots](../material-slots/) describes the rows.
+
+### Properties [#properties k=ad.ui.targets.properties]
+
+**Shown in:** Simple and Advanced, once it has a row · **Default:** no rows · **Choices:** a renderer and a shader property
+
+The shader values the toggle changes while it is on, such as a colour or a glow. [Material properties](../material-properties/) describes the rows.
+
+### Animations [#animations k=ad.ui.targets.animations]
+
+**Shown in:** Advanced; Simple once it has a row · **Default:** no rows · **Choices:** an animation clip, and a <Label k="ad.ui.animation.path_root" />
+
+Your own animation clips, played together with what AvatarDoc writes for this toggle. Leave <Label k="ad.ui.animation.path_root" /> empty when the clip's paths start at the avatar root. Set it to the prefab's root object when the clip was made inside a prefab.
+
+Where the clip and the toggle's own rows change the same thing, the toggle's own value wins. While the toggle is off, everything the clip changed goes back to its value in the scene. The <Label k="ad.ui.preview" /> row does not show custom animations, and the panel says so.
+
+### Follows [#follows k=ad.ui.targets.follows]
+
+**Shown in:** Advanced; Simple once it has a row · **Default:** no rows · **Choices:** an object, a target to follow, and <Label k="ad.ui.target.keep_offset" />
+
+While the toggle is on, each object in this section follows its target, for example a sword that moves from the back to the hand. Both must be part of the avatar. <Label k="ad.ui.target.keep_offset" /> is off for a new row, so the object snaps onto the target. On keeps the place the object has next to the target in the scene now.
+
+AvatarDoc adds a VRChat constraint to the object in the avatar it uploads. An object that already has a constraint of its own is left alone, with an error.
+
+### + Add effect [#add-effect k=ad.ui.add_effect]
+
+**Shown in:** Simple and Advanced
+
+Lists every kind of effect the toggle can have, each with a one line description. Picking one adds its section. In Simple mode, the list offers <Label k="ad.ui.objects" />, <Label k="ad.ui.blendshapes" /> and <Label k="ad.ui.targets.properties" /> only. A section that loses its last row goes away again.
+
+### Scene preview [#scene-preview k=ad.ui.preview]
+
+**Shown in:** Advanced · **Default:** <Label k="ad.ui.preview.default" /> · **Choices:** <Label k="ad.ui.preview.default" />, <Label k="ad.ui.preview.on" />, <Label k="ad.ui.preview.off" />
+
+Shows the toggle on or off in the Scene view, without changing anything in the build. <Label k="ad.ui.preview.default" /> returns the toggle to its own state. The preview needs NDMF's previews: turn them on under **Tools > NDM Framework > Enable Previews**, and turn on the AvatarDoc entry under **Configure Previews**.
+
+### Advanced [#advanced k=ad.ui.advanced_fold]
+
+**Shown in:** Advanced, and Simple once a setting inside is not at its default · **Default:** closed · **Choices:** open, closed
+
+The fold at the bottom of the panel. While it is closed, a dot on it shows that a setting inside is not at its default. It remembers whether you left it open. In Simple mode, the fold appears once any setting inside is not at its default, and then it shows every row.
+
+<Shot name="reference-toggle/advanced" alt="The Hat toggle with its Advanced fold open: 1 the fold, 2 Platform, 3 Saved, 4 Synced, 5 its cost, 6 Blend time, 7 the parameter, 8 Custom name." />
+
+1. The <Label k="ad.ui.advanced_fold" /> fold.
+2. <Label k="ad.ui.platform" />.
+3. <Label k="ad.ui.saved" />.
+4. <Label k="ad.ui.synced" />.
+5. What <Label k="ad.ui.synced" /> costs.
+6. <Label k="ad.ui.blend" />.
+7. The parameter's name, with the **auto** or **custom** chip after it.
+8. <Label k="ad.ui.parameter.use_custom" />.
+
+#### Platform [#platform k=ad.ui.platform]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.platform.inherit" /> · **Choices:** <Label k="ad.ui.platform.inherit" />, <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />
+
+Which build makes this toggle. <Label k="ad.ui.platform.inherit" /> takes the choice of the submenu the toggle sits in, or the component's <Label k="ad.ui.platform" /> when no submenu sets one. A toggle that is not built on one platform still keeps its parameter there, so both platforms keep the same parameters. [Different setups for PC and Quest](../../guides/pc-and-quest/) explains how to use it.
+
+#### Saved [#saved k=ad.ui.saved]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** On · **Choices:** On, Off
+
+Remembers the toggle's state between avatar loads. In a group, the note <Label k="ad.ui.group.settings" /> takes its place.
+
+#### Synced [#synced k=ad.ui.synced]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** On · **Choices:** On, Off
+
+Lets other players see the toggle's state. The note beside it says what it costs: <Label k="ad.ui.synced.cost.bit" /> for a plain toggle, <Label k="ad.ui.synced.cost.bits" /> for a number, and <Label k="ad.ui.synced.cost.none" /> when it costs nothing. Off costs no synced memory, but other players then never see the toggle change. In a group, the note <Label k="ad.ui.group.settings" /> takes its place.
+
+#### Blend time [#blend-time k=ad.ui.blend]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** 0 seconds · **Range:** 0 to 10 seconds
+
+How long the toggle takes to fade between off and on. Blend shapes, material values and follows ease in and out instead of switching at once. A <Label k="ad.ui.seg.pin" /> row and a rule that holds the rest of a mesh still switch at once. In a group, the note <Label k="ad.ui.blend.group_note" /> takes its place.
+
+#### Parameter [#parameter k=ad.ui.parameter]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** automatic, the parameter prefix, a slash and the name, such as AD/Hat · **Choices:** automatic, or a name of your own
+
+The value VRChat stores for this toggle. The line under it gives the type and the cost, such as **Bool, 1 bit**. A toggle in a group shows the group's parameter.
+
+#### Custom name [#custom-name k=ad.ui.parameter.use_custom]
+
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** Off · **Choices:** On, Off
+
+On lets you name the parameter yourself, so the toggle can use or drive a parameter that already exists. Two fields appear: <Label k="ad.ui.parameter" />, which starts with the automatic name, and <Label k="ad.ui.parameter.value" />, the number the toggle writes while it is on, 1 for a new toggle.
+
+- A name the avatar's expression parameters already have: the toggle uses that parameter, with its own saved, synced and default settings, and adds no memory.
+- A name that only exists in an animator, such as one of VRChat's own: the toggle drives it without adding an expression parameter, so other players do not see it.
+- A toggle with a custom name and no effects of its own only drives the parameter. Something else, such as your own animator, then does the work, and the panel says <Label k="ad.ui.parameter_control_note" />
+- Several toggles with the same custom name share one parameter, each writing its own <Label k="ad.ui.parameter.value" />. A whole number other than 1 makes the parameter an Int, and a number with a fraction makes it a Float.
+
+## What AvatarDoc builds
+
+At upload, a toggle adds one button to the menu, one parameter (a Bool, 1 synced bit while <Label k="ad.ui.synced" /> is on) and one layer to the avatar's FX animator, named AD: and the toggle's name. The layer has an off state and an on state. While the toggle is off, each object takes the opposite of its on state, and each blend shape, material and property goes back to its value in the scene, or to the off value its row sets. A toggle with <Label k="ad.ui.seg.pin" /> rows or a rule that holds the rest puts those in a layer of their own, placed after the layers other tools add. The Builds line in the panel counts all of this. How it works explains the layers in detail.
+
+## Messages
+
+- [The toggle has no targets](../messages/#ad-warn-no-effects): nothing was built for it.
+- [A target is missing](../messages/#ad-warn-target-missing): a row points at something that is gone.
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [More than one control changes the same thing](../messages/#ad-info-target-shared).
+- [The toggle has no menu button and nothing can turn it on](../messages/#ad-info-hidden-toggle-unreachable).
+- [The icon fails VRChat's upload check](../messages/#ad-error-menu-icon-too-large).
+- [The custom parameter has another type](../messages/#ad-error-parameter-type-conflict).
+- [The custom parameter already exists on the avatar](../messages/#ad-info-parameter-reused).
+- [The custom parameter only exists in an animator](../messages/#ad-info-parameter-animator-only).
+- [Nothing reads the parameter the toggle drives](../messages/#ad-warn-parameter-control-unused).
+- [The blend time is not used in a group](../messages/#ad-info-blend-ignored-in-group).
+- [A clip is one of VRChat's own proxy animations](../messages/#ad-warn-animation-proxy).
+- [The toggle's own values replace part of its clip](../messages/#ad-info-animation-overridden).
+- [Part of a clip matches nothing on the avatar](../messages/#ad-warn-animation-binding-missing).
+- [A follow row points at an object that already has a constraint](../messages/#ad-error-follow-existing-constraint).
+- [A follow row follows itself](../messages/#ad-error-follow-self).
+- [A follow row is not part of the avatar](../messages/#ad-error-follow-outside-avatar).
+- [The avatar root cannot follow](../messages/#ad-error-follow-no-rest-parent).
+- [Too many follow rows move one object](../messages/#ad-error-follow-too-many-sources).
+
+## Related
+
+- [Toggle clothing and accessories](../../guides/toggle-clothing/)
+- [Change a colour or glow](../../guides/colour-and-glow/)
+- [Swap materials](../../guides/swap-materials/)
+- [Hold the rest of a face](../../guides/hold-the-rest/)
+- [Your first toggle](../../start-here/first-toggle/)

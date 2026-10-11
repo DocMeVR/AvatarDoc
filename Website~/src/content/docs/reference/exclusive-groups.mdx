@@ -1,0 +1,81 @@
+---
+title: Exclusive groups
+description: How toggles that share a group name work together, so only one of them is on at a time.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-exclusive-groups/overview" alt="Jacket, Hoodie and No outfit in the Outfits group: 1 the group chip, 2 Exclusive group, 3 its list button, 4 Default on, 5 and 6 the group notes." />
+
+1. The group chip on the Jacket's row: the group's name and the Jacket's number in it. The dot after it marks the toggle that is on by default.
+2. <Label k="ad.ui.group" /> of the selected Hoodie.
+3. The arrow button that lists every group name on the avatar.
+4. <Label k="ad.ui.default_on" />.
+5. The note <Label k="ad.ui.group.settings" />, in place of <Label k="ad.ui.saved" /> and <Label k="ad.ui.synced" />.
+6. The note in place of <Label k="ad.ui.blend" />.
+
+## When to use it
+
+Use an exclusive group when only one of several choices may be on: one outfit, one hairstyle, one pose of the ears. Turning one choice on turns the one that was on off. Pressing the choice that is on turns it off, and then no choice is on.
+
+A group is not an item of its own. It is a name that toggles share. To build a whole outfit menu with its submenu and group in one window, use <Label k="ad.ui.add.outfit" />.
+
+## Settings
+
+A group has no panel. Its settings live on its toggles.
+
+### Exclusive group [#exclusive-group k=ad.ui.group]
+
+**Shown in:** Advanced, and Simple while the toggle is in a group · **Default:** empty, no group · **Choices:** any name, or <Label k="ad.ui.group.none" /> and the names in the arrow button's list
+
+The toggle joins the group of this name. Toggles on any AvatarDoc component of the same avatar, and in any submenu, join the same group when they use the same name. Spaces at the start and the end do not count, but capital letters do: Outfits and outfits are two groups.
+
+The arrow button at the right end lists <Label k="ad.ui.group.none" />, which takes the toggle out of its group, and every group name already used on the avatar. Picking a name from the list avoids a typing mistake.
+
+In Simple mode, the field shows only on a toggle that is already in a group, so join a group in Advanced mode or with <Label k="ad.ui.add.outfit" />.
+
+### Default on [#default-on k=ad.ui.default_on]
+
+**Shown in:** Simple and Advanced · **Default:** Off · **Choices:** On, Off
+
+The choice that is on when the avatar loads. Leave it off on every toggle of the group to start with none of them on. When more than one toggle of a group has it on, the first one wins and a warning names the group.
+
+### Group saved and synced [#group-saved-and-synced k=ad.ui.group.settings]
+
+**Shown in:** Advanced, and Simple once the toggle's <Label k="ad.ui.advanced_fold" /> fold shows · **Default:** always saved and synced · **Choices:** none
+
+Every group is saved and synced. In a member's <Label k="ad.ui.advanced_fold" /> fold, this note takes the place of the <Label k="ad.ui.saved" /> and <Label k="ad.ui.synced" /> switches. The choice that is on is remembered between avatar loads, and other players see it.
+
+### Blend time [#blend-time k=ad.ui.blend]
+
+**Shown in:** Advanced · **Default:** not used in a group · **Choices:** none
+
+A group switches its choices at once. In a member's fold, the note <Label k="ad.ui.blend.group_note" /> takes the place of the field, and a note appears if the toggle still has a blend time from before it joined.
+
+## How a group works
+
+All the toggles of a group share one parameter. It is a whole number, an Int, named after the parameter prefix and the group, such as AD/Outfits. Each toggle gets its own number in the order of the menu: 1 for the first, 2 for the second, and so on. 0 means that no choice is on. The tree shows the number on each row, such as **Outfits 1**, when the tree is at least 360 pixels wide.
+
+The group costs 8 synced bits, however many toggles it has. Eight separate toggles cost 8 bits too, so a group saves memory once it holds more than eight toggles.
+
+A toggle in a group with no targets of its own is a choice too, such as a No outfit choice that turns the others off. It shows no warning.
+
+A member always uses the group's parameter. Its <Label k="ad.ui.parameter" /> row shows the group's parameter, and a <Label k="ad.ui.parameter.use_custom" /> set on a member changes nothing.
+
+## What AvatarDoc builds
+
+At upload, each toggle of the group adds its own button to the menu, and the group adds one Int parameter and one layer to the avatar's FX animator, named AD: and the group's name. The layer has a state for each choice and one for no choice. Moving from one choice to another goes straight from one state to the other.
+
+## Messages
+
+- [More than one toggle of the group is on by default](../messages/#ad-warn-group-multiple-defaults).
+- [The default choice is not built on this platform](../messages/#ad-info-group-default-excluded).
+- [Two toggles of the group ask for the same number](../messages/#ad-error-group-value-conflict).
+- [The blend time is not used in a group](../messages/#ad-info-blend-ignored-in-group).
+
+## Related
+
+- [Make one-of-many choices](../../guides/one-of-many/)
+- [Your first outfit selector](../../start-here/first-outfit-selector/)
+- [Toggle](../toggle/) describes every other setting of a group's toggles.

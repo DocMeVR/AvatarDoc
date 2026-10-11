@@ -1,0 +1,185 @@
+---
+title: Blend shape rows and shape set rules
+description: The Blendshapes section, its rows on toggles, radials and triggers, and the rules that hold the rest of a mesh.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-blend-shapes/overview" alt="A Smile toggle's Blendshapes with 1 Capture, 2 Hold the rest, 3 a shape, 4 Fixed or Pin, 5 Weight, 6 Set a value when off, 7 Off value, 8 a rule." />
+
+1. <Label k="ad.ui.shape_set.capture" />.
+2. <Label k="ad.ui.shape_set.hold" />.
+3. The row's shape, as the mesh and the shape's name. Press it to pick another shape.
+4. <Label k="ad.ui.seg.fixed" /> or <Label k="ad.ui.seg.pin" />.
+5. <Label k="ad.ui.weight" />.
+6. <Label k="ad.ui.target.explicit_off" />.
+7. <Label k="ad.ui.target.off_value" />.
+8. The rule that holds the rest of the face, with its switch, <Label k="ad.ui.shape_set.hold_at" />, <Label k="ad.ui.shape_set.hold_blink" /> and <Label k="ad.ui.shape_set.hold_visemes" />, and its note.
+
+## When to use it
+
+Use the <Label k="ad.ui.blendshapes" /> section to move a mesh's blend shapes: a smile, a blush, closed eyes, a body shape. A rule that holds the rest keeps every other shape of the mesh still while the entry is on, so a face pose looks the same each time.
+
+- To show or hide whole objects, use [Objects](../objects/).
+- To hold one shape at one value in every animation, all the time, use an override. The Reference page for Overrides describes it.
+
+The section is on a [toggle](../toggle/), a [radial](../radial/) and a [trigger](../triggers/). Its rows look different on each:
+
+| Entry | A row has |
+|---|---|
+| Toggle, a trigger in <Label k="ad.ui.touch.hold" /> mode, and a trigger that follows a toggle or a parameter | <Label k="ad.ui.seg.fixed" /> or <Label k="ad.ui.seg.pin" />, <Label k="ad.ui.weight" />, <Label k="ad.ui.target.explicit_off" /> |
+| Radial | <Label k="ad.ui.min" /> and <Label k="ad.ui.max" /> |
+| Contact trigger in <Label k="ad.ui.touch.follow" /> mode | <Label k="ad.ui.weight" /> and <Label k="ad.ui.target.explicit_off" />, with no <Label k="ad.ui.seg.fixed" /> or <Label k="ad.ui.seg.pin" /> choice: every row fades in the same way |
+| Blend shape trigger | <Label k="ad.ui.effect.fixed" /> or <Label k="ad.ui.effect.follow" />, with <Label k="ad.ui.weight" /> or <Label k="ad.ui.effect.multiplier" /> |
+
+## Settings
+
+### Blendshapes [#blendshapes k=ad.ui.blendshapes]
+
+**Shown in:** Simple and Advanced: always on a radial, and on a toggle in Simple mode; once it has a row or a rule on a toggle in Advanced mode and on a trigger · **Default:** no rows · **Choices:** blend shapes of this avatar's meshes
+
+The list of blend shape rows. <Label k="ad.ui.add" /> opens a list of the avatar's blend shapes, grouped by mesh, with a search field, and adds a row for the shape you pick. A new row starts at weight 100, set to <Label k="ad.ui.seg.fixed" />.
+
+A row whose shape other animations of the avatar already move shows a chip such as **3 clips**. Hold the pointer over it to see the clips.
+
+On a narrow inspector, a row's controls wrap onto more lines, and the × that removes the row stays at its top right. A slider always sits on a line of its own.
+
+### Capture [#capture k=ad.ui.shape_set.capture]
+
+**Shown in:** Simple and Advanced
+
+Picks a mesh of this avatar and adds a row for every shape of it that is higher than 0 in the scene right now, at that weight. A shape the section already has a row for gets the new weight instead of a second row. Set the pose on the mesh in the scene first.
+
+- On a toggle, the rows are set to <Label k="ad.ui.seg.pin" />, and Capture also adds a rule that holds every other shape of the mesh at 0. If the toggle already has a rule for that mesh, Capture switches it on and keeps its <Label k="ad.ui.shape_set.hold_at" />.
+- On a trigger, Capture adds the rows alone: <Label k="ad.ui.seg.pin" /> rows, or <Label k="ad.ui.effect.fixed" /> rows on a blend shape trigger.
+- On a radial, each weight becomes the row's <Label k="ad.ui.max" />, with 0 as its <Label k="ad.ui.min" />.
+
+When every shape of the mesh is at 0, nothing is added and a line under the section says so.
+
+### Hold the rest [#hold-the-rest k=ad.ui.shape_set.hold]
+
+**Shown in:** Simple and Advanced, on a toggle and on a trigger with effects of its own
+
+Picks a mesh of this avatar and adds a rule that holds every other shape of it at its default while the entry is on. If the entry already has a rule for that mesh, it keeps the one it has. A radial has no such button, since it has two ends instead of on and off, and neither does a trigger in <Label k="ad.ui.touch.flip" /> mode.
+
+### Shape [#shape]
+
+**Shown in:** Simple and Advanced · **Default:** the shape you picked · **Choices:** blend shapes of this avatar's meshes
+
+The button shows the mesh and the shape, such as Face › Smile. Press it to pick another shape. Hold the pointer over it to read a long name in full.
+
+### Fixed or Pin [#fixed-pin]
+
+**Shown in:** Simple and Advanced, on a toggle, on a trigger in <Label k="ad.ui.touch.hold" /> mode, and on a trigger that follows a toggle or a parameter · **Default:** <Label k="ad.ui.seg.fixed" /> · **Choices:** <Label k="ad.ui.seg.fixed" />, <Label k="ad.ui.seg.pin" />
+
+- <Label k="ad.ui.seg.fixed" /> writes the row's weight while the entry is on, and the shape's weight in the scene while it is off.
+- <Label k="ad.ui.seg.pin" /> writes the weight only while the entry is on. While it is off, AvatarDoc leaves the shape to whatever else moves it, such as gestures, face tracking or another toggle. Pin rows go into a layer of their own, after the layers other tools add, so they hold over face tracking while the entry is on.
+
+A <Label k="ad.ui.seg.pin" /> row on a shape VRChat blinks or speaks with pauses blinking or lip sync while the entry is on.
+
+### Weight [#weight k=ad.ui.weight]
+
+**Shown in:** Simple and Advanced · **Default:** 100 · **Choices:** a number, 0 to 100 in practice
+
+How far the shape moves while the entry is on. On a blend shape trigger, the shape moves from its resting weight to this weight as the trigger comes on.
+
+### Set a value when off [#set-a-value-when-off k=ad.ui.target.explicit_off]
+
+**Shown in:** Simple and Advanced, on a <Label k="ad.ui.seg.fixed" /> row of a toggle or a trigger · **Default:** Off · **Choices:** On, Off
+
+On adds an <Label k="ad.ui.target.off_value" /> slider, and the entry writes that weight while it is off instead of the shape's weight in the scene. It starts at the shape's weight in the scene, so nothing changes until you move it. A <Label k="ad.ui.seg.pin" /> row writes nothing while off, so it hides this switch.
+
+### Off value [#off-value k=ad.ui.target.off_value]
+
+**Shown in:** Simple and Advanced, while <Label k="ad.ui.target.explicit_off" /> is on · **Default:** the shape's weight in the scene · **Choices:** a number, 0 to 100 in practice
+
+The weight the shape has while the entry is off.
+
+### Min [#min k=ad.ui.min]
+
+**Shown in:** Simple and Advanced, on a radial · **Default:** 0 · **Choices:** a number, 0 to 100 in practice
+
+The shape's weight at the lowest point of the dial.
+
+### Max [#max k=ad.ui.max]
+
+**Shown in:** Simple and Advanced, on a radial · **Default:** 100 · **Choices:** a number, 0 to 100 in practice
+
+The shape's weight at the highest point of the dial.
+
+### Fixed weight or Follow source [#fixed-weight-follow-source]
+
+**Shown in:** Simple and Advanced, on a blend shape trigger · **Default:** <Label k="ad.ui.effect.fixed" /> · **Choices:** <Label k="ad.ui.effect.fixed" />, <Label k="ad.ui.effect.follow" />
+
+<Label k="ad.ui.effect.fixed" /> moves the shape from its resting weight to the row's <Label k="ad.ui.weight" /> as the trigger comes on. <Label k="ad.ui.effect.follow" /> copies the followed shape instead, times <Label k="ad.ui.effect.multiplier" />. [Blend shape triggers](../blend-shape-triggers/) describes these rows.
+
+### Multiplier [#multiplier k=ad.ui.effect.multiplier]
+
+**Shown in:** Simple and Advanced, on a <Label k="ad.ui.effect.follow" /> row · **Default:** 1 · **Choices:** any number
+
+Scales the followed shape's weight. The result stays between 0 and 100.
+
+## Shape set rules
+
+A rule holds every other shape of one mesh while the entry is on. It sits under the rows, one per mesh, and adds no parameter and no synced bits.
+
+### The rule's switch [#rule-switch]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+The switch reads **Everything else on** and the mesh's name, such as **Everything else on Face**. Off keeps the rule but holds nothing. The × at the end of the line removes the rule. The rows that <Label k="ad.ui.shape_set.capture" /> added stay.
+
+### Hold at [#hold-at k=ad.ui.shape_set.hold_at]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.shape_set.value.default" /> for a rule from <Label k="ad.ui.shape_set.hold" />, <Label k="ad.ui.shape_set.value.zero" /> for a rule from <Label k="ad.ui.shape_set.capture" /> · **Choices:** <Label k="ad.ui.shape_set.value.default" />, <Label k="ad.ui.shape_set.value.zero" />
+
+<Label k="ad.ui.shape_set.value.default" /> holds each other shape at the weight the scene shows when you upload. <Label k="ad.ui.shape_set.value.zero" /> holds each of them at 0.
+
+### Hold blink [#hold-blink k=ad.ui.shape_set.hold_blink]
+
+**Shown in:** Simple and Advanced, for a mesh the avatar blinks with · **Default:** Off · **Choices:** On, Off
+
+Off leaves the shapes VRChat blinks with free, so blinking keeps working while the rule holds the rest. On holds them too, and pauses VRChat's blinking while the entry is on. Blinking comes back as soon as the entry is off.
+
+### Hold visemes [#hold-visemes k=ad.ui.shape_set.hold_visemes]
+
+**Shown in:** Simple and Advanced, for a mesh the avatar speaks with · **Default:** Off · **Choices:** On, Off
+
+The same for the mouth shapes VRChat moves for lip sync. On pauses lip sync while the entry is on.
+
+### What a rule holds
+
+The note under the rule says how many shapes it can hold and at what, such as "Holds up to 7 other shapes at their default while this is on." A rule never holds:
+
+- the shapes the entry has rows for, which keep their rows' values
+- the shapes a toggle's own custom animations move
+- the shape a blend shape trigger follows
+- the shapes an AvatarDoc Shapes component drives, so a piece of clothing keeps changing the body
+- the blink and mouth shapes, unless <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" /> is on
+
+The note says "up to" because at upload AvatarDoc writes only the shapes something else on the avatar moves: another toggle, a gesture, face tracking or another tool's animation. With <Label k="ad.ui.shape_set.value.zero" />, it also writes the shapes that are not at 0 already. Every other shape never moves, so it already shows the value the rule would hold it at. A shape that only something outside the avatar moves, such as a dance in an MMD world, is not held.
+
+A toggle holds the rest while it is on, and leaves those shapes alone while it is off. A trigger holds them while it fires. A <Label k="ad.ui.touch.follow" /> contact and a <Label k="ad.ui.trigger.style.smooth" /> blend shape trigger blend them in with their other effects.
+
+## What AvatarDoc builds
+
+A toggle's <Label k="ad.ui.seg.fixed" /> rows go into the toggle's own layer. Its <Label k="ad.ui.seg.pin" /> rows and its rules go into a second layer with Write Defaults off, placed after the layers Modular Avatar and VRCFury add, so it holds over face tracking while the toggle is on. Because of that layer, the VRChat SDK can report mixed Write Defaults on an avatar that uses Pin rows. That notice is expected. How it works explains the layers.
+
+## Messages
+
+- [A target is missing](../messages/#ad-warn-target-missing): a row's shape or mesh is gone. AvatarDoc skips the row.
+- [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
+- [A Pin row also sets a value when off](../messages/#ad-error-explicit-off-pin).
+- [Only a toggle or a trigger can hold the rest](../messages/#ad-error-shape-set-not-a-toggle).
+- [A rule's mesh is missing or not part of the avatar](../messages/#ad-error-shape-set-outside-avatar).
+- [How many shapes a rule really holds](../messages/#ad-info-shape-set-pruned), reported at upload.
+- [Every shape was at 0, so Capture found nothing](../messages/#ad-info-capture-nothing-above-zero).
+- [More than one control changes the same shape](../messages/#ad-info-target-shared).
+- [An override wins over a control](../messages/#ad-info-target-shared-override).
+
+## Related
+
+- [Hold the rest of a face](../../guides/hold-the-rest/)
+- [Add a slider](../../guides/sliders/)
+- [Drive effects from a blend shape](../../guides/follow-a-blend-shape/)
