@@ -109,7 +109,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 var on = State(Layer(fx, "AD: Smile"), "On");
                 Assert.That(FloatValue(on.motion, "Body", typeof(SkinnedMeshRenderer), "blendShape.Blush"), Is.EqualTo(75f).Within(0.001f));
-                Assert.That(errors.Any(e => e.TheError is SimpleError s && s.TitleKey == "ad.info.animation_overridden"), Is.True);
+                Assert.That(errors.Any(e => e.TheError is SimpleError s && (s.TitleKey == "ad.info.animation_overridden" || s.TitleKey == "ad.info.animation_overridden.one")), Is.True);
             }
             finally
             {
@@ -177,7 +177,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 var fx = BuildAnimator(out var errors, menu);
 
-                var warning = errors.Single(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.animation_binding_missing");
+                var warning = errors.Single(e => e.TheError is SimpleError s && (s.TitleKey == "ad.warn.animation_binding_missing" || s.TitleKey == "ad.warn.animation_binding_missing.one"));
                 Assert.That(warning.TheError.ToMessage(), Does.Contain("2"));
                 var off = State(Layer(fx, "AD: Ghost"), "Off");
                 Assert.That(HasCurve(off.motion, "NoSuchChild", typeof(Transform), "m_LocalPosition.y"), Is.False);
@@ -363,7 +363,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 var fx = BuildAnimator(out var errors, menu);
 
-                Assert.That(errors.Any(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.animation_binding_missing"), Is.False);
+                Assert.That(errors.Any(e => e.TheError is SimpleError s && (s.TitleKey == "ad.warn.animation_binding_missing" || s.TitleKey == "ad.warn.animation_binding_missing.one")), Is.False);
                 var off = State(Layer(fx, "AD: Outfits"), "Off");
                 var restored = AnimationUtility.GetEditorCurve((AnimationClip)off.motion, EditorCurveBinding.FloatCurve("Hat", typeof(Transform), "m_LocalPosition.y"));
                 Assert.That(restored, Is.Not.Null);

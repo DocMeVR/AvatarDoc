@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
@@ -19,6 +20,34 @@ namespace DocMe.AvatarDoctor.Editor
         readonly Dictionary<(string path, string shape), List<AnimationClip>> outsideFx = new Dictionary<(string, string), List<AnimationClip>>();
         readonly Transform avatarRoot;
         readonly string controllerKey;
+        readonly List<FxSwitch> fxSwitches = new List<FxSwitch>();
+
+        /// <summary>One constant on or off curve of an object in a clip of the avatar's own FX controller.</summary>
+        public readonly struct FxSwitch
+        {
+            /// <summary>The object's path from the avatar root.</summary>
+            public readonly string Path;
+            /// <summary>The clip's layer, by its place in the FX controller.</summary>
+            public readonly int Layer;
+            public readonly string LayerName;
+            public readonly AnimationClip Clip;
+            public readonly bool On;
+
+            public FxSwitch(string path, int layer, string layerName, AnimationClip clip, bool on)
+            {
+                Path = path;
+                Layer = layer;
+                LayerName = layerName;
+                Clip = clip;
+                On = on;
+            }
+        }
+
+        /// <summary>Every clip of the avatar's own FX controller that turns an object on or off with a constant curve, the way the build finds the clips that switch an outfit piece.</summary>
+        public IReadOnlyList<FxSwitch> FxSwitches => fxSwitches;
+
+        /// <summary>How many layers the avatar's own FX controller has. The build adds AvatarDoc's layers after them.</summary>
+        public int FxLayerCount { get; private set; }
 
         AnimationUsage(Transform avatarRoot, string controllerKey)
         {
@@ -67,7 +96,49 @@ namespace DocMe.AvatarDoctor.Editor
                     }
                 }
             }
+            var fx = Layers(descriptor).Where(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX).Select(l => l.controller).OfType<AnimatorController>().FirstOrDefault();
+            if (fx != null)
+            {
+                usage.FxLayerCount = fx.layers.Length;
+                usage.fxSwitches.AddRange(SwitchesIn(fx));
+            }
             return usage;
+        }
+
+        /// <summary>Every clip of a controller that turns an object on or off with a constant curve, with the clip's layer by its place in that controller.</summary>
+        public static List<FxSwitch> SwitchesIn(AnimatorController controller)
+        {
+            var found = new List<FxSwitch>();
+            if (controller == null) return found;
+            var layers = controller.layers;
+            for (int i = 0; i < layers.Length; i++)
+            {
+                var layerClips = new HashSet<AnimationClip>();
+                CollectClips(layers[i].stateMachine, layerClips);
+                foreach (var clip in layerClips)
+                    foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+                    {
+                        if (binding.type != typeof(GameObject) || binding.propertyName != "m_IsActive") continue;
+                        var curve = AnimationUtility.GetEditorCurve(clip, binding);
+                        if (curve == null || curve.length == 0 || curve.keys.Any(k => !Mathf.Approximately(k.value, curve.keys[0].value))) continue;
+                        found.Add(new FxSwitch(binding.path ?? "", i, layers[i].name, clip, curve.keys[0].value >= 0.5f));
+                    }
+            }
+            return found;
+        }
+
+        static void CollectClips(AnimatorStateMachine machine, HashSet<AnimationClip> found)
+        {
+            if (machine == null) return;
+            foreach (var child in machine.states) CollectMotion(child.state != null ? child.state.motion : null, found);
+            foreach (var sub in machine.stateMachines) CollectClips(sub.stateMachine, found);
+        }
+
+        static void CollectMotion(Motion motion, HashSet<AnimationClip> found)
+        {
+            if (motion is AnimationClip clip) found.Add(clip);
+            else if (motion is BlendTree tree)
+                foreach (var child in tree.children) CollectMotion(child.motion, found);
         }
 
         public IReadOnlyList<AnimationClip> ClipsFor(SkinnedMeshRenderer renderer, string shape) => Lookup(clips, renderer, shape);

@@ -71,7 +71,7 @@ namespace DocMe.AvatarDoctor.Editor
                 LayerRemover.Run(asc, components, removalMessages, tree.Removal);
                 foreach (var parameter in tree.Removal.Parameters)
                     removalMessages.Add(parameter.Freed
-                        ? ModelMessage.Info("ad.info.removed_parameter", parameter.Name, parameter.Bits.ToString())
+                        ? ModelMessage.Info(UiText.CountKey(parameter.Bits, "ad.info.removed_parameter"), parameter.Name, parameter.Bits.ToString())
                         : ModelMessage.Info("ad.info.removed_kept", parameter.Name, L.Text(parameter.KeptBecause)));
                 L.Report(removalMessages);
                 // Runs before the animator builder, on the build clone only, so the constraints and their sources
@@ -105,7 +105,7 @@ namespace DocMe.AvatarDoctor.Editor
                     L.Report(LinkLayerBuilder.Build(asc, tree, triggerPlans, baseState, descriptor, pins.Names, pins));
                     // After every driven layer: the pause reads the flags those layers wrote.
                     L.Report(TouchBuilder.BuildTrackingPauseLayers(asc, tree.AvatarRoot, pins.Names, pins));
-                    L.Report(PresetBuilder.Build(asc, tree, plan, pins.Names));
+                    L.Report(PresetBuilder.Build(asc, tree, plan, pins.Names, existing.Keys));
                     // Last of the layer writers: merged layers sit after every layer AvatarDoc makes itself. A
                     // trigger can carry a pin layer too (TriggerBuilder.Build, above), so Ready is set only once
                     // every layer writer has had its turn, or a pin-only trigger's layer would never be moved last.

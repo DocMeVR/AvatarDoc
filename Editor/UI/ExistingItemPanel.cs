@@ -171,7 +171,11 @@ namespace DocMe.AvatarDoctor.Editor
             var mine = removal.For(edit).ToList();
             var freed = mine.Where(p => p.Freed).ToList();
             if (freed.Count > 0)
-                lines.Add(string.Format(L.Text("ad.ui.existing.remove_frees"), freed.Sum(p => p.Bits), freed.SelectMany(p => p.Layers).Distinct().Count()));
+            {
+                var bits = UiText.Count(freed.Sum(p => p.Bits), "ad.ui.existing.remove_frees.bits.one", "ad.ui.existing.remove_frees.bits");
+                var layers = UiText.Count(freed.SelectMany(p => p.Layers).Distinct().Count(), "ad.ui.existing.remove_frees.layers.one", "ad.ui.existing.remove_frees.layers");
+                lines.Add(string.Format(L.Text("ad.ui.existing.remove_frees"), bits, layers));
+            }
             foreach (var kept in mine.Where(p => !p.Freed))
                 lines.Add(string.Format(L.Text("ad.ui.existing.remove_keeps"), kept.Name, L.Text(kept.KeptBecause)));
             return lines;

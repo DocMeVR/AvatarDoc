@@ -33,7 +33,9 @@ namespace DocMe.AvatarDoctor.Editor
             // A declaration has its own heading further down, but it costs its bits like any other parameter.
             var declared = plan.Plan.Parameters.Where(p => p.Declared && p.Component == component && !p.IsAnimatorOnly).ToList();
             int ownBits = normal.Concat(declared).Where(p => !p.ReusesExisting).Sum(p => p.Bits);
-            sb.Append(string.Format(L.Text("ad.summary.bits"), ownBits, plan.AvatarDoctorBits)).Append('\n').Append('\n');
+            sb.Append(string.Format(L.Text("ad.summary.bits"),
+                UiText.Count(ownBits, "ad.summary.bits.adds.one", "ad.summary.bits.adds"),
+                UiText.Count(plan.AvatarDoctorBits, "ad.summary.bits.total.one", "ad.summary.bits.total"))).Append('\n').Append('\n');
 
             // Every blend shape trigger's hidden copy of its shape: a Float only the animator sees, never synced.
             var mirrors = plan.Triggers.Where(t => t.Kind == TriggerKind.Link && t.Component == component && !string.IsNullOrEmpty(t.MirrorParameter)).Select(t => t.MirrorParameter).ToList();
@@ -335,7 +337,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var layers = MergeBuilder.LayerNames(node.Merge.controller);
                 int merged = layers.Count(name => !node.Merge.skipLayers.Contains(name));
                 sb.Append(markdown ? "- " : "  ")
-                  .Append(L.Aside(string.Format(L.Text("ad.summary.animators.layers"), node.Merge.controller.name, merged), PlatformNote(component, node.Merge)))
+                  .Append(L.Aside(string.Format(L.Text(UiText.CountKey(merged, "ad.summary.animators.layers")), node.Merge.controller.name, merged), PlatformNote(component, node.Merge)))
                   .Append('\n');
             }
             sb.Append('\n');
@@ -351,7 +353,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 int controls = node.Install.menu.controls != null ? node.Install.menu.controls.Count : 0;
                 sb.Append(markdown ? "- " : "  ")
-                  .Append(string.Format(L.Text("ad.summary.menu_assets.line"), node.Install.menu.name, controls))
+                  .Append(string.Format(L.Text(UiText.CountKey(controls, "ad.summary.menu_assets.line")), node.Install.menu.name, controls))
                   .Append('\n');
             }
             sb.Append('\n');
@@ -365,7 +367,7 @@ namespace DocMe.AvatarDoctor.Editor
             Heading(sb, "ad.summary.declared", markdown);
             foreach (var declaration in declarations)
                 sb.Append(markdown ? "- " : "  ")
-                  .Append(string.Format(L.Text("ad.summary.declared.line"), declaration.name, declaration.type, declaration.Bits))
+                  .Append(string.Format(L.Text(UiText.CountKey(declaration.Bits, "ad.summary.declared.line")), declaration.name, declaration.type, declaration.Bits))
                   .Append('\n');
             sb.Append('\n');
         }
@@ -388,7 +390,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var parameter in removal.For(edit))
                     sb.Append(markdown ? "  - " : "    ")
                       .Append(parameter.Freed
-                          ? string.Format(L.Text("ad.summary.removed.freed"), parameter.Name, parameter.Bits)
+                          ? string.Format(L.Text(UiText.CountKey(parameter.Bits, "ad.summary.removed.freed")), parameter.Name, parameter.Bits)
                           : string.Format(L.Text("ad.summary.removed.kept"), parameter.Name, L.Text(parameter.KeptBecause)))
                       .Append('\n');
             }
@@ -405,7 +407,7 @@ namespace DocMe.AvatarDoctor.Editor
             Heading(sb, "ad.summary.shapes", markdown);
             foreach (var piece in pieces)
                 sb.Append(markdown ? "- " : "  ")
-                  .Append(string.Format(L.Text("ad.summary.shapes.line"), piece.gameObject.name, piece.follow.Count, piece.whileOn.Count))
+                  .Append(L.Labelled(piece.gameObject.name, ShapesModel.RowCounts(piece.follow.Count, piece.whileOn.Count)))
                   .Append('\n');
             sb.Append('\n');
         }

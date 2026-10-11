@@ -5196,6 +5196,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 Assert.That(made, Is.EqualTo(1));
                 Assert.That(toggle.icon, Is.Not.Null);
+                Assert.That(view.Tree.Q<Label>("ad-capture-note").text, Is.EqualTo("Captured 1 icon."), "one icon, in the singular");
             }
             finally
             {

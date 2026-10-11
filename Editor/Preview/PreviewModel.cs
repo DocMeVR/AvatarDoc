@@ -398,7 +398,7 @@ namespace DocMe.AvatarDoctor.Editor
                     if (MenuModel.ShapeExists(target.renderer, target.shape)) WriteShape(target, target.weight);
             }
 
-            ApplyPieces(avatarRoot, pieces, objects, shapes, scene);
+            ApplyPieces(avatarRoot, cached, pieces, objects, shapes, scene);
 
             foreach (var renderer in scene.Renderers(avatarRoot))
             {
@@ -456,37 +456,50 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// What the AvatarDoc Shapes components of the outfit pieces add: the while-on values of every piece whose
-        /// object is on in the state being previewed, and the piece's own follow shapes at the weight the source
-        /// shows in that state. A shape a control already writes keeps that value, the same rule the build follows
-        /// when a clip already animates the shape; where two pieces hold one shape, the larger value wins.
+        /// What the AvatarDoc Shapes components of the outfit pieces add: the while-on values of the pieces on in the
+        /// state being previewed, and the piece's own follow shapes at the weight the source shows in that state. A
+        /// shape a control already writes keeps that value, the same rule the build follows when a clip already
+        /// animates the shape. Where pieces hold one shape, the build's rule decides: the piece switched in the latest
+        /// FX layer decides it, and while that layer's pieces are off the shape rests, whatever the others do; pieces
+        /// of that one layer that are on together give the larger value.
         /// </summary>
-        static void ApplyPieces(Transform avatarRoot, IReadOnlyList<AvatarDocShapes> pieces,
+        static void ApplyPieces(Transform avatarRoot, PreviewPlan cached, IReadOnlyList<AvatarDocShapes> pieces,
             Dictionary<GameObject, bool> objects, Dictionary<SkinnedMeshRenderer, Dictionary<int, float>> shapes, SceneReader scene)
         {
             var list = pieces ?? ShapesModel.Components(avatarRoot);
             if (list.Count == 0) return;
             var written = new Dictionary<(SkinnedMeshRenderer, int), float>();
+            var switchesOf = cached.PieceSwitches ?? (cached.PieceSwitches = ShapesModel.PredictSwitches(avatarRoot, cached.Tree, AnimationUsage.ForDescriptor(avatarRoot.GetComponent<VRCAvatarDescriptor>(), avatarRoot)));
+            var held = new Dictionary<(SkinnedMeshRenderer, int), List<(int layer, bool on, float value)>>();
 
             bool Taken(SkinnedMeshRenderer renderer, int index)
                 => shapes.TryGetValue(renderer, out var map) && map.ContainsKey(index);
 
-            void Hold(SkinnedMeshRenderer renderer, string shape, float weight, bool larger)
+            void Hold(SkinnedMeshRenderer renderer, string shape, float weight)
             {
                 if (!MenuModel.ShapeExists(renderer, shape) || MenuModel.IsOutsideAvatar(avatarRoot, renderer.transform)) return;
                 int index = renderer.sharedMesh.GetBlendShapeIndex(shape);
                 if (Taken(renderer, index)) return;
-                var key = (renderer, index);
-                if (larger && written.TryGetValue(key, out var held) && held > weight) return;
-                written[key] = weight;
+                written[(renderer, index)] = weight;
             }
 
             foreach (var component in list)
             {
                 if (component == null || !component.enabled || !Platform.Included(component.platform)) continue;
-                if (!Visible(component.transform, avatarRoot, objects, scene)) continue;
+                bool visible = Visible(component.transform, avatarRoot, objects, scene);
+                var switches = switchesOf.For(component.gameObject, scene.ActiveSelf);
+                int layer = switches.Count > 0 ? switches.Max(s => s.Layer) : -1;
                 foreach (var row in component.whileOn)
-                    if (row != null && row.mesh != null) Hold(row.mesh, (row.shape ?? "").Trim(), Mathf.Clamp(row.value, 0f, 100f), true);
+                {
+                    if (row == null || row.mesh == null) continue;
+                    string shape = (row.shape ?? "").Trim();
+                    if (!MenuModel.ShapeExists(row.mesh, shape) || MenuModel.IsOutsideAvatar(avatarRoot, row.mesh.transform)) continue;
+                    var key = (row.mesh, row.mesh.sharedMesh.GetBlendShapeIndex(shape));
+                    if (Taken(key.Item1, key.Item2)) continue;
+                    if (!held.TryGetValue(key, out var holders)) held[key] = holders = new List<(int, bool, float)>();
+                    holders.Add((layer, visible, Mathf.Clamp(row.value, 0f, 100f)));
+                }
+                if (!visible) continue;
 
                 var local = component.GetComponent<SkinnedMeshRenderer>();
                 if (local == null) continue;
@@ -499,8 +512,15 @@ namespace DocMe.AvatarDoctor.Editor
                     float weight = shapes.TryGetValue(row.sourceMesh, out var map) && map.TryGetValue(sourceIndex, out var previewed)
                         ? previewed
                         : scene.ShapeWeight(row.sourceMesh, sourceIndex);
-                    Hold(local, row.EffectiveLocalShape, weight, false);
+                    Hold(local, row.EffectiveLocalShape, weight);
                 }
+            }
+
+            foreach (var pair in held)
+            {
+                int latest = pair.Value.Max(h => h.layer);
+                var on = pair.Value.Where(h => h.layer == latest && h.on).ToList();
+                if (on.Count > 0) written[pair.Key] = on.Max(h => h.value);
             }
 
             foreach (var pair in written)

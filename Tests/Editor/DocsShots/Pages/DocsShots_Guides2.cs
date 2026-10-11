@@ -27,14 +27,10 @@ namespace DocMe.AvatarDoctor.Editor
     {
         const string Page = "guides";
 
-        /// <summary>The width the Convert window opens at: the minimum size ImportWindow.Open gives it.</summary>
-        internal const float ConvertWindowWidth = 360f;
-
-        /// <summary>The names the shots give unnamed chips and a field whose name the header repeats, so the markers can find them.</summary>
+        /// <summary>The names the shots give unnamed chips, so the markers can find them.</summary>
         internal const string VrcFuryChipName = "docs-chip-vrcfury";
         internal const string ModularAvatarChipName = "docs-chip-modular-avatar";
         internal const string PlatformChipName = "docs-platform-chip";
-        internal const string EntryPlatformName = "docs-entry-platform";
 
         [Test] public void OverridesPinned() { using (var avatar = DocsAvatar.Create()) OverridesPinned(avatar).Take(); }
         [Test] public void PresetsSets() { using (var avatar = DocsAvatar.Create()) PresetsSets(avatar).Take(); }
@@ -202,7 +198,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Page = Page,
                 Name = "convert-window",
                 View = window.rootVisualElement,
-                Width = ConvertWindowWidth,
+                Width = ImportWindow.OpeningWidth,
                 Markers = new[] { ("ad-import-all", 1), ("ad-import-row", 2), ("ad-unsupported", 3), ("ad-import-remove", 4), ("ad-import-run", 5) },
                 Release = () => Object.DestroyImmediate(window),
             };
@@ -258,10 +254,9 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     view.Tree.RevealEntry(glow.id);
                     OpenAdvancedFold(view.Detail);
-                    Rename(view.Detail, "ad-platform", EntryPlatformName);
                     LayoutProbe.SettleLists(view);
                     NameChip(view.Tree, L.Text("ad.ui.chip.pc_only"), PlatformChipName);
-                }, "pc-and-quest-platform", (PlatformChipName, 1), ("ad-advanced-fold-toggle", 2), (EntryPlatformName, 3));
+                }, "pc-and-quest-platform", (PlatformChipName, 1), ("ad-advanced-fold-toggle", 2), ("ad-entry-platform", 3));
                 spec.Release = () => Platform.OverrideMobile = before;
                 return spec;
             }
@@ -537,13 +532,6 @@ namespace DocMe.AvatarDoctor.Editor
         {
             if (!view.Wheel.ClassListContains("ad-hidden")) return;
             UiTestEvents.SimulateClick(view.Tree.Q<Button>("ad-wheel-toggle"));
-        }
-
-        /// <summary>Gives the element named from, or already named to, the name to. A second run finds it under the new name.</summary>
-        static void Rename(VisualElement within, string from, string to)
-        {
-            var element = within.Q(to) ?? within.Q(from) ?? throw new InvalidOperationException("Nothing named \"" + from + "\" is in the panel.");
-            element.name = to;
         }
 
         /// <summary>Names the first chip in the tree that reads text. The rows must be drawn first.</summary>

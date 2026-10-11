@@ -15,6 +15,13 @@ namespace DocMe.AvatarDoctor.Editor
     /// </summary>
     public sealed class ConditionGroupsPanel : VisualElement
     {
+        /// <summary>The Condition choices of a parameter test, in ParameterCondition order.</summary>
+        public static List<string> ComparisonLabels => new List<string>
+        {
+            L.Text("ad.ui.trigger.condition.is_true"), L.Text("ad.ui.trigger.condition.is_false"), L.Text("ad.ui.trigger.condition.equals"),
+            L.Text("ad.ui.trigger.condition.not_equals"), L.Text("ad.ui.trigger.condition.greater"), L.Text("ad.ui.trigger.condition.less"),
+        };
+
         readonly EntryDetailView detail;
         readonly AvatarDoctorView owner;
 
@@ -61,7 +68,7 @@ namespace DocMe.AvatarDoctor.Editor
                     Add(Card(row, entry, groups.GetArrayElementAtIndex(g), g));
                 }
                 if (!driven && ConditionLogic.TooComplex(entry.EffectiveWhen, out int groupCount, out int leaveCount))
-                    Add(UiText.MessageLabel(string.Format(L.Text("ad.error.trigger_too_complex"), entry.PlainName, groupCount, leaveCount)));
+                    Add(UiText.MessageLabel(string.Format(L.Text(UiText.CountKey(groupCount, "ad.error.trigger_too_complex")), entry.PlainName, groupCount, leaveCount)));
             }
 
             // One driver moves a blend shape trigger's or a Fade contact's effects, so "+ And" adds a requirement
@@ -263,7 +270,7 @@ namespace DocMe.AvatarDoctor.Editor
             line.Add(pick);
             container.Add(line);
 
-            var comparison = detail.Fields.EnumChoice(conditionProperty.FindPropertyRelative(nameof(WhenCondition.condition)), L.Text("ad.ui.trigger.condition"));
+            var comparison = detail.Fields.EnumChoice(conditionProperty.FindPropertyRelative(nameof(WhenCondition.condition)), L.Text("ad.ui.trigger.condition"), ComparisonLabels);
             comparison.name = "ad-when-comparison";
             comparison.tooltip = L.Text("ad.ui.trigger.condition.tip");
             container.Add(Row(comparison));

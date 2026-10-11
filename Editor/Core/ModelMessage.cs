@@ -46,6 +46,9 @@ namespace DocMe.AvatarDoctor.Editor
         public static ModelMessage Warning(string key, params object[] args) => new ModelMessage { Severity = MessageSeverity.Warning, Key = key, Args = args };
         public static ModelMessage Error(string key, params object[] args) => new ModelMessage { Severity = MessageSeverity.Error, Key = key, Args = args };
 
+        /// <summary>Whether this is the message key names, in either of its forms: a count of one says it with the key's ".one" twin.</summary>
+        public bool Says(string key) => Key == key || Key == key + ".one";
+
         public override string ToString() => Severity + " " + Key + " [" + string.Join(", ", Args ?? new object[0]) + "]";
     }
 }

@@ -843,12 +843,19 @@ namespace DocMe.AvatarDoctor.Editor
 #endif
         }
 
-        /// <summary>A preset has no targets of its own; it is empty when it sets no state and no named parameter. A state whose control was since deleted or renamed away warns too, so the inspector flags it as soon as the referenced entry disappears, not only at build time.</summary>
+        /// <summary>
+        /// A preset has no targets of its own; it is empty when it sets no state and no named parameter. A state whose
+        /// control was since deleted or renamed away warns too, so the inspector flags it as soon as the referenced
+        /// entry disappears, not only at build time. A state that never had a control is a row still being filled in:
+        /// one note asks for a control, however many such rows the preset has.
+        /// </summary>
         static void ValidatePreset(MenuTree tree, AvatarDoc component, MenuEntry entry)
         {
             if (!entry.HasEffects) tree.Messages.Add(ModelMessage.Warning("ad.warn.preset_empty", entry.PlainName, component).For(entry.id));
+            if (entry.presetStates.Any(state => string.IsNullOrEmpty(state.entryId)))
+                tree.Messages.Add(ModelMessage.Info("ad.info.preset_pick_control", entry.PlainName, component).For(entry.id));
             foreach (var state in entry.presetStates)
-                if (FindBuilt(tree, component, state.entryId) == null)
+                if (!string.IsNullOrEmpty(state.entryId) && FindBuilt(tree, component, state.entryId) == null)
                     tree.Messages.Add(ModelMessage.Warning("ad.warn.preset_target_missing", entry.PlainName, component).For(entry.id));
         }
 
@@ -1212,10 +1219,10 @@ namespace DocMe.AvatarDoctor.Editor
                     // The card holds the driver too: the shape row of a blend shape trigger, the first contact of a Fade one.
                     int rows = entry.Requirements().Count() + 1;
                     if (rows > ConditionLogic.MaxPerGroup)
-                        tree.Messages.Add(ModelMessage.Error("ad.error.trigger_too_complex", entry.PlainName, "1", (rows - 1 + (entry.HasGate ? 1 : 0)).ToString()).For(entry.id));
+                        tree.Messages.Add(ModelMessage.Error("ad.error.trigger_too_complex.one", entry.PlainName, "1", (rows - 1 + (entry.HasGate ? 1 : 0)).ToString()).For(entry.id));
                 }
                 else if (ConditionLogic.TooComplex(groups, out int groupCount, out int leaveCount))
-                    tree.Messages.Add(ModelMessage.Error("ad.error.trigger_too_complex", entry.PlainName, groupCount.ToString(), leaveCount.ToString()).For(entry.id));
+                    tree.Messages.Add(ModelMessage.Error(UiText.CountKey(groupCount, "ad.error.trigger_too_complex"), entry.PlainName, groupCount.ToString(), leaveCount.ToString()).For(entry.id));
             }
 
             var all = entry.EffectiveGroups().SelectMany(g => g.group.all.Select((condition, i) => (groupIndex: g.groupIndex, index: i, condition))).ToList();
@@ -1347,10 +1354,14 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Two overrides on the same shape both pin it in every clip, but only the later one's value survives, so each pair gets a note.</summary>
+        /// <summary>
+        /// Two overrides on the same shape both pin it in every clip, but only the later one's value survives, so each
+        /// pair that holds it at different values gets a warning. A pair at the same value looks the same whichever
+        /// wins. An override that lists the shape twice pins it at its last row's value, as the build does.
+        /// </summary>
         static void ReportOverrideConflicts(MenuTree tree)
         {
-            var byShape = new Dictionary<string, List<OverrideNode>>();
+            var byShape = new Dictionary<string, List<(OverrideNode rule, float value)>>();
             var labels = new Dictionary<string, string>();
             foreach (var rule in tree.Overrides)
             {
@@ -1359,8 +1370,10 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     if (!ShapeExists(target.renderer, target.shape) || IsOutsideAvatar(tree.AvatarRoot, target.renderer.transform)) continue;
                     var key = target.renderer.GetInstanceID() + ":" + target.shape;
-                    if (!byShape.TryGetValue(key, out var list)) byShape[key] = list = new List<OverrideNode>();
-                    if (!list.Contains(rule)) list.Add(rule);
+                    if (!byShape.TryGetValue(key, out var list)) byShape[key] = list = new List<(OverrideNode, float)>();
+                    int at = list.FindIndex(p => p.rule == rule);
+                    if (at >= 0) list[at] = (rule, target.weight);
+                    else list.Add((rule, target.weight));
                     labels[key] = target.renderer.name + "/" + target.shape;
                 }
             }
@@ -1368,8 +1381,12 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var rules = pair.Value;
                 for (int i = 1; i < rules.Count; i++)
-                    tree.Messages.Add(ModelMessage.Warning("ad.warn.override_conflict", rules[i - 1].Entry.PlainName, rules[i].Entry.PlainName, labels[pair.Key], rules[i].Component)
-                        .For(rules[i - 1].Entry.id, rules[i].Entry.id));
+                {
+                    if (Mathf.Approximately(rules[i - 1].value, rules[i].value)) continue;
+                    var (earlier, later) = (rules[i - 1].rule, rules[i].rule);
+                    tree.Messages.Add(ModelMessage.Warning("ad.warn.override_conflict", earlier.Entry.PlainName, later.Entry.PlainName, labels[pair.Key], later.Component)
+                        .For(earlier.Entry.id, later.Entry.id));
+                }
             }
         }
 

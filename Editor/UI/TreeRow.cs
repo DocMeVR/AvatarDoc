@@ -16,6 +16,9 @@ namespace DocMe.AvatarDoctor.Editor
     /// <summary>One row of the merged menu tree as the inspector shows it.</summary>
     public sealed class TreeRow
     {
+        /// <summary>The key of the Parameters row, the group every declared parameter sits under.</summary>
+        public const string ParametersRowKey = "parameters";
+
         public int Id;
         public RowKind Kind;
         public string Name = "";
@@ -270,7 +273,7 @@ namespace DocMe.AvatarDoctor.Editor
                 .ToList();
             if (declared.Count > 0)
             {
-                var group = new TreeRow { Id = nextId++, Kind = RowKind.ParametersGroup, Name = L.Text("ad.ui.parameters"), Mine = true, Owner = mine, Depth = 0, Key = "parameters" };
+                var group = new TreeRow { Id = nextId++, Kind = RowKind.ParametersGroup, Name = L.Text("ad.ui.parameters"), Mine = true, Owner = mine, Depth = 0, Key = ParametersRowKey };
                 byId[group.Id] = group;
                 var parameterItems = new List<TreeViewItemData<TreeRow>>();
                 foreach (var pair in declared)

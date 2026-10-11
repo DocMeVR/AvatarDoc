@@ -36,7 +36,8 @@ namespace DocMe.AvatarDoctor.Editor
 
             Assert.That(text, Does.Contain("AD/Hat"));
             Assert.That(text, Does.Contain("Bool"));
-            Assert.That(text, Does.Contain(string.Format(L.Text("ad.summary.bits"), 1, plan.AvatarDoctorBits)));
+            Assert.That(plan.AvatarDoctorBits, Is.EqualTo(1));
+            Assert.That(text, Does.Contain("Adds 1 synced bit. AvatarDoc uses 1 synced bit on this avatar in total."));
         }
 
         [Test]
@@ -248,11 +249,11 @@ namespace DocMe.AvatarDoctor.Editor
 
             var text = SummaryBuilder.Build(plan, menu, SummaryFormat.Plain);
 
-            Assert.That(text, Does.Contain(string.Format(L.Text("ad.summary.bits"), 8, plan.AvatarDoctorBits)),
+            Assert.That(text, Does.Contain("Adds 8 synced bits. AvatarDoc uses " + plan.AvatarDoctorBits + " synced bits on this avatar in total."),
                 "a declaration costs its bits like any other parameter");
             Assert.That(text, Does.Contain(L.Text("ad.summary.removed")));
             Assert.That(text, Does.Contain("Hat"));
-            Assert.That(text, Does.Contain(string.Format(L.Text("ad.summary.removed.freed"), "HatParam", 1)));
+            Assert.That(text, Does.Contain("HatParam is freed (1 synced bit)"));
         }
     }
 }

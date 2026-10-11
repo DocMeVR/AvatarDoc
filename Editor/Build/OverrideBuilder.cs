@@ -33,7 +33,7 @@ namespace DocMe.AvatarDoctor.Editor
                 bool gone = false;
                 foreach (var message in Pin(asc, new List<OverrideRule> { rule }))
                 {
-                    if (message.Key == "ad.info.override_applied")
+                    if (message.Says("ad.info.override_applied"))
                     {
                         applied += int.Parse((string)message.Args[2]);
                         continue;
@@ -60,7 +60,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 int total = state.PinnedCount(rule);
                 if (total > 0)
-                    reported.Add(ModelMessage.Info("ad.info.override_applied", rule.EntryName, rule.Shape, total.ToString(), Context(rule)).For(rule.EntryId));
+                    reported.Add(ModelMessage.Info(UiText.CountKey(total, "ad.info.override_applied"), rule.EntryName, rule.Shape, total.ToString(), Context(rule)).For(rule.EntryId));
                 else if (!gone && !state.Markers.Contains(rule))
                     reported.Add(ModelMessage.Warning("ad.warn.override_unused", rule.EntryName, rule.Shape, Context(rule)).For(rule.EntryId));
             }
@@ -98,7 +98,7 @@ namespace DocMe.AvatarDoctor.Editor
                     count++;
                 }
                 if (count > 0)
-                    messages.Add(ModelMessage.Info("ad.info.override_applied", rule.EntryName, rule.Shape, count.ToString(), rule.Renderer).For(rule.EntryId));
+                    messages.Add(ModelMessage.Info(UiText.CountKey(count, "ad.info.override_applied"), rule.EntryName, rule.Shape, count.ToString(), rule.Renderer).For(rule.EntryId));
                 else if (markers == 0)
                     messages.Add(ModelMessage.Warning("ad.warn.override_unused", rule.EntryName, rule.Shape, rule.Renderer).For(rule.EntryId));
             }

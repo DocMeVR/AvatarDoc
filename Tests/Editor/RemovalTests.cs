@@ -681,7 +681,7 @@ namespace DocMe.AvatarDoctor.Editor
                 view.Tree.SelectKey(row.Key);
                 var note = view.Detail.Q<Label>("ad-existing-remove-note");
                 Assert.That(note, Is.Not.Null, name + " shows a result line");
-                Assert.That(note.text, Is.EqualTo(string.Format(L.Text("ad.ui.existing.remove_frees"), 1, 1)), name);
+                Assert.That(note.text, Is.EqualTo("Frees 1 bit and 1 layer"), name);
             }
         }
 
@@ -807,7 +807,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var note = view.Detail.Q<Label>("ad-existing-remove-note");
             Assert.That(note, Is.Not.Null);
-            Assert.That(note.text, Is.EqualTo(string.Format(L.Text("ad.ui.existing.remove_frees"), 1, 1)));
+            Assert.That(note.text, Is.EqualTo("Frees 1 bit and 1 layer"));
             Assert.That(note.selection.isSelectable, Is.True, "the result line can be selected and copied");
 
             var ears = view.Tree.RowsOfKind(RowKind.Existing).First(r => r.Name == "Ears");

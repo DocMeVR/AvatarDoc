@@ -66,8 +66,29 @@ namespace DocMe.AvatarDoctor.Editor
             var switches = new Dictionary<ShapesPiece, List<Switch>>();
             foreach (var piece in pieces) switches[piece] = SwitchesOf(asc, root, piece, fxClips, messages);
 
+            var layerOf = LayersOf(asc);
+            messages.AddRange(ShapesModel.Conflicts(pieces,
+                piece => switches[piece].Select(s => new ShapesSwitch(layerOf.TryGetValue(s.Clip, out var layer) ? layer : int.MaxValue, s.Clip, s.On)).ToList(),
+                piece => ShapesModel.ActiveInAvatar(piece.Object, root)));
+
             var ours = WhileOn(asc, root, pieces, switches, rest, messages);
             Follow(asc, pieces, fxClips, ours, messages);
+        }
+
+        /// <summary>Each FX clip's layer, by its place in the controller: a later layer decides a shape two layers write.</summary>
+        static Dictionary<VirtualClip, int> LayersOf(AnimatorServicesContext asc)
+        {
+            var result = new Dictionary<VirtualClip, int>();
+            if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return result;
+            int index = 0;
+            foreach (var layer in fx.Layers)
+            {
+                if (layer.StateMachine != null)
+                    foreach (var clip in layer.StateMachine.AllReachableNodes().OfType<VirtualClip>())
+                        if (!result.ContainsKey(clip)) result[clip] = index;
+                index++;
+            }
+            return result;
         }
 
         /// <summary>Every clip the FX controller can reach. An avatar without one is left alone.</summary>

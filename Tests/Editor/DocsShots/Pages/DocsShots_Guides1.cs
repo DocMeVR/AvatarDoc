@@ -18,11 +18,6 @@ namespace DocMe.AvatarDoctor.Editor
     {
         const string Page = "guides";
 
-        /// <summary>The names the group shot gives its unnamed controls, so the markers can find them.</summary>
-        internal const string GroupFieldName = "docs-group-field";
-        internal const string GroupButtonName = "docs-group-button";
-        internal const string DefaultOnName = "docs-default-on";
-
         [Test] public void ToggleClothingObjects() { using (var avatar = DocsAvatar.Create()) ToggleClothingObjects(avatar).Take(); }
         [Test] public void SlidersRadial() { using (var avatar = DocsAvatar.Create()) SlidersRadial(avatar).Take(); }
         [Test] public void ColourAndGlowProperty() { using (var avatar = DocsAvatar.Create()) ColourAndGlowProperty(avatar).Take(); }
@@ -80,8 +75,7 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>
         /// Jacket and Hoodie toggles in the Outfits group, the jacket on by default, with the Hoodie selected: 1 its
-        /// Exclusive group field, 2 the arrow button that lists the groups, 3 Default on. Those three controls have no
-        /// names of their own, so the arrange step names them after finding them by their labels.
+        /// Exclusive group field, 2 the arrow button that lists the groups, 3 Default on.
         /// </summary>
         internal static DocsShotSpec OneOfManyGroup(DocsAvatar avatar)
         {
@@ -93,14 +87,7 @@ namespace DocMe.AvatarDoctor.Editor
             var hoodie = menu.AddEntry(EntryKind.Toggle, "Hoodie");
             hoodie.objects.Add(new ObjectTarget { target = avatar.Hoodie });
             hoodie.exclusiveGroup = "Outfits";
-            var spec = PanelShot(menu, hoodie, "one-of-many-group", (GroupFieldName, 1), (GroupButtonName, 2), (DefaultOnName, 3));
-            var select = spec.Arrange;
-            spec.Arrange = root =>
-            {
-                select(root);
-                NameGroupControls(root.Q<AvatarDoctorView>().Detail);
-            };
-            return spec;
+            return PanelShot(menu, hoodie, "one-of-many-group", ("ad-group", 1), ("ad-group-pick", 2), ("ad-default-on", 3));
         }
 
         /// <summary>
@@ -234,15 +221,6 @@ namespace DocMe.AvatarDoctor.Editor
         {
             if (root.panel == null) return;
             foreach (var open in root.panel.visualTree.Query<AdMenu>().ToList()) open.Close(false);
-        }
-
-        /// <summary>Names the Exclusive group field, its arrow button and Default on of the selected toggle's panel, found by their labels.</summary>
-        internal static void NameGroupControls(VisualElement detail)
-        {
-            var field = detail.Query<TextField>().Where(f => f.label == L.Text("ad.ui.group")).First();
-            field.name = GroupFieldName;
-            field.parent.Children().OfType<Button>().First().name = GroupButtonName;
-            detail.Query<Toggle>().Where(t => t.label == L.Text("ad.ui.default_on")).First().name = DefaultOnName;
         }
 
         /// <summary>A picture of one entry's panel alone: the entry revealed and selected, the mode row, the header and the tree left out.</summary>

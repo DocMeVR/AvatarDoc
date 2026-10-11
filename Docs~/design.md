@@ -1544,9 +1544,20 @@ blend shape linked trigger it works by adding curves to the clips that already e
   `m_IsActive` 1 curve on the object itself, or on an ancestor while the object and everything between are on in the
   scene and never animated; "turns it off" likewise with 0. A curve that is not constant is skipped with
   `ad.warn.shapes_active_not_constant`. A clip that already animates that shape on that mesh keeps its own curve
-  (`ad.warn.shapes_clip_owns_shape`). Two pieces that set the same shape to different values and can be on together
-  report `ad.warn.shapes_conflict`; the larger value wins in clips where both apply, because shrink shapes are what
-  this is for. AvatarDoc's own toggles, outfit sets, presets and triggers are covered because their generated clips
+  (`ad.warn.shapes_clip_owns_shape`). Two pieces on one shape: what the build does depends on the FX layers that
+  switch them. Pieces switched in different layers fight, whatever their values: with Write Defaults off the later
+  layer decides the shape, and its off state writes the rest value, so switching the later piece off undoes the other
+  piece's value while it is still worn. They report `ad.warn.shapes_conflict`, naming the piece of the later layer as
+  the winner; a piece nothing switches counts as under every layer. Pieces one layer switches share it: where one of
+  its clips turns both on at different values the larger value wins, and where nothing switches either and both are
+  on in the scene the clone starts at the larger value; both report the note `ad.info.shapes_larger_wins`. An
+  exclusive group's layer never has both on, so it says nothing. The build reads the real layer of each clip; the
+  inspector and the preview read the layers ahead (`ShapesModel.PredictSwitches`, cached per plan) in the build's
+  order: the avatar's own FX layers, AvatarDoc's toggles and groups in menu order, condition triggers, merged
+  animators, then the Fade and blend shape triggers, whose layers are pin layers kept last. Modular Avatar's and
+  VRCFury's layers are not known ahead, so for those only the build warns (Modular Avatar) or nothing sees them
+  (VRCFury). The preview follows the same rule: the latest layer's pieces decide, and while they are off the shape
+  rests. The real fix, one layer that owns each shared shape, is planned for later. AvatarDoc's own toggles, outfit sets, presets and triggers are covered because their generated clips
   carry `m_IsActive` curves like any other clip; so are merged animators and whatever Modular Avatar merged, because
   the pass runs after Modular Avatar. Clips VRCFury adds later in the build are not seen (README says so).
 - The pass is `ShapesBuilder`, in the Transforming sequence that runs after Modular Avatar, working on the virtual

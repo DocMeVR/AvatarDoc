@@ -405,6 +405,16 @@ namespace DocMe.AvatarDoctor.Editor
             return removed;
         }
 
+        /// <summary>A name no declaration of this component has yet: "New parameter", then "New parameter 2" and on.</summary>
+        public static string NewDeclarationName(AvatarDoc menu)
+        {
+            var start = L.Text("ad.ui.parameters.new");
+            var taken = new HashSet<string>(menu.parameters.Where(p => p != null).Select(p => p.name));
+            if (!taken.Contains(start)) return start;
+            for (int i = 2; ; i++)
+                if (!taken.Contains(start + " " + i)) return start + " " + i;
+        }
+
         /// <summary>Declares a parameter this component carries itself. A name it already declares is returned as it is.</summary>
         public static ParameterDeclaration AddDeclaration(AvatarDoc menu, string name, PlannedType type)
         {

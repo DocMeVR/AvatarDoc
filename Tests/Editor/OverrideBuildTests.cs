@@ -61,7 +61,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(curve.Evaluate(0.5f), Is.EqualTo(0f));
                 Assert.That(curve.Evaluate(1f), Is.EqualTo(0f));
             }
-            var applied = messages.Single(m => m.Key == "ad.info.override_applied");
+            var applied = messages.Single(m => m.Says("ad.info.override_applied"));
             Assert.That(applied.Args[2], Is.EqualTo("2"));
             Assert.That(applied.EntryIds, Does.Contain("r1"));
         }
