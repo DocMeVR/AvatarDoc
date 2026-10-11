@@ -98,7 +98,7 @@ A warning names the piece that wins. Before an upload, the inspector and the sce
 
 - A warning says an animation fades the piece in and out: AvatarDoc leaves that animation alone. Make it switch the piece on and off at once. See [the message](../../reference/messages/#ad-warn-shapes-active-not-constant).
 - A warning says an animation already writes the shape: that animation keeps its own value. Remove the shape from the animation if the rule should apply there. See [the message](../../reference/messages/#ad-warn-shapes-clip-owns-shape).
-- A warning says two pieces hold the same shape but different toggles switch them: the shape follows the later one alone. Put both pieces on one toggle, or in one exclusive group. See [the message](../../reference/messages/#ad-warn-shapes-conflict).
+- A warning says two pieces hold the same shape but different layers switch them: the shape follows the later layer alone. Put both pieces on one toggle, or in one exclusive group. See [the message](../../reference/messages/#ad-warn-shapes-conflict).
 - An error says the object carries no skinned mesh: <Label k="ad.ui.shapes.follows" /> rows need the component on the piece's own mesh. Move the component, or remove those rows. See [the message](../../reference/messages/#ad-error-shapes-no-mesh).
 
 ## Related

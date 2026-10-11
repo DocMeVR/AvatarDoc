@@ -4,7 +4,7 @@ ad.info.target_shared: Nothing to fix when that is what you want. While both are
 ad.info.target_shared_override: Nothing to fix when that is what you want. Otherwise take the shape out of the override, or out of the control.
 ad.info.blend_ignored_in_group: Nothing to fix. A group switches its choices at once. To fade the toggle, take it out of its group.
 ad.info.group_default_excluded: Nothing breaks. To start this platform with a choice on, give the toggle that is on by default a **Platform** that includes this platform.
-ad.error.group_value_conflict: The inspector has no field for this number: it comes from a script or another tool. Delete one of the two toggles and make it again. A new toggle gets its number by itself.
+ad.error.group_value_conflict: Select one of the two toggles and press **Give each member its own value** under the error. It numbers the members of the group 1, 2, 3 in the order of the menu, in one Undo step. Or change the number in **Value in group** on one of the two toggles.
 ad.info.parameter_reused: Nothing to fix. To give the control a parameter of its own, turn off **Custom name**, or pick a name the avatar does not have yet.
 ad.info.same_submenu_merged: Nothing to fix. To keep the submenu separate, give it another name.
 ad.info.path_created: Nothing to fix. To install into a submenu the avatar already has, pick it with the arrow button beside **Install into** in **Component settings**.

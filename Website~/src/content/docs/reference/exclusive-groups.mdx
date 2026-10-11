@@ -47,6 +47,12 @@ The choice that is on when the avatar loads. Leave it off on every toggle of the
 
 Every group is saved and synced. In a member's <Label k="ad.ui.advanced_fold" /> fold, this note takes the place of the <Label k="ad.ui.saved" /> and <Label k="ad.ui.synced" /> switches. The choice that is on is remembered between avatar loads, and other players see it.
 
+### Value in group [#value-in-group k=ad.ui.group.value]
+
+**Shown in:** Advanced, and Simple once the toggle's <Label k="ad.ui.advanced_fold" /> fold shows · **Default:** 0 · **Choices:** a whole number from 0 up
+
+The number the group's parameter takes while this toggle is on. 0 lets AvatarDoc pick the next free number in the order of the menu. Two toggles of one group cannot have the same number: the build refuses it with an error, and the error box has the button <Label k="ad.ui.group.number" />. The button gives every member of the group a number of its own, 1 for the first, 2 for the second and so on, in one Undo step. A locked component refuses it.
+
 ### Blend time [#blend-time k=ad.ui.blend]
 
 **Shown in:** Advanced · **Default:** not used in a group · **Choices:** none
@@ -55,13 +61,13 @@ A group switches its choices at once. In a member's fold, the note <Label k="ad.
 
 ## How a group works
 
-All the toggles of a group share one parameter. It is a whole number, an Int, named after the parameter prefix and the group, such as AD/Outfits. Each toggle gets its own number in the order of the menu: 1 for the first, 2 for the second, and so on. 0 means that no choice is on. The tree shows the number on each row, such as **Outfits 1**, when the tree is at least 360 pixels wide.
+All the toggles of a group share one parameter. It is a whole number, an Int, named after the parameter prefix and the group, such as AD/Outfits. Each toggle gets its own number in the order of the menu: 1 for the first, 2 for the second, and so on. You can set a number yourself in <Label k="ad.ui.group.value" />. Leave it at 0 to let AvatarDoc pick. The group's parameter is 0 when no choice is on. The tree shows the number on each row, such as **Outfits 1**, when the tree is at least 360 pixels wide.
 
 The group costs 8 synced bits, however many toggles it has. Eight separate toggles cost 8 bits too, so a group saves memory once it holds more than eight toggles.
 
 A toggle in a group with no targets of its own is a choice too, such as a No outfit choice that turns the others off. It shows no warning.
 
-A member always uses the group's parameter. Its <Label k="ad.ui.parameter" /> row shows the group's parameter, and a <Label k="ad.ui.parameter.use_custom" /> set on a member changes nothing.
+A member always uses the group's parameter. Its <Label k="ad.ui.parameter" /> row shows the group's parameter, with the note <Label k="ad.ui.parameter.group_note" /> in place of the <Label k="ad.ui.parameter.use_custom" /> switch. A custom name that a toggle had before it joined the group stays in the component, but the build ignores it and the panel does not show it.
 
 ## What AvatarDoc builds
 
