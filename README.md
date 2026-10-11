@@ -30,8 +30,7 @@ Modular Avatar below.
 
 1. Add the DocMe listing to the VRChat Creator Companion: open **https://docmevr.github.io/vpm** and press **Add to
    VCC**, or add `https://docmevr.github.io/vpm/index.json` under Settings > Packages > Add Repository.
-2. AvatarDoc needs NDMF. If VCC says it cannot find `nadena.dev.ndmf`, also add the Modular Avatar listing,
-   `https://vpm.nadena.dev/vpm.json`, which hosts NDMF.
+2. AvatarDoc needs NDMF. The DocMe listing includes it, so VCC installs it together with AvatarDoc.
 3. In your avatar project, press **Manage Project** and add **DocMe AvatarDoc**.
 
 Without VCC: download the `.zip` from the latest release at https://github.com/DocMeVR/AvatarDoc/releases and unpack
