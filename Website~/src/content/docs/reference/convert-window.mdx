@@ -39,7 +39,7 @@ A row shows:
 
 - A tick box, or an empty space when the row cannot be converted.
 - The place of the item in the menu, in grey, and its name.
-- Its kind: **Toggle**, **Radial**, **Animator**, **Menu asset** or **Shapes**.
+- Its kind: <Label k="ad.ui.detail.toggle" />, <Label k="ad.ui.detail.radial" />, <Label k="ad.ui.detail.animator" />, <Label k="ad.ui.detail.menu_asset" /> or **Shapes**.
 - What it changes, such as **2 objects, 1 blend shape**, **3 layers stay merged** or **6 parameters, 6 declarations**.
 - Under it, the notes about what could not be carried over for a row that can be converted, or the reason for a row that cannot. They are listed in the tables on this page.
 
@@ -61,7 +61,7 @@ A group that replaces a Merge Animator can only be converted with this on, becau
 
 ### Convert button [#convert-button]
 
-The label shows the number of ticked rows. It reads **Convert 3 items**, or **Convert 1 item**. It is greyed out while no row is ticked. Pressing it makes the entries for the ticked rows, in submenus that match the old place of each item, and takes the originals away when <Label k="ad.ui.import.remove" /> is on. Everything it does undoes in one step. A locked component refuses.
+The label shows the number of ticked rows. It reads **Convert 3 items**, or <Label k="ad.ui.import.button.one" />. It is greyed out while no row is ticked. Pressing it makes the entries for the ticked rows, in submenus that match the old place of each item, and takes the originals away when <Label k="ad.ui.import.remove" /> is on. Everything it does undoes in one step. A locked component refuses.
 
 The line under the button then reads **Converted 3. Undo brings everything back.** When a row could not be converted after all, the line gives its reason. The inspector selects the first new entry.
 

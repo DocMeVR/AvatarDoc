@@ -1,0 +1,110 @@
+---
+title: Grabbable
+description: Every setting of a grabbable, the entry that lets a hand pick up an object of the avatar and hold it.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-grabbable/overview" alt="A grabbable's panel with 1 Object, 2 Hands, 3 Keep offset, 4 More options, 5 Anyone may grab, 6 Return time, 7 Reach, 8 Menu toggle." />
+
+1. <Label k="ad.ui.grab.object" />: the object a hand can pick up.
+2. <Label k="ad.ui.grab.hands" />: <Label k="ad.ui.grab.hands.both" />, <Label k="ad.ui.grab.hands.left" /> or <Label k="ad.ui.grab.hands.right" />.
+3. <Label k="ad.ui.target.keep_offset" />.
+4. The <Label k="ad.ui.grab.fold" /> fold. The picture shows it open.
+5. <Label k="ad.ui.grab.anyone" />.
+6. <Label k="ad.ui.grab.return_seconds" />.
+7. <Label k="ad.ui.grab.reach" />.
+8. <Label k="ad.ui.grab.menu_toggle" />.
+
+Between the Keep offset row and the fold, a note says what the entry builds: a PhysBone, one contact per hand, and a follow that snaps the object into the hand that holds it.
+
+## When to use it
+
+A grabbable is for an object that lives on the avatar until a hand takes it: a sword on the back, a wand at the hip, a lantern on a belt. You grab it in VRChat the way you grab a PhysBone, and it sticks to your hand until you let go, then blends back to where it was.
+
+- For an object that only appears or disappears from a menu button, use a [toggle](../toggle/).
+- For an object that should follow a bone all the time, use a follow row on a toggle or a trigger. A grabbable is a follow that is driven by a hand.
+
+To add a grabbable, switch to Advanced and press <Label k="ad.ui.add.grabbable" /> in the toolbar. Then pick the object in <Label k="ad.ui.grab.object" />.
+
+## Settings
+
+The settings in the order the panel shows them.
+
+### Object [#object k=ad.ui.grab.object]
+
+**Shown in:** Simple and Advanced · **Default:** none · **Choices:** any object that is part of this avatar
+
+The object a hand can pick up. Until you pick one, the entry builds nothing and an error says so. The object must not carry a constraint of its own already, must not sit inside another PhysBone chain, and must belong to this avatar.
+
+### Hands [#hands k=ad.ui.grab.hands]
+
+**Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.grab.hands.both" /> · **Choices:** <Label k="ad.ui.grab.hands.both" />, <Label k="ad.ui.grab.hands.left" />, <Label k="ad.ui.grab.hands.right" />
+
+Which hand or hands may hold the object. AvatarDoc finds the hands from the avatar's Humanoid rig, so the rig must have the hand bone that this choice needs. Each allowed hand gets its own contact on the object.
+
+### Keep offset [#keep-offset k=ad.ui.target.keep_offset]
+
+**Shown in:** Simple and Advanced · **Default:** Off · **Choices:** On, Off
+
+Off: the object snaps exactly onto the hand's own origin. On: it keeps the pose it has now relative to the hand, as you posed it in the scene. Use On when you have placed the object in the hand by eye.
+
+### More options [#more-options k=ad.ui.grab.fold]
+
+**Shown in:** Simple and Advanced · **Default:** closed
+
+The fold that holds the next four settings. They are rarely changed.
+
+### Anyone may grab [#anyone k=ad.ui.grab.anyone]
+
+**Shown in:** Simple and Advanced · **Default:** On · **Choices:** On, Off
+
+On: other players may grab the object too. Off: only you can. The object always snaps into your own hand, whoever pulls on it.
+
+### Return time [#return-time k=ad.ui.grab.return_seconds]
+
+**Shown in:** Simple and Advanced · **Default:** 0.15 · **Range:** 0 to 10 seconds
+
+How long the object takes to blend back to its rest place once the hand lets go. 0 puts it back at once.
+
+### Reach [#reach k=ad.ui.grab.reach]
+
+**Shown in:** Simple and Advanced · **Default:** 1 · **Range:** 0.1 to 5
+
+How close the hand has to be to take the object. It multiplies the size AvatarDoc works out from the object's own bounds, kept between 3 cm and 50 cm. Raise it for a thin object that is hard to hit, and lower it when the hand picks the object up from too far away.
+
+### Menu toggle [#menu-toggle k=ad.ui.grab.menu_toggle]
+
+**Shown in:** Simple and Advanced · **Default:** Off · **Choices:** On, Off
+
+Off: grabbing is always available, and the entry takes no place in the avatar's menu. On: AvatarDoc adds a normal menu button that allows grabbing when it is on and stops it when it is off, so the sword cannot be pulled by accident. That button costs one synced bit like any [toggle](../toggle/).
+
+## What AvatarDoc builds
+
+On the copy it uploads, never in your scene:
+
+- A PhysBone on the object, set up only to report that it is held. It has no movement, no pull and no drag of its own, so the object stays where it is until it is grabbed. A childless object gets a short end point so the PhysBone has a bone to report on.
+- One contact receiver per allowed hand, a child of the object, tagged for the left or the right hand and sized from the object's bounds and <Label k="ad.ui.grab.reach" />. The PhysBone's own parameters and the contacts' parameters are local and cost no synced bit.
+- A follow on the object with one source per allowed hand. While a hand's contact touches the object and the PhysBone is held, the object follows that hand. Letting go blends it back over <Label k="ad.ui.grab.return_seconds" />.
+
+It shares the follow constraint with any follow row that names the same object. A constraint holds at most as many sources as VRChat allows, and an error says which entries compete for them. See [How it works](../../how-it-works/layers-and-pins/).
+
+### The object already has a PhysBone
+
+AvatarDoc keeps it and adds its grab parameter to it instead of making a second one, and says so in [a note](../messages/#ad-info-grab-uses-existing-physbone). When that PhysBone does not allow grabbing, or its root is another object, [a warning](../messages/#ad-warn-grab-existing-physbone-unsuitable) asks you to turn grabbing on and to set its root to this object.
+
+## Messages
+
+- [The grabbable has no object](../messages/#ad-error-grab-no-object).
+- [The object is not part of this avatar](../messages/#ad-error-grab-outside-avatar).
+- [The avatar has no Humanoid rig or is missing a hand bone](../messages/#ad-error-grab-no-hand).
+- [The object already sits inside a PhysBone chain](../messages/#ad-error-grab-inside-physbone).
+- [The object already has a PhysBone](../messages/#ad-info-grab-uses-existing-physbone).
+- [The existing PhysBone does not allow grabbing](../messages/#ad-warn-grab-existing-physbone-unsuitable).
+
+## Related
+
+- [Toggle](../toggle/) for an object that is only shown or hidden.
+- [The Inspector](../inspector/) for the toolbar that adds a grabbable.
+- [Layers and pins](../../how-it-works/layers-and-pins/) for how the follow layer is built.

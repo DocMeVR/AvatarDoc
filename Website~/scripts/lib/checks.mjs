@@ -47,3 +47,57 @@ export function oversizeShots(shotsDir, limitBytes = 250 * 1024) {
     .filter((file) => fs.statSync(file).size > limitBytes)
     .map((file) => `${path.relative(shotsDir, file).split(path.sep).join('/')} (${Math.round(fs.statSync(file).size / 1024)} KB)`);
 }
+
+function pageUrlOf(distDir, file) {
+  const rel = path.relative(distDir, file).split(path.sep).join('/');
+  return rel.replace(/index\.html$/, '');
+}
+
+function idsOf(html) {
+  return new Set([...html.matchAll(/\sid="([^"]*)"/g)].map((m) => m[1]));
+}
+
+export function brokenLinks(distDir, base = '') {
+  const pages = listFiles(distDir, ['.html']);
+  const html = new Map(pages.map((file) => [pageUrlOf(distDir, file), fs.readFileSync(file, 'utf8')]));
+  const idCache = new Map();
+  const idsFor = (url) => {
+    if (!idCache.has(url)) idCache.set(url, idsOf(html.get(url)));
+    return idCache.get(url);
+  };
+  const prefix = base.replace(/\/$/, '');
+  const problems = [];
+  for (const [url, source] of html) {
+    const from = '/' + url;
+    for (const m of source.matchAll(/<a\s[^>]*?href="([^"]*)"/g)) {
+      const href = m[1].replace(/&amp;/g, '&');
+      if (href === '' || /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('//')) continue;
+      const hashAt = href.indexOf('#');
+      const pathPart = (hashAt < 0 ? href : href.slice(0, hashAt)).split('?')[0];
+      const hash = hashAt < 0 ? '' : decodeURIComponent(href.slice(hashAt + 1));
+      let target;
+      if (pathPart === '') target = from;
+      else if (pathPart.startsWith('/')) {
+        if (prefix && !pathPart.startsWith(prefix + '/') && pathPart !== prefix) {
+          problems.push(`${url || 'index'}: link "${href}" does not start with the site base ${prefix}.`);
+          continue;
+        }
+        target = pathPart.slice(prefix.length) || '/';
+      } else target = new URL(pathPart, 'http://x' + from).pathname;
+      const key = target.replace(/^\//, '');
+      if (/\.[a-z0-9]+$/i.test(key)) {
+        if (!fs.existsSync(path.join(distDir, key))) problems.push(`${url || 'index'}: link "${href}" points at a file that is not built: ${key}.`);
+        continue;
+      }
+      const pageKey = key === '' || key.endsWith('/') ? key : key + '/';
+      if (!html.has(pageKey)) {
+        problems.push(`${url || 'index'}: link "${href}" points at a page that is not built: /${pageKey}.`);
+        continue;
+      }
+      if (hash !== '' && !idsFor(pageKey).has(hash)) {
+        problems.push(`${url || 'index'}: link "${href}" points at #${hash}, which /${pageKey} does not have.`);
+      }
+    }
+  }
+  return problems;
+}

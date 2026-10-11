@@ -62,7 +62,7 @@ Over the limit, the line says by how much, and an error stops the upload. When V
 
 The toolbar adds entries and opens the tools:
 
-- The adds, in this order: <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" />, <Label k="ad.ui.add.submenu" />, <Label k="ad.ui.add.trigger" />, <Label k="ad.ui.add.override" />, <Label k="ad.ui.add.preset" />, <Label k="ad.ui.add.grabbable" />, <Label k="ad.ui.add.animator" />, <Label k="ad.ui.add.menu_asset" />, <Label k="ad.ui.parameters.add" />, <Label k="ad.ui.add.outfit" /> and <Label k="ad.ui.add.contact" />.
+- The adds, in this order: <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" />, <Label k="ad.ui.add.submenu" />, <Label k="ad.ui.add.trigger" />, <Label k="ad.ui.add.override" />, <Label k="ad.ui.add.preset" />, <Label k="ad.ui.add.grabbable" /> (see [Grabbable](../grabbable/)), <Label k="ad.ui.add.animator" />, <Label k="ad.ui.add.menu_asset" />, <Label k="ad.ui.parameters.add" />, <Label k="ad.ui.add.outfit" /> and <Label k="ad.ui.add.contact" />.
 - <Label k="ad.ui.more" />: as many adds as the width allows show as buttons, and the rest are listed under <Label k="ad.ui.more" />, each with a one line description. At 360 pixels wide, the bar shows <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" /> and <Label k="ad.ui.add.submenu" />. <Label k="ad.ui.more" /> goes away when every add fits.
 - <Label k="ad.ui.toolbar.capture" />: draws an icon for every toggle, radial, submenu or preset of this component that has something to show and no icon yet.
 - <Label k="ad.ui.toolbar.convert" />: opens the window that turns toggles made with VRCFury, Modular Avatar or a hand made layer into AvatarDoc entries.
@@ -76,7 +76,7 @@ A new entry lands inside the submenu that is selected in the tree, or in the sam
 
 The search field keeps only the rows whose name contains what you type, without counting capital letters or style tags. A submenu stays, dimmed, while something inside it matches, and every row is open while you search.
 
-The filter button beside it, in Advanced mode, lists the tags the tree has right now, grouped as <Label k="ad.ui.tagfilter.group.kind" />, <Label k="ad.ui.tagfilter.group.from" />, <Label k="ad.ui.tagfilter.group.state" /> and <Label k="ad.ui.tagfilter.group.platform" />. Two tags of one group show rows with either of them. Tags of different groups show only rows that have both. The ticked tags show as chips under the toolbar, and <Label k="ad.ui.tagfilter.clear" /> removes them all.
+The filter button beside it, in Advanced mode, lists the tags the tree has right now, grouped as <Label k="ad.ui.tagfilter.group.kind" />, <Label k="ad.ui.tagfilter.group.from" />, <Label k="ad.ui.tagfilter.group.state" /> and <Label k="ad.ui.tagfilter.group.platform" />. Two tags of one group show rows with either of them. Tags of different groups show only rows that have both. <Label k="ad.ui.tagfilter.group.from" /> tells where a row comes from: <Label k="ad.ui.tagfilter.from.avatardoc" /> for entries of this component and <Label k="ad.ui.tagfilter.from.avatar_menu" /> for items the avatar's own menu already had. <Label k="ad.ui.tagfilter.group.state" /> has <Label k="ad.ui.tagfilter.state.has_problems" />, which keeps the rows that carry a warning or an error. The ticked tags show as chips under the toolbar, and <Label k="ad.ui.tagfilter.clear" /> removes them all.
 
 While a search or a filter is active, rows cannot be dragged, and a note says what to clear.
 
@@ -100,6 +100,10 @@ Each row shows the kind of the item, its name with its style, and chips:
 When the tree is narrower than 360 pixels, as in a narrow inspector, rows leave out the group, condition, source, asset and existing chips, and show a platform chip only while the entry is not built. Rows of other tools and of the avatar's own menu are dimmed at every width.
 
 Drag a row to move it. Its position left or right decides how deep it lands: move the pointer left to step out of a submenu, right to go one level in. Right click a row of this component for <Label k="ad.ui.menu.rename" />, <Label k="ad.ui.menu.duplicate" />, <Label k="ad.ui.menu.move" /> and <Label k="ad.ui.menu.delete" />. The Delete key deletes the selected row. Submenus start closed, and each component remembers which rows you left open.
+
+### Learn more [#learn-more]
+
+Every warning, error and note the inspector shows has a <Label k="ad.ui.message.learn_more" /> button at its right end. It opens that message's entry on the [Messages](../messages/) page, with what it means and what to do.
 
 ### The panel [#panel]
 

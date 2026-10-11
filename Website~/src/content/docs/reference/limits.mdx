@@ -36,13 +36,22 @@ VRChat's upload check rejects a menu icon that is larger than 256 pixels on a si
 
 ### How complex a trigger may be
 
-A condition trigger can have at most 4 groups of at most 4 conditions each. Beyond that, VRChat cannot build the ways to turn it back off, and an error says so.
+A condition trigger has three caps: at most 4 groups, at most 4 conditions in a group, and at most 64 ways to turn it off again. The ways to turn it off are the group sizes multiplied together, because the trigger must leave its On state once every group stops being true and each combination of one broken condition per group is its own way out.
+
+| Groups | Conditions in each | Ways to turn it off | Result |
+|---|---|---|---|
+| 4 | 2, 2, 2, 2 | 16 | Builds |
+| 3 | 4, 4, 4 | 64 | Builds |
+| 4 | 3, 3, 3, 3 | 81 | Refused |
+| 4 | 4, 4, 4, 4 | 256 | Refused |
+
+So 4 groups of 3 conditions are refused although each cap on its own is respected, and 4 groups of 2 build. Two things count extra: a comparison of a float parameter with one exact value can be false in two ways, so it counts twice in its group, and a menu switch in <Label k="ad.ui.trigger.gate" /> adds its own way out. A trigger close to 64 can be refused because of them. When the 64 cap trips, an error names the trigger, the number of groups and the number of ways. Remove conditions from the biggest groups first, or split the trigger in two. See [A trigger has too many conditions](../../help/troubleshooting/#trigger-too-complex).
 
 ## Limits of AvatarDoc
 
 ### What it adds to the FX controller
 
-Each entry adds the layers its Builds line names. A toggle, a radial, a preset and a condition trigger add one layer each. A toggle or a trigger that holds a shape with **Pin**, or a shape set rule, adds one more layer when it also writes other things. An exclusive group shares one layer between its toggles. A blend shape trigger, a Fade trigger and a contact in Flip mode add one layer each. A toggle or radial that only drives a parameter adds none. A merged animator adds the layers of its controller. The tracking pauses of Fade triggers and held shapes share a few layers between entries.
+Each entry adds the layers its Builds line names. A toggle, a radial, a preset and a condition trigger add one layer each. A toggle or a trigger that holds a shape with <Label k="ad.ui.seg.pin" />, or a shape set rule, adds one more layer when it also writes other things. An exclusive group shares one layer between its toggles. A blend shape trigger, a Fade trigger and a contact in Flip mode add one layer each. A toggle or radial that only drives a parameter adds none. A merged animator adds the layers of its controller. The tracking pauses of Fade triggers and held shapes share a few layers between entries.
 
 ### AvatarDoc Shapes
 
