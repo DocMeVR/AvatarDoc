@@ -196,7 +196,7 @@ namespace DocMe.AvatarDoctor.Editor
             lockBanner.Add(new Button(() => SetLocked(false)) { text = L.Text("ad.ui.unlock"), name = "ad-unlock", tooltip = L.Text("ad.ui.unlock.tip") });
             Add(lockBanner);
 
-            Header = new HeaderView(this);
+            Header = new HeaderView(this) { name = "ad-header" };
             Add(Header);
             Content.AddToClassList("ad-content");
             Add(Content);
@@ -205,7 +205,7 @@ namespace DocMe.AvatarDoctor.Editor
             Left.Add(Tree);
             Content.Add(Left);
             Refreshables.Add(Tree);
-            Detail = new EntryDetailView(this);
+            Detail = new EntryDetailView(this) { name = "ad-detail" };
             Content.Add(Detail);
             Refreshables.Add(Detail);
             Summary = new SummaryPanel(this);
@@ -639,24 +639,24 @@ namespace DocMe.AvatarDoctor.Editor
             lockBannerText.text = note.Length == 0 ? L.Text("ad.ui.locked") : L.Text("ad.ui.locked") + " " + note;
         }
 
-        /// <summary>Whether the wheel is shown, from the EditorPrefs the toolbar toggle flips. While the view is not attached to a panel, reports true so headless tests see the wheel.</summary>
+        /// <summary>Whether the wheel is shown, from the view's preferences, which the toolbar toggle flips (EditorPrefs in the real hosts). While the view is not attached to a panel, reports true so headless tests see the wheel.</summary>
         internal bool WheelShown
         {
-            get => panel == null || EditorPrefs.GetBool(WheelPrefKey, wide);
-            set => EditorPrefs.SetBool(WheelPrefKey, value);
+            get => panel == null || ViewPrefs.GetBool(WheelPrefKey, wide);
+            set => ViewPrefs.SetBool(WheelPrefKey, value);
         }
 
         string WheelPrefKey => wide ? "DocMe.AvatarDoctor.Wheel.Window" : "DocMe.AvatarDoctor.Wheel.Inspector";
 
-        /// <summary>Whether a wedge click drives the scene preview instead of selecting the row. Off by default, remembered in EditorPrefs with the other wheel preferences. A detached view (a test) never reads or writes that
-        /// real, shared key: it keeps its own choice in a field instead, off unless a test sets it.</summary>
+        /// <summary>Whether a wedge click drives the scene preview instead of selecting the row. Off by default, remembered in the view's preferences with the other wheel preferences (EditorPrefs in the real hosts). A detached view (a test) never reads or writes that
+        /// key: it keeps its own choice in a field instead, off unless a test sets it.</summary>
         public bool TestMode
         {
-            get => panel == null ? detachedTestMode : EditorPrefs.GetBool(TestModePrefKey, false);
+            get => panel == null ? detachedTestMode : ViewPrefs.GetBool(TestModePrefKey, false);
             set
             {
                 if (panel == null) detachedTestMode = value;
-                else EditorPrefs.SetBool(TestModePrefKey, value);
+                else ViewPrefs.SetBool(TestModePrefKey, value);
                 if (wheel != null) UpdateWheel();
             }
         }

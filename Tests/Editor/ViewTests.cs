@@ -2166,6 +2166,30 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void AnAttachedViewKeepsTheWheelSwitchesInItsViewPrefs()
+        {
+            var menu = avatar.AddMenu();
+            foreach (var stored in new[] { false, true })
+            {
+                var prefs = new MemoryViewPrefs();
+                prefs.SetBool("DocMe.AvatarDoctor.Wheel.Inspector", stored);
+                prefs.SetBool("DocMe.AvatarDoctor.Wheel.Test.Inspector", stored);
+                var view = View(menu, prefs);
+                LayoutProbe.Measure(view, () =>
+                {
+                    Assert.That(view.Q<ToolbarButton>("ad-wheel-toggle").ClassListContains("ad-toolbar-checked"), Is.EqualTo(stored),
+                        "whether the wheel shows comes from the view's own store");
+                    Assert.That(view.TestMode, Is.EqualTo(stored), "and so does test mode");
+
+                    UiTestEvents.SimulateClick(view.Q<ToolbarButton>("ad-wheel-toggle"));
+                    view.TestMode = !stored;
+                    Assert.That(prefs.GetBool("DocMe.AvatarDoctor.Wheel.Inspector", stored), Is.EqualTo(!stored), "the toolbar toggle writes the view's own store");
+                    Assert.That(prefs.GetBool("DocMe.AvatarDoctor.Wheel.Test.Inspector", stored), Is.EqualTo(!stored), "and so does test mode");
+                });
+            }
+        }
+
+        [Test]
         public void WedgesFollowOverridesWrittenFromThePanel()
         {
             var menu = avatar.AddMenu();
