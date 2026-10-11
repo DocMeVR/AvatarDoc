@@ -1,0 +1,16 @@
+:root {
+  --sl-color-accent-low: #12362d;
+  --sl-color-accent: #3fc9a8;
+  --sl-color-accent-high: #8fe3ce;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d4f1e8;
+  --sl-color-accent: #0f7a61;
+  --sl-color-accent-high: #0a5846;
+}
+
+.shot img {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 4px;
+}

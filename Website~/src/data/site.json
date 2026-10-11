@@ -1,0 +1,9 @@
+{
+  "site": "https://docmevr.github.io",
+  "base": "/AvatarDoc",
+  "githubRepo": "https://github.com/DocMeVR/AvatarDoc",
+  "releasesUrl": "https://github.com/DocMeVR/AvatarDoc/releases",
+  "listingUrl": "https://docmevr.github.io/vpm/index.json",
+  "listingPage": "https://docmevr.github.io/vpm",
+  "vccAddUrl": "vcc://vpm/addRepo?url=https://docmevr.github.io/vpm/index.json"
+}
