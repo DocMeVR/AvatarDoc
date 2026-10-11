@@ -31,8 +31,8 @@ You add one AvatarDoc component to your avatar and describe the menu in it. Avat
 ## Install
 
 1. Add the DocMe listing to the VRChat Creator Companion: open **https://docmevr.github.io/vpm** and press **Add to VCC**, or add `https://docmevr.github.io/vpm/index.json` under Settings > Packages > Add Repository.
-2. AvatarDoc needs NDMF. The DocMe listing includes it, so VCC installs it together with AvatarDoc.
-3. In your avatar project, press **Manage Project** and add **DocMe AvatarDoc**.
+2. AvatarDoc needs NDMF, which comes from its author's listing: add `https://vpm.nadena.dev/vpm.json` the same way (the DocMe listing page has a second **Add to VCC** button for it). If you use Modular Avatar, you have it already.
+3. In your avatar project, press **Manage Project** and add **DocMe AvatarDoc**. VCC adds NDMF with it.
 
 Without VCC: download the `.zip` from the latest release at https://github.com/DocMeVR/AvatarDoc/releases and unpack it into a new folder `Packages/dev.docme.avatar-doctor` in your project, or import the `.unitypackage`. Install NDMF first.
 
@@ -43,7 +43,7 @@ This makes a toggle that shows or hides a hat. The full tutorial, with pictures,
 1. In the Hierarchy, select your avatar.
 2. In the inspector, press **Add Component**, type `AvatarDoc` and pick it.
 3. In the welcome card under the empty menu tree, press **Make a toggle**.
-4. Type the name of your hat and pick it in the list. A toggle named after the hat appears in the tree, and its Objects list holds the hat.
+4. Type the name of your hat and pick it in the list. A toggle named after the hat appears in the tree, and its **Objects** list holds the hat.
 5. Press Play with Gesture Manager to try it, or upload as usual. AvatarDoc builds the menu either way.
 
 ## Languages

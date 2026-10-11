@@ -2,8 +2,8 @@
 
 Every word AvatarDoc shows comes from a language file in the package's `Editor/Localization` folder. This guide is for
 anyone who wants to add a language or keep one up to date. You do not need to know how to program: a language is one
-text file. The guide and `glossary.md` sit in `Docs~`, beside this file, so they stay out of the package creators
-install.
+text file. The guide and the glossary (`Docs~/glossary.md`, shown as the Glossary page on the docs site) sit in `Docs~`, so
+they stay out of the package creators install.
 
 ## How it works
 
@@ -114,7 +114,7 @@ English puts names in double quotes: `\"{0}\"`. Use your own language's quotes i
 
 Product names and technical names stay as they are: AvatarDoc, VRChat, Unity, NDMF, Modular Avatar, VRCFury,
 PhysBone, Contact, FX, Write Defaults and AudioLink, and the names of layers, parameters and assets (the creator's own
-names). `glossary.md` beside this guide has the full list, and the agreed word in each language for every other
+names). The glossary (`Docs~/glossary.md`, the Glossary page on the docs site) has the full list, and the agreed word in each language for every other
 VRChat, Unity and AvatarDoc term. Use those words, so one thing has one name everywhere.
 
 ### Length and tone
