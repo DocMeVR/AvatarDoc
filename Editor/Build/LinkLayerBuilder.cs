@@ -141,7 +141,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var (renderer, shape, rule) in effects.Held)
                 {
                     float rest = baseState.WeightOf(renderer, shape);
-                    content.SetShape(renderer, shape, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction));
+                    content.SetHeldShape(renderer, shape, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction), rule);
                 }
                 foreach (var row in effects.Materials) content.SetMaterial(row.renderer, row.slot, EffectMath.ToggleMaterial(row, swappedOn, baseState.MaterialOf(row.renderer, row.slot)));
                 foreach (var row in effects.Properties)
@@ -153,19 +153,37 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             var name = AnimatorBuilder.UniqueLayerName(fx, "AD: " + entry.PlainName + " (shape)");
+            // The contents of the motion Motion made last, each with its blend tree child (-1 for a lone clip), so the
+            // rule's curves in them can be recorded once their state is in the layer.
+            var made = new List<(ClipContent content, int child)>();
             VirtualMotion Motion(string stateName, bool swappedOn, float alone)
             {
-                if (points.Count < 2) return At(points.Count == 1 ? points[0] : alone, swappedOn).ToClip(asc, name + " " + stateName);
+                made.Clear();
+                if (points.Count < 2)
+                {
+                    var single = At(points.Count == 1 ? points[0] : alone, swappedOn);
+                    made.Add((single, -1));
+                    return single.ToClip(asc, name + " " + stateName);
+                }
                 var blend = VirtualBlendTree.Create(name + " " + stateName);
                 blend.BlendType = BlendTreeType.Simple1D;
                 blend.BlendParameter = mirror;
                 blend.UseAutomaticThresholds = false;
-                blend.Children = ImmutableList.CreateRange(points.Select((p, i) => new VirtualBlendTree.VirtualChildMotion
+                var children = new List<VirtualBlendTree.VirtualChildMotion>();
+                for (int i = 0; i < points.Count; i++)
                 {
-                    Motion = At(p, swappedOn).ToClip(asc, name + " " + stateName + " " + i),
-                    Threshold = p,
-                }));
+                    var content = At(points[i], swappedOn);
+                    made.Add((content, i));
+                    children.Add(new VirtualBlendTree.VirtualChildMotion { Motion = content.ToClip(asc, name + " " + stateName + " " + i), Threshold = points[i] });
+                }
+                blend.Children = ImmutableList.CreateRange(children);
                 return blend;
+            }
+            var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(avatarRoot);
+            void RecordHeld(VirtualStateMachine stateMachine, VirtualState state)
+            {
+                foreach (var (content, child) in made)
+                    HeldShapePruner.Record(pinState, content, entry, name, stateMachine, state, child, baseState, heldContext);
             }
 
             pinLayerNames?.Add(name);
@@ -210,12 +228,14 @@ namespace DocMe.AvatarDoctor.Editor
                 string belowName = smooth ? "Near" : hasAbove ? "Following" : "On";
                 below = sm.AddState(belowName, Motion(belowName, false, low), new Vector3(300f, 0f, 0f));
                 below.WriteDefaultValues = false;
+                RecordHeld(sm, below);
             }
             if (hasAbove)
             {
                 string aboveName = smooth ? (hasBelow ? "Near on" : "Near") : "On";
                 above = sm.AddState(aboveName, Motion(aboveName, true, Mathf.Max(threshold, 0f)), new Vector3(300f, 150f, 0f));
                 above.WriteDefaultValues = false;
+                RecordHeld(sm, above);
             }
 
             // Requirements join every way in (all must hold) and add one way out each (any failing leaves). The

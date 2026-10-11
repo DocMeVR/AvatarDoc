@@ -36,6 +36,9 @@ namespace DocMe.AvatarDoctor.Editor
         readonly List<(Key key, float from, float to)> ramps = new List<(Key, float, float)>();
         float rampLength = 1f / 60f;
 
+        /// <summary>The blend shape keys a shape set rule wrote, with that rule. A later plain write to the same key takes it out again.</summary>
+        readonly Dictionary<Key, ShapeSetRule> heldKeys = new Dictionary<Key, ShapeSetRule>();
+
         /// <summary>Animator parameters this content animates, such as a pause flag: the binding is the Animator at the avatar root.</summary>
         readonly Dictionary<string, float> animatorParameters = new Dictionary<string, float>();
 
@@ -56,6 +59,21 @@ namespace DocMe.AvatarDoctor.Editor
         public void SetActive(GameObject go, bool active) => Set(go, "m_IsActive", active ? 1f : 0f);
 
         public void SetShape(SkinnedMeshRenderer renderer, string shape, float weight) => Set(renderer, "blendShape." + shape, weight);
+
+        /// <summary>A shape a rule holds: written like any shape, and remembered as the rule's, so the build can record the curve for HeldShapePruner.</summary>
+        public void SetHeldShape(SkinnedMeshRenderer renderer, string shape, float weight, ShapeSetRule rule)
+        {
+            SetShape(renderer, shape, weight);
+            heldKeys[new Key { Target = renderer, Property = "blendShape." + shape }] = rule;
+        }
+
+        /// <summary>Every shape a rule wrote into this content and nothing wrote over since, with that rule.</summary>
+        public IEnumerable<(SkinnedMeshRenderer renderer, string shape, ShapeSetRule rule)> HeldWrites()
+        {
+            foreach (var key in order)
+                if (heldKeys.TryGetValue(key, out var rule) && key.Target is SkinnedMeshRenderer renderer)
+                    yield return (renderer, key.Property.Substring("blendShape.".Length), rule);
+        }
 
         /// <summary>A shape weight already written into this content, for a later default that must not read the stale scene value.</summary>
         public bool TryGetShape(SkinnedMeshRenderer renderer, string shape, out float weight)
@@ -139,6 +157,7 @@ namespace DocMe.AvatarDoctor.Editor
             var key = new Key { Target = target, Property = property };
             if (!values.ContainsKey(key)) order.Add(key);
             values[key] = value;
+            heldKeys.Remove(key);
         }
 
         /// <summary>
@@ -196,7 +215,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, context))
                 {
                     float rest = baseState.WeightOf(rule.mesh, shape);
-                    SetShape(rule.mesh, shape, atRuleValue ? ShapeSetModel.HeldWeight(rule, rest) : rest);
+                    SetHeldShape(rule.mesh, shape, atRuleValue ? ShapeSetModel.HeldWeight(rule, rest) : rest, rule);
                 }
             }
         }
@@ -386,7 +405,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, context))
                 {
                     float rest = baseState.WeightOf(rule.mesh, shape);
-                    SetShape(rule.mesh, shape, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction));
+                    SetHeldShape(rule.mesh, shape, Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction), rule);
                 }
             }
         }

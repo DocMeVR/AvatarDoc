@@ -10,12 +10,9 @@ namespace DocMe.AvatarDoctor.Editor
     /// <summary>Pure reads of an entry's shape set rules: what they hold and at what, and what a mesh's scene weights capture into rows. No scene write, no asset write.</summary>
     public static class ShapeSetModel
     {
-        /// <summary>Above this many shapes held by one rule, the cost is called out with ad.warn.shape_set_large.</summary>
-        public const int LargeThreshold = 150;
-
         /// <summary>
         /// One rule per mesh this entry names, several rows for the same mesh acting as one: the merged rule is on if
-        /// any of them is, and takes its value and its blink and viseme switch from the first one that is on (the
+        /// any of them is, and takes its value and its blink and viseme switches from the first one that is on (the
         /// first one at all when none is). A row with no mesh is left out.
         /// </summary>
         public static IEnumerable<ShapeSetRule> EffectiveRules(MenuEntry entry)
@@ -32,11 +29,12 @@ namespace DocMe.AvatarDoctor.Editor
                     {
                         merged.zeroOthers = true;
                         merged.value = rule.value;
-                        merged.holdTracked = rule.holdTracked;
+                        merged.holdBlink = rule.holdBlink;
+                        merged.holdVisemes = rule.holdVisemes;
                     }
                     continue;
                 }
-                merged = new ShapeSetRule { mesh = rule.mesh, zeroOthers = rule.On, value = rule.value, holdTracked = rule.holdTracked };
+                merged = new ShapeSetRule { mesh = rule.mesh, zeroOthers = rule.On, value = rule.value, holdBlink = rule.holdBlink, holdVisemes = rule.holdVisemes };
                 byMesh[rule.mesh] = merged;
                 order.Add(merged);
             }
@@ -93,7 +91,11 @@ namespace DocMe.AvatarDoctor.Editor
                 (Eyelids, Mouth) = TrackedShapes(DescriptorOf(avatarRoot));
             }
 
-            public bool IsTracked(SkinnedMeshRenderer renderer, string shape) => Eyelids.Contains((renderer, shape)) || Mouth.Contains((renderer, shape));
+            /// <summary>Whether the descriptor blinks with this shape.</summary>
+            public bool IsEyelid(SkinnedMeshRenderer renderer, string shape) => Eyelids.Contains((renderer, shape));
+
+            /// <summary>Whether the descriptor speaks with this shape: a viseme, or the jaw flap shape.</summary>
+            public bool IsViseme(SkinnedMeshRenderer renderer, string shape) => Mouth.Contains((renderer, shape));
 
             /// <summary>Every (mesh, shape) an included AvatarDoc Shapes piece writes: its while-on rows and the local shapes its follow rows drive.</summary>
             public HashSet<(SkinnedMeshRenderer renderer, string shape)> PieceShapes => pieceShapes ?? (pieceShapes = ReadPieceShapes(AvatarRoot));
@@ -115,19 +117,21 @@ namespace DocMe.AvatarDoctor.Editor
 
         public static HeldContext ContextFor(Transform avatarRoot) => avatarRoot != null ? new HeldContext(avatarRoot) : HeldContext.None;
 
-        /// <summary>Whether the descriptor blinks or speaks with any shape of this mesh, so a rule on it has a blink and viseme switch worth showing.</summary>
-        public static bool MeshHasTrackedShapes(SkinnedMeshRenderer mesh, HeldContext context)
-        {
-            if (mesh == null || context == null) return false;
-            return context.Eyelids.Any(k => k.renderer == mesh) || context.Mouth.Any(k => k.renderer == mesh);
-        }
+        /// <summary>Whether the descriptor blinks with any shape of this mesh, so a rule on it has a Hold blink switch worth showing.</summary>
+        public static bool MeshHasEyelidShapes(SkinnedMeshRenderer mesh, HeldContext context)
+            => mesh != null && context != null && context.Eyelids.Any(k => k.renderer == mesh);
+
+        /// <summary>Whether the descriptor speaks with any shape of this mesh, so a rule on it has a Hold visemes switch worth showing.</summary>
+        public static bool MeshHasVisemeShapes(SkinnedMeshRenderer mesh, HeldContext context)
+            => mesh != null && context != null && context.Mouth.Any(k => k.renderer == mesh);
 
         /// <summary>
         /// The shapes a rule holds on this entry while the entry is on, in mesh order: every shape of the mesh except
         /// those the entry names itself (its rows, and on a toggle the shapes its own animation clips move), a blend
-        /// shape trigger's own shape, the shapes an AvatarDoc Shapes piece drives, and (unless the rule's holdTracked
-        /// is on) the shapes the descriptor blinks and speaks with. Empty when the rule is off or its mesh is gone:
-        /// this is what the build and the preview actually write.
+        /// shape trigger's own shape, the shapes an AvatarDoc Shapes piece drives, the shapes the descriptor blinks with
+        /// unless the rule's holdBlink is on, and the ones it speaks with unless its holdVisemes is on. Empty when the
+        /// rule is off or its mesh is gone. The preview writes all of them; the build writes them all too and then, after
+        /// every other tool, keeps only the ones something else moves (HeldShapePruner).
         /// </summary>
         public static List<string> HeldShapes(MenuEntry entry, ShapeSetRule rule, HeldContext context)
         {
@@ -137,8 +141,8 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>
         /// How many shapes of the rule's mesh it would hold if it were on, whatever its switch currently says: the
-        /// rule line's note, the summary and the large rule warning read this instead of HeldShapes, so switching the
-        /// rule off does not make it claim to cost nothing.
+        /// rule line's note and the summary read this instead of HeldShapes, so switching the rule off does not make it
+        /// claim to hold nothing. An upper bound: the build writes only those something else moves.
         /// </summary>
         public static int CoveredShapeCount(MenuEntry entry, ShapeSetRule rule, HeldContext context) => Candidates(entry, rule, context).Count;
 
@@ -159,7 +163,9 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var name = mesh.GetBlendShapeName(i);
                 if (named.Contains(name)) continue;
-                if (!rule.holdTracked && context.IsTracked(rule.mesh, name)) continue;
+                // A shape VRChat both blinks and speaks with stays free unless both switches hold it.
+                if (!rule.holdBlink && context.IsEyelid(rule.mesh, name)) continue;
+                if (!rule.holdVisemes && context.IsViseme(rule.mesh, name)) continue;
                 if (context.PieceShapes.Contains((rule.mesh, name))) continue;
                 result.Add(name);
             }
@@ -169,7 +175,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>The weight a rule holds one of its shapes at: that shape's default (its weight in the scene at upload) or 0.</summary>
         public static float HeldWeight(ShapeSetRule rule, float defaultWeight) => rule != null && rule.value == ShapeSetValue.Default ? defaultWeight : 0f;
 
-        /// <summary>Whether this entry's rules, as they are switched now, hold a shape the descriptor blinks with (eyes) or speaks with (mouth), so the entry needs the matching tracking pause while it is on.</summary>
+        /// <summary>Whether this entry's rules, as they are switched now, hold a shape the descriptor blinks with (eyes, only through Hold blink) or speaks with (mouth, only through Hold visemes), so the entry needs the matching tracking pause while it is on.</summary>
         public static void HeldTracking(MenuEntry entry, HeldContext context, out bool eyes, out bool mouth)
         {
             eyes = false;
@@ -178,7 +184,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (context.Eyelids.Count == 0 && context.Mouth.Count == 0) return;
             foreach (var rule in EffectiveRules(entry))
             {
-                if (!rule.holdTracked) continue;
+                if (!rule.holdBlink && !rule.holdVisemes) continue;
                 foreach (var shape in HeldShapes(entry, rule, context))
                 {
                     if (context.Eyelids.Contains((rule.mesh, shape))) eyes = true;

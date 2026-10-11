@@ -462,7 +462,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (withRule)
             {
                 var rule = entry.shapeSets.FirstOrDefault(r => r != null && r.mesh == mesh);
-                if (rule == null) entry.shapeSets.Add(new ShapeSetRule { mesh = mesh, zeroOthers = true });
+                if (rule == null) entry.shapeSets.Add(new ShapeSetRule { mesh = mesh, zeroOthers = true, holdBlink = false, holdVisemes = false });
                 else rule.zeroOthers = true;
             }
             MarkChanged(menu);
@@ -471,15 +471,15 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>
         /// Adds a rule that holds every other shape of mesh at its default while the entry is on, with the shapes
-        /// VRChat blinks and speaks with left free. A rule the entry already has for that mesh is kept as it is and
-        /// nothing is added. One Undo step.
+        /// VRChat blinks and speaks with left free (Hold blink and Hold visemes off). A rule the entry already has for
+        /// that mesh is kept as it is and nothing is added. One Undo step.
         /// </summary>
         public static bool AddHoldRule(AvatarDoc menu, MenuEntry entry, SkinnedMeshRenderer mesh)
         {
             if (Refuses(menu) || entry == null || mesh == null || !entry.OffersShapeSets) return false;
             if (entry.shapeSets.Any(r => r != null && r.mesh == mesh)) return false;
             Undo.RecordObject(menu, "Hold the rest");
-            entry.shapeSets.Add(new ShapeSetRule { mesh = mesh, zeroOthers = true, value = ShapeSetValue.Default, holdTracked = false });
+            entry.shapeSets.Add(new ShapeSetRule { mesh = mesh, zeroOthers = true, value = ShapeSetValue.Default, holdBlink = false, holdVisemes = false });
             MarkChanged(menu);
             return true;
         }
@@ -496,14 +496,26 @@ namespace DocMe.AvatarDoctor.Editor
             return true;
         }
 
-        /// <summary>Chooses whether a rule holds the shapes the avatar descriptor blinks and speaks with too.</summary>
-        public static bool SetShapeSetHoldTracked(AvatarDoc menu, MenuEntry entry, int ruleIndex, bool value)
+        /// <summary>Chooses whether a rule holds the shapes the avatar descriptor blinks with too (Hold blink).</summary>
+        public static bool SetShapeSetHoldBlink(AvatarDoc menu, MenuEntry entry, int ruleIndex, bool value)
         {
             if (Refuses(menu) || entry == null || ruleIndex < 0 || ruleIndex >= entry.shapeSets.Count) return false;
             var rule = entry.shapeSets[ruleIndex];
-            if (rule == null || rule.holdTracked == value) return false;
+            if (rule == null || rule.holdBlink == value) return false;
             Undo.RecordObject(menu, "Change shape set");
-            rule.holdTracked = value;
+            rule.holdBlink = value;
+            MarkChanged(menu);
+            return true;
+        }
+
+        /// <summary>Chooses whether a rule holds the shapes the avatar descriptor speaks with too (Hold visemes).</summary>
+        public static bool SetShapeSetHoldVisemes(AvatarDoc menu, MenuEntry entry, int ruleIndex, bool value)
+        {
+            if (Refuses(menu) || entry == null || ruleIndex < 0 || ruleIndex >= entry.shapeSets.Count) return false;
+            var rule = entry.shapeSets[ruleIndex];
+            if (rule == null || rule.holdVisemes == value) return false;
+            Undo.RecordObject(menu, "Change shape set");
+            rule.holdVisemes = value;
             MarkChanged(menu);
             return true;
         }

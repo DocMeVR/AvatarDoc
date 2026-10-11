@@ -1273,7 +1273,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// One rule's lines: its switch, named for the mesh, and the remove button, on a line that never wraps so a
         /// long name ends in an ellipsis instead of pushing the button down; under them Hold at with the Default or
-        /// 0 choice and, for a mesh VRChat blinks or speaks with, the blink and viseme switch; then the count note.
+        /// 0 choice, Hold blink for a mesh VRChat blinks with and Hold visemes for one it speaks with; then the count
+        /// note.
         /// </summary>
         VisualElement RuleLine(MenuEntry entry, ShapeSetRule rule, int index, ShapeSetModel.HeldContext context)
         {
@@ -1312,18 +1313,27 @@ namespace DocMe.AvatarDoctor.Editor
             value.AddToClassList("ad-shape-set-value");
             value.Changed += chosen => SetRuleValue(index, chosen == 0 ? ShapeSetValue.Default : ShapeSetValue.Zero);
             settings.Add(value);
-            if (ShapeSetModel.MeshHasTrackedShapes(rule.mesh, context))
+            if (ShapeSetModel.MeshHasEyelidShapes(rule.mesh, context))
             {
-                var tracked = new Toggle(L.Text("ad.ui.shape_set.hold_tracked")) { name = "hold-tracked", tooltip = L.Text("ad.ui.shape_set.hold_tracked.tip") };
-                tracked.AddToClassList("ad-compact");
-                tracked.SetValueWithoutNotify(rule.holdTracked);
-                tracked.RegisterValueChangedCallback(e => SetHoldTracked(index, e.newValue));
-                settings.Add(tracked);
+                var blink = new Toggle(L.Text("ad.ui.shape_set.hold_blink")) { name = "hold-blink", tooltip = L.Text("ad.ui.shape_set.hold_blink.tip") };
+                blink.AddToClassList("ad-compact");
+                blink.SetValueWithoutNotify(rule.holdBlink);
+                blink.RegisterValueChangedCallback(e => SetHoldBlink(index, e.newValue));
+                settings.Add(blink);
+            }
+            if (ShapeSetModel.MeshHasVisemeShapes(rule.mesh, context))
+            {
+                var visemes = new Toggle(L.Text("ad.ui.shape_set.hold_visemes")) { name = "hold-visemes", tooltip = L.Text("ad.ui.shape_set.hold_visemes.tip") };
+                visemes.AddToClassList("ad-compact");
+                visemes.SetValueWithoutNotify(rule.holdVisemes);
+                visemes.RegisterValueChangedCallback(e => SetHoldVisemes(index, e.newValue));
+                settings.Add(visemes);
             }
             container.Add(settings);
 
             // The count the switch would hold if it were on, not what HeldShapes reports right now: an off rule still
-            // has to say what it costs, or its own note would tell the author it does nothing.
+            // has to say what it holds, or its own note would tell the author it does nothing. Up to that many: the
+            // build writes only the ones something else moves.
             int count = ShapeSetModel.CoveredShapeCount(entry, rule, context);
             var note = new Label(rule.value == ShapeSetValue.Default
                 ? UiText.Count(count, "ad.info.shape_set_count.default.one", "ad.info.shape_set_count.default")
@@ -1373,10 +1383,17 @@ namespace DocMe.AvatarDoctor.Editor
             AfterRuleWrite();
         }
 
-        /// <summary>Chooses whether a rule holds the shapes VRChat blinks and speaks with too. Public for the rule row's switch and for tests.</summary>
-        public void SetHoldTracked(int ruleIndex, bool value)
+        /// <summary>Chooses whether a rule holds the shapes VRChat blinks with too. Public for the rule row's Hold blink switch and for tests.</summary>
+        public void SetHoldBlink(int ruleIndex, bool value)
         {
-            if (!EntryEditing.SetShapeSetHoldTracked(owner.Menu, CapturedEntry(), ruleIndex, value)) return;
+            if (!EntryEditing.SetShapeSetHoldBlink(owner.Menu, CapturedEntry(), ruleIndex, value)) return;
+            AfterRuleWrite();
+        }
+
+        /// <summary>Chooses whether a rule holds the shapes VRChat speaks with too. Public for the rule row's Hold visemes switch and for tests.</summary>
+        public void SetHoldVisemes(int ruleIndex, bool value)
+        {
+            if (!EntryEditing.SetShapeSetHoldVisemes(owner.Menu, CapturedEntry(), ruleIndex, value)) return;
             AfterRuleWrite();
         }
 

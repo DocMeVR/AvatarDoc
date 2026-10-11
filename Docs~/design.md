@@ -1797,7 +1797,9 @@ this entry may touch them, or face tracking and the other animations would be pi
   on, nothing written while off. An entry whose rows are all Fixed still gets its pin layer when it carries a rule.
 - The rule writes every other shape of the mesh, not only the ones something else animates: a shape a tool outside
   AvatarDoc moves would otherwise survive, which is the jank the user is trying to end. The note names the count so
-  the cost is visible, and `ad.warn.shape_set_large` says so above 150 shapes.
+  the cost is visible, and `ad.warn.shape_set_large` says so above 150 shapes. (Plan 17 task H replaced this: the
+  final pass now sees every tool's layers and keeps only the held shapes something moves; see "Two switches, and
+  only the shapes that move".)
 - A rule whose mesh is missing or outside the avatar is `ad.error.shape_set_outside_avatar`; two rules for one mesh
   on one entry are merged when the model is built (on if any is on, value and blink switch from the first one that
   is on); a rule on an entry that cannot hold one (`MenuEntry.OffersShapeSets`: a radial, an override, a flip
@@ -1872,6 +1874,50 @@ and lip sync shapes settable per rule; the default read at upload.
 - **Words.** `ad.warn.shape_set_large` speaks of holding, for both values; the summary line names the value
   (`ad.summary.shape_sets.line`, `.default`, each with its singular); "What this builds" says blinking or lip sync
   pauses while the effects are on when a rule holds those shapes.
+
+### Two switches, and only the shapes that move (asked 2026-10-11, plan 17 task H)
+
+The creator: "The hold blink and visemes make it two toggles hold blink and hold viseme", and "it doesn't need to
+hold the 912 other shapes, but only the ones that are also animated, the ones that get never modified don't matter."
+
+- **Two switches.** `ShapeSetRule.holdBlink` and `holdVisemes` replace `holdTracked`, both off by default. A rule
+  saved with `holdTracked` on loads with both on (`ShapeSetRule.OnAfterDeserialize`, which clears the old field, kept
+  private and hidden only so older scenes load their choice). The rule line shows `Hold blink` for a mesh the
+  descriptor blinks with and `Hold visemes` for one it speaks with, each its own Undo step behind the lock. An eyelid
+  shape is held only with `holdBlink`, a viseme or jaw flap shape only with `holdVisemes`
+  (`HeldContext.IsEyelid`, `IsViseme`), so each switch raises only its own pause flag part: eyes for blinking, mouth
+  for lip sync (`ShapeSetModel.HeldTracking`, `PinTracking`, `TouchBuilder.FollowDistanceTracking`).
+- **Record.** Every curve a rule writes is recorded while the layers are built (`ClipContent.SetHeldShape`,
+  `HeldShapePruner.Record` into `PinLayerState.HeldCurves`): a toggle's or a Hold trigger's pin state, a Fade
+  contact's Near children, a blend shape trigger's driven states or children. The record names the layer, the state
+  and the blend tree child, since the final pass sees virtual objects rebuilt from the committed controller, plus the
+  rule's value, the shape's default (`BaseState.WeightOf`) and whether it is a blink or viseme shape its switch holds.
+- **Prune.** `HeldShapePruner.Prune` runs in `FinishAfterOtherTools`, once Modular Avatar and VRCFury have added
+  their layers: after the Write Defaults fix of the pin layers, before `ReleasePinsToRest` (a dropped shape gets no
+  rest curve, and its `PinBinding` goes once its layer writes the shape nowhere), before `ClipRewriter` (a blend shape
+  trigger copies its shape from the clips as they will play; a source shape only a dropped rule curve held is never
+  animated, so the trigger reads its weight from the parameter's default, the shape's own value) and before
+  `MovePinLayersLast`, which it does not affect. What moves a shape: any `blendShape.*` curve in any clip or blend
+  tree of every playable layer's controller (Base, Additive, Gesture, Action, FX and the special layers), other
+  entries' Pin rows included, except the recorded rule curves; a kept rule curve that holds a shape at 0 away from a
+  default that is not 0 moves it too, so a later Default rule still restores it (Default holds never count, or
+  several face toggles would keep everything); an override's target moves too, since the override pass pins it in
+  every clip that has it, so its applied count stays true. A clip played from more than one state or tree child
+  (another tool reused it) is left whole and its curves count as moving. Only the avatar's own controllers count:
+  a shape moved only from outside them, for example by an MMD world's dance, is no longer held, where before the
+  rule held it while on. A recorded curve stays when something moves its shape, when the rule
+  is Zero and the shape's default is not 0, or when it is a blink or viseme shape its switch holds (VRChat moves
+  those itself); every other recorded curve is removed. The decision depends only on the shape and the rule, so every
+  child of a Fade or blend shape trigger tree drops the same shapes. A record whose layer, state or curve another tool
+  rebuilt is left alone. One Info line per rule that keeps fewer than all of its shapes:
+  `ad.info.shape_set_pruned` (`.one` for a rule of one shape). A blend shape trigger whose source shape only a
+  dropped Default rule held now reports `ad.warn.link_no_fx_clip`: nothing in FX moves that shape any more, so its
+  effects stay where the shape rests, which is what they did before too.
+- **Preview.** Unchanged: a dropped shape is one nothing moves, so the clone shows its scene weight, the value the
+  rule would hold it at, which the preview already shows.
+- **Words.** The count note and the summary say "up to" (`ad.info.shape_set_count`, `ad.summary.shape_sets.line`,
+  each with `.default` and singulars); "What this builds" shows no count. `ad.warn.shape_set_large` and its 150 shape
+  check are gone: a rule now costs only the shapes something else moves.
 
 ### Pin layers go last
 

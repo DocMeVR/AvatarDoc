@@ -68,6 +68,7 @@ namespace DocMe.AvatarDoctor.Editor
                 ("ad.info.shape_set_count.default.one", "ad.info.shape_set_count.default"),
                 ("ad.summary.shape_sets.line.one", "ad.summary.shape_sets.line"),
                 ("ad.summary.shape_sets.line.default.one", "ad.summary.shape_sets.line.default"),
+                ("ad.info.shape_set_pruned.one", "ad.info.shape_set_pruned"),
             };
             foreach (var (singularKey, pluralKey) in pairs)
             {
