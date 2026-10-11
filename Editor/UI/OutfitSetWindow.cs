@@ -33,6 +33,11 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>The number of suggestions a card shows before folding the rest behind "Show all".</summary>
         const int VisibleShrinks = 8;
 
+        /// <summary>The window's smallest width, which is also the width it opens at, since Unity's default for a new window is narrower. The docs picture of the window uses it too.</summary>
+        public const float MinWidth = 380f;
+
+        public const float MinHeight = 480f;
+
         // A window only keeps public or serialized fields across a domain reload, and losing these would blank it.
         // OutfitSpec/Outfit/ShrinkSuggestion (the core's own model) are plain classes with no [Serializable]
         // attribute, so the wizard's own working state lives in these dedicated serializable drafts instead and
@@ -60,7 +65,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var window = GetWindow<OutfitSetWindow>(true, L.Text("ad.ui.outfit.title"));
             window.everShown = true;
-            window.minSize = new Vector2(380f, 480f);
+            window.minSize = new Vector2(MinWidth, MinHeight);
             window.Init(menu);
             window.Show();
         };
