@@ -1,0 +1,370 @@
+---
+title: Troubleshooting
+description: Find your problem by what you see, learn the likely cause, and fix it step by step.
+sidebar:
+  order: 1
+tableOfContents:
+  maxHeadingLevel: 2
+---
+
+import Label from '../../../components/Label.astro';
+
+Each problem here is named by what you see. Read the cause, then follow the fix. If a warning or an error shows in the inspector or in NDMF's console, look it up in [Messages](../../reference/messages/) first: every message has its own entry with what to do.
+
+## My blinking or lip sync stops while a toggle is on [#blinking-stops]
+
+### Likely cause
+
+The toggle holds a shape that VRChat uses for blinking or for lip sync. While the toggle is on, AvatarDoc pauses VRChat's blinking or lip sync so that the two do not fight. They come back when the toggle is off. This happens with a Hold the rest rule that has <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" /> turned on, with a <Label k="ad.ui.seg.pin" /> row on an eyelid or mouth shape, and with a trigger whose effect moves such a shape.
+
+### Fix
+
+1. In the tree, select the toggle or the trigger.
+2. In its <Label k="ad.ui.blendshapes" /> section, find the rule line under the rows. Turn off <Label k="ad.ui.shape_set.hold_blink" /> to keep blinking, and <Label k="ad.ui.shape_set.hold_visemes" /> to keep lip sync.
+3. If a row sets an eyelid or a mouth shape on purpose, the pause is the expected result. To keep blinking, remove that row.
+4. If blinking still stops after an upload, look for a warning that says blinking or lip sync is left to another system. A sleep or AFK layer of your avatar then owns it. See [the message](../../reference/messages/#ad-warn-follow-distance-tracking-left-to).
+
+How the pause works: [Blinking, lip sync and face tracking](../../how-it-works/blinking-and-lip-sync/). The controls: [Hold the rest of a face](../../guides/hold-the-rest/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A toggle never turns off, or something stays changed after I turn it off [#toggle-never-turns-off]
+
+### Likely cause
+
+Something else writes the same object, shape or material after the toggle does. These are the usual ones:
+
+- Two controls change the same thing. The one built later wins: later menu entries first, and triggers after every menu control. An override wins over every control.
+- A preset, or a contact in <Label k="ad.ui.touch.flip" /> mode, changes the toggle's own parameter and turns it on again.
+- A blend shape row is set to <Label k="ad.ui.seg.pin" />. While the toggle is off, a Pin row writes nothing and leaves the shape to the layer that owns it, or to its value in the scene when no layer does.
+
+### Fix
+
+1. Select the toggle. If its row has a <Label k="ad.ui.chip.problem" /> chip, hold the pointer over it. A note that says the target is changed by more than one control names the other controls. See [the message](../../reference/messages/#ad-info-target-shared).
+2. Give each control its own targets, or put toggles that exclude each other in one exclusive group, as in [Make one-of-many choices](../../guides/one-of-many/).
+3. For a blend shape that should return to its scene value, set the row to <Label k="ad.ui.seg.fixed" />. A Fixed row writes the scene value while the toggle is off.
+4. Check the presets and the contacts in <Label k="ad.ui.touch.flip" /> mode: one of them may write the toggle's parameter. See [One button for several settings](../../guides/presets/) and [React to touch](../../guides/react-to-touch/).
+5. Test in Play mode with Gesture Manager, and switch the toggle off. See [Your first toggle](../../start-here/first-toggle/#test-it).
+
+### Still stuck
+
+Press <Label k="ad.ui.summary" /> in the header and keep the text for [Report a bug](../report-a-bug/).
+
+## My menu, or a toggle, is missing in VRChat [#menu-missing]
+
+### Likely cause
+
+AvatarDoc built the avatar without that control, or put it where you did not look. These are the usual causes:
+
+- The AvatarDoc component is switched off. AvatarDoc skips a component that is switched off, and the tree shows its rows with a <Label k="ad.ui.disabled_chip" /> chip.
+- The toggle has <Label k="ad.ui.in_menu" /> turned off. It has no button then, and the row has a <Label k="ad.ui.chip.no_menu" /> chip.
+- The entry is built for the other platform only. Its row shows a <Label k="ad.ui.chip.pc_only" /> or <Label k="ad.ui.chip.quest_only" /> chip and is dimmed.
+- The component installs into a submenu with <Label k="ad.ui.install" />, so the button is inside that submenu and not on the first page.
+- A page held more than eight controls, so the rest went onto a **More** page.
+- An error stopped the build. An error stops the upload, so the avatar you see in VRChat is an older one.
+
+### Fix
+
+1. Select the object that holds the component, and check that its checkbox in the inspector is ticked.
+2. Look at the tree: it shows the menu as it will be built, with the submenus and the **More** pages. Find your control there.
+3. Open <Label k="ad.ui.settings_fold" /> and check <Label k="ad.ui.install" /> and <Label k="ad.ui.platform" />.
+4. Select the toggle and check <Label k="ad.ui.in_menu" /> and its <Label k="ad.ui.platform" />.
+5. Upload again, and read NDMF's console for errors. [Messages](../../reference/messages/) explains each one.
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## The upload stops: the synced parameters need more bits than VRChat allows [#too-many-bits]
+
+### Likely cause
+
+VRChat gives an avatar 256 bits for synced parameters, and the avatar is over. A synced toggle costs 1 bit. A synced exclusive group or a synced radial costs 8. With VRCFury installed, the same check is only a warning, because VRCFury makes the parameters smaller at upload.
+
+### Fix
+
+1. Read the memory bar in the inspector's header. It shows the avatar's own bits, the bits AvatarDoc adds and the bits that are free.
+2. Turn off <Label k="ad.ui.synced" /> on toggles that other players do not need to see. They then cost nothing.
+3. Put toggles of one kind into an exclusive group. A group costs 8 bits however many toggles it holds.
+4. Take the menu items of the avatar that you never use out of the build with <Label k="ad.ui.existing.remove" />. That frees their parameters.
+
+[Fit in VRChat's parameter memory](../../guides/parameter-memory/) goes through these in order. How the count works: [Parameters, sync and memory](../../how-it-works/parameters-and-memory/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## My menu has a "More" page that I did not make [#more-page]
+
+### Likely cause
+
+VRChat shows at most eight controls on one page. When a submenu holds more, AvatarDoc keeps the first seven where they are and moves the rest onto a **More** page that takes the eighth place. The tree shows these pages as **More (page 2)**, **More (page 3)** and so on.
+
+### Fix
+
+1. Select the submenu. A row with **8 of 8** is full.
+2. Move some of its controls into a submenu of their own: drag them in the tree.
+3. Check the tree again. The **More** page goes away when everything fits.
+
+See [Organise the menu](../../guides/organise-the-menu/) and [the message](../../reference/messages/#ad-info-menu-split).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A toggle works on PC, but it is missing or wrong on Quest [#quest]
+
+### Likely cause
+
+AvatarDoc builds for the platform that the editor targets. An entry that is set for PC only is not built for the Quest copy of the avatar. Or the two copies have different parameter lists. VRChat syncs parameters by their place in the list, so a list that differs shows the other platform's players the wrong toggles.
+
+### Fix
+
+1. Check the build target of the project: Android and iOS count as Quest, everything else as PC. The line under <Label k="ad.ui.platform" /> in <Label k="ad.ui.settings_fold" /> names the platform the editor builds for.
+2. Select the toggle and open its <Label k="ad.ui.advanced_fold" /> fold. Check <Label k="ad.ui.platform" />.
+3. Do not delete an entry from one copy of the avatar. Set its <Label k="ad.ui.platform" /> instead, because then it keeps its parameter in the same place.
+4. If a warning says the parameters differ at a position, rebuild both copies from the same menu order. See [the message](../../reference/messages/#ad-warn-platform-parity).
+
+[Different setups for PC and Quest](../../guides/pc-and-quest/) shows the settings.
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A toggle I converted behaves differently from the original [#converted-toggle-differs]
+
+### Likely cause
+
+AvatarDoc does not carry over everything from VRCFury or Modular Avatar. The Convert window lists a note for each part that was left behind. These are the usual differences:
+
+- A transition animation, a security lock, a separate state that only you see, a hold button and an inverted rest logic are not carried over.
+- An AvatarDoc toggle switches at once, or fades with <Label k="ad.ui.blend" />.
+- The entry gets a parameter of its own. An outside tool that set the old parameter, such as an OSC app, must set the new one.
+- A hand made layer that rested somewhere else is not converted at all: the window lists it with its reason.
+
+### Fix
+
+1. If you have not changed anything else yet, use **Edit > Undo**. Convert undoes in one step.
+2. Open the Convert window again and read the notes of the row. [What each note means](../../reference/convert-window/#what-each-note-means) explains every one.
+3. After you convert, select the new entry and check its **Off value** fields, <Label k="ad.ui.blend" /> and parameter name against the old toggle.
+4. To keep the old behaviour, leave that item as it is, with <Label k="ad.ui.import.keep" /> in the Convert window.
+
+See [Convert from VRCFury or Modular Avatar](../../guides/convert/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A piece of clothing keeps the wrong body shape, or two pieces fight over a shape [#shapes-conflict]
+
+### Likely cause
+
+Two AvatarDoc Shapes pieces hold the same shape, and different toggles switch them. The later layer decides the shape. While the later piece is on, its value holds. While it is off, the shape goes back to rest, even when the other piece is on. A piece that nothing switches loses to one that is switched.
+
+### Fix
+
+1. Read the warning. It names both pieces and the shape. See [the message](../../reference/messages/#ad-warn-shapes-conflict).
+2. Put both pieces on one toggle, or put their toggles in one exclusive group. Then one animation switches both, or only one piece is on at a time.
+3. If a note says nothing turns the object on, add a toggle or an outfit set for it, or take the component off the piece.
+
+[AvatarDoc Shapes](../../reference/avatardoc-shapes/#when-two-pieces-hold-one-shape) lists what decides the winner.
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## Hold the rest does not hold a shape [#hold-the-rest-not-holding]
+
+### Likely cause
+
+A rule holds only the shapes that something else moves. It leaves these shapes to something else:
+
+- the shapes the entry has rows for, and the shapes a toggle's own animations move
+- the shape a blend shape trigger follows, and the shapes an AvatarDoc Shapes component drives
+- the blink and mouth shapes, unless <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" /> is on
+- a shape that only something outside your avatar moves, such as a dance in an MMD world
+
+### Fix
+
+1. Select the toggle and open the rule line under its rows. Its note says how many shapes it can hold, up to.
+2. To hold the eyes or the mouth too, turn on <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" />.
+3. For an MMD world, use the world's own settings. AvatarDoc holds only what the avatar's own animations move.
+4. If an error says only a toggle or a trigger with effects can hold the rest, move the rule to one of those. See [the message](../../reference/messages/#ad-error-shape-set-not-a-toggle).
+
+See [Hold the rest of a face](../../guides/hold-the-rest/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A touch or PhysBone trigger never fires [#touch-never-fires]
+
+### Likely cause
+
+For a contact, an error at upload names the cause:
+
+- no object is set for <Label k="ad.ui.touch.anchor" />
+- no tag is ticked under <Label k="ad.ui.touch.tags" />
+- both <Label k="ad.ui.touch.self" /> and <Label k="ad.ui.touch.others" /> are off
+
+For a PhysBone trigger, no PhysBone is picked. A trigger that flips a toggle does nothing on a platform where that toggle is not built.
+
+### Fix
+
+1. Select the trigger and read the messages on its panel.
+2. Set <Label k="ad.ui.touch.anchor" />, tick at least one tag under <Label k="ad.ui.touch.tags" />, and keep <Label k="ad.ui.touch.self" /> or <Label k="ad.ui.touch.others" /> on. The default is **Finger** and **Hand**, and both switches on.
+3. For a PhysBone trigger, pick the PhysBone in <Label k="ad.ui.touch.physbone" />.
+4. Test the touch in Play mode with Gesture Manager's **Clickable Contacts**, or in VRChat. The scene preview cannot sense a real touch.
+
+See [React to touch](../../guides/react-to-touch/) and [React to PhysBone grabs, poses and stretches](../../guides/react-to-physbones/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A trigger with conditions never fires [#condition-trigger-never-fires]
+
+### Likely cause
+
+The trigger has no condition, or a group with nothing in it, or it reads a parameter that the avatar does not declare. A parameter that nothing declares is treated as a Float, so a condition made for a whole number or for true or false may not work.
+
+### Fix
+
+1. Select the trigger. Under <Label k="ad.ui.trigger.when" />, check that at least one condition is set.
+2. Remove a group that is empty, or add a condition to it with <Label k="ad.ui.when.add_and" />.
+3. If a warning says nothing declares the parameter, add it under **Parameters** with its real type. See [the message](../../reference/messages/#ad-warn-parameter-type-unknown).
+4. Check <Label k="ad.ui.trigger.gate" />: the trigger fires only while that toggle is in the state you chose.
+
+See [Link effects to another toggle or a parameter](../../guides/link-to-a-toggle-or-parameter/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A blend shape trigger does nothing [#blend-shape-trigger-does-nothing]
+
+### Likely cause
+
+The trigger follows a shape, and nothing in the avatar's FX animator moves that shape. Or VRChat moves the shape itself, as it does for blinking and lip sync, outside every animation, so the trigger never sees it move. Or the shape moves in a Gesture or Action animation, outside the FX layer. Or the trigger has requirements in several cards: it reads only the card its shape is in.
+
+### Fix
+
+1. Read the warning on the trigger. It names the shape. See [the message about no FX animation](../../reference/messages/#ad-warn-link-no-fx-clip) and [the one about tracked shapes](../../reference/messages/#ad-warn-link-source-tracked).
+2. Pick a shape that one of your own FX animations moves.
+3. If the shape moves in an animation outside FX, move that animation into the FX layer. See [the message](../../reference/messages/#ad-warn-link-clips-outside-fx).
+4. If a warning says the trigger reads only one card, move the conditions you need into that card. See [the message](../../reference/messages/#ad-warn-requirements-one-card).
+
+See [Drive effects from a blend shape](../../guides/follow-a-blend-shape/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A toggle is in the menu, but it does nothing [#toggle-does-nothing]
+
+### Likely cause
+
+The toggle has no effects, or its targets are gone. A custom parameter name with no effects only drives the parameter, so something else has to read it.
+
+### Fix
+
+1. Select the toggle and read its messages. A warning that it has no targets means nothing was built for it. See [the message](../../reference/messages/#ad-warn-no-effects).
+2. Press <Label k="ad.ui.add_effect" /> and add an object, a blend shape, a material or a property.
+3. If a row points at something that is gone, or at an object outside the avatar, open the row and fix or remove it. See [a missing target](../../reference/messages/#ad-warn-target-missing) and [a target outside the avatar](../../reference/messages/#ad-warn-target-outside-avatar).
+4. If the toggle drives a custom parameter on purpose, check that a merged animator, VRCFury or Modular Avatar reads it. See [the message](../../reference/messages/#ad-warn-parameter-control-unused).
+
+See [Toggle clothing and accessories](../../guides/toggle-clothing/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## VRChat or VRCFury warns about mixed Write Defaults [#write-defaults-warning]
+
+### Likely cause
+
+The layers of the avatar do not all use the same Write Defaults setting. AvatarDoc then builds its ordinary layers with Write Defaults on, and a warning names the layers on each side. Separately, AvatarDoc's pin layers are meant to have Write Defaults off, so VRCFury may report them as a mix.
+
+### Fix
+
+1. To remove AvatarDoc's own warning, make the avatar's layers agree. The first line of <Label k="ad.ui.settings_fold" /> shows the setting AvatarDoc uses.
+2. When VRCFury offers to fix a mix and AvatarDoc has <Label k="ad.ui.seg.pin" /> rows or <Label k="ad.ui.touch.follow" /> triggers, choose **Skip**. If you press **Auto-Fix**, AvatarDoc turns its pin layers back off at the end of the upload.
+
+See [the message](../../reference/messages/#ad-warn-write-defaults-mixed) and [Layers, Write Defaults and pinned layers](../../how-it-works/layers-and-pins/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## The upload says a menu icon is too large [#icon-too-large]
+
+### Likely cause
+
+VRChat's upload check rejects an icon that is larger than 256 pixels on a side while its import size allows more, or that is not compressed.
+
+### Fix
+
+1. Select the texture in the Project window.
+2. In its import settings, set **Max Size** to 256, and set **Compression** to anything but None. Press Apply.
+3. Or let AvatarDoc make the icon: <Label k="ad.ui.capture" /> draws it at 256 by 256 pixels, which passes the check.
+
+See [the message](../../reference/messages/#ad-error-menu-icon-too-large) and [Icon capture](../../reference/icon-capture/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A trigger has too many conditions [#trigger-too-complex]
+
+### Likely cause
+
+A trigger may have at most 4 groups of at most 4 conditions each, and at most 64 ways to turn off again. That last count is the product of the group sizes, so 4 groups of 4 conditions come to 256 and are refused. [Limits](../../reference/limits/#how-complex-a-trigger-may-be) explains the count. Beyond these caps, VRChat cannot build all the ways to turn the trigger off again, so the build stops with an error.
+
+### Fix
+
+1. Select the trigger and count its groups under <Label k="ad.ui.trigger.when" />.
+2. Remove conditions you do not need, or merge groups.
+3. If you need more, split the trigger into two triggers with the same effects.
+
+See [the message](../../reference/messages/#ad-error-trigger-too-complex) and [Triggers](../../reference/triggers/#rows).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A toolbar button I need is not there [#toolbar-more]
+
+### Likely cause
+
+The inspector is narrow. The toolbar shows as many add buttons as fit, and puts the others under <Label k="ad.ui.more" />. At 360 pixels wide, it shows <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" /> and <Label k="ad.ui.add.submenu" />. In Simple mode, the toolbar also leaves out the other adds on purpose.
+
+### Fix
+
+1. Press <Label k="ad.ui.more" /> and pick the add from its list. Each add has a one line description.
+2. Or make the inspector wider, until every add shows as a button.
+3. For <Label k="ad.ui.add.override" />, <Label k="ad.ui.add.preset" /> and the other adds of Advanced mode, switch the mode row at the top of the inspector to <Label k="ad.ui.mode.advanced" />.
+
+See [The inspector at a glance](../../reference/inspector/#toolbar) and [Simple or Advanced?](../../start-here/simple-or-advanced/).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## The tags on the tree rows, such as VRCFury or Existing, are missing [#tree-chips-hidden]
+
+### Likely cause
+
+The tree is narrower than 360 pixels. A narrow tree leaves out the group, condition, source, asset and existing chips, and shows a platform chip only while the entry is not built for the current platform. The rows of other tools and of the avatar's own menu stay dimmed at every width.
+
+### Fix
+
+1. Make the inspector wider, or use the AvatarDoc window from **Tools > DocMe > AvatarDoc**, which can be wider than the inspector.
+2. The dimmed rows and the square icons still tell you that a row comes from another tool or from the avatar's own menu. The panel of the row names the tool.
+
+See [The inspector at a glance](../../reference/inspector/#tree).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).

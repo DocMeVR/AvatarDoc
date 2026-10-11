@@ -1,0 +1,61 @@
+---
+title: What happens when you upload
+description: How AvatarDoc turns the component in your scene into a menu, parameters and layers on the avatar that is built, and why your own files stay as they are.
+sidebar:
+  order: 1
+---
+
+You do not need this to use AvatarDoc; it explains why it behaves as it does.
+
+## Nothing is baked in
+
+The AvatarDoc component on your avatar is a list of what you want. It adds nothing to the avatar by itself. The menu, the parameters and the animator layers are made later, when the avatar is built.
+
+NDMF builds the avatar when you upload it, and when you press Play unless NDMF's Apply on Play setting is off. NDMF first makes a copy of the avatar and runs every tool on the copy. AvatarDoc is one of those tools. Your scene, your animator controllers and your menu assets are not changed.
+
+- AvatarDoc writes a copy of your Expression Parameters asset and adds its parameters to the copy.
+- It copies each menu that it adds a control to. A menu it does not touch keeps the asset you made.
+- At the end of its work, it removes its own components from the copy. The component is marked editor only, so VRChat never sees it either.
+
+If you remove the component from your scene, everything it built is gone from the next build.
+
+## The order of the passes
+
+NDMF runs its tools in phases. AvatarDoc takes part in four places.
+
+1. **Before anything is built.** AvatarDoc works out what the menu items you removed from the avatar would free: their parameters and their animator layers. It does this first, while the avatar's animator controllers are still whole. See [Remove things from the avatar](../../guides/remove-things/).
+2. **AvatarDoc's main pass, before Modular Avatar.** It builds the menu, the parameters and the layers of your entries. The next section lists what it does inside this pass.
+3. **After Modular Avatar.** AvatarDoc writes the rules of [AvatarDoc Shapes](../../reference/avatardoc-shapes/), holds the shapes of your overrides in the animations Modular Avatar added, and applies your changes to the items Modular Avatar added.
+4. **After VRCFury, and before the Avatar Optimizer.** AvatarDoc runs a last time. It holds the override shapes in the animations VRCFury added, drops the parts of a Hold the rest rule that nothing needs, hands pinned shapes back to rest, moves its own pin layers to the end, and applies the menu changes still waiting. [Layers, Write Defaults and pinned layers](../layers-and-pins/) explains these steps.
+
+VRCFury is not an NDMF tool. It runs after Modular Avatar and before NDMF's last phase, which is why AvatarDoc needs a pass on each side of it. [Working with VRCFury and Modular Avatar](../vrcfury-and-modular-avatar/) says more.
+
+## Inside the main pass
+
+Built in this order:
+
+1. It collects the AvatarDoc components that are switched on. A component that is switched off adds nothing.
+2. It builds the merged menu and plans the parameters. It reports every warning and error it finds.
+3. It checks the synced bits against VRChat's limit of 256.
+4. If there is no error, it removes the layers you asked to remove, then writes each entry's start state into the copy of the scene, so the avatar starts the way your entries say.
+5. It builds the layers: toggles, radials and exclusive groups first, then condition triggers, touch triggers, blend shape triggers, presets, and last the merged animators. This is the order the layers are built in, not the order they end up in: the last pass moves some of them. [The order of the layers](../layers-and-pins/#the-order-of-the-layers) gives the finished order.
+6. It writes the parameters and the menu, and removes the components.
+
+An error stops the pass before it changes the avatar, and it stops the upload. A warning or a note does not. NDMF shows all of them in its console window, and the inspector shows the same ones on the rows they belong to. [Messages](../../reference/messages/) lists every one.
+
+## What each entry becomes
+
+- A toggle becomes a button, a parameter and a layer with an off state and an on state.
+- A radial becomes a slider, a parameter and a layer that blends between its two ends.
+- An exclusive group becomes one parameter and one layer for all its toggles.
+- A trigger becomes a layer that reads an existing value, such as a toggle, a parameter, a blend shape, a contact or a PhysBone. It adds no button.
+- An override changes no layer of its own. It sets a shape to one value, in the scene and in the animations that already exist.
+
+Each reference page ends with what AvatarDoc builds for its kind of entry, and the **Builds** line in the inspector counts the layers.
+
+## Related
+
+- [Your first toggle](../../start-here/first-toggle/) builds a toggle and tests it.
+- [Test without Play mode, and preview in the scene](../../guides/test-and-preview/) shows an entry before any upload.
+- [Use AvatarDoc next to VRCFury and Modular Avatar](../../guides/with-vrcfury-and-modular-avatar/)
+- [Hold a blend shape in every animation](../../guides/overrides/)

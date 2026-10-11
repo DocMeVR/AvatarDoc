@@ -1,0 +1,41 @@
+---
+title: Report a bug
+description: What to write in a bug report so that it can be fixed, and where to send it.
+sidebar:
+  order: 3
+---
+
+import Label from '../../../components/Label.astro';
+import site from '../../../data/site.json';
+
+A good report lets the maker of AvatarDoc see the same problem on their own computer. Send it as an issue on GitHub: <a href={site.githubRepo + '/issues/new'}>open a new issue</a>. You need a free GitHub account.
+
+Before you write, look in [Troubleshooting](../troubleshooting/) and in [Messages](../../reference/messages/). Most warnings and errors already say what to do.
+
+## What to include
+
+1. **What you did, what you expected and what happened.** Write the steps in order, starting from an avatar with AvatarDoc on it. Name the buttons the way the inspector writes them.
+2. **The versions.** Open your project in VCC with **Manage Project**. Write down these four:
+   - Unity, for example 2022.3
+   - the VRChat SDK (the Avatars package)
+   - NDMF
+   - DocMe AvatarDoc
+
+   If the avatar also uses VRCFury or Modular Avatar, write their versions too.
+3. **The Summary.** Select the object with the AvatarDoc component, press <Label k="ad.ui.summary" /> in the header, and press <Label k="ad.ui.summary.copy" />. Paste the text into the issue. It lists the entries, the parameters, the menu and the warnings and errors that are raised right now. Read it before you send it, because the issue is public.
+4. **The console line.** Open Unity's **Console** window, and for an upload problem NDMF's console too (**Tools > NDM Framework > Show NDMF Console**). Copy the red or yellow line that belongs to the problem, with the lines under it. Select the line and press Ctrl+C.
+5. **A picture of the inspector.** When the problem is something you see, a screenshot of the inspector at its normal width helps more than a description.
+
+## Make it small
+
+If you can, make the problem happen on a small test avatar with one or two entries. A short list of steps that always gives the same result is the best report.
+
+## What not to send
+
+The issue page is public. Leave out anything private: the name of an avatar you have not released, paths on your computer, and the text of the Summary if it names things you want to keep to yourself.
+
+## Related
+
+- [Troubleshooting](../troubleshooting/)
+- [FAQ](../faq/)
+- [Summary and lock](../../reference/summary-and-lock/)

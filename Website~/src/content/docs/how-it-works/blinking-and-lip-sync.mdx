@@ -1,0 +1,64 @@
+---
+title: Blinking, lip sync and face tracking
+description: Why AvatarDoc leaves the blink and mouth shapes alone, when it pauses VRChat's blinking and lip sync, and how it gives way to other tools that do the same.
+sidebar:
+  order: 4
+---
+
+import Label from '../../../components/Label.astro';
+
+You do not need this to use AvatarDoc; it explains why it behaves as it does.
+
+## Who moves the face
+
+Several things move the blend shapes of a face at the same time:
+
+- VRChat moves the eyelid shapes for blinking, and, when lip sync uses blend shapes, the mouth shapes for lip sync. It does this itself, outside the animations of your avatar. Your avatar's Avatar Descriptor says which shapes these are.
+- A face tracking setup moves many shapes from a layer of its own in the FX animator.
+- Gestures and your own toggles move shapes through animations.
+
+AvatarDoc has to hold a pose in this crowd without breaking blinking, lip sync or face tracking.
+
+## What AvatarDoc never holds
+
+A shape that the descriptor blinks with or speaks with is left free:
+
+- A Hold the rest rule skips these shapes, unless the rule's <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" /> switch is on. The two switches are separate, so you can hold the eyes and leave the mouth free.
+- A trigger in <Label k="ad.ui.touch.follow" /> mode, or a blend shape trigger, never holds them while it rests.
+- When an entry ends, the shapes are not handed back to a rest value, because VRChat owns them. See [Layers, Write Defaults and pinned layers](../layers-and-pins/).
+
+Only a shape that is set on purpose is held: a <Label k="ad.ui.seg.pin" /> row, a rule whose switch is on, or an effect of a trigger that moves such a shape.
+
+## The tracking pause
+
+When an entry does hold a blink shape or a mouth shape, VRChat would fight it. So AvatarDoc asks VRChat to stop blinking, or to stop lip sync, while the entry is on. The two parts are separate: eye and eyelid tracking, so eye movement pauses along with blinking, and mouth and jaw tracking for lip sync.
+
+The pause is built from shared layers, one for each part, **AD: Blink pause** and **AD: Lip sync pause**, however many entries need them:
+
+1. Each entry that holds such a shape raises its own flag, an animator value that never leaves the animator, while the entry is on, and lowers it when the entry is off.
+2. The pause layer starts in a waiting state. VRChat seems to ignore a request to change tracking for a short while after an avatar loads, and a toggle that is on by default would lose its pause. So the layer waits 5 seconds before it listens to the flags.
+3. When any flag is more than 0, the layer asks VRChat to use the animation for that part. Blinking or lip sync stops.
+4. When every flag is back at 0, the layer asks VRChat to track that part again. Blinking or lip sync returns at once.
+
+AvatarDoc never puts this request on the first state of a layer. That would fire when the avatar loads and on every return to it, and would break the setups of other tools.
+
+The entries that raise a flag are the ones whose pin rows, rules or effects move a blink or mouth shape: a toggle or a <Label k="ad.ui.touch.hold" /> trigger, a trigger in <Label k="ad.ui.touch.follow" /> mode, and a blend shape trigger.
+
+## When another tool already pauses
+
+A sleep mode, an AFK setup or a face tracking template can set the same part to the animation too. Two systems doing it would fight over the part.
+
+So in its last pass, AvatarDoc looks in the FX animator for another layer that sets Eyes or Mouth to the animation. If it finds one, it removes its own pause layer for that part and shows a warning that names the other layer. The other system then owns the part. If blinking or lip sync keeps moving while your effects are on, check that layer. See [the message](../../reference/messages/#ad-warn-follow-distance-tracking-left-to).
+
+VRCFury is the exception. It collects every request to change tracking, AvatarDoc's included, and applies the result in one layer of its own, named **VRCF Tracking Control Actor**. AvatarDoc does not count that layer as another system, and keeps its pause so that VRCFury can merge it.
+
+## Face tracking and pin layers
+
+Face tracking is usually one layer with a direct blend tree that moves dozens of shapes. A pin layer sits after it, so a held shape wins while the entry is on. When the entry is off, AvatarDoc does not write a rest value for a shape that a layer like this owns, or the shape would freeze on that value for every frame. [Layers, Write Defaults and pinned layers](../layers-and-pins/) describes the rule.
+
+## Related
+
+- [Hold the rest of a face](../../guides/hold-the-rest/)
+- [React to touch](../../guides/react-to-touch/)
+- [Drive effects from a blend shape](../../guides/follow-a-blend-shape/)
+- [Blend shape rows and shape set rules](../../reference/blend-shapes/#shape-set-rules)

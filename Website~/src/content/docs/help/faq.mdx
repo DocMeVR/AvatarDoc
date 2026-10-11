@@ -1,0 +1,64 @@
+---
+title: FAQ
+description: Short answers about cost, other tools, updates, languages, Quest, where your settings live and how to remove AvatarDoc.
+sidebar:
+  order: 2
+---
+
+import Label from '../../../components/Label.astro';
+import site from '../../../data/site.json';
+
+## Is AvatarDoc free? [#free]
+
+Yes. AvatarDoc is open source under the MIT license. You may use it, change it and ship it inside paid avatar packages. Keep the copyright notice with it. The full text is in the package, in the file `LICENSE.md`, and the source is on <a href={site.githubRepo}>GitHub</a>.
+
+## Does it work with Modular Avatar and VRCFury? [#other-tools]
+
+Yes, and it needs neither of them. All three can be on one avatar. AvatarDoc shows their menu items in its tree, can rename, re-icon, hide or move them, and can convert their toggles into AvatarDoc entries. [Use AvatarDoc next to VRCFury and Modular Avatar](../../guides/with-vrcfury-and-modular-avatar/) shows how, and [Working with VRCFury and Modular Avatar](../../how-it-works/vrcfury-and-modular-avatar/) explains the order they run in.
+
+AvatarDoc does need NDMF. The DocMe listing brings it along when you install AvatarDoc with VCC.
+
+## Does it change my avatar? [#changes-avatar]
+
+Not your files. The AvatarDoc component stores a list of what you want. Nothing is baked into your avatar, your animator controllers or your menu assets. At upload, and when you press Play unless NDMF's Apply on Play setting is off, NDMF makes a copy of the avatar and AvatarDoc builds the menu, the parameters and the layers on that copy. [What happens when you upload](../../how-it-works/upload/) describes it.
+
+Three actions of yours do change your project, and you start each one yourself:
+
+- <Label k="ad.ui.import.remove" /> in the Convert window removes the VRCFury or Modular Avatar components it converted. **Edit > Undo** undoes a conversion in one step.
+- <Label k="ad.ui.capture.save" /> in the Capture icon window saves a picture in your project, in the folder `Assets/AvatarDoc Icons`.
+- Adding, moving or deleting entries changes the AvatarDoc component, like any other edit in the inspector.
+
+## How do I update AvatarDoc? [#update]
+
+In VCC, open your project with **Manage Project**. When the DocMe listing has a newer version of **DocMe AvatarDoc**, VCC offers it. Pick the newer version and apply it. If you installed from a file, download the new zip from the <a href={site.releasesUrl}>releases page</a> and replace the folder `Packages/dev.docme.avatar-doctor`. The [Changelog](../changelog/) lists what changed in each version.
+
+## Which languages does it speak? [#languages]
+
+The tool, its messages and its tooltips come in English, Japanese and Simplified Chinese. They share the language setting of NDMF and Modular Avatar, which you change with the language button in the inspector. The pages of this site are in English. See [Languages](../../reference/languages/), and [Help translate](../translate/) if you want to add one.
+
+## Does it work for Quest? [#quest]
+
+Yes. AvatarDoc builds for the platform that your project targets. You can set an entry, or the whole component, to PC only or Quest only, and the entry keeps its parameter so that both copies of the avatar stay in step. See [Different setups for PC and Quest](../../guides/pc-and-quest/). VRChat's own limits for Quest avatars are not checked by AvatarDoc.
+
+## Where are my settings stored? [#settings]
+
+On the AvatarDoc component, in your scene or prefab. They save and copy with the scene, and they come with a prefab. If you copy the component to another avatar, the entries come with it.
+
+A few choices about how the inspector looks are not on the component. The Simple or Advanced mode, which folds are open and which first-use tips you closed are kept in the Unity editor on your computer.
+
+## How do I remove AvatarDoc? [#remove]
+
+1. Select each object that holds an AvatarDoc component, open the component's menu in the inspector and pick **Remove Component**. Do the same for any AvatarDoc Shapes component on a piece.
+2. In VCC, open the project with **Manage Project**, and remove **DocMe AvatarDoc**.
+
+Remove the components first. If the package goes first, Unity shows a missing script on those objects.
+
+With the components gone, nothing of AvatarDoc is in the next build. The menu items, parameters and layers it built disappear with it, and so do its menu changes and removals. A hand made layer or menu control that you hid with Convert comes back, because Convert only hid it through the component. A VRCFury or Modular Avatar component that Convert removed stays removed: restore it from version control, or use **Edit > Undo** right after converting.
+
+## Do I need to know how animators work? [#animators]
+
+No. You pick objects, shapes and materials in the inspector, and AvatarDoc builds the animator layers. [Start here](../../start-here/install/) takes about ten minutes for each page. If you want to know what it builds, [How it works](../../how-it-works/upload/) explains it.
+
+## Where do I report a problem? [#problem]
+
+Look in [Troubleshooting](../troubleshooting/) first. Then see [Report a bug](../report-a-bug/).

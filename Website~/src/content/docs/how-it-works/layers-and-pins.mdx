@@ -1,0 +1,108 @@
+---
+title: Layers, Write Defaults and pinned layers
+description: How AvatarDoc builds its animator layers, which Write Defaults setting it uses, and why a layer that holds a shape is built differently.
+sidebar:
+  order: 2
+---
+
+import Label from '../../../components/Label.astro';
+
+You do not need this to use AvatarDoc; it explains why it behaves as it does.
+
+## Layers
+
+The FX animator of an avatar is a list of layers. Each layer has states, and each state plays an animation that sets objects, blend shapes and materials. The layers play together. When two of them set the same thing, the layer that sits later in the list decides it. AvatarDoc builds its layers with this in mind.
+
+Every toggle, radial, exclusive group and condition trigger gets its layers from AvatarDoc, named **AD:** and the entry's name. The other layers add a word in brackets after the name, such as (preset), (shape), (flip), (distance) or (pin), and a layer that follows a shape has its own name. A merged animator keeps the layer names of its own controller. [Limits](../../reference/limits/#what-it-adds-to-the-fx-controller) counts the layers.
+
+### The order of the layers
+
+When the build is finished, the layers of the FX controller stand in this order, from first to last:
+
+1. the avatar's own FX layers
+2. AvatarDoc's toggle and condition trigger layers, with the toggles, exclusive groups and radials in menu order
+3. AvatarDoc's preset, touch and follow layers
+4. the merged animators, both AvatarDoc's own and Modular Avatar's
+5. the Fade and blend shape trigger layers, and after them all the pin layers
+
+Layers that VRCFury adds land before the last step too. AvatarDoc moves the pin layers to the end only in its last pass, after every other tool has run. See [Pin layers go last](#pin-layers-go-last).
+
+An ordinary layer is simple:
+
+- A toggle's layer has an off state and an on state. The animation of each state sets every target of the toggle. The on state sets the on values. The off state sets the values the targets have in your scene, or the off value you chose.
+- An exclusive group has one layer with an off state and one state for each toggle. A state sets its own toggle's targets on and the targets of the other toggles off.
+- A radial has one state that blends between the value at the low end and the value at the high end.
+
+## Write Defaults
+
+Write Defaults is a setting of each animator state. When it is on, the state sets everything that its layer ever animates back to its starting value, unless the state sets it itself. When it is off, the state sets only what its own animation sets.
+
+AvatarDoc chooses one setting for all its ordinary layers, so that they match the rest of your avatar:
+
+- It reads the states of the avatar's own FX layers. When every state agrees, AvatarDoc uses that setting.
+- When they disagree, or when there are no states, AvatarDoc uses Write Defaults on. A warning names the layers that mix the two settings, and the header of the inspector shows what AvatarDoc uses.
+- It does not count additive layers, layers that are one state holding a blend tree, or its own pin layers.
+
+A merged animator keeps the Write Defaults of its own controller, unless **Match write defaults** is on, which it is by default. Then its layers follow the avatar's setting. An additive layer, and a layer that is one state holding a direct blend tree, keep Write Defaults on either way, because they stop working without it.
+
+## Pin layers
+
+Some layers must not use Write Defaults. These are the pin layers:
+
+- the second layer of a toggle or a trigger that holds a shape with <Label k="ad.ui.seg.pin" />, or with a Hold the rest rule
+- the layer of a blend shape trigger
+- the layer of a touch trigger in <Label k="ad.ui.touch.follow" /> mode
+- the shared layers that pause blinking and lip sync
+
+The second layer of a toggle or a trigger is named like its main layer, with (pin) after it. The pause layers are named **AD: Blink pause** and **AD: Lip sync pause**. Every state of a pin layer has Write Defaults off, whatever the rest of the avatar uses.
+
+### Why Write Defaults is off
+
+A pin layer sits last in the list (see [The order of the layers](#the-order-of-the-layers)), so it wins over face tracking and gestures while its entry is on. When the entry is off, the layer must let go. With Write Defaults on, its off state would write the starting value of the shape on every frame, from the last layer, and freeze face tracking on that value. With Write Defaults off, the off state writes only what it has a curve for, so a shape it has no curve for stays free for other layers.
+
+### Explicit rests
+
+An off state that writes nothing has one problem. A shape that a layer stops writing keeps the last value it was given. A pinned smile would stay when the toggle goes off, if no other layer wrote the shape.
+
+So at the very end of the build, when every layer from every tool is in the controller, AvatarDoc looks at each shape and each material property that a pin layer writes. For each one, it asks whether another layer owns it. Another layer owns it when it is not additive, its weight is higher than 0, no animator layer control can fade it, and one of these is true:
+
+- every state of the layer has Write Defaults on, and the layer animates the shape somewhere
+- every animation the layer can play has a curve for the shape
+- a direct blend tree of the layer has a child with a curve for the shape, which is how face tracking is built
+
+If another layer owns the shape, the pin layer writes nothing for it while off, and that layer decides. If no layer owns it, AvatarDoc adds an explicit rest to the off state of the pin layer: a curve that sets the shape to the value it has in your scene. The same rule hands back the material properties that a <Label k="ad.ui.touch.hold" /> trigger or a <Label k="ad.ui.touch.follow" /> trigger changes.
+
+Two details:
+
+- When several layers write one shape, only the lowest of them gets the rest curve, so two layers never fight over a shape. An ordinary layer counts as lower than a pin layer.
+- An exclusive group moves from one member straight to another, without visiting its off state. So every member state that does not write the shape gets the rest curve too.
+
+A shape that VRChat blinks or speaks with is never handed back to rest. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
+
+### Pin layers go last
+
+AvatarDoc builds its layers before Modular Avatar and VRCFury run. A layer that they add later would take a shape back from a pin layer. So AvatarDoc gives each pin layer the highest priority, and in its last pass it moves every pin layer to the end of the FX controller. It moves only the layers it made itself, found by their exact names. It also points a layer control of another controller at the same layer as before, because such a control names a layer by its place in the list.
+
+VRCFury has a Write Defaults fixer that can turn Write Defaults on for every layer. In its last pass, AvatarDoc turns it off again for its own pin layers. This is why [the page about VRCFury and Modular Avatar](../../guides/with-vrcfury-and-modular-avatar/) says to choose **Skip** in the fixer.
+
+## Hold the rest keeps only what is needed
+
+A Hold the rest rule starts by writing every other shape of the mesh. A face can have hundreds of shapes, and most of them never move. In its last pass, once every tool has added its layers, AvatarDoc removes the curves of the shapes that nothing moves, because those shapes already show the value the rule would hold them at. It keeps a curve when:
+
+- an animation of any controller of the avatar moves the shape, or an override pins it
+- the rule holds at 0 a shape that is not at 0 in your scene
+- the shape is one that VRChat blinks or speaks with, and the rule's switch for it is on
+
+A note says how many shapes the rule holds in the end. The note in the inspector says "up to" for this reason. A shape that only something outside the avatar moves, such as a dance in an MMD world, is not held. [Hold the rest of a face](../../guides/hold-the-rest/) shows the controls.
+
+## When two pieces hold one shape
+
+[AvatarDoc Shapes](../../reference/avatardoc-shapes/#when-two-pieces-hold-one-shape) writes into animations that other layers play. When two pieces hold one shape and different layers switch them, the later layer decides the shape, because of the rule at the top of this page. A warning names the pair. Put both pieces on one toggle or in one exclusive group to avoid it.
+
+## Related
+
+- [Hold the rest of a face](../../guides/hold-the-rest/)
+- [Blend shape rows and shape set rules](../../reference/blend-shapes/)
+- [Hold a blend shape in every animation](../../guides/overrides/)
+- [React to touch](../../guides/react-to-touch/)
+- [Use AvatarDoc next to VRCFury and Modular Avatar](../../guides/with-vrcfury-and-modular-avatar/)

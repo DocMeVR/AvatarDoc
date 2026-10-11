@@ -13,7 +13,7 @@ import Shot from '../../../components/Shot.astro';
 
 You upload a PC version and a Quest version of one avatar, and some pieces or effects should exist on only one of them. Do not delete the toggles from one copy. VRChat syncs parameters by their place in the list, not by their name, so both versions must have the same list. If they do not, players on the other platform see the wrong toggles.
 
-Set the platform of an entry instead. On the other platform, the entry builds no menu control and no layers, but its parameter keeps its place. The How it works page about parameters, sync and memory explains why the order matters.
+Set the platform of an entry instead. On the other platform, the entry builds no menu control and no layers, but its parameter keeps its place. [Parameters, sync and memory](../../how-it-works/parameters-and-memory/#the-order-of-the-parameters) explains why the order matters.
 
 This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
 
@@ -77,3 +77,4 @@ In the tree, an entry left out on the platform you build for is dimmed, and its 
 
 - [The inspector at a glance](../../reference/inspector/#component-settings) describes <Label k="ad.ui.settings_fold" />.
 - [Fit in VRChat's parameter memory](../parameter-memory/) explains what each parameter costs.
+- [A toggle works on PC, but is missing or wrong on Quest](../../help/troubleshooting/#quest) in Troubleshooting.
