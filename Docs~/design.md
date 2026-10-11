@@ -594,7 +594,7 @@ The build matches this section with the following differences, found by reading 
   not match and is treated as `Custom`, the same as any other tag arrangement the row cannot reduce to one colour
   plus bold and italic.
 - **The switch's label reads "Tags", not "edit tags".** This section calls it an "`edit tags` switch"; the shipped
-  localisation key `ad.ui.style.raw` reads "Tags".
+  label is the localisation key `ad.ui.style.raw_label`, "Rich text tags".
 - **The capture camera lives for one render, on a hidden holder.** This section describes "a hidden object destroyed
   when the window closes". In the build `IconCapture.Render` makes the camera for each render and destroys it in a
   `finally`, and the camera is a child of a hidden holder object rather than a root object of its own. NDMF's
@@ -1559,7 +1559,7 @@ blend shape linked trigger it works by adding curves to the clips that already e
   (VRCFury). The preview follows the same rule: the latest layer's pieces decide, and while they are off the shape
   rests. The real fix, one layer that owns each shared shape, is planned for later. AvatarDoc's own toggles, outfit sets, presets and triggers are covered because their generated clips
   carry `m_IsActive` curves like any other clip; so are merged animators and whatever Modular Avatar merged, because
-  the pass runs after Modular Avatar. Clips VRCFury adds later in the build are not seen (README says so).
+  the pass runs after Modular Avatar. Clips VRCFury adds later in the build are not seen (the AvatarDoc Shapes page of the docs site says so).
 - The pass is `ShapesBuilder`, in the Transforming sequence that runs after Modular Avatar, working on the virtual
   clips of the animator services (never on assets). `platform` on the component like everywhere. The component is
   removed from the clone at the end like `AvatarDoc`.
