@@ -1,0 +1,56 @@
+---
+title: Simple or Advanced?
+description: What each inspector mode shows, and how to switch between them.
+sidebar:
+  order: 5
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+The AvatarDoc inspector has two modes. <Label k="ad.ui.mode.advanced" />, the default, shows every tool. <Label k="ad.ui.mode.simple" /> shows only what most avatars need. Switching changes what you see, never what you made.
+
+<Shot name="start-here/simple-mode" alt="The AvatarDoc inspector in Simple mode with the Hat toggle selected: 1 the mode switch, 2 the header, 3 the toolbar, 4 the toggle's panel." />
+
+<Shot name="start-here/advanced-mode" alt="The same inspector in Advanced mode, with the same four parts marked: 1 the mode switch, 2 the header, 3 the toolbar, 4 the toggle's panel." />
+
+1. The mode switch.
+2. The header.
+3. The toolbar.
+4. The panel of the selected entry, here the Hat toggle.
+
+## What each mode shows
+
+| Part | Simple | Advanced |
+|---|---|---|
+| Header | the status line, <Label k="ad.ui.ready.show" /> while there is a problem, <Label k="ad.ui.summary" /> and the memory bar, plus <Label k="ad.ui.settings_fold" /> once a setting in it is changed | the same, with <Label k="ad.ui.settings_fold" /> always there |
+| Toolbar | <Label k="ad.ui.add.toggle" />, <Label k="ad.ui.add.radial" />, <Label k="ad.ui.add.submenu" />, <Label k="ad.ui.add.outfit" /> and the search field | every add, also <Label k="ad.ui.add.trigger" />, <Label k="ad.ui.add.override" />, <Label k="ad.ui.add.preset" />, <Label k="ad.ui.add.grabbable" />, <Label k="ad.ui.add.animator" />, <Label k="ad.ui.add.menu_asset" /> and <Label k="ad.ui.add.contact" />, plus <Label k="ad.ui.toolbar.capture" />, <Label k="ad.ui.toolbar.convert" />, <Label k="ad.ui.wheel" /> and <Label k="ad.ui.tagfilter" /> |
+| A toggle's panel | <Label k="ad.ui.name" />, <Label k="ad.ui.icon" />, <Label k="ad.ui.default_on" />, <Label k="ad.ui.in_menu" />, and the <Label k="ad.ui.objects" /> and <Label k="ad.ui.blendshapes" /> sections | <Label k="ad.ui.name" />, <Label k="ad.ui.icon" />, <Label k="ad.ui.default_on" />, <Label k="ad.ui.in_menu" /> and the <Label k="ad.ui.objects" /> section, plus <Label k="ad.ui.style" />, <Label k="ad.ui.style.raw_label" />, the Builds line, <Label k="ad.ui.group" />, <Label k="ad.ui.preview" /> and the <Label k="ad.ui.advanced_fold" /> fold. <Label k="ad.ui.blendshapes" /> and the other sections show once you add them with <Label k="ad.ui.add_effect" />. |
+| <Label k="ad.ui.add_effect" /> on a toggle | <Label k="ad.ui.objects" />, <Label k="ad.ui.blendshapes" />, <Label k="ad.ui.targets.properties" /> | the same, plus <Label k="ad.ui.materials" />, <Label k="ad.ui.targets.animations" /> and <Label k="ad.ui.targets.follows" /> |
+| A radial's panel | <Label k="ad.ui.name" />, <Label k="ad.ui.icon" />, <Label k="ad.ui.default_value" />, <Label k="ad.ui.in_menu" />, and the <Label k="ad.ui.blendshapes" /> section | the same, plus <Label k="ad.ui.style" />, <Label k="ad.ui.style.raw_label" />, the Builds line, <Label k="ad.ui.preview" /> and the <Label k="ad.ui.advanced_fold" /> fold |
+| <Label k="ad.ui.add_effect" /> on a radial | <Label k="ad.ui.blendshapes" />, <Label k="ad.ui.targets.properties" /> | the same, plus <Label k="ad.ui.targets.animations" /> |
+| A submenu's panel | <Label k="ad.ui.name" />, <Label k="ad.ui.icon" />, and how many of its slots are used | the same, plus <Label k="ad.ui.style" />, <Label k="ad.ui.style.raw_label" />, the Builds line and the <Label k="ad.ui.advanced_fold" /> fold |
+| The welcome card | <Label k="ad.ui.welcome.toggle" />, <Label k="ad.ui.welcome.outfit" /> and <Label k="ad.ui.welcome.quickstart" /> | the same, plus a Convert start when the avatar has something AvatarDoc can convert |
+| Any other entry | its whole panel, with a note when Simple cannot add more like it | its whole panel |
+
+Right click menus are the same in both modes.
+
+## Switch modes
+
+Press <Label k="ad.ui.mode.simple" /> or <Label k="ad.ui.mode.advanced" /> at the top of the AvatarDoc inspector. The AvatarDoc window, under **Tools > DocMe > AvatarDoc**, has the same switch.
+
+The choice belongs to you, not to one component:
+
+- Every AvatarDoc component follows it, in the inspector and in the window.
+- Unity remembers it the next time you open the project.
+- Switching in one place switches every open AvatarDoc inspector and window at once.
+
+## Nothing is lost
+
+Switching only changes what the inspector shows. It writes nothing to your component and builds nothing again.
+
+Simple never hides what you made. The tree shows every entry, and a part that holds something keeps showing. For example, a toggle that uses <Label k="ad.ui.materials" /> still shows its <Label k="ad.ui.materials" /> section in Simple. A tag filter you set in Advanced pauses in Simple, and works again when you switch back.
+
+## Next
+
+[Messages](../../reference/messages/): find what a warning means and what to do.

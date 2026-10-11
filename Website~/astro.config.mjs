@@ -25,7 +25,7 @@ export default defineConfig({
       customCss: ['./src/styles/custom.css'],
       plugins: [starlightImageZoom(), starlightLinksValidator({ errorOnRelativeLinks: false })],
       sidebar: [
-        { label: 'Start here', items: ['start-here/install'] },
+        { label: 'Start here', items: [{ autogenerate: { directory: 'start-here' } }] },
         { label: 'Reference', items: ['reference/messages'] },
         { label: 'How it works', items: [{ autogenerate: { directory: 'how-it-works' } }] },
         { label: 'Help', items: [{ autogenerate: { directory: 'help' } }] },

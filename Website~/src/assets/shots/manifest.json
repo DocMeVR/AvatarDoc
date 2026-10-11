@@ -1,6 +1,13 @@
 {
   "shots": {
     "home/hero": { "version": "0.3.0", "taken": "2026-10-11" },
-    "reference-inspector/overview": { "version": "0.3.0", "taken": "2026-10-11" }
+    "reference-inspector/overview": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/advanced-mode": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/first-headpat-contact": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/first-outfit-done": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/first-outfit-window": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/first-toggle-done": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/first-toggle-welcome": { "version": "0.3.0", "taken": "2026-10-11" },
+    "start-here/simple-mode": { "version": "0.3.0", "taken": "2026-10-11" }
   }
 }
