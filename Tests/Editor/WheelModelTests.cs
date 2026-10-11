@@ -112,7 +112,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Phase 8 task 9: the wheel's foreign wedges (another tool's items, the avatar's existing menu) must read
+        /// The wheel's foreign wedges (another tool's items, the avatar's existing menu) must read
         /// as a neutral tone, never the accent and never the purple that used to mirror --ad-source. WheelView.Draw
         /// itself needs a live VisualElement to render, so this drives the pure fill-selection function it calls.
         /// </summary>

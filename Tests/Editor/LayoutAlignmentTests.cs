@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 9 Part B: the toolbar alignment the creator's screenshot flagged ("the buttons are not aligned
+    /// The toolbar alignment the creator's screenshot flagged ("the buttons are not aligned
     /// properly", "the + tags and everything are not properly aligned"), measured for real through LayoutProbe
     /// instead of guessed at. A real host window is the only way to get a real worldBound: a plain, unattached
     /// VisualElement tree never resolves a layout pass inside a synchronous test method.

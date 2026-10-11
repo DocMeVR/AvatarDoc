@@ -16,7 +16,7 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 10 task 2's permanent guard: every labelled control the panels, the windows and the target rows build
+    /// Every labelled control the panels, the windows and the target rows build
     /// carries a tooltip, and every ".tip" string in the localization file is one sentence of plain, non-repeating
     /// text with a matching key on both sides of L.cs.
     /// </summary>

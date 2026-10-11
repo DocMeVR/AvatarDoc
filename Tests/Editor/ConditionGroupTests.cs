@@ -14,7 +14,7 @@ using VRC.SDK3.Dynamics.Contact.Components;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>A trigger whose "when" is a list of groups: met while any group is met, a group met while all of its conditions are (phase 9 task 8).</summary>
+    /// <summary>A trigger whose "when" is a list of groups: met while any group is met, a group met while all of its conditions are.</summary>
     public class ConditionGroupTests
     {
         TestAvatar avatar;

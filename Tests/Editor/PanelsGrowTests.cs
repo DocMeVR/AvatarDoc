@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 12 task 4, plan item 6: panels that only show the sections they use, one Advanced fold per panel, and a trigger that starts as one condition.</summary>
+    /// <summary>Panels that only show the sections they use, one Advanced fold per panel, and a trigger that starts as one condition.</summary>
     public class PanelsGrowTests
     {
         TestAvatar avatar;

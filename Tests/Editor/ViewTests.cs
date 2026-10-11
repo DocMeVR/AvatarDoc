@@ -931,7 +931,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// resolvedStyle-shaped inputs rather than a real bound row: a real Editor panel never actually lays out
         /// inside this suite's synchronous test methods (confirmed empirically: even a plain probe element's own
         /// resolvedStyle, and the panel's own root size, stay NaN with no frame ever pumped between test steps),
-        /// the same limitation task 7's and the prior fix round's own reports already flagged for the equivalent
+        /// the same limitation other tests here already work around for the equivalent
         /// pointer-tracking and layout-reading code. Plausible itself is private, so this drives it the same way
         /// the earlier UsesProperty guard test did: a local copy of the same rule, over the same kind of inputs
         /// MeasureIndent gates on.
@@ -1720,7 +1720,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(toggleField.choices, Is.EqualTo(new[] { L.Text("ad.ui.trigger.no_toggles") }));
         }
 
-        // Carry-over fixes from the phase 2 ledger (task 5 brief carry-over). Both tests need the detail panel to
+        // Both tests need the detail panel to
         // sit in a real panel with a working focus controller, which a plain unattached VisualElement tree does
         // not have; a throwaway host window gives it one and is closed again in the finally block.
         class FocusHostWindow : EditorWindow { }
@@ -3014,7 +3014,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(view.Tree.ExpandedKeys, Does.Contain(inner.id), "adding under the selection keeps the path open");
         }
 
-        /// <summary>Phase 12 task 6, fix round 1: modelled on FirstUseTipTests.TipsNeverTouchTheRealEditorPrefs. A view a test builds must read and write folds and tree expansion through its own in-memory store, never the real, machine-global EditorPrefs.</summary>
+        /// <summary>Modelled on FirstUseTipTests.TipsNeverTouchTheRealEditorPrefs. A view a test builds must read and write folds and tree expansion through its own in-memory store, never the real, machine-global EditorPrefs.</summary>
         [Test]
         public void FoldsAndExpansionNeverTouchTheRealEditorPrefs()
         {
@@ -5208,13 +5208,13 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>
         /// Guards AvatarDoctor.uss against a Unity upgrade silently renaming one of the Unity Editor's own USS
-        /// classes the stylesheet relies on. Checked once (phase 7 fix round 1) against Unity 2022.3's own
+        /// classes the stylesheet relies on. Checked once against Unity 2022.3's own
         /// UIElements types, both by instantiating each control and reading its actual class list, and by
         /// reflecting over the *UssClassName constants Unity's own C# uses to add those classes. TreeView and
         /// ListView share their row and selection classes on BaseVerticalCollectionView (an internal-ish base
         /// type not directly nameable here); an unattached view never lays out or virtualises a row to query
         /// against a live instance either way, so those two are checked by walking the constant fields instead.
-        /// The Console-to-Unity-theme pass (phase 8 task 9) left sliders and toggles fully native, so their
+        /// The move to the Unity theme left sliders and toggles fully native, so their
         /// classes are no longer asserted here; only the classes the stylesheet still targets are checked.
         /// </summary>
         [Test]
@@ -5245,7 +5245,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Guards the Console-to-Unity-theme pass (phase 8 task 9): the user rejected the Console restyle's opaque
+        /// Guards the move to the Unity theme: the user rejected the Console restyle's opaque
         /// near-black fills, grey primary text and purple "other tools" colour. Reads the real stylesheet text so a
         /// later edit cannot silently bring either back.
         /// </summary>
@@ -5318,7 +5318,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Phase 12 task 6: one spacing scale everywhere, 0, 2, 4, 6 or 8 px, so nothing in the panels reads as
+        /// One spacing scale everywhere, 0, 2, 4, 6 or 8 px, so nothing in the panels reads as
         /// randomly nudged. Parses every margin and padding declaration in the real stylesheet and fails on a
         /// pixel value outside that scale, "auto" and a percentage are always allowed (neither is a fixed nudge),
         /// and one declaration is explicitly exempt: .ad-note-indent's "margin-left: 112px" is not spacing at all,

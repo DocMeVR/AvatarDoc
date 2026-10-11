@@ -168,7 +168,7 @@
 .ad-message-text { flex-shrink: 1; white-space: normal; }
 .ad-message-actions { flex-direction: row; margin: 0 0 4px 8px; }
 .ad-message-line { flex-direction: row; align-items: flex-start; }
-.ad-message-line > .ad-message-text { flex-grow: 1; }
+.ad-message-line > .ad-message-text, .ad-message-line > .ad-note { flex-grow: 1; flex-shrink: 1; }
 .ad-learn-more { flex-shrink: 0; align-self: flex-start; margin: 0 0 0 8px; padding: 0 2px; border-width: 0; background-color: rgba(0, 0, 0, 0); color: var(--ad-accent); font-size: 11px; -unity-text-align: middle-left; }
 .ad-learn-more:hover { background-color: var(--ad-selection); }
 .ad-warnbox > .ad-message-text { flex-grow: 1; }

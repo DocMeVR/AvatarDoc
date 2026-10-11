@@ -25,6 +25,18 @@ namespace DocMe.AvatarDoctor.Editor
 
         static string BaseKey(string key) => key != null && key.EndsWith(".one", StringComparison.Ordinal) ? key.Substring(0, key.Length - 4) : key;
 
+        /// <summary>The text on the left and the key's Learn more button at its right end, in one row. Returns the text alone when the key is not a message key.</summary>
+        public static VisualElement WithLearnMore(VisualElement text, string key)
+        {
+            var button = LearnMoreButton(key);
+            if (button == null) return text;
+            var line = new VisualElement();
+            line.AddToClassList("ad-message-line");
+            line.Add(text);
+            line.Add(button);
+            return line;
+        }
+
         /// <summary>A link-styled button that opens the key's entry on the Messages page; null when the key is not a message key.</summary>
         public static Button LearnMoreButton(string key)
         {

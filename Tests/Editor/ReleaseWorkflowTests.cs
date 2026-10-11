@@ -33,7 +33,7 @@ namespace DocMe.AvatarDoctor.Editor
         public void AnExistingReleaseCanBeRepacked()
         {
             Assert.That(Workflow(), Does.Contain("inputs.tag"),
-                "The release workflow needs the tag input of the playbook template, so an existing release can be repacked.");
+                "The release workflow needs a tag input, so an existing release can be repacked.");
         }
     }
 }

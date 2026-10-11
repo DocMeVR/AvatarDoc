@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Plan 17 task H: at upload a shape set rule writes only the shapes something else moves, a Zero rule also the
+    /// At upload a shape set rule writes only the shapes something else moves, a Zero rule also the
     /// shapes whose default is not 0, and the blink or viseme shapes its switch holds. Everything else stays unanimated,
     /// which shows the same value the rule would hold it at.
     /// </summary>

@@ -1294,7 +1294,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var status = UiText.MessageLabel(lastShapeSetStatus);
                 status.name = "ad-shape-set-status";
-                shapeSetStatusBox.Add(status);
+                shapeSetStatusBox.Add(DocsLinks.WithLearnMore(status, "ad.info.capture_nothing_above_zero"));
             }
         }
 
@@ -1363,11 +1363,10 @@ namespace DocMe.AvatarDoctor.Editor
             // has to say what it holds, or its own note would tell the author it does nothing. Up to that many: the
             // build writes only the ones something else moves.
             int count = ShapeSetModel.CoveredShapeCount(entry, rule, context);
-            var note = new Label(rule.value == ShapeSetValue.Default
-                ? UiText.Count(count, "ad.info.shape_set_count.default.one", "ad.info.shape_set_count.default")
-                : UiText.Count(count, "ad.info.shape_set_count.one", "ad.info.shape_set_count")) { name = "ad-shape-set-note" };
+            string noteKey = UiText.CountKey(count, rule.value == ShapeSetValue.Default ? "ad.info.shape_set_count.default" : "ad.info.shape_set_count");
+            var note = new Label(string.Format(L.Text(noteKey), count)) { name = "ad-shape-set-note" };
             note.AddToClassList("ad-note");
-            container.Add(note);
+            container.Add(DocsLinks.WithLearnMore(note, noteKey));
             return container;
         }
 

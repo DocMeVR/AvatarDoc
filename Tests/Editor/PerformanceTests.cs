@@ -11,7 +11,7 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 12 Part C: the creator's own complaint that delete "takes very long". Measured against a
+    /// The creator's own complaint that delete "takes very long". Measured against a
     /// component with 150 entries, 40 of them carrying 30 blend shape targets each: Undo.RecordObject was not the
     /// cost, already under a microsecond a call and actually faster than Undo.RegisterCompleteObjectUndo on this
     /// object; DirectFields.Reload was, its field lookups each resolving a full property path back through a
@@ -67,7 +67,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Phase 12 task 13: the creator's real avatar carries a 62 layer FX controller, and a second Refresh()
+        /// The creator's real avatar carries a 62 layer FX controller, and a second Refresh()
         /// right after the first, with nothing invalidated, still cost over a second on it. AvatarPlanCache.GetFor
         /// already returns the same cached plan on such a call, so the fix was never here: it was the AssetDatabase
         /// work (the stylesheet's project wide search, a toolbar icon lookup on every new view) that used to run
@@ -163,7 +163,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Plan 13 task D: every plan build asked for the Write Defaults decision and, with a removal edit, whether a
+        /// Every plan build asked for the Write Defaults decision and, with a removal edit, whether a
         /// layer control targets FX; both walked every state of the controller. They are kept per controller and
         /// dirty count until the controller reads are dropped.
         /// </summary>
@@ -210,7 +210,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Plan 13 task D: the creator's refresh took 428 ms, 423 of them in the plan, on a 62 layer FX with removal
+        /// The creator's refresh took 428 ms, 423 of them in the plan, on a 62 layer FX with removal
         /// edits. AnimatorController.layers builds a new array on every read, and the layer reads asked for it about
         /// twice per layer inside a loop over every layer, so a cold read grew with the square of the layer count.
         /// A cold plan of the same shape (60 layers, three removed toggles) has to stay well under that.

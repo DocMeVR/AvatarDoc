@@ -50,7 +50,7 @@ namespace DocMe.AvatarDoctor.Editor
         Label syncedCost;
         Label buildsLine;
         AdvancedFold advancedFold;
-        /// <summary>The target sections this panel built: each one's "+ Add effect" name and description keys, its view, and whether it always shows regardless of its row count (the panel's common starting place, per plan item 6).</summary>
+        /// <summary>The target sections this panel built: each one's "+ Add effect" name and description keys, its view, and whether it always shows regardless of its row count (the panel's common starting place).</summary>
         readonly List<(string NameKey, string DescKey, TargetListView View, bool AlwaysVisible)> effectSections = new List<(string, string, TargetListView, bool)>();
         /// <summary>The sections among effectSections that "+ Add effect" offers. All of them, except on a toggle or radial in Simple, which offers Objects, Blend shapes and Properties only; the others stay built, so one that already has rows still shows.</summary>
         readonly List<(string NameKey, string DescKey, TargetListView View, bool AlwaysVisible)> offeredSections = new List<(string, string, TargetListView, bool)>();

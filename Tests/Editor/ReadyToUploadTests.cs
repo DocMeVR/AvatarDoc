@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Phase 12 task 2, plan item 2: the header's ready line, its Show button, the Write Defaults line and the mirrored upload style checks.</summary>
+    /// <summary>The header's ready line, its Show button, the Write Defaults line and the mirrored upload style checks.</summary>
     public class ReadyToUploadTests
     {
         TestAvatar avatar;
@@ -70,7 +70,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Phase 12 task 10: the badge this test once checked is gone (it repeated the count the ready line's own
+        /// The badge this test once checked is gone (it repeated the count the ready line's own
         /// text already carries); the arrow becoming reachable and the ready line's own text updating after a
         /// live refresh is the same behaviour in the merged, badge free header.
         /// </summary>
@@ -332,7 +332,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(view.Plan.Messages.Any(m => m.Key == "ad.error.menu_icon_too_large"), Is.False, "the build never sees this component, so its icon cannot fail an upload");
         }
 
-        // ---- phase 12 task 9: one status line instead of a stack of warnings -----------------------------------
+        // ---- One status line instead of a stack of warnings -----------------------------------
 
         [Test]
         public void AnOrphanEditAloneStillShowsTheStatusAndItsRemove()

@@ -577,7 +577,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(touch.ByTriggerId[trigger.id].Parameter, Is.EqualTo("AD/Contact/Poke 2"));
         }
 
-        // ---- Follow distance (phase 13 task 7) -----------------------------------------------------------
+        // ---- Follow distance -----------------------------------------------------------
 
         [Test]
         public void FollowDistanceBuildsAProximityReceiverWithAnUnsyncedFloat()
@@ -887,7 +887,7 @@ namespace DocMe.AvatarDoctor.Editor
                 "an ordinary Hold layer, not a distance one");
         }
 
-        // ---- Follow distance: the shared blinking and lip sync pause layers (fix round 1) --------------------
+        // ---- Follow distance: the shared blinking and lip sync pause layers --------------------
 
         [Test]
         public void PauseLayersNeverTouchTrackingAtLoad()

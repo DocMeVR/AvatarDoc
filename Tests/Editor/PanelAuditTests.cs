@@ -14,7 +14,7 @@ using VRC.SDK3.Dynamics.PhysBone.Components;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Phase 12 task 9 Part D: the creator's "look over all UI elements" ask, measured through PanelAudit against a
+    /// The creator's "look over all UI elements" ask, measured through PanelAudit against a
     /// real, laid out 360px wide panel (LayoutProbe) rather than eyeballed. Each test builds one group of panels the
     /// brief named and audits every one of them; a failure names the offending element and the rule it broke.
     /// </summary>
@@ -248,7 +248,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Phase 12 task 10: the merged, compact header drops the title row, the count badge and the title's own free count entirely.</summary>
+        /// <summary>The merged, compact header drops the title row, the count badge and the title's own free count entirely.</summary>
         [Test]
         public void HeaderHasNoTitleRowAndNothingTwice()
         {
@@ -266,7 +266,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(freeTexts.Count, Is.EqualTo(1), "the free count text must appear exactly once in the header");
         }
 
-        /// <summary>Phase 12 task 10: clicking the arrow or the status text opens and closes the same list, the same way the key remembers it.</summary>
+        /// <summary>Clicking the arrow or the status text opens and closes the same list, the same way the key remembers it.</summary>
         [Test]
         public void StatusArrowAndTextBothToggleTheList()
         {
@@ -291,7 +291,7 @@ namespace DocMe.AvatarDoctor.Editor
             });
         }
 
-        /// <summary>Phase 12 task 10: the arrow is a real Toggle carrying Unity's own Foldout toggle class, so Unity's own stylesheet draws its triangle rather than a drawn on glyph.</summary>
+        /// <summary>The arrow is a real Toggle carrying Unity's own Foldout toggle class, so Unity's own stylesheet draws its triangle rather than a drawn on glyph.</summary>
         [Test]
         public void StatusArrowIsUnitysFoldoutArrow()
         {
@@ -312,7 +312,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(checkmark.ClassListContains(Foldout.checkmarkUssClassName), Is.True, "the checkmark carries the foldout checkmark class, which is what draws the triangle");
         }
 
-        /// <summary>Phase 12 task 10: Summary sits at the status row's own right end, with Show directly before it, both on the row's own vertical centre, at both the default and a wider width.</summary>
+        /// <summary>Summary sits at the status row's own right end, with Show directly before it, both on the row's own vertical centre, at both the default and a wider width.</summary>
         [Test]
         public void SummarySitsAtTheStatusRowsRightEnd()
         {
@@ -347,7 +347,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Phase 12 task 10: the first-use tip spans the header's own content width, with its close cross at the tip's own right edge, inside its own padding.</summary>
+        /// <summary>The first-use tip spans the header's own content width, with its close cross at the tip's own right edge, inside its own padding.</summary>
         [Test]
         public void TipSpansTheWidthWithItsCloseAtTheRight()
         {
@@ -368,7 +368,7 @@ namespace DocMe.AvatarDoctor.Editor
             });
         }
 
-        /// <summary>Phase 12 task 10: at 800px the memory bar legend's two swatch items and the free text share one left aligned line, ending at the right edge.</summary>
+        /// <summary>At 800px the memory bar legend's two swatch items and the free text share one left aligned line, ending at the right edge.</summary>
         [Test]
         public void LegendIsOneLeftAlignedLine()
         {
@@ -406,9 +406,9 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Plan 15 task R: the Hold the rest button beside Capture and the rule lines under a toggle's and a trigger's
+        /// The Hold the rest button beside Capture and the rule lines under a toggle's and a trigger's
         /// blend shapes, at both ends of the default inspector width (360 and 300 px): the switch named for its mesh,
-        /// the Default or 0 choice, the Hold blink and Hold visemes switches (plan 17 task H) and the count note, with
+        /// the Default or 0 choice, the Hold blink and Hold visemes switches and the count note, with
         /// nothing clipped or cut short. A long mesh name may end in an ellipsis; its switch's tooltip then names it in
         /// full.
         /// </summary>
@@ -526,7 +526,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Plan 16: in Japanese and Chinese every panel takes NDMF's font for the language (LanguageFont), which draws
+        /// In Japanese and Chinese every panel takes NDMF's font for the language (LanguageFont), which draws
         /// Latin letters wider than Unity's own font. Each panel is measured in the real language files at both ends
         /// of the default inspector width, in NDMF's font: the audit passes and every text shows whole. An object
         /// field's caption is left out: it shows an object's name, which Unity ends in an ellipsis whenever the field

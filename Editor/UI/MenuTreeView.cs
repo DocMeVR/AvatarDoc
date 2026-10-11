@@ -1940,11 +1940,11 @@ namespace DocMe.AvatarDoctor.Editor
             return index;
         }
 
-        /// <summary>Shows why the last drop, move or reorder was refused, once, in the tree. Cleared the next time one is attempted. It is a plain info line with no Learn more button: it is not a build message and has no docs page.</summary>
+        /// <summary>Shows why the last drop, move or reorder was refused, once, in the tree. Cleared the next time one is attempted. It is an info line with a Learn more button to its entry on the Messages page.</summary>
         void ShowDropRefused(string reasonKey)
         {
             dropRefusal.Clear();
-            dropRefusal.Add(UiText.MessageLabel(string.Format(L.Text("ad.info.drop_refused"), L.Text(reasonKey))));
+            dropRefusal.Add(DocsLinks.WithLearnMore(UiText.MessageLabel(string.Format(L.Text("ad.info.drop_refused"), L.Text(reasonKey))), "ad.info.drop_refused"));
         }
 
         /// <summary>Reads the tree's current (row, parent, index) shape straight from the TreeView's controller.</summary>
