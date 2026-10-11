@@ -1,0 +1,19 @@
+{
+  "name": "avatardoc-docs",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "gen": "node scripts/generate.mjs",
+    "dev": "npm run gen && astro dev",
+    "build": "npm run gen && astro build && node scripts/check.mjs",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.6",
+    "astro": "7.3.8",
+    "sharp": "0.35.5",
+    "starlight-image-zoom": "0.16.1",
+    "starlight-links-validator": "0.27.0"
+  }
+}

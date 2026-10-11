@@ -1,0 +1,36 @@
+---
+title: AvatarDoc
+description: Toggles, radials, submenus and triggers for VRChat avatars, built at upload through NDMF.
+template: splash
+hero:
+  tagline: "Make toggles, sliders, outfit selectors and touch triggers for your avatar in one inspector. Nothing is baked into your avatar. AvatarDoc builds it when you upload."
+---
+
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import site from '../../data/site.json';
+
+<LinkButton href={site.vccAddUrl} variant="primary">Add to VCC</LinkButton>{' '}
+<LinkButton href={`${site.base}/start-here/install/`} variant="minimal">Get started</LinkButton>
+
+## What do you want to do?
+
+<CardGrid>
+  <Card title="Install AvatarDoc" icon="rocket">
+    Add the DocMe listing to VCC and AvatarDoc to your project. [Install](start-here/install/)
+  </Card>
+  <Card title="Your first toggle" icon="pencil">
+    Show or hide a hat from the avatar menu. [Start with Install](start-here/install/)
+  </Card>
+  <Card title="Your first outfit selector" icon="puzzle">
+    Pick one outfit out of several. [Start with Install](start-here/install/)
+  </Card>
+  <Card title="React to touch" icon="star">
+    Make something happen when a hand touches a part of the avatar. [Start with Install](start-here/install/)
+  </Card>
+  <Card title="Change a colour or glow" icon="setting">
+    Drive a material value from a toggle or a slider. [Start with Install](start-here/install/)
+  </Card>
+  <Card title="Fix a message" icon="information">
+    Find what a warning means and what to do. [Start with Install](start-here/install/)
+  </Card>
+</CardGrid>

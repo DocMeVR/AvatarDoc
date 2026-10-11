@@ -1,0 +1,40 @@
+---
+title: Install AvatarDoc
+description: Add AvatarDoc to a VRChat avatar project with the VRChat Creator Companion.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import site from '../../../data/site.json';
+
+## Requirements
+
+- Unity 2022.3
+- VRChat SDK 3.10 or newer
+- NDMF 1.14.1 or newer
+
+VCC installs NDMF for you from the same listing.
+
+## Install with VCC
+
+<Steps>
+
+1. Add the DocMe listing to VCC. Select <a href={site.vccAddUrl}><strong>Add to VCC</strong></a>, or add <code>{site.listingUrl}</code> as a repository in VCC. The <a href={site.listingPage}>listing page</a> has the same link.
+
+2. Open your avatar project and select **Manage Project**.
+
+3. Find **DocMe AvatarDoc** in the list and add it.
+
+</Steps>
+
+## Without VCC
+
+<details>
+<summary>Install from a file</summary>
+
+Install NDMF first. Then download the release zip from the <a href={site.releasesUrl}>releases page</a> and unpack it into `Packages/dev.docme.avatar-doctor` in your project. You can also import the unitypackage from the same page.
+
+</details>
+
+## Next
+
+Your first toggle comes next. That page is not written yet.
