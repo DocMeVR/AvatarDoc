@@ -86,7 +86,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Every element's laid out rectangle in one string, for telling whether another pass changed anything.</summary>
-        static string Signature(VisualElement root)
+        internal static string Signature(VisualElement root)
         {
             var text = new System.Text.StringBuilder();
             root.Query<VisualElement>().ForEach(e =>

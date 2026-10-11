@@ -14,11 +14,12 @@ namespace DocMe.AvatarDoctor.Editor
     /// <summary>
     /// Screenshots a real, on screen UI Toolkit view for a design review, through Unity's own screen buffer
     /// (InternalEditorUtility.ReadScreenPixel) rather than a mock render, so what lands in the PNG is pixel for
-    /// pixel what a human would see. Call it only from a TEMPORARY test file: build a throwaway AvatarDoc on a
-    /// TestAvatar, build a fresh AvatarDoctorView per width (a reused view keeps its first window's resolved Yoga
-    /// sizes on a second, differently sized pass), call Capture(view, path, width) for each shot, then
-    /// view.RemoveFromHierarchy(), and delete the temporary test file and its .meta again once the review is done.
-    /// See Tests/Editor/InspectorShotsExample.cs.txt for a minimal copy and paste starting point.
+    /// pixel what a human would see. Call it from a TEMPORARY test file for a design review, or through
+    /// DocsShot.Take from the explicit DocsShots classes for the docs site. For a review: build a throwaway
+    /// AvatarDoc on a TestAvatar, build a fresh AvatarDoctorView per width (a reused view keeps its first window's
+    /// resolved Yoga sizes on a second, differently sized pass), call Capture(view, path, width) for each shot,
+    /// then view.RemoveFromHierarchy(), and delete the temporary test file and its .meta again once the review is
+    /// done. See Tests/Editor/InspectorShotsExample.cs.txt for a minimal copy and paste starting point.
     ///
     /// Every call parks a throwaway EditorWindow at a fixed screen position and forces it to the front with plain
     /// Win32 calls, because a screen read only ever shows whatever is actually topmost there and Unity's own
@@ -37,6 +38,25 @@ namespace DocMe.AvatarDoctor.Editor
 
         class HostWindow : EditorWindow { }
 
+        /// <summary>What a crop sees right after the read: the host window and the frame around the view, still open and laid out as in the picture, the picture's size in pixels, and whether the window held the front of the screen for the read.</summary>
+        public sealed class ShotFrame
+        {
+            public readonly EditorWindow Window;
+            public readonly VisualElement Frame;
+            public readonly int Width;
+            public readonly int Height;
+            public readonly bool InFront;
+
+            internal ShotFrame(EditorWindow window, VisualElement frame, int width, int height, bool inFront)
+            {
+                Window = window;
+                Frame = frame;
+                Width = width;
+                Height = height;
+                InFront = inFront;
+            }
+        }
+
         /// <summary>
         /// Hosts <paramref name="view"/> in a throwaway, pinned size EditorWindow at a fixed screen position, raises
         /// it above whatever else is on screen, reads its real pixels and writes them to <paramref name="pngPath"/>
@@ -45,9 +65,25 @@ namespace DocMe.AvatarDoctor.Editor
         /// window opens and again before every retry's read: raising the window back to OS foreground during a
         /// retry can itself reset which element the panel thinks is focused or selected, silently undoing state the
         /// caller only set once before calling this, so anything transient (a row selected, a field focused, a fold
-        /// opened) belongs in there rather than only being set before the call.
+        /// opened, the panel's own frames run so list rows draw) belongs in there rather than only being set before
+        /// the call. <paramref name="crop"/>, when given, runs once after the read while the window is still open and
+        /// returns the part of the picture to keep, measured from its top left corner; it may throw to stop the
+        /// capture, and then nothing is written. Without it the whole window is kept.
         /// </summary>
-        public static string Capture(VisualElement view, string pngPath, float width, float height = 900f, Action<VisualElement> beforeCapture = null)
+        public static string Capture(VisualElement view, string pngPath, float width, float height = 900f, Action<VisualElement> beforeCapture = null, Func<ShotFrame, RectInt> crop = null)
+        {
+            InHostWindow(view, width, height, (window, frame) => ReadAndWrite(window, frame, view, pngPath, beforeCapture, crop));
+            return pngPath;
+        }
+
+        /// <summary>
+        /// Opens the throwaway host window Capture reads: <paramref name="view"/> inside a frame exactly
+        /// <paramref name="width"/> points wide, the window pinned to <paramref name="width"/> by
+        /// <paramref name="height"/> at a fixed screen position, shown, focused and laid out. Runs
+        /// <paramref name="inWindow"/> with the window and the frame, then always closes the window. It reads no
+        /// pixels, so a normal test can measure the same window a capture would read.
+        /// </summary>
+        public static void InHostWindow(VisualElement view, float width, float height, Action<EditorWindow, VisualElement> inWindow)
         {
             var frame = new VisualElement { name = "inspector-shot-frame" };
             frame.style.position = Position.Absolute;
@@ -58,38 +94,10 @@ namespace DocMe.AvatarDoctor.Editor
             frame.style.flexDirection = FlexDirection.Column;
             frame.Add(view);
 
-            string titleMarker = "InspectorShotsHost_" + Guid.NewGuid().ToString("N");
             var window = ScriptableObject.CreateInstance<HostWindow>();
-            IntPtr hwnd = IntPtr.Zero;
-
-            void RaiseToFront()
-            {
-                if (hwnd == IntPtr.Zero) hwnd = FindByTitleSubstring(titleMarker);
-                if (hwnd == IntPtr.Zero) return;
-                Raise(hwnd);
-            }
-
-            void ForceRepaint()
-            {
-                if (RepaintImmediatelyMethod != null) RepaintImmediatelyMethod.Invoke(window, null);
-                else window.Repaint();
-            }
-
-            Texture2D CapturePixels()
-            {
-                var rect = window.position;
-                int w = Mathf.Max(1, (int)rect.width);
-                int h = Mathf.Max(1, (int)rect.height);
-                var pixels = InternalEditorUtility.ReadScreenPixel(new Vector2(rect.x, rect.y), w, h);
-                var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
-                tex.SetPixels(pixels);
-                tex.Apply();
-                return tex;
-            }
-
             try
             {
-                window.titleContent = new GUIContent(titleMarker);
+                window.titleContent = new GUIContent("InspectorShotsHost_" + Guid.NewGuid().ToString("N"));
                 var rect = new Rect(ScreenPos.x, ScreenPos.y, width, height);
                 // Show() restores whatever size Unity last remembered for this EditorWindow TYPE, ignoring the size
                 // just set on it, so minSize and maxSize pin it to the exact rect and position is set again after
@@ -106,13 +114,54 @@ namespace DocMe.AvatarDoctor.Editor
                     throw new InvalidOperationException("InspectorShots.Capture: asked for " + width + " points but the frame laid out at " + frame.worldBound.width + ".");
                 if (Mathf.Abs(window.position.width - width) > 0.5f)
                     throw new InvalidOperationException("InspectorShots.Capture: the real OS window is " + window.position.width + " points wide, not the requested " + width + "; a screen capture at this width would be wrong.");
+                inWindow(window, frame);
+            }
+            finally
+            {
+                frame.RemoveFromHierarchy();
+                window.Close();
+            }
+        }
+
+        /// <summary>Raises the open host window to the front, reads its pixels until a read is confirmed in front or five seconds pass, crops the picture and writes it.</summary>
+        static void ReadAndWrite(EditorWindow window, VisualElement frame, VisualElement view, string pngPath, Action<VisualElement> beforeCapture, Func<ShotFrame, RectInt> crop)
+        {
+            string titleMarker = window.titleContent.text;
+            IntPtr hwnd = IntPtr.Zero;
+
+            void RaiseToFront()
+            {
+                if (hwnd == IntPtr.Zero) hwnd = FindByTitleSubstring(titleMarker);
+                if (hwnd == IntPtr.Zero) return;
+                Raise(hwnd);
+            }
+
+            void ForceRepaint()
+            {
+                if (RepaintImmediatelyMethod != null) RepaintImmediatelyMethod.Invoke(window, null);
+                else window.Repaint();
+            }
+
+            // One pixel per point of window.position, the way Unity's own ScreenShotting reads a window.
+            Texture2D CapturePixels()
+            {
+                var rect = window.position;
+                int w = Mathf.Max(1, (int)rect.width);
+                int h = Mathf.Max(1, (int)rect.height);
+                var pixels = InternalEditorUtility.ReadScreenPixel(new Vector2(rect.x, rect.y), w, h);
+                var read = new Texture2D(w, h, TextureFormat.RGBA32, false);
+                read.SetPixels(pixels);
+                read.Apply();
+                return read;
+            }
+
+            Texture2D tex = null;
+            try
+            {
                 RaiseToFront();
                 ForceRepaint();
                 beforeCapture?.Invoke(view);
                 LayoutProbe.Validate(view);
-
-                var directory = Path.GetDirectoryName(pngPath);
-                if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
 
                 // Forces a real, synchronous repaint and reads it back; retries for up to five real wall clock
                 // seconds (never an unbounded loop), only trusting a read taken at the instant this window actually
@@ -121,7 +170,6 @@ namespace DocMe.AvatarDoctor.Editor
                 // samples, so a single "was it foreground" check right before the read is not enough on its own).
                 // Whatever the newest attempt was is kept as a fallback if none is ever confirmed.
                 double deadline = EditorApplication.timeSinceStartup + 5.0;
-                Texture2D tex = null;
                 bool confirmed = false;
                 do
                 {
@@ -149,17 +197,42 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 while (EditorApplication.timeSinceStartup < deadline);
 
+                if (crop != null)
+                {
+                    var kept = Crop(tex, crop(new ShotFrame(window, frame, tex.width, tex.height, confirmed)));
+                    UnityEngine.Object.DestroyImmediate(tex);
+                    tex = kept;
+                }
                 if (IsBlank(tex)) Debug.LogWarning("[InspectorShots] " + Path.GetFileName(pngPath) + " is still blank after retrying for 5s.");
                 else if (!confirmed) Debug.LogWarning("[InspectorShots] " + Path.GetFileName(pngPath) + ": never confirmed OS foreground at the moment of capture; the frame may show whatever else was on screen instead.");
+                var directory = Path.GetDirectoryName(pngPath);
+                if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
                 File.WriteAllBytes(pngPath, tex.EncodeToPNG());
-                UnityEngine.Object.DestroyImmediate(tex);
-                return pngPath;
             }
             finally
             {
-                frame.RemoveFromHierarchy();
-                window.Close();
+                if (tex != null) UnityEngine.Object.DestroyImmediate(tex);
             }
+        }
+
+        /// <summary>
+        /// A new texture holding <paramref name="area"/> of <paramref name="source"/>, the area measured the way a
+        /// picture is read: from its top left corner, rows counting down. A texture counts its rows from the
+        /// bottom, so the area's top edge is turned into a row count from the bottom before the copy. An area
+        /// reaching past the picture is cut at its edge.
+        /// </summary>
+        public static Texture2D Crop(Texture2D source, RectInt area)
+        {
+            int x = Mathf.Clamp(area.x, 0, source.width);
+            int y = Mathf.Clamp(area.y, 0, source.height);
+            int w = Mathf.Min(area.width, source.width - x);
+            int h = Mathf.Min(area.height, source.height - y);
+            if (w <= 0 || h <= 0)
+                throw new ArgumentException("InspectorShots.Crop: " + area + " leaves nothing of a " + source.width + " by " + source.height + " picture.");
+            var kept = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            kept.SetPixels(source.GetPixels(x, source.height - y - h, w, h));
+            kept.Apply();
+            return kept;
         }
 
         static bool IsBlank(Texture2D tex)
