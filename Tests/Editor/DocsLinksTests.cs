@@ -1,0 +1,318 @@
+#if DOCME_NDMF && DOCME_VRCSDK3A
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using NUnit.Framework;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace DocMe.AvatarDoctor.Editor
+{
+    /// <summary>Plan 17 task 10: the links from the tool into the online guide.</summary>
+    public class DocsLinksTests
+    {
+        TestAvatar avatar;
+        Action<string> openBefore;
+        Func<bool> vrcFuryBefore;
+        List<string> opened;
+
+        [SetUp]
+        public void SetUp()
+        {
+            avatar = TestAvatar.Create();
+            vrcFuryBefore = ParametersWriter.VrcFuryInstalled;
+            ParametersWriter.VrcFuryInstalled = () => false;
+            AvatarPlanCache.Invalidate();
+            openBefore = DocsLinks.Open;
+            opened = new List<string>();
+            DocsLinks.Open = opened.Add;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DocsLinks.Open = openBefore;
+            ParametersWriter.VrcFuryInstalled = vrcFuryBefore;
+            avatar.Dispose();
+            AvatarPlanCache.Invalidate();
+        }
+
+        static void Pointer<T>(VisualElement target, EventType type) where T : PointerEventBase<T>, new()
+        {
+            using (var e = PointerEventBase<T>.GetPooled(new Event { type = type, button = 0, mousePosition = target.worldBound.center }))
+            {
+                e.target = target;
+                target.SendEvent(e);
+            }
+        }
+
+        static void Click(VisualElement target)
+        {
+            Pointer<PointerUpEvent>(target, EventType.MouseUp);
+            Pointer<PointerDownEvent>(target, EventType.MouseDown);
+            Pointer<PointerUpEvent>(target, EventType.MouseUp);
+        }
+
+        /// <summary>Moves LayoutProbe's frame up until the element sits near the top of the host window, so a pointer at its centre lands on it.</summary>
+        static void BringIntoView(VisualElement view, VisualElement element)
+        {
+            view.parent.style.top = view.parent.resolvedStyle.top - (element.worldBound.y - 40f);
+            LayoutProbe.Validate(view);
+        }
+
+        static VisualElement Host(VisualElement content)
+        {
+            var host = new VisualElement();
+            var uss = AvatarDoctorView.LoadStyleSheet();
+            if (uss != null) host.styleSheets.Add(uss);
+            host.AddToClassList("ad-root");
+            host.Add(content);
+            return host;
+        }
+
+        AvatarDoctorView View(AvatarDoc menu) => new AvatarDoctorView(new SerializedObject(menu), menu, false, new MemoryViewPrefs());
+
+        [Test]
+        public void AnAnchorIsTheKeyInLowerCaseWithDashes()
+        {
+            Assert.That(DocsLinks.Anchor("ad.warn.bits_exceeded"), Is.EqualTo("ad-warn-bits-exceeded"));
+        }
+
+        [Test]
+        public void PagesAndMessagesBuildTheFullAddress()
+        {
+            Assert.That(DocsLinks.Page("reference/messages"), Is.EqualTo("https://docmevr.github.io/AvatarDoc/reference/messages/"));
+            Assert.That(DocsLinks.Page("/start-here/first-toggle/"), Is.EqualTo("https://docmevr.github.io/AvatarDoc/start-here/first-toggle/"));
+            Assert.That(DocsLinks.Message("ad.warn.bits_exceeded"), Is.EqualTo("https://docmevr.github.io/AvatarDoc/reference/messages/#ad-warn-bits-exceeded"));
+        }
+
+        [Test]
+        public void ACountOfOneUsesTheEntryOfItsBaseKey()
+        {
+            Assert.That(DocsLinks.Message("ad.error.trigger_too_complex.one"), Is.EqualTo(DocsLinks.Message("ad.error.trigger_too_complex")));
+        }
+
+        [Test]
+        public void OnlyErrorWarningAndInfoKeysAreMessageKeys()
+        {
+            Assert.That(DocsLinks.IsMessageKey("ad.error.x"), Is.True);
+            Assert.That(DocsLinks.IsMessageKey("ad.warn.x"), Is.True);
+            Assert.That(DocsLinks.IsMessageKey("ad.info.x"), Is.True);
+            Assert.That(DocsLinks.IsMessageKey("ad.ui.name"), Is.False);
+            Assert.That(DocsLinks.IsMessageKey(null), Is.False);
+            Assert.That(DocsLinks.LearnMoreButton("ad.ui.name"), Is.Null);
+        }
+
+        [Test]
+        public void TheComponentsPointTheHelpButtonAtTheirReferencePages()
+        {
+            Assert.That(typeof(AvatarDoc).GetCustomAttribute<HelpURLAttribute>().URL, Is.EqualTo(DocsAddress.Base + "reference/inspector/"));
+            Assert.That(typeof(AvatarDocShapes).GetCustomAttribute<HelpURLAttribute>().URL, Is.EqualTo(DocsAddress.Base + "reference/avatardoc-shapes/"));
+        }
+
+        [Test]
+        public void AMessageBoxHasALearnMoreButtonThatOpensItsEntry()
+        {
+            var boxes = new VisualElement();
+            EntryDetailView.AddMessageBoxes(boxes, new[] { ModelMessage.Warning("ad.warn.bits_exceeded", "x") });
+            LayoutProbe.Measure(Host(boxes), () =>
+            {
+                var button = boxes.Q<Button>(className: "ad-learn-more");
+                Assert.That(button, Is.Not.Null);
+                Assert.That(button.text, Is.EqualTo(L.Text("ad.ui.message.learn_more")));
+                Assert.That(button.tooltip, Is.EqualTo(L.Text("ad.ui.message.learn_more.tip")));
+                Click(button);
+            });
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Message("ad.warn.bits_exceeded") }));
+        }
+
+        [Test]
+        public void ACountOfOneMessageOpensTheEntryOfItsBaseKey()
+        {
+            var boxes = new VisualElement();
+            EntryDetailView.AddMessageBoxes(boxes, new[] { ModelMessage.Error("ad.error.trigger_too_complex.one", "Ears", "1", "100") });
+            LayoutProbe.Measure(Host(boxes), () => Click(boxes.Q<Button>(className: "ad-learn-more")));
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Page("reference/messages") + "#ad-error-trigger-too-complex" }));
+        }
+
+        [Test]
+        public void AMessageThatIsNotAMessageKeyGetsNoButton()
+        {
+            var boxes = new VisualElement();
+            EntryDetailView.AddMessageBoxes(boxes, new[] { ModelMessage.Info("ad.ui.name") });
+            Assert.That(boxes.Query<Button>(className: "ad-learn-more").ToList(), Is.Empty);
+            Assert.That(boxes.Query(className: "ad-warnbox").ToList().Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void TheHeadersProblemLinesShowTheButton()
+        {
+            var menu = avatar.AddMenu();
+            for (int i = 0; i < 40; i++) menu.parameters.Add(ParameterDeclaration.Create("P" + i, PlannedType.Int));
+            var view = View(menu);
+            if (!view.Header.ProblemsOpen) view.Header.ToggleProblemsOpen();
+            var line = view.Header.Q<VisualElement>("ad-problem-line-ad.error.bits_exceeded");
+            Assert.That(line, Is.Not.Null, "the problem line for the bits error");
+            var button = line.Q<Button>(className: "ad-learn-more");
+            Assert.That(button, Is.Not.Null, "its Learn more button");
+            LayoutProbe.Measure(view, () =>
+            {
+                BringIntoView(view, button);
+                Click(button);
+            });
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Message("ad.error.bits_exceeded") }));
+        }
+
+        [Test]
+        public void ATooComplexTriggerLineShowsTheButton()
+        {
+            var menu = avatar.AddMenu();
+            var trigger = menu.AddEntry(EntryKind.Trigger, "Ears");
+            trigger.objects.Add(new ObjectTarget { target = avatar.Glasses });
+            trigger.when = Enumerable.Range(0, 4).Select(g => new ConditionGroup
+            {
+                all = Enumerable.Range(0, 4).Select(i => new WhenCondition { kind = WhenConditionKind.Parameter, sourceParameter = "Voice", condition = ParameterCondition.NotEquals, conditionValue = 0.5f }).ToList()
+            }).ToList();
+            var view = View(menu);
+            view.Tree.SelectEntry(trigger.id);
+            var line = view.Detail.Q<VisualElement>("ad-too-complex");
+            Assert.That(line, Is.Not.Null, "the panel names why the trigger cannot build");
+            var button = line.Q<Button>(className: "ad-learn-more");
+            Assert.That(button, Is.Not.Null);
+            LayoutProbe.Measure(view, () =>
+            {
+                BringIntoView(view, button);
+                Click(button);
+            });
+            Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Page("reference/messages") + "#ad-error-trigger-too-complex" }));
+        }
+
+        [Test]
+        public void TheShapesInspectorMessagesShowTheButton()
+        {
+            var bare = avatar.Glasses.AddComponent<AvatarDocShapes>();
+            bare.follow.Add(new ShapeFollow { sourceMesh = avatar.Body, sourceShape = "Blush" });
+            UnityEditor.Editor editor = null;
+            try
+            {
+                editor = UnityEditor.Editor.CreateEditor(bare);
+                var root = ((AvatarDocShapesEditor)editor).CreateInspectorGUI();
+                var button = root.Q<VisualElement>("ad-shapes-messages").Q<Button>(className: "ad-learn-more");
+                Assert.That(button, Is.Not.Null, "the piece has no mesh, and says so with a button");
+                LayoutProbe.Measure(root, () =>
+                {
+                    BringIntoView(root, button);
+                    Click(button);
+                });
+                Assert.That(opened, Is.EqualTo(new[] { DocsLinks.Message("ad.error.shapes_no_mesh") }));
+            }
+            finally
+            {
+                if (editor != null) UnityEngine.Object.DestroyImmediate(editor);
+            }
+        }
+
+        [Test]
+        public void TheQuickStartWindowOpensTheFullGuide()
+        {
+            var window = ScriptableObject.CreateInstance<QuickStartWindow>();
+            try
+            {
+                window.Init("Step one.");
+                var button = window.rootVisualElement.Q<Button>("ad-full-guide");
+                Assert.That(button, Is.Not.Null);
+                Assert.That(button.text, Is.EqualTo(L.Text("ad.ui.quickstart.full_guide")));
+                Assert.That(button.tooltip, Is.EqualTo(L.Text("ad.ui.quickstart.full_guide.tip")));
+                var children = window.rootVisualElement.Children().ToList();
+                Assert.That(children.IndexOf(button), Is.LessThan(children.IndexOf(window.rootVisualElement.Q<TextField>())), "the button sits above the text");
+                UiTestEvents.SimulateClick(button);
+                Assert.That(opened, Is.EqualTo(new[] { DocsAddress.Base + "start-here/first-toggle/" }));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(window);
+            }
+        }
+
+        static readonly string[] MessageKeys = { "ad.error.bits_exceeded", "ad.error.trigger_too_complex", "ad.ui.message.learn_more" };
+
+        static readonly Dictionary<string, Dictionary<string, string>> Languages = new Dictionary<string, Dictionary<string, string>>
+        {
+            { "en-US", null },
+            { "ja-JP", DocsFixesTests.Real("ja-JP", MessageKeys) },
+            { "zh-Hans", DocsFixesTests.Real("zh-Hans", MessageKeys) },
+        };
+
+        [Test]
+        public void ABoxWithTheButtonFitsAt300And360InEveryLanguage()
+        {
+            foreach (var language in Languages)
+            foreach (float width in new[] { 300f, 360f })
+            {
+                using (L.UseTestLanguage(language.Key, language.Value))
+                {
+                    var boxes = new VisualElement();
+                    EntryDetailView.AddMessageBoxes(boxes, new[]
+                    {
+                        ModelMessage.Error("ad.error.bits_exceeded", "300", "256", "12"),
+                        ModelMessage.Error("ad.error.trigger_too_complex", "A fairly long trigger name here", "4", "256"),
+                    });
+                    var host = Host(boxes);
+                    LayoutProbe.Measure(host, () =>
+                    {
+                        var allow = new PanelAudit.AllowList().Allow(e => e.ClassListContains("ad-learn-more"), "a message box's own trailing link, not a labelled field row");
+                        PanelAudit.Audit(host, host.worldBound.xMax, allow);
+                        foreach (var button in boxes.Query<Button>(className: "ad-learn-more").ToList())
+                            Assert.That(button.worldBound.xMax, Is.LessThanOrEqualTo(host.worldBound.xMax + 0.5f), language.Key + " at " + width + ": the button stays inside the box");
+                    }, width);
+                }
+            }
+        }
+
+        static string PackageRoot()
+        {
+            var table = Path.GetFullPath(L.TablePath("en-US"));
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(table), "..", ".."));
+        }
+
+        static string ExpectedToolLinks()
+        {
+            var text = File.ReadAllText(Path.GetFullPath(L.TablePath("en-US")));
+            var anchors = new List<string>();
+            foreach (Match m in Regex.Matches(text, "\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*\""))
+            {
+                var key = Regex.Unescape(m.Groups[1].Value);
+                if (DocsLinks.IsMessageKey(key) && !key.EndsWith(".one", StringComparison.Ordinal)) anchors.Add(DocsLinks.Anchor(key));
+            }
+            anchors.Sort(StringComparer.Ordinal);
+            var pages = new[] { "reference/inspector", "reference/avatardoc-shapes", DocsLinks.QuickStartPage, DocsLinks.MessagesPage };
+            var json = new StringBuilder("{\n  \"pages\": [\n");
+            json.Append(string.Join(",\n", pages.Select(p => "    \"" + p + "\"")));
+            json.Append("\n  ],\n  \"anchors\": [\n");
+            json.Append(string.Join(",\n", anchors.Select(k => "    \"" + k + "\"")));
+            json.Append("\n  ]\n}\n");
+            return json.ToString();
+        }
+
+        [Test]
+        public void TheToolLinksFileIsCurrent()
+        {
+            var expected = ExpectedToolLinks();
+            var file = Path.Combine(PackageRoot(), "Website~", "src", "data", "tool-links.json");
+            if (Environment.GetEnvironmentVariable("DOCS_WRITE_TOOL_LINKS") == "1")
+            {
+                File.WriteAllText(file, expected, new UTF8Encoding(false));
+                return;
+            }
+            var actual = File.Exists(file) ? File.ReadAllText(file).Replace("\r\n", "\n") : "";
+            Assert.That(actual, Is.EqualTo(expected),
+                "Website~/src/data/tool-links.json is out of date: run this test with DOCS_WRITE_TOOL_LINKS=1 to rewrite it, then commit it");
+        }
+    }
+}
+#endif

@@ -55,6 +55,22 @@ namespace DocMe.AvatarDoctor.Editor
             if (PrefabUtility.IsPartOfPrefabInstance(target)) PrefabUtility.RecordPrefabInstancePropertyModifications(target);
         }
 
+        /// <summary>Gives the members of one exclusive group the values 1, 2, 3 and so on in the order given, in one Undo step. Refused, changing nothing, when any component holding a member is locked.</summary>
+        public static bool NumberGroupMembers(IReadOnlyList<ControlNode> members)
+        {
+            var live = members.Where(m => m != null && m.Component != null && !m.Disabled).ToList();
+            if (live.Count == 0 || live.Any(m => Refuses(m.Component))) return false;
+            var components = live.Select(m => m.Component).Distinct().ToArray();
+            Undo.RecordObjects(components, "Give each member its own value");
+            for (int i = 0; i < live.Count; i++)
+            {
+                var entry = live[i].Component.FindEntry(live[i].Entry.id);
+                if (entry != null) entry.groupValue = i + 1;
+            }
+            foreach (var component in components) MarkChanged(component);
+            return true;
+        }
+
         public static MenuEntry Add(AvatarDoc menu, EntryKind kind, string name, string parentId)
         {
             if (Refuses(menu)) return null;

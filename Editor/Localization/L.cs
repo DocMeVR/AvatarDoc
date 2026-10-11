@@ -99,7 +99,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.detail.trigger", "ad.ui.detail.none", "ad.ui.name", "ad.ui.icon", "ad.ui.default_on", "ad.ui.default_value", "ad.ui.saved",
             "ad.ui.synced", "ad.ui.group", "ad.ui.group.none", "ad.ui.group.settings", "ad.ui.parameter", "ad.ui.parameter.auto",
             "ad.ui.parameter.custom", "ad.ui.parameter.use_custom", "ad.ui.parameter.bits", "ad.ui.parameter.bits.one", "ad.ui.parameter.no_bits",
-            "ad.ui.parameter.value", "ad.ui.slots",
+            "ad.ui.parameter.value", "ad.ui.parameter.group_note", "ad.ui.group.value", "ad.ui.group.number", "ad.ui.slots",
             "ad.ui.objects", "ad.ui.blendshapes", "ad.ui.materials", "ad.ui.add", "ad.ui.shown_when_on", "ad.ui.hidden_when_on",
             "ad.ui.seg.shown", "ad.ui.seg.hidden", "ad.ui.drop.objects",
             "ad.ui.weight", "ad.ui.min", "ad.ui.max", "ad.ui.slot", "ad.ui.other_component", "ad.ui.select_component", "ad.ui.existing_note",
@@ -172,7 +172,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.summary.animators", "ad.summary.animators.layers", "ad.summary.animators.layers.one",
             "ad.ui.animators", "ad.ui.animators.note", "ad.ui.animator_note", "ad.ui.animator.unnamed", "ad.ui.detail.animator",
             "ad.ui.add.animator", "ad.ui.animator.controller", "ad.ui.animator.match_write_defaults", "ad.ui.animator.layers",
-            "ad.ui.animator.parameters", "ad.ui.animator.no_preview", "ad.ui.animator.existing", "ad.ui.animator.not_synced",
+            "ad.ui.animator.parameters", "ad.ui.animator.no_preview", "ad.ui.animator.existing", "ad.ui.animator.not_synced", "ad.ui.animator.declared_synced", "ad.ui.animator.declared_local",
             "ad.ui.animator.add_control", "ad.ui.parameter_control_note",
             "ad.ui.target.explicit_off", "ad.ui.target.explicit_off.tip", "ad.ui.target.on_value", "ad.ui.target.off_value",
             "ad.ui.trigger.gate", "ad.ui.trigger.gate.always", "ad.ui.trigger.gate.add",
@@ -222,7 +222,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             // Phase 10 task 2: one sentence tooltips on every labelled control.
             "ad.ui.select_component.tip", "ad.ui.icon.tip", "ad.ui.capture.tip", "ad.ui.platform.tip",
-            "ad.ui.default_on.tip", "ad.ui.saved.tip", "ad.ui.synced.tip", "ad.ui.in_menu.tip", "ad.ui.group.tip",
+            "ad.ui.default_on.tip", "ad.ui.saved.tip", "ad.ui.synced.tip", "ad.ui.in_menu.tip", "ad.ui.group.tip", "ad.ui.group.value.tip", "ad.ui.group.number.tip",
             "ad.ui.parameter.tip", "ad.ui.parameter.use_custom.tip", "ad.ui.parameter.value.tip",
             "ad.ui.preview.tip", "ad.ui.preview.default.tip", "ad.ui.touch.simulate.tip", "ad.ui.chip.no_menu.tip",
             "ad.ui.trigger.when.tip", "ad.ui.trigger.toggle.tip", "ad.ui.trigger.toggle_state.tip",
@@ -297,13 +297,14 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.synced.cost.none", "ad.ui.synced.cost.bit", "ad.ui.synced.cost.bits",
             "ad.ui.ready", "ad.ui.ready.problems", "ad.ui.ready.problems.one", "ad.ui.ready.warnings", "ad.ui.ready.warnings.one", "ad.ui.ready.show", "ad.ui.ready.show.tip", "ad.ui.ready.tip",
             "ad.ui.problems.arrow_closed", "ad.ui.problems.arrow_open", "ad.ui.problems.arrow.tip", "ad.ui.problems.more", "ad.ui.problems.line_count",
+            "ad.ui.message.learn_more", "ad.ui.message.learn_more.tip", "ad.ui.quickstart.full_guide", "ad.ui.quickstart.full_guide.tip",
             "ad.ui.write_defaults", "ad.ui.write_defaults.on", "ad.ui.write_defaults.off", "ad.ui.write_defaults.tip",
             "ad.ui.builds.line", "ad.ui.builds.controls", "ad.ui.builds.controls.one", "ad.ui.builds.bits", "ad.ui.builds.bits.one", "ad.ui.builds.layers", "ad.ui.builds.layers.one",
             "ad.ui.builds.contacts", "ad.ui.builds.contacts.one", "ad.ui.builds.physbones", "ad.ui.builds.physbones.one", "ad.ui.builds.constraints", "ad.ui.builds.constraints.one",
             "ad.ui.builds.follow_distance", "ad.ui.builds.pauses_blink", "ad.ui.builds.pauses_lipsync",
             "ad.ui.builds.blink_left_to", "ad.ui.builds.lipsync_left_to",
             "ad.ui.part.blinking", "ad.ui.part.lipsync",
-            "ad.ui.builds.nothing.platform", "ad.ui.builds.nothing.empty", "ad.ui.builds.nothing.disabled", "ad.ui.builds.tip",
+            "ad.ui.builds.nothing.platform", "ad.ui.builds.nothing.empty", "ad.ui.builds.nothing.no_clips", "ad.ui.builds.clips", "ad.ui.builds.clips.one", "ad.ui.builds.nothing.disabled", "ad.ui.builds.tip",
 
             // Phase 12 task 3: a first screen that invites, a slim toolbar, visible row actions, and a tag filter.
             "ad.ui.detail.select_hint",

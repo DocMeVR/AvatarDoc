@@ -44,6 +44,9 @@ namespace DocMe.AvatarDoctor.Editor
             var uss = AvatarDoctorView.LoadStyleSheet();
             if (uss != null && !root.styleSheets.Contains(uss)) root.styleSheets.Add(uss);
             root.AddToClassList("ad-window");
+            var guide = new Button(() => DocsLinks.Open(DocsLinks.Page(DocsLinks.QuickStartPage))) { text = L.Text("ad.ui.quickstart.full_guide"), name = "ad-full-guide", tooltip = L.Text("ad.ui.quickstart.full_guide.tip") };
+            guide.AddToClassList("ad-full-guide");
+            root.Add(guide);
             var field = new TextField { value = text, multiline = true, isReadOnly = true };
             field.AddToClassList("ad-summary-text");
             field.style.flexGrow = 1;

@@ -789,11 +789,32 @@ namespace DocMe.AvatarDoctor.Editor
         void RefreshMessages(TreeRow row)
         {
             messageBoxes.Clear();
-            AddMessageBoxes(messageBoxes, row.Messages);
+            AddMessageBoxes(messageBoxes, row.Messages, MessageAction);
+        }
+
+        /// <summary>The way out of a message that has one, shown in a row under its box.</summary>
+        VisualElement MessageAction(ModelMessage message)
+        {
+            if (!message.Says("ad.error.group_value_conflict") || message.Args == null || message.Args.Length == 0) return null;
+            string group = message.Args[0] as string;
+            var row = new VisualElement();
+            row.AddToClassList("ad-message-actions");
+            row.Add(new Button(() => NumberGroupMembers(group)) { text = L.Text("ad.ui.group.number"), name = "ad-group-number", tooltip = L.Text("ad.ui.group.number.tip") });
+            return row;
+        }
+
+        void NumberGroupMembers(string group)
+        {
+            if (Refuses || owner.Plan?.Plan == null) return;
+            var parameter = owner.Plan.Plan.Parameters.FirstOrDefault(p => p.GroupName == group);
+            if (parameter == null || !EntryEditing.NumberGroupMembers(parameter.Controls)) return;
+            foreach (var component in parameter.Controls.Select(c => c.Component).Distinct()) AvatarPlanCache.NoteSelfEdit(component);
+            AvatarPlanCache.InvalidateMenu(owner.Plan.AvatarRoot);
+            owner.Refresh();
         }
 
         /// <summary>One warning, error or info box per message, styled the way every entry panel already shows them. Shared with ExistingItemPanel.</summary>
-        internal static void AddMessageBoxes(VisualElement container, IEnumerable<ModelMessage> messages)
+        public static void AddMessageBoxes(VisualElement container, IEnumerable<ModelMessage> messages, System.Func<ModelMessage, VisualElement> actionFor = null)
         {
             foreach (var message in messages)
             {
@@ -802,7 +823,11 @@ namespace DocMe.AvatarDoctor.Editor
                 box.EnableInClassList("ad-error", message.Severity == MessageSeverity.Error);
                 box.EnableInClassList("ad-info", message.Severity == MessageSeverity.Info);
                 box.Add(UiText.MessageLabel(UiText.Format(message)));
+                var learnMore = DocsLinks.LearnMoreButton(message.Key);
+                if (learnMore != null) box.Add(learnMore);
                 container.Add(box);
+                var action = actionFor?.Invoke(message);
+                if (action != null) container.Add(action);
             }
         }
 
@@ -1450,11 +1475,29 @@ namespace DocMe.AvatarDoctor.Editor
             parameterName = new Label { name = "ad-parameter-name" };
             line.Add(parameterName);
             var nameProperty = property.FindPropertyRelative(nameof(MenuEntry.parameterName));
-            bool custom = !string.IsNullOrWhiteSpace(nameProperty.stringValue);
+            bool grouped = row.Entry.kind == EntryKind.Toggle && !string.IsNullOrWhiteSpace(row.Entry.exclusiveGroup);
+            bool custom = !grouped && !string.IsNullOrWhiteSpace(nameProperty.stringValue);
             parameterChip = Chip(L.Text(custom ? "ad.ui.parameter.custom" : "ad.ui.parameter.auto"), custom ? "ad-chip-on" : "ad-chip-existing");
             parameterChip.name = "ad-parameter-chip";
             parameterChip.AddToClassList("ad-chip-gap");
             line.Add(parameterChip);
+            if (grouped)
+            {
+                parameterCustom = null;
+                container.Add(line);
+                parameterNote = new Label { name = "ad-parameter-bits" };
+                parameterNote.AddToClassList("ad-note");
+                parameterNote.AddToClassList("ad-note-indent");
+                container.Add(parameterNote);
+                var groupNote = new Label(L.Text("ad.ui.parameter.group_note")) { name = "ad-parameter-group-note" };
+                groupNote.AddToClassList("ad-note");
+                container.Add(groupNote);
+                var valueInGroup = fields.Int(property.FindPropertyRelative(nameof(MenuEntry.groupValue)), L.Text("ad.ui.group.value"), 0);
+                valueInGroup.name = "ad-group-value";
+                valueInGroup.tooltip = L.Text("ad.ui.group.value.tip");
+                container.Add(Bound(valueInGroup));
+                return container;
+            }
             var spacer = new VisualElement();
             spacer.AddToClassList("ad-spacer");
             line.Add(spacer);
@@ -1499,6 +1542,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (row.Entry.kind == EntryKind.Toggle)
                 {
                     var valueField = fields.Float(property.FindPropertyRelative(nameof(MenuEntry.parameterValue)), L.Text("ad.ui.parameter.value"));
+                    valueField.name = "ad-parameter-value";
                     valueField.tooltip = L.Text("ad.ui.parameter.value.tip");
                     container.Add(Bound(valueField));
                 }

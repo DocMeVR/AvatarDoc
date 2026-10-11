@@ -584,6 +584,11 @@ namespace DocMe.AvatarDoctor.Editor
             box.Add(icon);
             string text = line.Count > 1 ? string.Format(L.Text("ad.ui.problems.line_count"), line.Text, line.Count) : line.Text;
             box.Add(UiText.MessageLabel(text));
+            if (line.Message != null)
+            {
+                var learnMore = DocsLinks.LearnMoreButton(line.Message.Key);
+                if (learnMore != null) box.Add(learnMore);
+            }
             if (line.EditIdToRemove != null)
             {
                 // Removing the edit is an entry data write, so a locked component shows the warning without the way out.

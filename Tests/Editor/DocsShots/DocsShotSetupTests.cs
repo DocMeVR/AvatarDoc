@@ -1262,7 +1262,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
-        public void TheReferenceOverrideShotHoldsTongueOutAtZeroAndTheBuildsLineSaysNothingYet()
+        public void TheReferenceOverrideShotHoldsTongueOutAtZeroAndTheBuildsLineCountsTwoClips()
         {
             using (var avatar = DocsAvatar.Create())
             {
@@ -1280,8 +1280,8 @@ namespace DocMe.AvatarDoctor.Editor
                         Assert.That(view.Q<Slider>("weight").label, Is.EqualTo(L.Text("ad.ui.override.value")));
                         Assert.That(view.Q("ad-override-usage").Query<Label>(className: "ad-usage-clip").ToList().Select(l => l.text), Is.EqualTo(new[] { "FT Tongue Out", "Gesture Silly Face" }));
                         Assert.That(view.Q("ad-preview-choice-disabled").enabledSelf, Is.False, "an override's preview row is greyed out");
-                        Assert.That(view.Q<Label>("ad-builds-line").text, Is.EqualTo(L.Text("ad.ui.builds.nothing.empty")),
-                            "the page tells the reader that an override's Builds line always says nothing yet; when the tool counts overrides, change the page");
+                        Assert.That(view.Q<Label>("ad-builds-line").text, Is.EqualTo(string.Format(L.Text("ad.ui.builds.line"), "rewrites 2 clips")),
+                            "the Builds line counts the clips the override rewrites, the same two the usage list names");
                     });
                 }
                 finally

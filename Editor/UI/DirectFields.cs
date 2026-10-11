@@ -98,6 +98,22 @@ namespace DocMe.AvatarDoctor.Editor
             return field;
         }
 
+        /// <summary>A whole number field that never goes below min.</summary>
+        public IntegerField Int(SerializedProperty property, string label, int min, Action commit = null, bool delayed = true)
+        {
+            var path = property.propertyPath;
+            var anchor = AnchorOf(path);
+            var field = new IntegerField(label) { isDelayed = delayed };
+            Register(field, () => field.SetValueWithoutNotify(Read(path, anchor, p => p.intValue)));
+            field.RegisterValueChangedCallback(e =>
+            {
+                int clamped = Mathf.Max(min, e.newValue);
+                if (clamped != e.newValue) field.SetValueWithoutNotify(clamped);
+                Write(path, anchor, p => p.intValue = clamped, commit);
+            });
+            return field;
+        }
+
         /// <summary>A float field clamped to a range on every write, such as a seconds value that must stay between 0 and 10.</summary>
         public FloatField FloatClamped(SerializedProperty property, string label, float min, float max, Action commit = null, bool delayed = true)
         {

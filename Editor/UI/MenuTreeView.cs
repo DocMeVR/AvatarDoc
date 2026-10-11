@@ -1940,7 +1940,7 @@ namespace DocMe.AvatarDoctor.Editor
             return index;
         }
 
-        /// <summary>Shows why the last drop, move or reorder was refused, once, in the tree. Cleared the next time one is attempted.</summary>
+        /// <summary>Shows why the last drop, move or reorder was refused, once, in the tree. Cleared the next time one is attempted. It is a plain info line with no Learn more button: it is not a build message and has no docs page.</summary>
         void ShowDropRefused(string reasonKey)
         {
             dropRefusal.Clear();
