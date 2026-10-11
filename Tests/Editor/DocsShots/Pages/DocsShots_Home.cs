@@ -39,6 +39,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Page = "home",
                 Name = "hero",
                 View = DocsShot.Inspector(menu),
+                Height = 1200f,
                 Arrange = root => root.Q<AvatarDoctorView>().Tree.SelectEntry(smile.id),
             };
         }
