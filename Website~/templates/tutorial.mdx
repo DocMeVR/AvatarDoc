@@ -1,0 +1,36 @@
+---
+title: Your first <thing>
+description: One line saying what this page helps you do.
+sidebar:
+  order: 1
+---
+{/* Copy to src/content/docs/start-here/<page>.mdx. Delete the comments when the page is done. */}
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+{/* Result: a picture of the finished thing, then one sentence on what it is. No explanation beyond one sentence and a link. */}
+<Shot name="start-here/<page>-done" alt="What the picture shows and what is marked." />
+
+## Before you start
+
+{/* What must be installed or selected. One short list. Link to Install if needed. */}
+
+## Steps
+
+{/* One action per step. Start with the place (inspector, Hierarchy, window), then the action with a bold <Label k="..." />. After a visible change, add "You should now see ...". */}
+<Steps>
+
+1. In the Hierarchy, select your avatar. Press <Label k="ad.ui.welcome.toggle" />.
+
+   You should now see ...
+
+</Steps>
+
+## Test it
+
+{/* Text only, no picture: Gesture Manager in Play mode, or an upload. */}
+
+## Next
+
+{/* One link to the next tutorial. */}

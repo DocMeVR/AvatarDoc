@@ -1,0 +1,8 @@
+---
+import strings from '../data/strings.en-US.json';
+import { labelText } from '../../scripts/lib/strings.mjs';
+interface Props { k: string }
+const { k } = Astro.props;
+const text = labelText(strings, k);
+---
+<strong class="ui-label">{text}</strong>
