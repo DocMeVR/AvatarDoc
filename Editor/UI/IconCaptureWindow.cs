@@ -13,6 +13,10 @@ namespace DocMe.AvatarDoctor.Editor
     {
         const int Size = 256;
 
+        /// <summary>The window's smallest size, which is also what it opens at. The docs picture of the window uses the width too.</summary>
+        public const float MinWidth = 300f;
+        public const float MinHeight = 380f;
+
         // A window only keeps public or serialized fields across a domain reload, and losing these would blank it.
         [SerializeField] AvatarDoc component;
         [SerializeField] string entryId = "";
@@ -64,7 +68,7 @@ namespace DocMe.AvatarDoctor.Editor
             window.component = component;
             window.entryId = entryId;
             window.fitted = null;
-            window.minSize = new Vector2(300f, 380f);
+            window.minSize = new Vector2(MinWidth, MinHeight);
             window.Show();
             // A window that opens for the first time builds itself in CreateGUI. One that was already open keeps
             // its panel, so it is rebuilt here for the entry it has just been pointed at.
