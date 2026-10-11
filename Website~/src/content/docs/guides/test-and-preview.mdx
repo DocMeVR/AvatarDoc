@@ -1,0 +1,107 @@
+---
+title: Test without Play mode, and preview in the scene
+description: See toggles, sliders and presets on the avatar in the Scene view, and press the menu in the wheel, without entering Play mode.
+sidebar:
+  order: 21
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Entering Play mode for every change takes time. The scene preview shows what an entry does on the avatar right away, and the wheel's Test mode lets you press your menu the way you do in VRChat. Neither one changes your avatar or your files: the preview draws on temporary copies of the meshes.
+
+The preview cannot show everything. To test animations, layers and other tools together, use Play mode with Gesture Manager, as in [Your first toggle](../../start-here/first-toggle/#test-it), or upload.
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+### Turn the preview on
+
+<Steps>
+
+1. In Unity's menu bar, select **Tools > NDM Framework > Enable Previews**.
+
+2. Select **Tools > NDM Framework > Configure Previews** and turn on the AvatarDoc entry.
+
+   While the preview is off, the AvatarDoc inspector's header says so.
+
+</Steps>
+
+### Preview one entry
+
+<Steps>
+
+1. In the tree, select a toggle.
+
+2. In its <Label k="ad.ui.preview" /> row, press <Label k="ad.ui.preview.on" /> or <Label k="ad.ui.preview.off" />.
+
+   You should now see the toggle's effects on the avatar in the Scene view. <Label k="ad.ui.preview.default" /> stops the preview of that entry.
+
+3. To stop every preview at once, press <Label k="ad.ui.preview.reset" /> in the header. It shows while anything is previewed.
+
+</Steps>
+
+Other kinds of entry preview in their own way:
+
+- A radial has a slider from 0 to 1 and a <Label k="ad.ui.preview.default" /> button.
+- A preset's <Label k="ad.ui.preview.on" /> applies every row once. <Label k="ad.ui.preview.off" /> sets every listed control to off.
+- A blend shape trigger always follows its shape in the scene, so its row only says which shape it follows.
+- A contact or PhysBone trigger that flips a toggle has <Label k="ad.ui.touch.simulate" />, which flips that toggle.
+- An override is always part of the preview, so its row is greyed out.
+- A requirement the scene cannot know, such as a parameter or a contact, counts as met. A note under the row says so.
+
+The preview does not show custom animations or merged animators. Their panels say so.
+
+### Test with the wheel
+
+<Steps>
+
+1. On the inspector's toolbar, press <Label k="ad.ui.wheel" />. On a narrow inspector the button shows as an icon.
+
+   You should now see the wheel under the tree. It shows the selected submenu the way VRChat draws it.
+
+2. At the top of the wheel, press <Label k="ad.ui.wheel.test" />.
+
+3. Press a wedge.
+
+   A toggle switches on or off, and a group member switches the other members off. A preset applies. A radial opens a slider under the wheel. A submenu opens. Items of the avatar's own menu or of other tools do nothing.
+
+   <Shot name="guides/test-and-preview-wheel" alt="The wheel in Test mode with the Hat on: 1 the Wheel button, 2 Select and Test, 3 the ring, 4 the Triggers strip, 5 Reset." />
+
+   In the picture, 1 is the <Label k="ad.ui.wheel" /> button, 2 the <Label k="ad.ui.wheel.select" /> and <Label k="ad.ui.wheel.test" /> switch, 3 the ring with the Hat toggle on, 4 the <Label k="ad.ui.triggers" /> strip, and 5 <Label k="ad.ui.wheel.reset" />.
+
+4. Under the wheel, press a button of the <Label k="ad.ui.triggers" /> strip to make that trigger fire. Press it again to stop it.
+
+   The strip lists every trigger that follows a parameter, a contact or a PhysBone. A trigger that flips a toggle flips it instead.
+
+</Steps>
+
+A wedge that is on shows in the accent colour, and a radial wedge shows its value as a thin arc. Toggles that are not in the menu get buttons of their own, under <Label k="ad.ui.wheel.not_in_menu" />.
+
+<Label k="ad.ui.wheel.reset" /> stops every preview. <Label k="ad.ui.wheel.select" /> goes back to selecting rows with a click, and keeps the previews. The inspector and the AvatarDoc window each remember their own choice.
+
+### The AvatarDoc window
+
+Select **Tools > DocMe > AvatarDoc** for a window with the same tree, panels and wheel, side by side. It follows your selection: the AvatarDoc component of the selected object, or else the first one on the selected avatar.
+
+Previews last for the editor session. Copies of one avatar, such as its PC and Quest versions, share them, and Unity clears them when it reloads scripts.
+
+## Check it worked
+
+- With a toggle previewed <Label k="ad.ui.preview.on" />, the Scene view shows its effects.
+- In Test mode, the wedge of a toggle you pressed shows in the accent colour.
+
+## If it does not work
+
+- Nothing changes in the Scene view: NDMF's previews are off, or the AvatarDoc entry under **Configure Previews** is off. The header says so while they are off.
+- A custom animation or a merged animator does not show: the preview cannot play them. Test them in Play mode.
+- A button of the <Label k="ad.ui.triggers" /> strip is greyed out: the trigger works only while a menu toggle is on, and that toggle is off in the preview. Turn the toggle on first.
+
+## Related
+
+- The Reference pages for Scene preview and for the windows, the AvatarDoc window and the wheel describe every control.
+- [Your first toggle](../../start-here/first-toggle/#test-it) shows how to test in Play mode with Gesture Manager.
