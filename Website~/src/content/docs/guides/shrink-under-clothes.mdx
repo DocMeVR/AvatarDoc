@@ -74,7 +74,17 @@ Every animation that moves the body's shape now moves the piece's shape with it.
 
 AvatarDoc reads the animations of the avatar's FX controller right after Modular Avatar: AvatarDoc's own toggles, outfit sets and triggers, merged animators, and what Modular Avatar adds. Animations that VRCFury adds later are not seen, and Gesture or Action animations are left alone.
 
-An animation that already sets the shape itself keeps its own value. When two pieces hold the same shape, the larger value wins in an animation that turns both on.
+An animation that already sets the shape itself keeps its own value.
+
+When two pieces hold the same shape, what switches them decides:
+
+- One animation turns both on, or nothing switches either and both stay on: the larger value wins while both are on.
+- One exclusive group switches them: only one of them is on at a time, so each holds its own value.
+- Different things switch them: the one that comes later decides the shape. While its piece is on, that piece's value holds. While it is off, the shape goes back where it rests, even when the other piece is on. A piece that nothing switches always loses to one that is switched. Put both pieces on one toggle, or in one exclusive group.
+
+From first to last, the order is: your avatar's own FX layers, then AvatarDoc's toggles and exclusive groups in menu order, its other triggers, its merged animators, what Modular Avatar adds, and last AvatarDoc's blend shape triggers and contact triggers set to Fade.
+
+A warning names the piece that wins. Before an upload, the inspector and the scene preview know only AvatarDoc's own toggles, triggers and merged animators and your avatar's own FX layers. The warning at upload also covers pieces that Modular Avatar switches. Pieces that VRCFury switches are not seen at all, as said above.
 
 <Label k="ad.ui.platform" />, at the bottom of the component, leaves the piece's rules out of the PC or the Quest build.
 
@@ -88,6 +98,7 @@ An animation that already sets the shape itself keeps its own value. When two pi
 
 - A warning says an animation fades the piece in and out: AvatarDoc leaves that animation alone. Make it switch the piece on and off at once. See [the message](../../reference/messages/#ad-warn-shapes-active-not-constant).
 - A warning says an animation already writes the shape: that animation keeps its own value. Remove the shape from the animation if the rule should apply there. See [the message](../../reference/messages/#ad-warn-shapes-clip-owns-shape).
+- A warning says two pieces hold the same shape but different toggles switch them: the shape follows the later one alone. Put both pieces on one toggle, or in one exclusive group. See [the message](../../reference/messages/#ad-warn-shapes-conflict).
 - An error says the object carries no skinned mesh: <Label k="ad.ui.shapes.follows" /> rows need the component on the piece's own mesh. Move the component, or remove those rows. See [the message](../../reference/messages/#ad-error-shapes-no-mesh).
 
 ## Related

@@ -31,7 +31,7 @@ This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
 
 4. In the <Label k="ad.ui.preset.sets" /> section, press <Label k="ad.ui.preset.add" />.
 
-   You should now see a new row. Its button reads <Label k="ad.ui.preset.missing" /> until you pick a control, and a warning shows until then.
+   You should now see a new row. Its button reads <Label k="ad.ui.preset.pick" /> until you pick a control, and a note asks you to pick one.
 
 5. Press the row's button and pick a control.
 
@@ -55,11 +55,11 @@ If you would rather set the look in the scene first, preview each control the wa
 
 ### Set a parameter of another tool
 
-<Label k="ad.ui.preset.parameters" /> sets a parameter that AvatarDoc does not own, such as one from Modular Avatar, or a VRCFury toggle with a global parameter. Press <Label k="ad.ui.add" /> under it, type the parameter's name or pick it with the arrow button, and type the value to set.
+<Label k="ad.ui.preset.parameters" /> sets a parameter that AvatarDoc does not own, such as one from Modular Avatar, or a VRCFury toggle with a global parameter. Press <Label k="ad.ui.add" /> under it, type the parameter's name or pick it with the arrow button, and type the value to set. A name that nothing on the avatar or its other tools knows gets a warning, and the preset still writes it.
 
 ### Exclusive groups
 
-For an exclusive group, the member you set to <Label k="ad.ui.preset.on" /> is the one that is worn. If every member you list is <Label k="ad.ui.preset.off" />, the group is switched off. Set only one member of a group to <Label k="ad.ui.preset.on" />. With two, the upload stops with an error, and Play mode goes on with only the first one in the list.
+For an exclusive group, the member you set to <Label k="ad.ui.preset.on" /> is the one that is worn. If every member you list is <Label k="ad.ui.preset.off" />, the group is switched off. Set only one member of a group to <Label k="ad.ui.preset.on" />. With two, an error shows in the inspector and the upload stops, and Play mode goes on with only the first one in the list.
 
 ## Check it worked
 
@@ -69,8 +69,8 @@ For an exclusive group, the member you set to <Label k="ad.ui.preset.on" /> is t
 ## If it does not work
 
 - A warning says the preset sets nothing yet: add a row to <Label k="ad.ui.preset.sets" /> or <Label k="ad.ui.preset.parameters" />. See [the message](../../reference/messages/#ad-warn-preset-empty).
-- A warning says the preset refers to a control that no longer exists: a row reads <Label k="ad.ui.preset.missing" />. Its control was deleted, or the row has no control yet. Press the button to pick one, or remove the row. See [the message](../../reference/messages/#ad-warn-preset-target-missing).
-- When you enter Play mode or upload, an error says the preset turns on two members of one group: Play mode applies only the first one, and the upload stops until you fix it. Set the other member to <Label k="ad.ui.preset.off" /> or remove its row. See [the message](../../reference/messages/#ad-error-preset-group-conflict).
+- A warning says the preset refers to a control that no longer exists: a row reads <Label k="ad.ui.preset.missing" />, because its control was deleted. Press the button to pick another one, or remove the row. See [the message](../../reference/messages/#ad-warn-preset-target-missing).
+- An error says the preset turns on two members of one group. The inspector shows it, and so do Play mode and the upload: Play mode applies only the first one, and the upload stops until you fix it. Set the other member to <Label k="ad.ui.preset.off" /> or remove its row. See [the message](../../reference/messages/#ad-error-preset-group-conflict).
 
 ## Related
 

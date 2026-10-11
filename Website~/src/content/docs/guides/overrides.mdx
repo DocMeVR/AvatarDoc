@@ -63,7 +63,7 @@ An override wins over every toggle or trigger that changes the same shape, where
 ## If it does not work
 
 - After Play mode or an upload, a warning says the override found no animation that moves the shape: nothing moves the shape, or the row points at a shape on the wrong mesh. Check the row's mesh, or remove the override if setting the mesh is all you wanted. See [the message](../../reference/messages/#ad-warn-override-unused).
-- A warning says two overrides hold the same shape: the one later in the tree wins. Remove one of them. See [the message](../../reference/messages/#ad-warn-override-conflict).
+- A warning says two overrides hold the same shape at different values: the one later in the tree wins. Remove one of them, or give both the same value. See [the message](../../reference/messages/#ad-warn-override-conflict).
 - The shape should move some of the time: an override holds it all the time. Use a toggle with a <Label k="ad.ui.blendshapes" /> row, or a rule from [Hold the rest of a face](../hold-the-rest/), instead.
 
 ## Related
