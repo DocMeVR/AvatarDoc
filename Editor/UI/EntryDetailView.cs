@@ -1610,7 +1610,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         void BuildBlendShapeSource(TreeRow row, SerializedProperty property, MenuEntry entry)
         {
-            var shapeButton = new Button { text = (entry.sourceRenderer != null ? entry.sourceRenderer.name : "?") + " › " + entry.sourceShape, name = "ad-trigger-shape", tooltip = L.Text("ad.ui.trigger.shape.tip") };
+            // A long renderer and shape name ends in an ellipsis at the narrow end of the inspector; the tooltip names it in full.
+            var shapeText = (entry.sourceRenderer != null ? entry.sourceRenderer.name : "?") + " › " + entry.sourceShape;
+            var shapeButton = new Button { text = shapeText, name = "ad-trigger-shape", tooltip = shapeText + "\n" + L.Text("ad.ui.trigger.shape.tip"), displayTooltipWhenElided = false };
             shapeButton.AddToClassList("ad-field-button");
             shapeButton.clicked += () => ShapePicker.Show(shapeButton, owner.Plan.AvatarRoot, SetSourceShape);
             var shapeRow = new VisualElement { name = "ad-when-driver" };
