@@ -1,0 +1,95 @@
+---
+title: Hold the rest of a face
+description: Keep every other blend shape of a mesh still while a toggle or trigger is on, so a face pose looks the same every time.
+sidebar:
+  order: 7
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+A face toggle sets a few shapes, such as a smile. Gestures, face tracking or other toggles can still move the other shapes of the face at the same time, and the pose looks different each time. A rule that holds the rest keeps every other shape of that mesh still while the entry is on.
+
+A rule works on a toggle, and on a trigger that has effects of its own. A radial cannot have one, because it has two ends instead of on and off. A trigger in <Label k="ad.ui.touch.flip" /> mode cannot have one either.
+
+To hold one shape at one value in every animation, all the time, see the guide about overrides.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the tree, select the face toggle, or make one: press <Label k="ad.ui.add.toggle" /> on the toolbar and name it, such as Smile.
+
+3. In the toggle's panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.blendshapes" />, and pick the shape the pose sets, such as Smile.
+
+   You should now see a <Label k="ad.ui.blendshapes" /> section with a row for the shape at weight 100. If the toggle already has blend shape rows, skip this step.
+
+4. In the <Label k="ad.ui.blendshapes" /> section, press <Label k="ad.ui.shape_set.hold" /> and pick the face mesh.
+
+   You should now see a rule under the rows. Its switch reads **Everything else on Face**, with the name of your mesh. <Label k="ad.ui.shape_set.hold_at" /> is set to <Label k="ad.ui.shape_set.value.default" />, and a note says how many shapes the rule can hold.
+
+5. In <Label k="ad.ui.shape_set.hold_at" />, choose what the other shapes are held at:
+   - <Label k="ad.ui.shape_set.value.default" /> keeps each of them at the weight it has in the scene when you upload.
+   - <Label k="ad.ui.shape_set.value.zero" /> clears them all to 0.
+
+6. Leave <Label k="ad.ui.shape_set.hold_blink" /> and <Label k="ad.ui.shape_set.hold_visemes" /> off, so blinking and lip sync keep working. Turn one on only when the pose must hold the eyes or the mouth too.
+
+   <Shot name="guides/hold-the-rest-rule" alt="A Smile toggle's blend shapes with 1 Hold the rest, 2 the rule's switch, 3 Hold at, 4 Hold blink and 5 the note with the count." />
+
+   In the picture, 1 is <Label k="ad.ui.shape_set.hold" />, 2 the rule's switch, 3 <Label k="ad.ui.shape_set.hold_at" />, 4 <Label k="ad.ui.shape_set.hold_blink" /> with <Label k="ad.ui.shape_set.hold_visemes" /> beside it, and 5 the note.
+
+</Steps>
+
+<Label k="ad.ui.shape_set.hold_blink" /> shows only for a mesh the avatar blinks with, and <Label k="ad.ui.shape_set.hold_visemes" /> only for a mesh it speaks with. Turned on, <Label k="ad.ui.shape_set.hold_blink" /> holds the blink shapes too and pauses VRChat's blinking while the entry is on. <Label k="ad.ui.shape_set.hold_visemes" /> does the same for the mouth shapes and lip sync. Both come back as soon as the entry is off.
+
+### Capture a pose from the scene
+
+If you set the face up in the scene first, <Label k="ad.ui.shape_set.capture" /> makes the rows for you.
+
+<Steps>
+
+1. In the face mesh's renderer component, set the blend shape weights to the pose you want.
+
+2. In the toggle's <Label k="ad.ui.blendshapes" /> section, press <Label k="ad.ui.shape_set.capture" /> and pick the face mesh. The section shows once the toggle has a blend shape row: add one first, as in step 3 of the first part.
+
+   You should now see a row for every shape that is higher than 0 in the scene, at its scene weight and set to <Label k="ad.ui.seg.pin" />. On a toggle, Capture also adds a rule that holds every other shape of the mesh at 0, or switches on the rule the mesh already has, which keeps its <Label k="ad.ui.shape_set.hold_at" />.
+
+</Steps>
+
+On a trigger, <Label k="ad.ui.shape_set.capture" /> adds the rows alone. Use <Label k="ad.ui.shape_set.hold" /> to add the rule.
+
+### What the rule holds
+
+The shapes the entry has rows for keep the values of their rows. A rule never holds:
+
+- the shapes a toggle's own custom animations move
+- the shape a blend shape trigger follows
+- the shapes an AvatarDoc Shapes component drives, so a piece of clothing keeps changing the body
+- the blink and mouth shapes, unless their switch is on
+
+A toggle holds the rest while it is on, and leaves those shapes alone while it is off. A trigger holds them while it fires.
+
+The note says "up to" because AvatarDoc writes only what is needed at upload. It holds the shapes that something else on the avatar moves: another toggle, a gesture, face tracking or another tool's animation. With <Label k="ad.ui.shape_set.value.zero" />, it also holds the shapes that are not at 0 already. Every other shape never moves, so it already shows the value the rule would hold it at. A shape that only something outside the avatar moves, such as a dance in an MMD world, is not held.
+
+A rule adds no parameter and costs no synced bits.
+
+## Check it worked
+
+- Press <Label k="ad.ui.summary" /> in the inspector's header. The summary lists each rule with its mesh, how many shapes it can hold, and what it holds them at.
+- In Play mode with Gesture Manager, turn the toggle on, then make a hand gesture that changes the face. The face keeps the toggle's pose. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+## If it does not work
+
+- Blinking or lip sync stops while the toggle is on: <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" /> is on. Turn it off.
+- One shape still moves while the toggle is on: the toggle has a row for that shape, an AvatarDoc Shapes component drives it, or only something outside the avatar moves it.
+- An error says only a toggle or a trigger with effects of its own can hold the rest: the rule sits on a radial or on a trigger in <Label k="ad.ui.touch.flip" /> mode. See [the message](../../reference/messages/#ad-error-shape-set-not-a-toggle).
+
+## Related
+
+- The Reference page for Blend shape rows and shape set rules describes every switch of the rule.
+- The How it works page about blinking, lip sync and face tracking explains the pauses.

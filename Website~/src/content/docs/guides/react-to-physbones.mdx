@@ -1,0 +1,91 @@
+---
+title: React to PhysBone grabs, poses and stretches
+description: Change something when someone grabs, poses, bends, stretches or squishes a PhysBone on your avatar, such as hair, ears or a tail.
+sidebar:
+  order: 9
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a PhysBone trigger when the avatar should react to its own PhysBones: the eyes widen while someone pulls the tail, or ears drop while they are grabbed. The trigger reads a PhysBone that is already on the avatar.
+
+To react to a hand that touches or comes near a spot, see [React to touch](../react-to-touch/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.trigger" />. On a narrow inspector, it sits under <Label k="ad.ui.more" />.
+
+   You should now see a trigger named New Trigger, selected under <Label k="ad.ui.triggers" /> in the tree.
+
+3. In the trigger's panel, type a name into <Label k="ad.ui.name" />, such as Hair pull, and press Enter.
+
+4. Set <Label k="ad.ui.trigger.when" /> to <Label k="ad.ui.trigger.source.physbone" />.
+
+5. Press the small circle at the right end of <Label k="ad.ui.touch.physbone" /> and pick the PhysBone. The list shows only the PhysBones of this avatar.
+
+6. In <Label k="ad.ui.touch.event" />, pick what the trigger waits for:
+   - <Label k="ad.ui.touch.event.grabbed" />: while someone holds the PhysBone.
+   - <Label k="ad.ui.touch.event.posed" />: while the PhysBone stays in a pose someone left it in.
+   - <Label k="ad.ui.touch.event.angle" />, <Label k="ad.ui.touch.event.stretch" /> or <Label k="ad.ui.touch.event.squish" />: once the bend, the stretch or the squish goes past <Label k="ad.ui.touch.threshold" />.
+
+7. For the three events that go past an amount, set <Label k="ad.ui.touch.threshold" />, from 0 to 1. A new trigger starts at 0.5.
+
+   <Shot name="guides/react-to-physbones-event" alt="A Hair pull trigger's panel with 1 When set to PhysBone, 2 Mode, 3 the PhysBone, 4 the Event and 5 the Amount." />
+
+   In the picture, 1 is <Label k="ad.ui.trigger.when" />, 2 <Label k="ad.ui.touch.mode" />, 3 <Label k="ad.ui.touch.physbone" />, 4 <Label k="ad.ui.touch.event" /> and 5 <Label k="ad.ui.touch.threshold" />.
+
+8. In the panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.blendshapes" />, and pick the shape the trigger moves, such as Eye_Wide. You can also drag objects onto <Label k="ad.ui.objects" />.
+
+</Steps>
+
+With <Label k="ad.ui.touch.mode" /> set to <Label k="ad.ui.touch.hold" />, the default, the effect is on while the event is true and stops when it ends.
+
+### Flip a toggle with each grab
+
+<Label k="ad.ui.touch.flip" /> mode turns a menu toggle on or off each time the event starts, for example each time someone grabs the tail.
+
+<Steps>
+
+1. In the trigger's panel, set <Label k="ad.ui.touch.mode" /> to <Label k="ad.ui.touch.flip" />.
+
+   You should now see a <Label k="ad.ui.touch.flip_target" /> field under <Label k="ad.ui.touch.mode" />, and the effect sections are gone.
+
+2. In <Label k="ad.ui.touch.flip_target" />, pick the toggle to flip.
+
+</Steps>
+
+The flip sets the toggle itself, so its button in the menu, its saved state and other players all follow it, the same as a press in the menu.
+
+### What AvatarDoc builds
+
+The trigger reads the PhysBone's own parameter. If the PhysBone has none, AvatarDoc gives it one in the avatar it uploads, never in your scene. Several triggers on the same PhysBone share that parameter. A PhysBone trigger costs no synced bits.
+
+Who may grab or pose the PhysBone is set on the PhysBone component itself. AvatarDoc does not change it.
+
+## Check it worked
+
+- In the trigger's panel, press <Label k="ad.ui.preview.on" /> in the <Label k="ad.ui.preview" /> row to see the effect in the Scene view. A trigger in <Label k="ad.ui.touch.flip" /> mode shows <Label k="ad.ui.touch.simulate" /> instead, which flips the toggle's preview.
+- In Play mode, the VRChat SDK lets you grab a PhysBone with the mouse in the Game view. With Gesture Manager, see [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+
+The preview cannot grab a PhysBone. Only Play mode or VRChat shows that the event really fires.
+
+## If it does not work
+
+- Nothing happens when the PhysBone is grabbed: the PhysBone does not let that player grab it, or the trigger points at another PhysBone. Check the grab settings on the PhysBone component.
+- <Label k="ad.ui.touch.event.stretch" /> or <Label k="ad.ui.touch.event.squish" /> never fires: the PhysBone cannot stretch or squish in its own settings, or <Label k="ad.ui.touch.threshold" /> is higher than it ever gets. Lower the amount.
+- An error says the trigger cannot flip its toggle: no toggle is picked in <Label k="ad.ui.touch.flip_target" />. See [the message](../../reference/messages/#ad-error-flip-target).
+
+## Related
+
+- The Reference page for Touch triggers describes every PhysBone setting.
+- [Link effects to another toggle or a parameter](../link-to-a-toggle-or-parameter/) adds more conditions with <Label k="ad.ui.when.add_and" /> and <Label k="ad.ui.when.add_or" />.

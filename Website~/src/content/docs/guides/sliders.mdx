@@ -1,0 +1,88 @@
+---
+title: Add a slider
+description: Make a radial that moves a blend shape or a material value smoothly as you turn the dial in the avatar menu.
+sidebar:
+  order: 2
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a radial when you want more than on and off: a smile that grows as you turn the dial, or a glow that gets brighter. VRChat shows a radial as a dial in the menu.
+
+If you only need on and off, a toggle is simpler and costs less memory: see [Toggle clothing and accessories](../toggle-clothing/). To change a colour with a toggle, see [Change a colour or glow](../colour-and-glow/).
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.radial" />.
+
+   You should now see a radial named New Radial, selected in the tree. Its panel has an empty <Label k="ad.ui.blendshapes" /> section.
+
+3. In the radial's panel, type a name into <Label k="ad.ui.name" />, such as Smile, and press Enter.
+
+4. In the <Label k="ad.ui.blendshapes" /> section, press <Label k="ad.ui.add" />.
+
+   You should now see a list of your avatar's blend shapes, with a search field.
+
+5. Type part of the shape's name and pick the shape.
+
+   You should now see a row with the shape, <Label k="ad.ui.min" /> at 0 and <Label k="ad.ui.max" /> at 100.
+
+6. On the row, set <Label k="ad.ui.min" /> to the weight you want at the lowest point of the dial, and <Label k="ad.ui.max" /> to the weight at the highest point.
+
+7. In the panel, drag the <Label k="ad.ui.default_value" /> slider to where the dial should sit when the avatar loads. 0 is the lowest point and 1 the highest.
+
+   <Shot name="guides/sliders-radial" alt="A Smile radial's panel with 1 the Default slider, 2 the Min and Max of its blend shape row, and 3 the Scene preview slider." />
+
+   In the picture, 1 is the <Label k="ad.ui.default_value" /> slider, 2 the <Label k="ad.ui.min" /> and <Label k="ad.ui.max" /> of the row, and 3 the <Label k="ad.ui.preview" /> slider.
+
+</Steps>
+
+To drive several shapes from the same dial, add a row for each. They all move together.
+
+To start from a face you already set up in the scene, press <Label k="ad.ui.shape_set.capture" /> in the <Label k="ad.ui.blendshapes" /> section and pick the mesh. Every shape of that mesh higher than 0 becomes a row, with its scene weight as <Label k="ad.ui.max" /> and 0 as <Label k="ad.ui.min" />.
+
+### Slide a material value
+
+A radial can also move a shader value, such as an emission strength or a hue shift.
+
+<Steps>
+
+1. In the radial's panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.targets.properties" />.
+
+   You should now see a <Label k="ad.ui.targets.properties" /> section with an empty row.
+
+2. On the row, drag the mesh from the Hierarchy onto the renderer field, or pick it with the small circle.
+
+3. Press <Label k="ad.ui.property.pick" /> and pick the property from the list.
+
+   <Label k="ad.ui.max" /> now holds the material's current value.
+
+4. Set <Label k="ad.ui.min" /> to the value at the lowest point of the dial and <Label k="ad.ui.max" /> to the value at the highest point.
+
+</Steps>
+
+[Change a colour or glow](../colour-and-glow/) explains the property list in more detail.
+
+## Check it worked
+
+- In the radial's panel, drag the <Label k="ad.ui.preview" /> slider (<Label k="ad.ui.mode.advanced" /> mode). The Scene view follows it. Press <Label k="ad.ui.preview.default" /> beside the slider to stop the preview. The preview needs NDMF's previews: turn them on under **Tools > NDM Framework > Enable Previews**.
+- In Play mode with Gesture Manager, open the radial in the menu and turn the dial, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- The shape does not move in the game: another animation on the avatar, such as a gesture or face tracking, also moves that shape and wins over the radial. Pick a shape nothing else moves.
+- The parameter memory is full: a radial costs 8 synced bits, a toggle 1. The memory bar in the inspector's header shows how many are left.
+- Turning the dial changes nothing: the row's <Label k="ad.ui.min" /> and <Label k="ad.ui.max" /> hold the same value.
+
+## Related
+
+- The Reference pages for Radial, Blend shape rows and Material properties describe every setting.
+- [Hold the rest of a face](../hold-the-rest/) works on toggles and triggers, not on radials.

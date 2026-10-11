@@ -1,0 +1,114 @@
+---
+title: Organise the menu
+description: Put entries into submenus, give their names a colour or bold text, add icons, and choose where AvatarDoc's menu goes.
+sidebar:
+  order: 6
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use this page once your menu has more than a few entries, or when you want it to look tidy in VRChat: submenus, coloured names and icons.
+
+To change menu items that the avatar already had, or that other tools added, see the guide about changing the avatar's existing menu.
+
+Styling names, <Label k="ad.ui.settings_fold" />, <Label k="ad.ui.toolbar.capture" /> and <Label k="ad.ui.wheel" /> need <Label k="ad.ui.mode.advanced" /> mode, the default. In <Label k="ad.ui.mode.simple" /> mode, the style row shows only for a name that already has a style, and <Label k="ad.ui.settings_fold" /> only once one of its settings is changed.
+
+## Steps
+
+### Make a submenu
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.submenu" />. On a narrow inspector, it sits under <Label k="ad.ui.more" />.
+
+   You should now see a submenu named New Submenu, selected in the tree.
+
+3. In the submenu's panel, type a name into <Label k="ad.ui.name" />, such as Outfits, and press Enter.
+
+4. In the tree, right click an entry that belongs in the submenu, then select <Label k="ad.ui.menu.move" /> and the submenu's name.
+
+   You should now see the entry inside the submenu. Do the same for each entry, or drag rows in the tree into the submenu.
+
+</Steps>
+
+A new entry lands inside the submenu that is selected in the tree, or beside the entry that is selected. To move an entry back to the top of the menu, use <Label k="ad.ui.menu.move" /> and <Label k="ad.ui.menu.move.root" />.
+
+VRChat shows eight controls on one page of a submenu. A submenu's panel says how many of its eight places are used. When a submenu holds more, AvatarDoc moves the extra controls to a More page, and the tree shows that page.
+
+### Style a name
+
+<Steps>
+
+1. In the tree, select the entry.
+
+2. In its panel, on the <Label k="ad.ui.style" /> row under the name, press the colour swatch and pick a colour. Press <Label k="ad.ui.style.bold" /> for bold text and <Label k="ad.ui.style.italic" /> for italic text.
+
+   You should now see an <Label k="ad.ui.style.preview" /> line that shows the name the way VRChat draws it. The tree draws the styled name too.
+
+</Steps>
+
+<Shot name="guides/organise-the-menu-style" alt="An Outfits submenu with a styled name: 1 the Name field, 2 the colour swatch of the Style row, 3 the In game line and 4 Capture icon." />
+
+In the picture, 1 is <Label k="ad.ui.name" />, 2 the colour swatch of the <Label k="ad.ui.style" /> row, 3 the <Label k="ad.ui.style.preview" /> line and 4 <Label k="ad.ui.capture" />.
+
+The x beside the swatch takes the colour away. To style only part of a name, turn on <Label k="ad.ui.style.raw_label" /> and write the tags yourself, such as `<color=#ff8080>Summer</color> outfits`.
+
+The style only changes how the name looks. The parameter and the layer AvatarDoc makes use the name without the tags.
+
+### Give an entry an icon
+
+<Steps>
+
+1. In the entry's panel, press <Label k="ad.ui.capture" /> at the right end of <Label k="ad.ui.icon" />.
+
+   You should now see the <Label k="ad.ui.capture.title" /> window. Its preview shows the entry's own pieces, framed by the Scene view camera.
+
+2. Press <Label k="ad.ui.capture.fit" /> to point the camera at the pieces. You can also move the Scene view until the preview looks right.
+
+3. Press <Label k="ad.ui.capture.save" />.
+
+   You should now see the new picture in the entry's <Label k="ad.ui.icon" /> field.
+
+</Steps>
+
+AvatarDoc saves the picture in `Assets/AvatarDoc Icons`, in a folder named after the avatar. <Label k="ad.ui.capture.background" /> chooses <Label k="ad.ui.capture.transparent" /> or <Label k="ad.ui.capture.solid" />. You can also drag any texture from the Project window onto <Label k="ad.ui.icon" />.
+
+The <Label k="ad.ui.toolbar.capture" /> button on the toolbar captures an icon for every toggle, radial, submenu or preset of this component that has something to show and no icon yet. On a narrow inspector it shows as a camera.
+
+### Choose where the menu goes
+
+By default, AvatarDoc puts its entries at the top of the avatar's menu, next to what the avatar already has.
+
+<Steps>
+
+1. In the inspector's header, open <Label k="ad.ui.settings_fold" />.
+
+2. Press the arrow button at the right end of <Label k="ad.ui.install" /> and pick a submenu of the avatar's menu, or <Label k="ad.ui.install.root" />.
+
+3. In <Label k="ad.ui.install.mode" />, pick **As Submenu** to wrap all of this component's entries in one new submenu there. Give it a name in <Label k="ad.ui.menu_name" />.
+
+</Steps>
+
+With **Append Items**, the entries sit right in the chosen place. With **As Submenu**, the new submenu is named after the object that holds the component until you type a name.
+
+## Check it worked
+
+- Press <Label k="ad.ui.wheel" /> on the toolbar. The wheel shows the selected submenu the way VRChat's own menu draws it, with names and icons. On a narrow inspector the button shows as an icon.
+- In Play mode with Gesture Manager, open **Expressions** and look through the submenus, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- <Label k="ad.ui.menu.move" /> does not list the submenu: the submenu is on another AvatarDoc component. Move the entry from that component, or make the submenu on this one.
+- The <Label k="ad.ui.style" /> row is missing: the inspector is in <Label k="ad.ui.mode.simple" /> mode. Switch to <Label k="ad.ui.mode.advanced" /> at the top of the inspector.
+- <Label k="ad.ui.capture" /> shows an empty picture: the entry has no pieces to show. The window says so. Add an object, blend shape or material first.
+
+## Related
+
+- The Reference pages for Submenu, the inspector at a glance and the Icon capture window describe every setting.
+- [Make one-of-many choices](../one-of-many/) groups toggles inside a submenu.

@@ -1,0 +1,100 @@
+---
+title: React to touch
+description: Make the avatar react when a hand, a finger or another body part touches a spot or comes close to it.
+sidebar:
+  order: 8
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use a contact trigger for a headpat, a boop on the nose or a poke on the cheek: a touch area on the avatar that changes something while it is touched, or more and more as a hand comes closer.
+
+For a ready-made headpat, eye touch or nose boop, press <Label k="ad.ui.more" />, then <Label k="ad.ui.add.contact" />. [Your first headpat](../../start-here/first-headpat/) shows how to make one. To react when someone grabs or poses hair or a tail, see [React to PhysBone grabs, poses and stretches](../react-to-physbones/).
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.trigger" />. On a narrow inspector, it sits under <Label k="ad.ui.more" />.
+
+   You should now see a trigger named New Trigger, selected under <Label k="ad.ui.triggers" /> in the tree.
+
+3. In the trigger's panel, type a name into <Label k="ad.ui.name" />, such as Cheek poke, and press Enter.
+
+4. Set <Label k="ad.ui.trigger.when" /> to <Label k="ad.ui.trigger.source.contact" />.
+
+   You should now see the contact's settings, with <Label k="ad.ui.touch.radius" /> at 0.05 and <Label k="ad.ui.touch.tags" /> set to **Finger** and **Hand**.
+
+5. Press the small circle at the right end of <Label k="ad.ui.touch.anchor" /> and pick the bone the touch area follows, such as Head. The avatar's bones come first in the list, under <Label k="ad.ui.pick.bones" />.
+
+   You should now see the touch area as a sphere on that bone in the Scene view, with handles to move it and to change its size.
+
+6. In the Scene view, drag the handles until the sphere sits where the touch should count. The drags write <Label k="ad.ui.touch.offset" /> and <Label k="ad.ui.touch.radius" /> in the panel.
+
+7. In <Label k="ad.ui.touch.mode" />, pick how the effect follows the touch:
+   - <Label k="ad.ui.touch.hold" /> switches the effect on while something touches the sphere, and off when it leaves.
+   - <Label k="ad.ui.touch.follow" /> lets the effect grow as a hand comes closer. It starts at the edge of the sphere and is fully on at <Label k="ad.ui.touch.fullat" />.
+
+   <Shot name="guides/react-to-touch-fade" alt="A Cheek poke trigger's panel with 1 When set to Contact, 2 the Mode choice, 3 Fully on at, 4 the Anchor and 5 the + And button." />
+
+   In the picture, 1 is <Label k="ad.ui.trigger.when" />, 2 <Label k="ad.ui.touch.mode" />, 3 <Label k="ad.ui.touch.fullat" />, 4 <Label k="ad.ui.touch.anchor" /> and 5 <Label k="ad.ui.when.add_and" />, which the next part uses.
+
+8. In the panel, press <Label k="ad.ui.add_effect" />, then <Label k="ad.ui.blendshapes" />, and pick the shape the touch moves, such as Cheek_Puff. You can also drag objects onto <Label k="ad.ui.objects" /> to show or hide them.
+
+</Steps>
+
+<Label k="ad.ui.touch.tags" /> decides which body parts count as a touch. **Finger**, **Hand**, **Head**, **Torso** and **Foot** are always shown. <Label k="ad.ui.touch.more_tags" /> shows the rest of VRChat's own tags, such as **HandL** for the left hand only, and <Label k="ad.ui.touch.custom_tag" /> adds any other tag.
+
+<Label k="ad.ui.touch.who" /> decides whose body counts: <Label k="ad.ui.touch.self" /> for your own, <Label k="ad.ui.touch.others" /> for other players'. Both are on for a new trigger.
+
+In <Label k="ad.ui.touch.hold" /> or <Label k="ad.ui.touch.flip" /> mode, <Label k="ad.ui.touch.distance" /> chooses <Label k="ad.ui.touch.touch" /> to react only on contact, or <Label k="ad.ui.touch.closer" /> to react once something comes within part of the radius.
+
+### Add a requirement
+
+A requirement makes the touch count only while something else is true, such as a toggle being on.
+
+<Steps>
+
+1. In the trigger's panel, press <Label k="ad.ui.when.add_and" />.
+
+   You should now see a group: a box that holds the contact and a new row set to <Label k="ad.ui.when.kind.toggle" />.
+
+2. On the new row, pick the toggle in <Label k="ad.ui.trigger.toggle" />, then choose <Label k="ad.ui.trigger.toggle.on" /> or <Label k="ad.ui.trigger.toggle.off" />.
+
+</Steps>
+
+A row can also test a parameter, another contact or a PhysBone: change its kind in the list at the top of the row. In <Label k="ad.ui.touch.follow" /> mode, the effects rest while any requirement fails, and the group holds the contact and up to three requirements. In <Label k="ad.ui.touch.hold" /> or <Label k="ad.ui.touch.flip" /> mode, <Label k="ad.ui.when.add_or" /> adds another group of conditions, and the trigger fires while any group is fully true.
+
+To switch the reaction on and off from the menu, open the panel's <Label k="ad.ui.advanced_fold" /> fold and press <Label k="ad.ui.trigger.gate.add" />. AvatarDoc makes a toggle named after the trigger, on by default, and the trigger works only while that toggle is on.
+
+### What AvatarDoc builds
+
+At upload, AvatarDoc adds the touch area to the avatar it uploads, never to your scene. It is a VRChat contact on a new object under the anchor, named AD Contact and the trigger's name. Every player's own copy of your avatar senses the touch, so a contact trigger costs no synced bits.
+
+A <Label k="ad.ui.touch.follow" /> trigger never holds the shapes VRChat blinks or speaks with while no hand is near. When its effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effect is on.
+
+## Check it worked
+
+- In the trigger's panel, press <Label k="ad.ui.preview.on" /> in the <Label k="ad.ui.preview" /> row. The Scene view shows the effect as if the sphere were touched. Press <Label k="ad.ui.preview.default" /> to stop the preview.
+- In Play mode with Gesture Manager, turn on **Clickable Contacts** and click the sphere in the Game view, as in [Your first headpat](../../start-here/first-headpat/#test-it).
+
+The preview cannot sense a real touch. Only Play mode or VRChat shows that the sphere sits in the right place.
+
+## If it does not work
+
+- Nothing happens when you touch the spot: the sphere sits in the wrong place or is too small, or <Label k="ad.ui.touch.tags" /> leaves out the body part that touches it. Select the trigger and look at the sphere in the Scene view.
+- Your own hand works but other players' hands do not, or the other way round: <Label k="ad.ui.touch.others" /> or <Label k="ad.ui.touch.self" /> is off.
+- A <Label k="ad.ui.touch.follow" /> effect jumps to full too early: raise <Label k="ad.ui.touch.fullat" />, or make the sphere bigger.
+
+## Related
+
+- The Reference page for Touch triggers describes every setting of a contact.
+- [Link effects to another toggle or a parameter](../link-to-a-toggle-or-parameter/) explains conditions, groups and <Label k="ad.ui.trigger.gate" />.

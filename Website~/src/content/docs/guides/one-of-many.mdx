@@ -1,0 +1,65 @@
+---
+title: Make one-of-many choices
+description: Put several toggles in an exclusive group, so turning one on turns the others off.
+sidebar:
+  order: 5
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+## When to use this
+
+Use an exclusive group when only one of several choices may be on: one hairstyle, one jacket, one pose of the ears. Pressing a choice turns the one that was on off.
+
+To build a whole outfit menu with its submenu and group in one window, see [Your first outfit selector](../../start-here/first-outfit-selector/). This page joins toggles you already have.
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. Make one toggle per choice. The quickest way: in the Hierarchy, select every piece, then drag them onto the menu tree in the inspector. Hold Ctrl (Cmd on a Mac) while you click to select more than one.
+
+   You should now see one toggle per piece in the tree, each named after its piece.
+
+3. In the tree, select the first toggle. In its panel, type a group name into <Label k="ad.ui.group" />, such as Outfits, and press Enter.
+
+4. In the tree, select the next toggle. Press the arrow button at the right end of <Label k="ad.ui.group" /> and pick Outfits from the list.
+
+   The list shows <Label k="ad.ui.group.none" /> and every group name already used on the avatar. Do the same for each toggle of the set.
+
+   <Shot name="guides/one-of-many-group" alt="A Hoodie toggle's panel with 1 its Exclusive group field set to Outfits, 2 the arrow button that lists groups, and 3 Default on." />
+
+   In the picture, 1 is the <Label k="ad.ui.group" /> field, 2 the arrow button with the list of groups, and 3 <Label k="ad.ui.default_on" />.
+
+5. Tick <Label k="ad.ui.default_on" /> on the one choice that should be on when the avatar loads. Leave it off on every choice to start with none of them on.
+
+</Steps>
+
+A group joins toggles by name, so toggles on different AvatarDoc components of the same avatar can share one group.
+
+Pressing the choice that is on turns it off, and then no choice is on.
+
+All the toggles of a group share one parameter. It holds a number for the choice that is on and costs 8 synced bits, however many toggles the group has. Eight separate toggles cost 8 bits too, so a group saves memory once it holds more than eight toggles.
+
+The group's choice is saved and synced, for every toggle in it. In each toggle's <Label k="ad.ui.advanced_fold" /> fold, the <Label k="ad.ui.saved" /> and <Label k="ad.ui.synced" /> switches give way to the note <Label k="ad.ui.group.settings" />. <Label k="ad.ui.blend" /> is not used in a group, so the choices switch at once.
+
+## Check it worked
+
+- In the panel of one choice, press <Label k="ad.ui.preview.on" /> in the <Label k="ad.ui.preview" /> row (<Label k="ad.ui.mode.advanced" /> mode). Then do the same on another choice. The Scene view never shows more than one choice of the group. Press <Label k="ad.ui.preview.default" /> on each to stop the preview.
+- In Play mode with Gesture Manager, press the choices in the menu one after another, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- Two choices are on at the same time: their group names differ. Another spelling or a capital letter makes a different name. Pick the name from the arrow button's list instead of typing it.
+- A warning says the group has more than one toggle set as default: AvatarDoc uses the first one. Turn off <Label k="ad.ui.default_on" /> on the others. See [the message](../../reference/messages/#ad-warn-group-multiple-defaults).
+
+## Related
+
+- The Reference page for Exclusive groups describes the group's settings.
+- [Toggle clothing and accessories](../toggle-clothing/) explains what each toggle shows and hides.
