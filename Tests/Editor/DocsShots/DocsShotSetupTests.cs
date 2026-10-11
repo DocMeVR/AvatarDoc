@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Runs the setup of every Home and Start here picture the way a capture would, in a host window, without
-    /// reading the screen: the avatar is healthy where the page says so, the entry the page talks about is
-    /// selected, and every marker finds its element whole inside the picture.
+    /// Runs the setup of every docs picture the way a capture would, in a host window, without reading the
+    /// screen: the avatar is healthy where the page says so, the entry the page talks about is selected, and every
+    /// marker finds its element whole inside the picture.
     /// </summary>
     public class DocsShotSetupTests
     {
@@ -222,6 +223,316 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        [Test]
+        public void TheToggleClothingShotShowsOnePieceShownAndOneHidden()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.ToggleClothingObjects(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var jacket = menu.entries.Single();
+                    Assert.That(jacket.objects.Select(o => (o.target, o.activeWhenOn)), Is.EqualTo(new[] { (avatar.Jacket, true), (avatar.Hoodie, false) }));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(jacket));
+                        Assert.That(view.Q<SegmentedChoice>("mode").Index, Is.EqualTo(0), "the first row, the jacket, reads Shown");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheSliderShotShowsARadialFromZeroToHundred()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.SlidersRadial(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var smile = menu.entries.Single();
+                    Assert.That(smile.kind, Is.EqualTo(EntryKind.Radial));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(smile));
+                        Assert.That((view.Q<FloatField>("min").value, view.Q<FloatField>("max").value), Is.EqualTo((0f, 100f)), "a new row's Min and Max");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheColourShotShowsTheShaderNameOnTheButtonAndThePropertyInItsTooltip()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.ColourAndGlowProperty(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var row = menu.entries.Single().properties.Single();
+                    var choice = PropertyPicker.Choices(row.renderer).Single(c => c.PropertyName == "_EmissionColor");
+                    Assert.That(choice.Type, Is.EqualTo(PropertyValueType.Color));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var pick = view.Q<Button>("property");
+                        Assert.That(pick.text, Is.EqualTo(choice.DisplayName), "the button shows the shader's own name for the property");
+                        Assert.That(pick.tooltip, Does.Contain("_EmissionColor"), "its tooltip names the property");
+                        Assert.That(view.Q<ColorField>("value").value, Is.EqualTo(row.color));
+                        Assert.That(view.Q("type"), Is.Null, "a property the shader lists needs no type choice");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheMaterialShotSwapsSlotZeroOfTheJacket()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.SwapMaterialsSlot(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Problems(menu), Is.Empty, "slot 0 exists on the jacket");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<IntegerField>("slot").value, Is.EqualTo(0));
+                        Assert.That(view.Q<ObjectField>("material").value, Is.EqualTo(avatar.Metal));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheGroupShotShowsTheHoodieInTheOutfitsGroup()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.OneOfManyGroup(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(menu.entries.Select(e => e.exclusiveGroup), Is.EqualTo(new[] { "Outfits", "Outfits" }));
+                    Assert.That(menu.entries.Select(e => e.defaultOn), Is.EqualTo(new[] { true, false }), "only the jacket starts on");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Hoodie"));
+                        Assert.That(view.Q<TextField>(DocsShots_Guides1.GroupFieldName).value, Is.EqualTo("Outfits"));
+                        Assert.That(view.Q<Toggle>(DocsShots_Guides1.DefaultOnName).value, Is.False);
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheMenuStyleShotShowsTheStyledSubmenuOpenInTheTree()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.OrganiseTheMenuStyle(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var outfits = menu.entries.Single(e => e.kind == EntryKind.Submenu);
+                    var style = RichName.Parse(outfits.name);
+                    Assert.That((style.Plain, style.Bold, style.Color.HasValue), Is.EqualTo(("Outfits", true, true)));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var tree = view.Q<AvatarDoctorView>().Tree;
+                        Assert.That(Selected(view), Is.SameAs(outfits));
+                        Assert.That(tree.Tree.IsExpanded(tree.RowFor(outfits.id).Id), Is.True, "the submenu is open, showing its toggles");
+                        Assert.That(view.Q<Label>("ad-name-preview").text, Is.EqualTo(outfits.name), "the In game line draws the styled name");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheHoldTheRestShotShowsTheRuleHoldTheRestAddsWithBothSwitchesOff()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.HoldTheRestRule(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var smile = menu.entries.Single();
+                    var rule = smile.shapeSets.Single();
+                    Assert.That((rule.mesh, rule.On, rule.value, rule.holdBlink, rule.holdVisemes), Is.EqualTo((avatar.Face, true, ShapeSetValue.Default, false, false)));
+                    int count = ShapeSetModel.CoveredShapeCount(smile, rule, ShapeSetModel.ContextFor(avatar.Root.transform));
+                    Assert.That(count, Is.EqualTo(DocsAvatar.FaceShapes.Length - 5), "every face shape but Smile, the blink shape and the three visemes");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<Toggle>("hold-blink").value || view.Q<Toggle>("hold-visemes").value, Is.False);
+                        Assert.That(view.Q<Label>("ad-shape-set-note").text,
+                            Is.EqualTo(UiText.Count(count, "ad.info.shape_set_count.default.one", "ad.info.shape_set_count.default")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheTouchShotShowsAFadeContactOnTheHead()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.ReactToTouchFade(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var poke = menu.entries.Single();
+                    Assert.That(poke.IsFollowDistanceTrigger, Is.True);
+                    Assert.That(poke.contactAnchor, Is.EqualTo(avatar.Test.HeadBone));
+                    Assert.That(poke.contactTags, Is.EquivalentTo(new[] { "Finger", "Hand" }), "a new trigger's tags");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(poke));
+                        Assert.That(view.Q<SegmentedChoice>("ad-touch-mode").Index, Is.EqualTo(2), "Fade is picked");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void ThePhysBoneShotShowsAStretchEventWithItsAmount()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.ReactToPhysbonesEvent(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Hair pull"));
+                        Assert.That(view.Q<DropdownField>("ad-touch-physbone-event").value, Is.EqualTo(L.Text("ad.ui.touch.event.stretch")));
+                        Assert.That(view.Q<Slider>("ad-touch-threshold").value, Is.EqualTo(0.5f));
+                        Assert.That(view.Q<SegmentedChoice>("ad-touch-mode").Items.Count, Is.EqualTo(2), "a PhysBone trigger offers Hold and Flip, not Fade");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheBlendShapeShotFollowsTheSmileInSmoothStyle()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.FollowABlendShapeSmooth(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var blush = menu.entries.Single();
+                    Assert.That((blush.linkStyle, blush.EffectiveSmoothStart, blush.EffectiveSmoothFull, blush.sourceThreshold, blush.linkMode),
+                        Is.EqualTo((BlendShapeLinkStyle.Smooth, 0f, 100f, 50f, BlendShapeLinkMode.Add)), "a new trigger's style, range, swap point and mode");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(blush));
+                        Assert.That(view.Q<Button>("ad-trigger-shape").text, Does.EndWith("Smile"));
+                        Assert.That(view.Q<DropdownField>("effect-mode").value, Is.EqualTo(L.Text("ad.ui.effect.fixed")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheParameterShotOpensTheListWithGestureTypedInsideThePicture()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.LinkParameterPicker(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Problems(menu), Is.Empty, "GestureRight is one of VRChat's own parameters");
+                    Rehearse(spec, (view, keptBottom) =>
+                    {
+                        var picker = view.panel.visualTree.Query<AdMenu>().ToList().SingleOrDefault();
+                        try
+                        {
+                            Assert.That(picker, Is.Not.Null, "the parameter list is open");
+                            Assert.That(picker.IsClosed, Is.False);
+                            Assert.That(picker.SearchField.value, Is.EqualTo("Gesture"));
+                            Assert.That(picker.Items.Select(i => i.Text), Is.SupersetOf(new[] { "GestureLeft", "GestureRight" }), "the search lists VRChat's gesture parameters");
+                            Assert.That(picker.Frame.worldBound.yMax, Is.LessThanOrEqualTo(keptBottom + 0.5f), "the open list ends inside the picture");
+                            Assert.That(picker.Frame.worldBound.xMax, Is.LessThanOrEqualTo(spec.Width + 0.5f), "the open list stays inside the picture's width");
+                        }
+                        finally
+                        {
+                            DocsShots_Guides1.CloseMenus(view);
+                        }
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
         static AvatarDoc MenuOf(DocsAvatar avatar) => avatar.Root.GetComponentsInChildren<AvatarDoc>(true).Single();
 
         static MenuEntry Selected(VisualElement view) => view.Q<AvatarDoctorView>()?.Tree.Selected?.Entry;
@@ -233,7 +544,10 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>The capture's own steps short of the screen read: the host window, the arrange step, the list rows, the crop and the markers. Each marker's element must be shown and end inside the kept picture.</summary>
-        static void Rehearse(DocsShotSpec spec, Action<VisualElement> check)
+        static void Rehearse(DocsShotSpec spec, Action<VisualElement> check) => Rehearse(spec, (view, keptBottom) => check(view));
+
+        /// <summary>The same, handing the check the bottom of the kept picture in world points, for a picture that shows something outside the view, such as an open menu.</summary>
+        static void Rehearse(DocsShotSpec spec, Action<VisualElement, float> check)
         {
             InspectorShots.InHostWindow(spec.View, spec.Width, spec.Height, (window, frame) =>
             {
@@ -248,7 +562,7 @@ namespace DocMe.AvatarDoctor.Editor
                     Assert.That(bound.width > 0f && bound.height > 0f, Is.True, spec.Name + ": \"" + elementName + "\" is shown");
                     Assert.That(bound.yMax - top, Is.LessThanOrEqualTo(area.height + 0.5f), spec.Name + ": \"" + elementName + "\" ends inside the picture");
                 }
-                check(spec.View);
+                check(spec.View, top + area.height);
             });
         }
 
