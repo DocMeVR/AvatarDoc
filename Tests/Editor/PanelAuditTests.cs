@@ -62,7 +62,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// field" rule was built to measure. The tree row's own Move to, Duplicate and Delete buttons that used to
         /// need the same exception are gone: those actions live in the right click menu only now.
         /// </summary>
-        static PanelAudit.AllowList StandardAllowList() => new PanelAudit.AllowList()
+        internal static PanelAudit.AllowList StandardAllowList() => new PanelAudit.AllowList()
             .Allow(e => e.name == "remove" && e.ClassListContains("ad-w-24"), "a target list row's own trailing x remove button: deliberately at the row's far end, removing the whole row rather than a field on it")
             .Allow(e => e.ClassListContains("ad-chip-remove"), "a chip's own remove x: trailing inside its own chip, not a labelled row field")
             .Allow(e => e.name == "ad-unlock", "the lock banner's own trailing action button")
@@ -663,11 +663,18 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>NDMF's font for a language through NDMF's own loader, which is private: its public call hands out only the font of the language NDMF shows, and a test cannot change that without saving it.</summary>
         static StyleFontDefinition NdmfFont(string language)
         {
+            var font = TryNdmfFont(language);
+            if (font == null) Assert.Ignore("NDMF finds no font for " + language + " on this system, so the fit in that font cannot be checked here");
+            return font.Value;
+        }
+
+        /// <summary>NDMF's font for a language, or null when NDMF finds none on this system.</summary>
+        internal static StyleFontDefinition? TryNdmfFont(string language)
+        {
             var load = typeof(LanguagePrefs).GetMethod("TryLoadFontForLanguage", BindingFlags.NonPublic | BindingFlags.Static);
             Assert.That(load, Is.Not.Null, "NDMF's font loader (LanguagePrefs.TryLoadFontForLanguage) was not found: this test needs updating for the NDMF version in use");
             var font = (StyleFontDefinition)load.Invoke(null, new object[] { language.ToLowerInvariant() });
-            if (font.value.fontAsset == null) Assert.Ignore("NDMF finds no font for " + language + " on this system, so the fit in that font cannot be checked here");
-            return font;
+            return font.value.fontAsset == null ? (StyleFontDefinition?)null : font;
         }
     }
 }

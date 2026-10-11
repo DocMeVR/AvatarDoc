@@ -1,5 +1,6 @@
 #if DOCME_NDMF && DOCME_VRCSDK3A
 using System;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -83,6 +84,86 @@ namespace DocMe.AvatarDoctor.Editor
                 previous = current;
             }
             throw new InvalidOperationException("LayoutProbe.Validate: the layout was still moving after 6 passes.");
+        }
+
+        const int MaxSettleFrames = 30;
+
+        /// <summary>
+        /// Runs the view's panel the way the editor runs it between frames, until every list has drawn its rows.
+        /// A synchronous test never reaches those frames, so a bound ListView stays empty: its binding request waits
+        /// for the panel's Bindings update (VisualTreeBindingsUpdater), and a list that sizes its rows waits for a
+        /// Fill it schedules on the panel's scheduler (DynamicHeightVirtualizationController.ScheduleFill). Each
+        /// frame does what UIElementsUtility.UpdateSchedulers does for an editor panel, then the layout pass a
+        /// repaint does: Panel.timerEventScheduler.UpdateScheduledEvents(), Panel.UpdateBindings(), then Validate
+        /// (Panel.ValidateLayout, which sends GeometryChangedEvent at once, and a list makes rows for its new size
+        /// from that event). Panel and TimerEventScheduler are internal types, so these members are reached by
+        /// reflection. After the first frame, when the bindings have landed, every ListView is rebuilt (Rebuild
+        /// drops rows made for an earlier size and makes them again for the list's current one), then frames run
+        /// until the layout stops changing. A shown list that drew fewer rows than it should stops the run instead
+        /// of measuring or picturing an empty or short list (see CheckRowsDrawn). Used by the docs pictures and by
+        /// PanelAudit, so both see the rows the creator sees.
+        /// </summary>
+        public static void SettleLists(VisualElement view)
+        {
+            var panel = view.panel ?? throw new InvalidOperationException("LayoutProbe.SettleLists: the view is not in a window; add it to a window's rootVisualElement first.");
+            const BindingFlags Flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var updateBindings = panel.GetType().GetMethod("UpdateBindings", Flags, null, Type.EmptyTypes, null);
+            var scheduler = panel.GetType().GetProperty("timerEventScheduler", Flags)?.GetValue(panel);
+            var updateScheduled = scheduler?.GetType().GetMethod("UpdateScheduledEvents", Flags, null, Type.EmptyTypes, null);
+            if (updateBindings == null || updateScheduled == null)
+                throw new InvalidOperationException("LayoutProbe.SettleLists: " + panel.GetType() + " has no UpdateBindings or timerEventScheduler.UpdateScheduledEvents in this Unity version, so list rows cannot be drawn.");
+
+            void Frame()
+            {
+                updateScheduled.Invoke(scheduler, null);
+                updateBindings.Invoke(panel, null);
+                Validate(view);
+            }
+
+            Frame();
+            foreach (var list in view.Query<ListView>().ToList()) list.Rebuild();
+            string previous = null;
+            for (int frame = 0; frame < MaxSettleFrames; frame++)
+            {
+                Frame();
+                var current = Signature(view);
+                if (current == previous)
+                {
+                    CheckRowsDrawn(view);
+                    return;
+                }
+                previous = current;
+            }
+            throw new InvalidOperationException("LayoutProbe.SettleLists: the view was still changing after " + MaxSettleFrames + " frames.");
+        }
+
+        /// <summary>
+        /// Stops the run when a shown list did not draw what it should: every row when the list fits without its
+        /// vertical scroller, or at least one row when it scrolls.
+        /// </summary>
+        public static void CheckRowsDrawn(VisualElement view)
+        {
+            foreach (var list in view.Query<ListView>().ToList())
+            {
+                int count = list.itemsSource?.Count ?? 0;
+                if (count == 0 || !IsShown(list)) continue;
+                int shown = list.Query(className: BaseVerticalCollectionView.itemUssClassName).ToList()
+                    .Count(row => row.GetFirstAncestorOfType<BaseVerticalCollectionView>() == list && row.resolvedStyle.display != DisplayStyle.None);
+                var scroller = list.Q<ScrollView>()?.verticalScroller;
+                bool scrolls = scroller != null && IsShown(scroller);
+                if (scrolls ? shown > 0 : shown == count) continue;
+                string where = !string.IsNullOrEmpty(list.name) ? " \"" + list.name + "\""
+                    : list.parent != null && !string.IsNullOrEmpty(list.parent.name) ? " in \"" + list.parent.name + "\"" : "";
+                throw new InvalidOperationException("LayoutProbe.SettleLists: a list" + where + " holds " + count + (count == 1 ? " item" : " items")
+                    + " but drew " + shown + (shown == 1 ? " row" : " rows") + ", so a picture or a layout audit would see it " + (shown == 0 ? "empty." : "short."));
+            }
+        }
+
+        static bool IsShown(VisualElement element)
+        {
+            for (var e = element; e != null; e = e.hierarchy.parent)
+                if (e.resolvedStyle.display == DisplayStyle.None) return false;
+            return true;
         }
 
         /// <summary>Every element's laid out rectangle in one string, for telling whether another pass changed anything.</summary>

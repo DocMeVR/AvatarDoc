@@ -32,7 +32,6 @@ namespace DocMe.AvatarDoctor.Editor
         public const long SizeLimitBytes = 250 * 1024;
 
         const string ShotsFolder = "Website~/src/assets/shots";
-        const int MaxSettleFrames = 30;
         static readonly Regex KebabCase = new Regex("^[a-z0-9]+(-[a-z0-9]+)*$");
 
         /// <summary>Whether the editor shows its dark theme. A test swaps it to try the refusal without touching the creator's theme.</summary>
@@ -152,54 +151,6 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Runs the view's panel the way the editor runs it between frames, until every list has drawn its rows.
-        /// A synchronous capture never reaches those frames, so a bound ListView stays empty: its binding request
-        /// waits for the panel's Bindings update (VisualTreeBindingsUpdater), and a list that sizes its rows waits
-        /// for a Fill it schedules on the panel's scheduler (DynamicHeightVirtualizationController.ScheduleFill).
-        /// Each frame does what UIElementsUtility.UpdateSchedulers does for an editor panel, then the layout pass a
-        /// repaint does: Panel.timerEventScheduler.UpdateScheduledEvents(), Panel.UpdateBindings(), then
-        /// LayoutProbe.Validate (Panel.ValidateLayout, which sends GeometryChangedEvent at once, and a list makes
-        /// rows for its new size from that event). Panel and TimerEventScheduler are internal types, so these
-        /// members are reached by reflection. After the first frame, when the bindings have landed, every ListView is
-        /// rebuilt (Rebuild drops rows made for an earlier size and makes them again for the list's current one),
-        /// then frames run until the layout stops changing. A shown list that drew fewer rows than it should stops
-        /// the run instead of shipping an empty or short list (see CheckRowsDrawn).
-        /// </summary>
-        public static void SettleLists(VisualElement view)
-        {
-            var panel = view.panel ?? throw new InvalidOperationException("DocsShot.SettleLists: the view is not in a window; add it to a window's rootVisualElement first.");
-            const BindingFlags Flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var updateBindings = panel.GetType().GetMethod("UpdateBindings", Flags, null, Type.EmptyTypes, null);
-            var scheduler = panel.GetType().GetProperty("timerEventScheduler", Flags)?.GetValue(panel);
-            var updateScheduled = scheduler?.GetType().GetMethod("UpdateScheduledEvents", Flags, null, Type.EmptyTypes, null);
-            if (updateBindings == null || updateScheduled == null)
-                throw new InvalidOperationException("DocsShot.SettleLists: " + panel.GetType() + " has no UpdateBindings or timerEventScheduler.UpdateScheduledEvents in this Unity version, so list rows cannot be drawn before a capture.");
-
-            void Frame()
-            {
-                updateScheduled.Invoke(scheduler, null);
-                updateBindings.Invoke(panel, null);
-                LayoutProbe.Validate(view);
-            }
-
-            Frame();
-            foreach (var list in view.Query<ListView>().ToList()) list.Rebuild();
-            string previous = null;
-            for (int frame = 0; frame < MaxSettleFrames; frame++)
-            {
-                Frame();
-                var current = LayoutProbe.Signature(view);
-                if (current == previous)
-                {
-                    CheckRowsDrawn(view);
-                    return;
-                }
-                previous = current;
-            }
-            throw new InvalidOperationException("DocsShot.SettleLists: the view was still changing after " + MaxSettleFrames + " frames.");
-        }
-
-        /// <summary>
         /// An Inspector for <paramref name="menu"/> as the creator sees it, shown in <paramref name="mode"/>, with its
         /// folds, wheel switches and first-use tips kept in memory instead of the creator's EditorPrefs. Every
         /// first-use tip counts as seen unless <paramref name="showTips"/> is set, for a page about the tips. Pass it
@@ -239,6 +190,9 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        /// <summary>The inspector width every docs picture is taken at: wider than the 300 to 400 px default, so rows sit on one line the way most creators see them with a docked inspector. Change it here only.</summary>
+        public const float InspectorWidth = 480f;
+
         /// <summary>
         /// Captures <paramref name="view"/> at <paramref name="width"/> points into the picture of
         /// <paramref name="shot"/> on <paramref name="page"/>, writes its marker file and lists it in the manifest.
@@ -247,7 +201,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// by a USS class it carries. The run stops with a message, writing nothing, in the light theme, when the
         /// window never came to the front, or when a marked element is missing.
         /// </summary>
-        public static void Take(string page, string shot, VisualElement view, float width = 360f, float height = 900f, Action<VisualElement> arrange = null, params (string elementName, int number)[] markers)
+        public static void Take(string page, string shot, VisualElement view, float width = InspectorWidth, float height = 900f, Action<VisualElement> arrange = null, params (string elementName, int number)[] markers)
         {
             try
             {
@@ -269,7 +223,7 @@ namespace DocMe.AvatarDoctor.Editor
                     root =>
                     {
                         arrange?.Invoke(root);
-                        SettleLists(root);
+                        LayoutProbe.SettleLists(root);
                     },
                     frame =>
                     {
@@ -331,35 +285,6 @@ namespace DocMe.AvatarDoctor.Editor
                 if (child.resolvedStyle.display != DisplayStyle.None) bottom = Mathf.Max(bottom, child.worldBound.yMax);
             if (float.IsNegativeInfinity(bottom)) return view.worldBound.yMax;
             return Mathf.Min(view.worldBound.yMax, bottom + view.resolvedStyle.paddingBottom + view.resolvedStyle.borderBottomWidth);
-        }
-
-        /// <summary>
-        /// Stops the run when a shown list did not draw what it should: every row when the list fits without its
-        /// vertical scroller, or at least one row when it scrolls.
-        /// </summary>
-        internal static void CheckRowsDrawn(VisualElement view)
-        {
-            foreach (var list in view.Query<ListView>().ToList())
-            {
-                int count = list.itemsSource?.Count ?? 0;
-                if (count == 0 || !IsShown(list)) continue;
-                int shown = list.Query(className: BaseVerticalCollectionView.itemUssClassName).ToList()
-                    .Count(row => row.GetFirstAncestorOfType<BaseVerticalCollectionView>() == list && row.resolvedStyle.display != DisplayStyle.None);
-                var scroller = list.Q<ScrollView>()?.verticalScroller;
-                bool scrolls = scroller != null && IsShown(scroller);
-                if (scrolls ? shown > 0 : shown == count) continue;
-                string where = !string.IsNullOrEmpty(list.name) ? " \"" + list.name + "\""
-                    : list.parent != null && !string.IsNullOrEmpty(list.parent.name) ? " in \"" + list.parent.name + "\"" : "";
-                throw new InvalidOperationException("DocsShot.SettleLists: a list" + where + " holds " + count + (count == 1 ? " item" : " items")
-                    + " but drew " + shown + (shown == 1 ? " row" : " rows") + ", so the picture would show it " + (shown == 0 ? "empty." : "short."));
-            }
-        }
-
-        static bool IsShown(VisualElement element)
-        {
-            for (var e = element; e != null; e = e.hierarchy.parent)
-                if (e.resolvedStyle.display == DisplayStyle.None) return false;
-            return true;
         }
 
         static void CheckName(string name, string parameter)

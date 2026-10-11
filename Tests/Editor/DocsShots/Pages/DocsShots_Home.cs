@@ -56,7 +56,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var outfits = menu.AddEntry(EntryKind.Submenu, "Outfits");
                 menu.AddEntry(EntryKind.Toggle, "Jacket", outfits.id).objects.Add(new ObjectTarget { target = avatar.Jacket });
                 menu.AddEntry(EntryKind.Toggle, "Hoodie", outfits.id).objects.Add(new ObjectTarget { target = avatar.Hoodie });
-                DocsShot.Take("reference-inspector", "overview", DocsShot.Inspector(menu), 360f, 900f,
+                DocsShot.Take("reference-inspector", "overview", DocsShot.Inspector(menu), DocsShot.InspectorWidth, 900f,
                     root => root.Q<AvatarDoctorView>().Tree.SelectEntry(hat.id),
                     ("ad-header", 1), ("ad-membar", 2), ("ad-toolbar-actions", 3), ("ad-search", 4), ("ad-tree", 5), ("ad-detail", 6));
             }
