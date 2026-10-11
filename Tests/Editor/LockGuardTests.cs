@@ -241,8 +241,15 @@ namespace DocMe.AvatarDoctor.Editor
         [Test]
         public void LockedComponentRefusesTheCustomNameSwitchTurnedOff()
         {
-            WithAPanelBuiltBeforeTheLock((menu, view) =>
+            var menu = avatar.AddMenu();
+            var hat = menu.AddEntry(EntryKind.Toggle, "Hat");
+            hat.objects.Add(new ObjectTarget { target = avatar.Hat });
+            hat.parameterName = "Mine";
+            var view = new AvatarDoctorView(new SerializedObject(menu), menu);
+            LayoutProbe.Measure(view, () =>
             {
+                view.Tree.SelectEntry(hat.id);
+                LayoutProbe.Validate(view);
                 var custom = view.Detail.Q<Toggle>("ad-parameter-custom");
                 Assert.That(custom.value, Is.True, "Hat has a parameter name of its own");
 

@@ -711,7 +711,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// one domain reload. The asset id is tried first; a reimport that changed the id falls through to the
         /// asset database search by name.
         /// </summary>
-        internal static StyleSheet LoadStyleSheet()
+        public static StyleSheet LoadStyleSheet()
         {
             if (styleSheet != null) return styleSheet;
             var known = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath(StyleSheetGuid));

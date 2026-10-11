@@ -172,7 +172,7 @@ namespace DocMe.AvatarDoctor.Editor
             return container;
         }
 
-        /// <summary>Who declares this controller parameter: the entry that names it as its own, "existing on the avatar" for one the avatar already had before this merge, or "not synced" for one nothing declares.</summary>
+        /// <summary>Who declares this controller parameter: the entry that names it as its own, "existing on the avatar" for one the avatar already had before this merge, "declared" with its real sync state for one a component declares, or "not synced" for one nothing declares.</summary>
         static string DeclaredBy(string parameterName, Dictionary<string, PlannedParameter> plannedByName, Dictionary<string, ExistingParameter> existing, out bool notSynced)
         {
             notSynced = false;
@@ -182,6 +182,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (existing.ContainsKey(parameterName)) return L.Text("ad.ui.animator.existing");
 
             notSynced = true;
+            if (planned != null && planned.Declared) return L.Text(planned.Synced ? "ad.ui.animator.declared_synced" : "ad.ui.animator.declared_local");
             return L.Text("ad.ui.animator.not_synced");
         }
 

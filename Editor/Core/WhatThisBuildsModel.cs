@@ -23,9 +23,12 @@ namespace DocMe.AvatarDoctor.Editor
             public readonly int Contacts;
             public readonly int PhysBones;
             public readonly int Constraints;
+            /// <summary>The animation clips an override rewrites.</summary>
+            public readonly int RewrittenClips;
 
-            public Summary(int menuControls, int bits, int fxLayers, int contacts, int physBones, int constraints)
+            public Summary(int menuControls, int bits, int fxLayers, int contacts, int physBones, int constraints, int rewrittenClips = 0)
             {
+                RewrittenClips = rewrittenClips;
                 MenuControls = menuControls;
                 Bits = bits;
                 FxLayers = fxLayers;
@@ -34,7 +37,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Constraints = constraints;
             }
 
-            public bool IsEmpty => MenuControls == 0 && Bits == 0 && FxLayers == 0 && Contacts == 0 && PhysBones == 0 && Constraints == 0;
+            public bool IsEmpty => MenuControls == 0 && Bits == 0 && FxLayers == 0 && Contacts == 0 && PhysBones == 0 && Constraints == 0 && RewrittenClips == 0;
         }
 
         /// <summary>The one line for a row's detail panel: the parts that are not zero, comma separated, or a reason nothing builds.</summary>
@@ -52,6 +55,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (summary.Contacts > 0) parts.Add(UiText.Count(summary.Contacts, "ad.ui.builds.contacts.one", "ad.ui.builds.contacts"));
                 if (summary.PhysBones > 0) parts.Add(UiText.Count(summary.PhysBones, "ad.ui.builds.physbones.one", "ad.ui.builds.physbones"));
                 if (summary.Constraints > 0) parts.Add(UiText.Count(summary.Constraints, "ad.ui.builds.constraints.one", "ad.ui.builds.constraints"));
+                if (summary.RewrittenClips > 0) parts.Add(UiText.Count(summary.RewrittenClips, "ad.ui.builds.clips.one", "ad.ui.builds.clips"));
                 if (entry.kind == EntryKind.Trigger && entry.source == TriggerSource.BlendShape)
                 {
                     parts.Add(entry.linkStyle == BlendShapeLinkStyle.Switch
@@ -83,6 +87,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
             if (row.OwnerDisabled) return L.Text("ad.ui.builds.nothing.disabled");
             if (row.Excluded) return string.Format(L.Text("ad.ui.builds.nothing.platform"), HeaderView.CurrentPlatformName);
+            if (entry.kind == EntryKind.Override && entry.blendShapes.Any(t => t != null && t.renderer != null && !string.IsNullOrEmpty(t.shape))) return L.Text("ad.ui.builds.nothing.no_clips");
             return L.Text("ad.ui.builds.nothing.empty");
         }
 
@@ -129,7 +134,11 @@ namespace DocMe.AvatarDoctor.Editor
                 constraints += targets.Count;
             }
 
-            return new Summary(menuControls, bits, fxLayers, contacts, physBones, constraints);
+            int clips = entry.kind == EntryKind.Override && plan.Usage != null
+                ? entry.blendShapes.Where(t => t != null && t.renderer != null).SelectMany(t => plan.Usage.ClipsFor(t.renderer, t.shape)).Distinct().Count()
+                : 0;
+
+            return new Summary(menuControls, bits, fxLayers, contacts, physBones, constraints, clips);
         }
 
         /// <summary>Whether this entry is the one credited with a shared constraint's target: the plan's own claim map says so, or, for a plan built without one (a test's own hand built AvatarPlan), every entry is credited on its own, the way the model worked before entries could share credit.</summary>

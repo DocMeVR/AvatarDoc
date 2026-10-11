@@ -32,6 +32,7 @@ namespace DocMe.AvatarDoctor
     /// build adds the values to the clips that already switch the piece.
     /// </summary>
     [AddComponentMenu("DocMe/AvatarDoc Shapes")]
+    [HelpURL(DocsAddress.Base + "reference/avatardoc-shapes/")]
     public sealed class AvatarDocShapes : MonoBehaviour
 #if DOCME_VRCSDK_BASE
         , VRC.SDKBase.IEditorOnly

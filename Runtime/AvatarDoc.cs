@@ -24,6 +24,7 @@ namespace DocMe.AvatarDoctor
     /// </summary>
     [MovedFrom(true, sourceClassName: "AvatarDoctorMenu")]
     [AddComponentMenu("DocMe/AvatarDoc")]
+    [HelpURL(DocsAddress.Base + "reference/inspector/")]
     public class AvatarDoc : MonoBehaviour
 #if DOCME_VRCSDK_BASE
         , VRC.SDKBase.IEditorOnly

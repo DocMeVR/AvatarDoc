@@ -68,7 +68,14 @@ namespace DocMe.AvatarDoctor.Editor
                     Add(Card(row, entry, groups.GetArrayElementAtIndex(g), g));
                 }
                 if (!driven && ConditionLogic.TooComplex(entry.EffectiveWhen, out int groupCount, out int leaveCount))
-                    Add(UiText.MessageLabel(string.Format(L.Text(UiText.CountKey(groupCount, "ad.error.trigger_too_complex")), entry.PlainName, groupCount, leaveCount)));
+                {
+                    string tooComplexKey = UiText.CountKey(groupCount, "ad.error.trigger_too_complex");
+                    var line = new VisualElement { name = "ad-too-complex" };
+                    line.AddToClassList("ad-message-line");
+                    line.Add(UiText.MessageLabel(string.Format(L.Text(tooComplexKey), entry.PlainName, groupCount, leaveCount)));
+                    line.Add(DocsLinks.LearnMoreButton(tooComplexKey));
+                    Add(line);
+                }
             }
 
             // One driver moves a blend shape trigger's or a Fade contact's effects, so "+ And" adds a requirement
