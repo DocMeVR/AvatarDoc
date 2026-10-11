@@ -533,6 +533,338 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        [Test]
+        public void TheOverrideShotListsTheTwoClipsThatMoveThePinnedShape()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.OverridesPinned(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var rule = menu.entries.Single();
+                    Assert.That((rule.kind, rule.blendShapes.Single().shape, rule.blendShapes.Single().weight), Is.EqualTo((EntryKind.Override, "Tongue_Out", 0f)));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(rule));
+                        var usage = view.Q("ad-override-usage");
+                        Assert.That(usage.Query<Label>(className: "ad-usage-clip").ToList().Select(l => l.text), Is.EqualTo(new[] { "FT Tongue Out", "Gesture Silly Face" }));
+                        Assert.That(usage.Q<Label>(className: "ad-section").text, Is.EqualTo(string.Format(L.Text("ad.ui.override.usage"), 2)));
+                        Assert.That(view.Q<Slider>("weight").value, Is.EqualTo(0f), "Pinned value");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void ThePresetShotSetsAToggleOffAGroupMemberOnAndARadialHalfway()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.PresetsSets(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var look = menu.entries.Single(e => e.kind == EntryKind.Preset);
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view), Is.SameAs(look));
+                        Assert.That(view.Query<Button>("ad-preset-control").ToList().Select(b => b.text), Is.EqualTo(new[] { "Hat", "Outfits/Hoodie", "Smile" }), "each row names its control by its menu path");
+                        Assert.That(view.Query<SegmentedChoice>("ad-preset-on").ToList().Select(c => c.Index), Is.EqualTo(new[] { 1, 0 }), "Hat off, Hoodie on");
+                        Assert.That(view.Q<Slider>("ad-preset-value").value, Is.EqualTo(0.5f));
+                        Assert.That(view.Q("ad-preset-param-name"), Is.Null, "Other parameters is empty");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheShapesShotHoldsShrinkFeetWhileTheShoesAreOn()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.ShrinkUnderClothesShapes(avatar);
+                try
+                {
+                    var shapes = avatar.Shoes.GetComponent<AvatarDocShapes>();
+                    var row = shapes.whileOn.Single();
+                    Assert.That((row.mesh, row.shape, row.value), Is.EqualTo((avatar.Body, "Shrink_Feet", 100f)));
+                    Assert.That(shapes.follow, Is.Empty);
+                    Assert.That(ShapesModel.PlanFor(shapes).Messages.Select(m => m.Key), Is.Empty, "the row is whole");
+                    Assert.That(Problems(MenuOf(avatar)), Is.Empty, "the Shoes toggle that switches the piece is healthy");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<Button>("ad-shapes-while-on-shape-0").text, Is.EqualTo("Shrink_Feet"));
+                        Assert.That(view.Q<Slider>("ad-shapes-while-on-value-0").value, Is.EqualTo(100f));
+                        Assert.That(view.Q("ad-shapes-messages").childCount, Is.EqualTo(0), "no message under the rows");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheAnimatorShotShowsBothLayersMergedAndTwoParametersToGiveAControl()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.OwnAnimatorOrMenuAnimator(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var merge = menu.animators.Single();
+                    Assert.That((merge.controller.name, merge.matchWriteDefaults, merge.skipLayers.Count), Is.EqualTo(("Sparkles FX", true, 0)), "a new merge's defaults");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<AvatarDoctorView>().Tree.Selected?.Merge, Is.SameAs(merge));
+                        Assert.That(view.Q("ad-animator-layers").Query<Toggle>().ToList().Select(t => (t.label, t.value)), Is.EqualTo(new[] { ("Sparkles", true), ("Sparkles Colour", true) }));
+                        Assert.That(view.Query<Button>("ad-animator-add-control").ToList().Count, Is.EqualTo(2), "nothing declares either parameter yet");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheExistingMenuShotShowsSitRenamedAndMovedIntoEmotes()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.ChangeTheExistingMenuItem(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var row = view.Q<AvatarDoctorView>().Tree.Selected;
+                        Assert.That(row?.Kind, Is.EqualTo(RowKind.Existing));
+                        Assert.That(row.ParentRow?.Name, Is.EqualTo("Emotes"), "the move landed in Emotes");
+                        Assert.That(view.Q<TextField>("ad-name").value, Is.EqualTo("Sit down"));
+                        Assert.That(view.Q<TextField>("ad-existing-move").value, Is.EqualTo("Emotes"));
+                        Assert.That(view.Q<Button>("ad-existing-reset").enabledSelf, Is.True, "Reset works once the item is edited");
+                        Assert.That(view.Q<Toggle>("ad-existing-remove").value, Is.False);
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheConvertShotListsTheOtherToolsTogglesAndTheLayersItCannotConvert()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.ConvertWindow(avatar);
+                try
+                {
+                    var candidates = ImportScanner.Scan(avatar.Root.transform, AvatarPlanCache.GetFor(MenuOf(avatar)).Tree);
+#if DOCME_MA
+                    int supported = 3;
+                    Assert.That(candidates.Where(c => c.Source == ImportSource.ModularAvatar).Select(c => c.Supported), Is.EqualTo(new[] { true }), "the Modular Avatar hoodie toggle");
+#else
+                    int supported = 2;
+#endif
+                    Assert.That(candidates.Where(c => c.Source == ImportSource.VRCFury).Select(c => c.Supported), Is.EqualTo(new[] { true, true }), "the two VRCFury toggles");
+                    Assert.That(candidates.Where(c => c.Source == ImportSource.FxLayer).Select(c => (c.Draft.PlainName, c.Supported)), Is.EquivalentTo(new[] { ("Sit", false), ("Wave", false) }),
+                        "the avatar's own Sit and Wave are listed with the reason they cannot be converted");
+                    Assert.That(candidates.Count(c => c.Supported), Is.EqualTo(supported));
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<Button>("ad-import-run").text, Is.EqualTo(string.Format(L.Text("ad.ui.import.button"), supported)), "every row that can be converted starts ticked");
+                        Assert.That(view.Q<Toggle>("ad-import-remove").value, Is.True, "Remove originals starts on");
+                        var list = view.Q<ScrollView>(className: "ad-import-list");
+                        Assert.That(list.contentViewport.layout.height, Is.GreaterThanOrEqualTo(list.contentContainer.layout.height - 0.5f), "the list shows every row without scrolling");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheOtherToolsShotSelectsTheVrcFuryGlassesRow()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.OtherToolRows(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var tree = view.Q<AvatarDoctorView>().Tree;
+                        var foreign = tree.RowsOfKind(RowKind.Foreign).Select(r => r.Name).ToList();
+                        Assert.That(foreign, Is.SupersetOf(new[] { "Glasses", "Blush" }));
+#if DOCME_MA
+                        Assert.That(foreign, Does.Contain("Hoodie"));
+                        Assert.That(view.Q<Label>(DocsShots_Guides2.ModularAvatarChipName).text, Is.EqualTo(L.Text("ad.ui.chip.modular_avatar")));
+#endif
+                        Assert.That(tree.Selected?.Kind, Is.EqualTo(RowKind.Foreign));
+                        Assert.That(tree.Selected.Name, Is.EqualTo("Glasses"));
+                        Assert.That(view.Q<Label>(DocsShots_Guides2.VrcFuryChipName).text, Is.EqualTo(L.Text("ad.ui.chip.vrcfury")));
+                        Assert.That(view.Q("ad-existing-remove"), Is.Null, "a row another tool adds offers no Remove from avatar");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void ThePlatformShotShowsAPcOnlyRadialWhileBuildingForPc()
+        {
+            var before = Platform.OverrideMobile;
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.PcAndQuestPlatform(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    Assert.That(Platform.IsMobileTarget, Is.False, "the shot pins the build target to PC");
+                    var glow = menu.entries.Single(e => e.name == "Glow");
+                    Assert.That(glow.platform, Is.EqualTo(EntryPlatform.PCOnly));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var doctor = view.Q<AvatarDoctorView>();
+                        Assert.That(Selected(view), Is.SameAs(glow));
+                        Assert.That(doctor.Tree.Selected.Excluded, Is.False, "built on PC, so not left out");
+                        Assert.That(view.Q<Label>(DocsShots_Guides2.PlatformChipName).text, Is.EqualTo(L.Text("ad.ui.chip.pc_only")));
+                        Assert.That(doctor.Detail.Q<AdvancedFold>().IsOpen, Is.True);
+                        Assert.That(view.Q<DropdownField>(DocsShots_Guides2.EntryPlatformName).value, Is.EqualTo(L.Text("ad.ui.platform.pc")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+                Assert.That(Platform.OverrideMobile, Is.EqualTo(before), "the build target is given back");
+            }
+        }
+
+        [Test]
+        public void TheMemoryShotShowsTheAvatarsTwoBitsAndAvatarDocsSeventeen()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.ParameterMemoryBits(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var plan = AvatarPlanCache.GetFor(menu);
+                    Assert.That((plan.AvatarBits, plan.AvatarDoctorBits), Is.EqualTo((2, 17)), "Sit and Wave; the Hat toggle 1, the Smile radial 8, the Outfits group 8");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Smile"));
+                        Assert.That(view.Q<AvatarDoctorView>().Detail.Q<AdvancedFold>().IsOpen, Is.True);
+                        Assert.That(view.Q<Label>("ad-synced-cost").text, Is.EqualTo(L.Text("ad.ui.synced.cost.bits")), "+8 bits beside Synced");
+                        Assert.That(view.Q<Label>("ad-builds-line").text, Does.Contain(UiText.Count(8, "ad.ui.builds.bits.one", "ad.ui.builds.bits")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheWheelShotIsInTestModeWithTheHatOnAndTheHeadpatOnTheStrip()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.TestAndPreviewWheel(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var hat = menu.entries.Single(e => e.name == "Hat");
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var doctor = view.Q<AvatarDoctorView>();
+                        Assert.That(doctor.Tree.Selected, Is.Null, "nothing selected, so the wheel shows the top of the menu");
+                        Assert.That(doctor.Wheel.ClassListContains("ad-hidden"), Is.False, "the wheel shows");
+                        Assert.That(doctor.TestMode, Is.True);
+                        Assert.That(view.Q<SegmentedChoice>("ad-wheel-mode").Index, Is.EqualTo(1), "Test is picked");
+                        Assert.That(PreviewState.TryGet(hat.id, out var value) && value >= 0.5f, Is.True, "the Hat is previewed on");
+                        Assert.That(view.Query<Button>(className: "ad-wheel-trigger").ToList().Select(b => b.text), Is.EqualTo(new[] { "Headpat" }));
+                    });
+                    spec.Release();
+                    Assert.That(PreviewState.TryGet(hat.id, out _), Is.False, "Release clears the Hat's preview");
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
+        public void TheRemovalShotFreesTheDanceParameterAndBothItsLayers()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides2.RemoveThingsResult(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var dance = AvatarPlanCache.GetFor(menu).Tree.Removal.Parameters.Single();
+                    Assert.That((dance.Name, dance.Freed, dance.Bits), Is.EqualTo(("Dance", true, 8)));
+                    Assert.That(dance.Layers, Is.EquivalentTo(new[] { "Dance", "Dance Music" }));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        var row = view.Q<AvatarDoctorView>().Tree.Selected;
+                        Assert.That(row?.Kind, Is.EqualTo(RowKind.Existing));
+                        Assert.That((row.Name, row.Removed), Is.EqualTo(("Dance", true)));
+                        Assert.That(view.Q<Toggle>("ad-existing-remove").value, Is.True);
+                        Assert.That(view.Q<Toggle>("ad-existing-in-menu").enabledSelf, Is.False, "a removed item is out of the menu by that alone");
+                        Assert.That(view.Q<Label>("ad-existing-remove-note").text, Is.EqualTo(string.Format(L.Text("ad.ui.existing.remove_frees"), 8, 2)));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
         static AvatarDoc MenuOf(DocsAvatar avatar) => avatar.Root.GetComponentsInChildren<AvatarDoc>(true).Single();
 
         static MenuEntry Selected(VisualElement view) => view.Q<AvatarDoctorView>()?.Tree.Selected?.Entry;

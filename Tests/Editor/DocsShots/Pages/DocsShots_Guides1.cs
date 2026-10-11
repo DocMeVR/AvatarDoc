@@ -246,7 +246,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>A picture of one entry's panel alone: the entry revealed and selected, the mode row, the header and the tree left out.</summary>
-        static DocsShotSpec PanelShot(AvatarDoc menu, MenuEntry entry, string name, params (string, int)[] markers) => new DocsShotSpec
+        internal static DocsShotSpec PanelShot(AvatarDoc menu, MenuEntry entry, string name, params (string, int)[] markers) => new DocsShotSpec
         {
             Page = Page,
             Name = name,
