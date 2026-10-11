@@ -6,3 +6,13 @@ Thumbs.db
 
 # internal planning notes, kept on disk only
 Docs~/plan-*.md
+
+# docs site: dependencies, build output and files generated at build time
+Website~/node_modules/
+Website~/dist/
+Website~/.astro/
+Website~/src/data/strings.*.json
+Website~/src/content/docs/reference/messages.md
+Website~/src/content/docs/help/changelog.md
+Website~/src/content/docs/how-it-works/glossary.md
+Website~/src/content/docs/help/translate.md
