@@ -3,34 +3,39 @@ title: AvatarDoc
 description: Toggles, radials, submenus and triggers for VRChat avatars, built at upload through NDMF.
 template: splash
 hero:
-  tagline: "Make toggles, sliders, outfit selectors and touch triggers for your avatar in one inspector. Nothing is baked into your avatar. AvatarDoc builds it when you upload."
+  tagline: "Toggles, sliders, outfit selectors and touch reactions for your avatar, set up in one inspector and built when you upload."
 ---
 
 import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import Shot from '../../components/Shot.astro';
 import site from '../../data/site.json';
 
 <LinkButton href={site.vccAddUrl} variant="primary">Add to VCC</LinkButton>{' '}
 <LinkButton href={`${site.base}/start-here/install/`} variant="minimal">Get started</LinkButton>
 
+<div class="home-shot">
+<Shot name="home/hero" alt="The AvatarDoc inspector with a menu of toggles, a radial and an Outfits submenu, and the Smile toggle selected." />
+</div>
+
 ## What do you want to do?
 
 <CardGrid>
+  <Card title="Your first toggle" icon="pencil">
+    Show or hide a hat from the avatar menu. [Make a toggle](start-here/first-toggle/)
+  </Card>
+  <Card title="Your first outfit selector" icon="puzzle">
+    Pick one outfit out of several. [Make an outfit selector](start-here/first-outfit-selector/)
+  </Card>
+  <Card title="Your first headpat" icon="star">
+    Make the avatar blush when a hand pats its head. [Make a headpat](start-here/first-headpat/)
+  </Card>
+  <Card title="Simple or Advanced?" icon="setting">
+    See what each inspector mode shows, and switch between them. [Compare the modes](start-here/simple-or-advanced/)
+  </Card>
   <Card title="Install AvatarDoc" icon="rocket">
     Add the DocMe listing to VCC and AvatarDoc to your project. [Install](start-here/install/)
   </Card>
-  <Card title="Your first toggle" icon="pencil">
-    Show or hide a hat from the avatar menu. [Start with Install](start-here/install/)
-  </Card>
-  <Card title="Your first outfit selector" icon="puzzle">
-    Pick one outfit out of several. [Start with Install](start-here/install/)
-  </Card>
-  <Card title="React to touch" icon="star">
-    Make something happen when a hand touches a part of the avatar. [Start with Install](start-here/install/)
-  </Card>
-  <Card title="Change a colour or glow" icon="setting">
-    Drive a material value from a toggle or a slider. [Start with Install](start-here/install/)
-  </Card>
-  <Card title="Fix a message" icon="information">
-    Find what a warning means and what to do. [Start with Install](start-here/install/)
+  <Card title="Messages" icon="information">
+    Find what a warning means and what to do. [Messages](reference/messages/)
   </Card>
 </CardGrid>

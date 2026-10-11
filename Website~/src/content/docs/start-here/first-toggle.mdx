@@ -1,0 +1,69 @@
+---
+title: Your first toggle
+description: Make a toggle that shows or hides a hat, then try it in Play mode or in VRChat.
+sidebar:
+  order: 2
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="start-here/first-toggle-done" alt="The AvatarDoc inspector with the new Hat toggle selected in the tree, and 1 its Objects list holding the hat." />
+
+In the picture, 1 is the toggle's <Label k="ad.ui.objects" /> list: the objects it turns on and off.
+
+At the end of this page your avatar menu has a Hat toggle. Pressing it shows or hides the hat.
+
+## Before you start
+
+- AvatarDoc is installed in your project. See [Install AvatarDoc](../install/).
+- Your avatar is in the open scene.
+- The avatar has an object you want to show and hide. This page uses a hat.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select your avatar.
+
+2. In the inspector, press **Add Component**.
+
+   You should now see Unity's list of components, with a search field.
+
+3. Type `AvatarDoc` and pick **AvatarDoc**.
+
+   You should now see the AvatarDoc inspector. Under its menu tree, a welcome card offers a few ways to start. This page uses <Label k="ad.ui.welcome.toggle" />.
+
+   <Shot name="start-here/first-toggle-welcome" alt="The inspector of a new AvatarDoc component, with 1 Make a toggle, 2 Start an outfit set and 3 Quick start marked on the welcome card." />
+
+   - 1: <Label k="ad.ui.welcome.toggle" /> makes a toggle from one object.
+   - 2: <Label k="ad.ui.welcome.outfit" /> opens the outfit set window that [Your first outfit selector](../first-outfit-selector/) uses.
+   - 3: <Label k="ad.ui.welcome.quickstart" /> opens a short guide inside Unity.
+
+4. In the welcome card, press <Label k="ad.ui.welcome.toggle" />.
+
+   You should now see a list of the objects on your avatar, with a search field.
+
+5. Type the name of your hat and pick it in the list.
+
+   You should now see a toggle named after the hat, selected in the tree. In its panel, the <Label k="ad.ui.objects" /> list holds the hat, set to <Label k="ad.ui.seg.shown" />. The welcome card is gone.
+
+</Steps>
+
+## Test it
+
+With Gesture Manager, a free tool you can add to your project from VCC:
+
+1. In Unity's menu bar, select **Tools > Gesture Manager Emulator**.
+2. Press Play. AvatarDoc builds the menu, the same way it does for an upload.
+3. In the Hierarchy, select **GestureManager**. Its inspector shows your avatar's menu as a wheel.
+4. Open **Expressions** and press your hat's toggle.
+
+The hat starts hidden, because a new toggle starts off. Each press shows or hides it. To start with the hat shown, tick <Label k="ad.ui.default_on" /> in the toggle's panel.
+
+Without Gesture Manager, upload the avatar and press the toggle in VRChat's Expressions menu.
+
+## Next
+
+[Your first outfit selector](../first-outfit-selector/): build a submenu where one outfit is worn at a time.
