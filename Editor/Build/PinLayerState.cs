@@ -15,8 +15,8 @@ namespace DocMe.AvatarDoctor.Editor
     {
         public bool Ready;
         public readonly HashSet<string> Names = new HashSet<string>();
-        /// <summary>True when there is a named pin layer to move, a binding to release, or a shape to copy. Follow distance's own layer, its shared tracking pause layers and every blend shape trigger's layer are named in here too, since they are all built as pin layers.</summary>
-        public bool HasAny => Names.Count > 0 || Bindings.Count > 0 || PropertyRests.Count > 0 || ShapeMirrors.Count > 0;
+        /// <summary>True when there is a named pin layer to move, a binding to release, a shape to copy or a rule curve to check. Follow distance's own layer, its shared tracking pause layers and every blend shape trigger's layer are named in here too, since they are all built as pin layers.</summary>
+        public bool HasAny => Names.Count > 0 || Bindings.Count > 0 || PropertyRests.Count > 0 || ShapeMirrors.Count > 0 || HeldCurves.Count > 0;
 
         /// <summary>
         /// One blend shape trigger the final pass still has to connect to its shape: every FX clip that moves the
@@ -71,6 +71,31 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         public readonly List<PropertyRest> PropertyRests = new List<PropertyRest>();
+
+        /// <summary>
+        /// One curve a shape set rule wrote: in a toggle's or a Hold trigger's pin state, a Fade contact's Near child,
+        /// or a blend shape trigger's driven state or child. Named by layer, state and child, because the final pass
+        /// works on virtual objects rebuilt from the committed controller; HeldShapePruner reads it back there.
+        /// </summary>
+        public sealed class HeldCurve
+        {
+            public MenuEntry Entry;
+            public SkinnedMeshRenderer Renderer;
+            public string Shape;
+            public string LayerName;
+            public string StateName;
+            /// <summary>Which of the layer's states named StateName holds the curve, counted from 0, for two states that share a name.</summary>
+            public int StateOccurrence;
+            /// <summary>The child of the state's blend tree that holds the curve, or -1 when the state's motion is the clip itself.</summary>
+            public int Child = -1;
+            public ShapeSetValue Value;
+            /// <summary>The shape's weight before any AvatarDoc effect touched it (BaseState.WeightOf): what a Default rule holds it at.</summary>
+            public float DefaultWeight;
+            /// <summary>A shape the descriptor blinks or speaks with, held because the rule's Hold blink or Hold visemes switch is on.</summary>
+            public bool Tracked;
+        }
+
+        public readonly List<HeldCurve> HeldCurves = new List<HeldCurve>();
     }
 }
 #endif

@@ -15,7 +15,8 @@ namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
     /// Plan 15 task R: a toggle or a trigger holds every other shape of a mesh at its default or at 0 while it is on,
-    /// with the descriptor's blink and viseme shapes left free unless the rule holds them too.
+    /// with the descriptor's blink and viseme shapes left free unless the rule holds them too. Plan 17 task H: one switch
+    /// for the blink shapes and one for the viseme shapes, each pausing only its own part of tracking.
     /// </summary>
     public class HoldTheRestTests
     {
@@ -79,7 +80,50 @@ namespace DocMe.AvatarDoctor.Editor
             avatar.Descriptor.VisemeBlendShapes[1] = "vrc.v_aa";
         }
 
-        ShapeSetRule Rule(ShapeSetValue value, bool holdTracked = false) => new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = value, holdTracked = holdTracked };
+        ShapeSetRule Rule(ShapeSetValue value, bool blink = false, bool visemes = false) => new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = value, holdBlink = blink, holdVisemes = visemes };
+
+        /// <summary>The descriptor blinks with Blink on Body and speaks with nothing.</summary>
+        void TrackBlinkOnly()
+        {
+            TrackBlinkAndVisemes();
+            avatar.Descriptor.lipSync = VRC_AvatarDescriptor.LipSyncStyle.Default;
+        }
+
+        /// <summary>The descriptor speaks with vrc.v_aa on Body and blinks with nothing.</summary>
+        void TrackVisemesOnly()
+        {
+            TrackBlinkAndVisemes();
+            avatar.Descriptor.enableEyeLook = false;
+        }
+
+        static void Pointer<T>(VisualElement target, EventType type) where T : PointerEventBase<T>, new()
+        {
+            using (var e = PointerEventBase<T>.GetPooled(new Event { type = type, button = 0, mousePosition = target.worldBound.center }))
+            {
+                e.target = target;
+                target.SendEvent(e);
+            }
+        }
+
+        /// <summary>Moves LayoutProbe's frame up until element sits near the top of the host window, which is shorter than the view, so a pointer at its centre lands on it.</summary>
+        static void BringIntoView(VisualElement view, VisualElement element)
+        {
+            view.parent.style.top = view.parent.resolvedStyle.top - (element.worldBound.y - 40f);
+            LayoutProbe.Validate(view);
+        }
+
+        /// <summary>
+        /// A real press and release on the element, through the panel of a shown window. A release goes first: a press
+        /// an earlier test sent without its release, and whose default it prevented, keeps every editor panel from
+        /// turning the next press into the mouse event a Toggle listens to (PointerDownEvent.PostDispatch) until a
+        /// release comes, as it would from a real mouse.
+        /// </summary>
+        static void Click(VisualElement target)
+        {
+            Pointer<PointerUpEvent>(target, EventType.MouseUp);
+            Pointer<PointerDownEvent>(target, EventType.MouseDown);
+            Pointer<PointerUpEvent>(target, EventType.MouseUp);
+        }
 
         MenuEntry HatToggle()
         {
@@ -131,11 +175,11 @@ namespace DocMe.AvatarDoctor.Editor
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
             // Switched off, so a loaded "off" can only have come from the stored data, never from the field's own
             // initialiser.
-            face.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = false, value = ShapeSetValue.Default, holdTracked = true });
+            face.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = false, value = ShapeSetValue.Default, holdBlink = true, holdVisemes = true });
             var json = EditorJsonUtility.ToJson(menu);
-            // The rule exactly as a scene saved it before the value and the blink and viseme switch existed.
-            var stored = json.Replace(",\"value\":1,\"holdTracked\":true", "");
-            Assert.That(stored, Is.Not.EqualTo(json), "sanity: the stored form really lacks both fields");
+            // The rule exactly as a scene saved it before the value and the blink and viseme switches existed.
+            var stored = json.Replace(",\"value\":1,\"holdBlink\":true,\"holdVisemes\":true,\"holdTracked\":false", "");
+            Assert.That(stored, Is.Not.EqualTo(json), "sanity: the stored form really lacks every one of those fields");
 
             var loaded = avatar.Glasses.AddComponent<AvatarDoc>();
             try
@@ -145,7 +189,39 @@ namespace DocMe.AvatarDoctor.Editor
                 var rule = loaded.entries.Single(e => e.name == "Face").shapeSets.Single();
                 Assert.That(rule.On, Is.False, "the switch keeps its stored name and value");
                 Assert.That(rule.value, Is.EqualTo(ShapeSetValue.Zero), "every stored rule keeps holding at 0");
-                Assert.That(rule.holdTracked, Is.False, "and leaves the blink and viseme shapes free");
+                Assert.That(rule.holdBlink, Is.False, "and leaves the blink shapes free");
+                Assert.That(rule.holdVisemes, Is.False, "and the viseme shapes");
+            }
+            finally
+            {
+                Object.DestroyImmediate(loaded);
+            }
+        }
+
+        /// <summary>Plan 17 task H: a rule saved with the one blink and viseme switch loads with both new switches set the way it was.</summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ARuleSavedWithTheOneSwitchLoadsWithBothSwitchesSetTheSame(bool saved)
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            // The opposite of what was saved, so a loaded value can only have come from the stored switch.
+            face.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Default, holdBlink = !saved, holdVisemes = !saved });
+            var json = EditorJsonUtility.ToJson(menu);
+            var current = ",\"holdBlink\":" + (!saved ? "true" : "false") + ",\"holdVisemes\":" + (!saved ? "true" : "false") + ",\"holdTracked\":false";
+            // The rule exactly as a scene saved it while the one switch existed.
+            var stored = json.Replace(current, ",\"holdTracked\":" + (saved ? "true" : "false"));
+            Assert.That(stored, Is.Not.EqualTo(json), "sanity: the stored form has only the old switch");
+
+            var loaded = avatar.Glasses.AddComponent<AvatarDoc>();
+            try
+            {
+                EditorJsonUtility.FromJsonOverwrite(stored, loaded);
+
+                var rule = loaded.entries.Single(e => e.name == "Face").shapeSets.Single();
+                Assert.That(rule.holdBlink, Is.EqualTo(saved), "Hold blink takes the old switch's value");
+                Assert.That(rule.holdVisemes, Is.EqualTo(saved), "and so does Hold visemes");
+                Assert.That(rule.value, Is.EqualTo(ShapeSetValue.Default), "the rest of the rule is kept");
+                Assert.That(EditorJsonUtility.ToJson(loaded), Does.Contain("\"holdTracked\":false"), "the old switch is never saved on again");
             }
             finally
             {
@@ -249,13 +325,16 @@ namespace DocMe.AvatarDoctor.Editor
             TrackBlinkAndVisemes();
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
             face.shapeSets.Add(Rule(ShapeSetValue.Default));
+            // Something else moves Smile, so the build keeps the rule's curve for it.
+            var grin = menu.AddEntry(EntryKind.Toggle, "Grin");
+            grin.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Smile", weight = 100f });
 
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Face (pin)");
             var on = State(layer, "On");
-            Assert.That(Shape(on.motion, "Smile"), Is.Not.Null, "sanity: the rule holds the other shapes");
+            Assert.That(Shape(on.motion, "Smile"), Is.Not.Null, "sanity: the rule holds a shape something else moves");
             Assert.That(Shape(on.motion, "Blink"), Is.Null);
             Assert.That(Shape(on.motion, "vrc.v_aa"), Is.Null);
             Assert.That(Shape(State(layer, "Off").motion, "Blink"), Is.Null, "nothing hands the blink shape back to rest either");
@@ -269,7 +348,10 @@ namespace DocMe.AvatarDoctor.Editor
             SetWeight("Blink", 10f);
             SetWeight("Smile", 20f);
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
-            face.shapeSets.Add(Rule(ShapeSetValue.Default, holdTracked: true));
+            face.shapeSets.Add(Rule(ShapeSetValue.Default, blink: true, visemes: true));
+            // A later toggle pins Smile, so the rule keeps it and Face's pin layer is the lowest one that holds it.
+            var grin = menu.AddEntry(EntryKind.Toggle, "Grin");
+            grin.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Smile", weight = 100f, mode = ShapeEffectMode.Pin });
 
             var fx = BuildAll(out var errors);
 
@@ -290,7 +372,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             Assert.That(Shape(off.motion, "Blink"), Is.Null, "the blink shape is never handed back to rest: VRChat's blinking owns it while off");
             Assert.That(Shape(off.motion, "vrc.v_aa"), Is.Null);
-            Assert.That(Weight(off.motion, "Smile"), Is.EqualTo(20f), "an ordinary held shape is still handed back to rest when nothing else owns it");
+            Assert.That(Weight(off.motion, "Smile"), Is.EqualTo(20f), "an ordinary held shape is still handed back to rest when no ordinary layer owns it");
         }
 
         [Test]
@@ -299,7 +381,7 @@ namespace DocMe.AvatarDoctor.Editor
             TrackBlinkAndVisemes();
             var sleepy = menu.AddEntry(EntryKind.Toggle, "Sleepy");
             sleepy.exclusiveGroup = "Face";
-            sleepy.shapeSets.Add(Rule(ShapeSetValue.Zero, holdTracked: true));
+            sleepy.shapeSets.Add(Rule(ShapeSetValue.Zero, blink: true, visemes: true));
             var smug = menu.AddEntry(EntryKind.Toggle, "Smug");
             smug.exclusiveGroup = "Face";
             smug.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Smile", weight = 100f, mode = ShapeEffectMode.Pin });
@@ -319,7 +401,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             TrackBlinkAndVisemes();
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
-            face.shapeSets.Add(Rule(ShapeSetValue.Default, holdTracked: true));
+            face.shapeSets.Add(Rule(ShapeSetValue.Default, blink: true, visemes: true));
             AvatarPlanCache.Invalidate();
 
             var provided = ParameterInfo.ForUI.GetParametersForObject(avatar.Root).ToList();
@@ -388,7 +470,7 @@ namespace DocMe.AvatarDoctor.Editor
             TrackBlinkAndVisemes();
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
             face.defaultOn = true;
-            face.shapeSets.Add(Rule(ShapeSetValue.Default, holdTracked: true));
+            face.shapeSets.Add(Rule(ShapeSetValue.Default, blink: true, visemes: true));
 
             var fx = BuildAll(out var errors);
 
@@ -564,7 +646,7 @@ namespace DocMe.AvatarDoctor.Editor
             var pout = menu.AddEntry(EntryKind.Trigger, "Pout");
             pout.source = TriggerSource.Toggle;
             pout.sourceToggleId = hat.id;
-            pout.shapeSets.Add(Rule(ShapeSetValue.Zero, holdTracked: true));
+            pout.shapeSets.Add(Rule(ShapeSetValue.Zero, blink: true, visemes: true));
 
             var fx = BuildAll(out var errors);
 
@@ -586,7 +668,7 @@ namespace DocMe.AvatarDoctor.Editor
             link.source = TriggerSource.BlendShape;
             link.sourceRenderer = avatar.Body;
             link.sourceShape = "Blush";
-            link.shapeSets.Add(Rule(ShapeSetValue.Zero, holdTracked: true));
+            link.shapeSets.Add(Rule(ShapeSetValue.Zero, blink: true, visemes: true));
 
             var fx = BuildAll(out var errors);
 
@@ -650,7 +732,8 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(rule.mesh, Is.SameAs(avatar.Body));
                 Assert.That(rule.On, Is.True);
                 Assert.That(rule.value, Is.EqualTo(ShapeSetValue.Default));
-                Assert.That(rule.holdTracked, Is.False, "blink and visemes start free");
+                Assert.That(rule.holdBlink, Is.False, "blink starts free");
+                Assert.That(rule.holdVisemes, Is.False, "and so do the visemes");
                 Assert.That(view.Detail.Q<Toggle>("zero-others"), Is.Not.Null, "the rule line shows under the list");
 
                 rule.value = ShapeSetValue.Zero;
@@ -723,15 +806,28 @@ namespace DocMe.AvatarDoctor.Editor
 
                     view.Refresh();
                     LayoutProbe.Validate(view);
-                    var tracked = view.Detail.Q<Toggle>("hold-tracked");
-                    Assert.That(tracked, Is.Not.Null, "the blink and viseme switch shows for a mesh the descriptor blinks with");
-                    Assert.That(tracked.value, Is.False);
+                    var blink = view.Detail.Q<Toggle>("hold-blink");
+                    Assert.That(blink, Is.Not.Null, "Hold blink shows for a mesh the descriptor blinks with");
+                    Assert.That(blink.value, Is.False);
                     Undo.IncrementCurrentGroup();
-                    tracked.value = true;
-                    Assert.That(Stored().holdTracked, Is.True);
-                    Assert.That(view.Detail.Q<Label>("ad-shape-set-note").text, Is.EqualTo(string.Format(L.Text("ad.info.shape_set_count"), 4)), "the count takes the blink and viseme shapes in");
+                    blink.value = true;
+                    Assert.That(Stored().holdBlink, Is.True);
+                    Assert.That(Stored().holdVisemes, Is.False, "the other switch stays as it was");
+                    Assert.That(view.Detail.Q<Label>("ad-shape-set-note").text, Is.EqualTo(string.Format(L.Text("ad.info.shape_set_count"), 3)), "the count takes the blink shape in");
                     Undo.PerformUndo();
-                    Assert.That(Stored().holdTracked, Is.False, "one Undo step");
+                    Assert.That(Stored().holdBlink, Is.False, "one Undo step");
+
+                    view.Refresh();
+                    LayoutProbe.Validate(view);
+                    var visemes = view.Detail.Q<Toggle>("hold-visemes");
+                    Assert.That(visemes, Is.Not.Null, "Hold visemes shows for a mesh the descriptor speaks with");
+                    Undo.IncrementCurrentGroup();
+                    visemes.value = true;
+                    Assert.That(Stored().holdVisemes, Is.True);
+                    Assert.That(Stored().holdBlink, Is.False);
+                    Assert.That(view.Detail.Q<Label>("ad-shape-set-note").text, Is.EqualTo(string.Format(L.Text("ad.info.shape_set_count"), 3)), "the count takes the viseme shape in");
+                    Undo.PerformUndo();
+                    Assert.That(Stored().holdVisemes, Is.False, "one Undo step");
 
                     view.Refresh();
                     LayoutProbe.Validate(view);
@@ -759,8 +855,130 @@ namespace DocMe.AvatarDoctor.Editor
             var view = View(menu);
             view.Tree.SelectEntry(face.id);
 
-            Assert.That(view.Detail.Q<Toggle>("hold-tracked"), Is.Null, "nothing to hold or free on a mesh VRChat neither blinks nor speaks with");
+            Assert.That(view.Detail.Q<Toggle>("hold-blink"), Is.Null, "nothing to hold or free on a mesh VRChat neither blinks nor speaks with");
+            Assert.That(view.Detail.Q<Toggle>("hold-visemes"), Is.Null);
             Assert.That(view.Detail.Q<SegmentedChoice>("ad-shape-set-value"), Is.Not.Null);
+        }
+
+        /// <summary>Plan 17 task H: Hold blink shows only for a mesh the descriptor blinks with, Hold visemes only for one it speaks with.</summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void EachSwitchShowsOnlyForItsKindOfMesh(bool blinkMesh)
+        {
+            if (blinkMesh) TrackBlinkOnly();
+            else TrackVisemesOnly();
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            face.shapeSets.Add(Rule(ShapeSetValue.Default));
+            var view = View(menu);
+            view.Tree.SelectEntry(face.id);
+
+            Assert.That(view.Detail.Q<Toggle>("hold-blink") != null, Is.EqualTo(blinkMesh), "Hold blink, for a mesh the descriptor blinks with");
+            Assert.That(view.Detail.Q<Toggle>("hold-visemes") != null, Is.EqualTo(!blinkMesh), "Hold visemes, for a mesh it speaks with");
+            var shown = view.Detail.Q<Toggle>(blinkMesh ? "hold-blink" : "hold-visemes");
+            var key = blinkMesh ? "ad.ui.shape_set.hold_blink" : "ad.ui.shape_set.hold_visemes";
+            Assert.That(shown.label, Is.EqualTo(L.Text(key)));
+            Assert.That(shown.tooltip, Is.EqualTo(L.Text(key + ".tip")));
+            Assert.That(L.Text("ad.ui.shape_set.hold_blink"), Is.EqualTo("Hold blink"));
+            Assert.That(L.Text("ad.ui.shape_set.hold_visemes"), Is.EqualTo("Hold visemes"));
+        }
+
+        [TestCase("hold-blink")]
+        [TestCase("hold-visemes")]
+        public void EachSwitchTakesARealClickInOneUndoStep(string name)
+        {
+            TrackBlinkAndVisemes();
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            face.shapeSets.Add(Rule(ShapeSetValue.Default));
+            var view = View(menu);
+            ShapeSetRule Stored() => menu.FindEntry(face.id).shapeSets.Single();
+            bool Mine(ShapeSetRule rule) => name == "hold-blink" ? rule.holdBlink : rule.holdVisemes;
+            bool Other(ShapeSetRule rule) => name == "hold-blink" ? rule.holdVisemes : rule.holdBlink;
+            try
+            {
+                LayoutProbe.Measure(view, () =>
+                {
+                    view.Tree.SelectEntry(face.id);
+                    LayoutProbe.Validate(view);
+                    var toggle = view.Detail.Q<Toggle>(name);
+                    Assert.That(toggle.worldBound.width, Is.GreaterThan(0f), "sanity: the switch is laid out");
+
+                    BringIntoView(view, toggle);
+                    Assert.That(toggle.panel.Pick(toggle.worldBound.center)?.FindCommonAncestor(toggle), Is.SameAs(toggle), "sanity: the pointer lands on the switch");
+
+                    Undo.IncrementCurrentGroup();
+                    Click(toggle);
+                    Assert.That(Mine(Stored()), Is.True, "a real click turns the switch on");
+                    Assert.That(Other(Stored()), Is.False, "and leaves the other one alone");
+                    Undo.PerformUndo();
+                    Assert.That(Mine(Stored()), Is.False, "one Undo step takes it back");
+                    Assert.That(Other(Stored()), Is.False);
+                });
+            }
+            finally
+            {
+                Undo.ClearUndo(menu);
+            }
+        }
+
+        [TestCase("hold-blink")]
+        [TestCase("hold-visemes")]
+        public void EachSwitchIsRefusedWhileLocked(string name)
+        {
+            TrackBlinkAndVisemes();
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            face.shapeSets.Add(Rule(ShapeSetValue.Default));
+            menu.locked = true;
+            var view = View(menu);
+            ShapeSetRule Stored() => menu.FindEntry(face.id).shapeSets.Single();
+            try
+            {
+                LayoutProbe.Measure(view, () =>
+                {
+                    view.Tree.SelectEntry(face.id);
+                    LayoutProbe.Validate(view);
+                    var toggle = view.Detail.Q<Toggle>(name);
+                    Assert.That(toggle, Is.Not.Null, "sanity: the switch shows on a locked component too");
+                    BringIntoView(view, toggle);
+                    Click(toggle);
+                    Assert.That(Stored().holdBlink, Is.False, "a locked component keeps its rule as it is");
+                    Assert.That(Stored().holdVisemes, Is.False);
+                });
+                Assert.That(EntryEditing.SetShapeSetHoldBlink(menu, face, 0, true), Is.False, "the write path itself refuses");
+                Assert.That(EntryEditing.SetShapeSetHoldVisemes(menu, face, 0, true), Is.False);
+                Assert.That(Stored().holdBlink || Stored().holdVisemes, Is.False);
+            }
+            finally
+            {
+                Undo.ClearUndo(menu);
+            }
+        }
+
+        /// <summary>Plan 17 task H: Hold blink holds only the blink shape and pauses only blinking; Hold visemes holds only the viseme shape and pauses only lip sync.</summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void EachSwitchPausesOnlyItsOwnPart(bool blink)
+        {
+            TrackBlinkAndVisemes();
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.shapeSets.Add(Rule(ShapeSetValue.Zero, blink: blink, visemes: !blink));
+            // A Fade contact and a blend shape trigger ask the same question through FollowDistanceTracking.
+            var pat = new MenuEntry { kind = EntryKind.Trigger, source = TriggerSource.Contact, touchMode = TouchMode.FollowDistance, name = "Pat" };
+            pat.shapeSets.Add(Rule(ShapeSetValue.Default, blink: blink, visemes: !blink));
+            TouchBuilder.FollowDistanceTracking(pat, ShapeSetModel.ContextFor(avatar.Root.transform), out bool fadeEyes, out bool fadeMouth);
+            Assert.That(fadeEyes, Is.EqualTo(blink), "a Fade contact pauses blinking only for Hold blink");
+            Assert.That(fadeMouth, Is.EqualTo(!blink), "and lip sync only for Hold visemes");
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var on = State(Layer(fx, "AD: Face (pin)"), "On");
+            Assert.That(Shape(on.motion, "Blink") != null, Is.EqualTo(blink), "the blink shape is held only with Hold blink");
+            Assert.That(Shape(on.motion, "vrc.v_aa") != null, Is.EqualTo(!blink), "the viseme shape only with Hold visemes");
+            Assert.That(fx.layers.Any(l => l.name == "AD: Blink pause"), Is.EqualTo(blink), "blinking pauses only for Hold blink");
+            Assert.That(fx.layers.Any(l => l.name == "AD: Lip sync pause"), Is.EqualTo(!blink), "lip sync only for Hold visemes");
         }
 
         /// <summary>Guard: a toggle's Capture still adds its rule at 0; true before and after this task.</summary>
@@ -776,7 +994,8 @@ namespace DocMe.AvatarDoctor.Editor
 
             var rule = menu.FindEntry(face.id).shapeSets.Single();
             Assert.That(rule.value, Is.EqualTo(ShapeSetValue.Zero), "the rest is set to 0, as the creator first asked");
-            Assert.That(rule.holdTracked, Is.False);
+            Assert.That(rule.holdBlink, Is.False);
+            Assert.That(rule.holdVisemes, Is.False);
             Assert.That(rule.On, Is.True);
         }
 
@@ -906,6 +1125,7 @@ namespace DocMe.AvatarDoctor.Editor
             TrackBlinkAndVisemes();
             SetWeight("Blink", 30f);
             SetWeight("Smile", 30f);
+            SetWeight("vrc.v_aa", 30f);
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
             face.shapeSets.Add(Rule(ShapeSetValue.Zero));
 
@@ -913,10 +1133,11 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(free[avatar.Body].Shapes[Index("Smile")], Is.EqualTo(0f), "sanity: the rule holds the other shapes");
             Assert.That(free[avatar.Body].Shapes.ContainsKey(Index("Blink")), Is.False, "blinking stays free");
 
-            face.shapeSets[0].holdTracked = true;
+            face.shapeSets[0].holdBlink = true;
             AvatarPlanCache.Invalidate();
             var held = PreviewModel.Compute(avatar.Root.transform, new[] { menu }, new Dictionary<string, float> { [face.id] = 1f }, SceneReader.Direct);
-            Assert.That(held[avatar.Body].Shapes[Index("Blink")], Is.EqualTo(0f), "held with the switch on");
+            Assert.That(held[avatar.Body].Shapes[Index("Blink")], Is.EqualTo(0f), "held with Hold blink on");
+            Assert.That(held[avatar.Body].Shapes.ContainsKey(Index("vrc.v_aa")), Is.False, "the viseme shape stays free: that is the other switch");
         }
 
         // ---- words ---------------------------------------------------------------------------------------------
@@ -949,21 +1170,33 @@ namespace DocMe.AvatarDoctor.Editor
             view.Tree.SelectEntry(face.id);
             Assert.That(view.Detail.Q<Label>("ad-builds-line").text, Does.Not.Contain(L.Text("ad.ui.builds.pauses_blink_shape")), "blinking stays free");
 
-            menu.FindEntry(face.id).shapeSets[0].holdTracked = true;
+            menu.FindEntry(face.id).shapeSets[0].holdBlink = true;
             AvatarPlanCache.Invalidate();
             view = View(menu);
             view.Tree.SelectEntry(face.id);
             Assert.That(view.Detail.Q<Label>("ad-builds-line").text, Does.Contain(L.Text("ad.ui.builds.pauses_blink_shape")));
+            Assert.That(view.Detail.Q<Label>("ad-builds-line").text, Does.Not.Contain(L.Text("ad.ui.builds.pauses_lipsync_shape")), "Hold blink leaves lip sync alone");
+
+            menu.FindEntry(face.id).shapeSets[0].holdBlink = false;
+            menu.FindEntry(face.id).shapeSets[0].holdVisemes = true;
+            AvatarPlanCache.Invalidate();
+            view = View(menu);
+            view.Tree.SelectEntry(face.id);
             Assert.That(view.Detail.Q<Label>("ad-builds-line").text, Does.Contain(L.Text("ad.ui.builds.pauses_lipsync_shape")));
+            Assert.That(view.Detail.Q<Label>("ad-builds-line").text, Does.Not.Contain(L.Text("ad.ui.builds.pauses_blink_shape")), "Hold visemes leaves blinking alone");
         }
 
-        /// <summary>Guard on the words only: the large rule warning and the error speak of holding, for triggers too.</summary>
+        /// <summary>
+        /// Plan 17 task H: the large rule warning is gone, since a rule now costs only the shapes something else moves;
+        /// the error still speaks of holding, for triggers too.
+        /// </summary>
         [Test]
         public void TheLargeRuleWarningSpeaksOfHoldingForBothValues()
         {
-            Assert.That(L.Text("ad.warn.shape_set_large"), Does.Contain("holds"));
-            Assert.That(L.Text("ad.warn.shape_set_large"), Does.Not.Contain("zeroes"));
+            Assert.That(L.KnownKeys, Does.Not.Contain("ad.warn.shape_set_large"));
+            Assert.That(L.Localizer.TryGetLocalizedString("ad.warn.shape_set_large", out _), Is.False, "no table has the key any more");
             Assert.That(L.Text("ad.error.shape_set_not_a_toggle"), Does.Contain("trigger"), "the error says a trigger can hold one too");
+            Assert.That(L.Text("ad.info.shape_set_count.default"), Does.Contain("up to"), "the note says the count is the most the rule holds");
         }
     }
 }

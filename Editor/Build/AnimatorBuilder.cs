@@ -418,7 +418,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>Every clip a motion resolves to: itself, or every child of a blend tree, recursively.</summary>
-        static IEnumerable<VirtualClip> LeafClips(VirtualMotion motion)
+        internal static IEnumerable<VirtualClip> LeafClips(VirtualMotion motion)
         {
             if (motion is VirtualClip clip)
             {
@@ -599,13 +599,14 @@ namespace DocMe.AvatarDoctor.Editor
                 if (pinState != null)
                     foreach (var (renderer, shape, _) in content.ShapeWrites())
                     {
-                        if (heldContext.IsTracked(renderer, shape)) continue;
+                        if (heldContext.IsEyelid(renderer, shape) || heldContext.IsViseme(renderer, shape)) continue;
                         pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
                     }
                 foreach (var flag in flags) content.SetAnimatorParameter(flag.Parameter, flag == member.PauseFlag ? 1f : 0f);
                 var state = sm.AddState(member.StateName, content.ToClip(asc, name + " " + member.StateName), new Vector3(0f, 120f * (states.Count + 1), 0f));
                 state.WriteDefaultValues = false;
                 states.Add(state);
+                HeldShapePruner.Record(pinState, content, member.Entry, name, sm, state, -1, baseState, heldContext);
             }
 
             // The pin layer follows its main layer: a toggle that is on by default starts with its pins written.

@@ -408,18 +408,23 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// Plan 15 task R: the Hold the rest button beside Capture and the rule lines under a toggle's and a trigger's
         /// blend shapes, at both ends of the default inspector width (360 and 300 px): the switch named for its mesh,
-        /// the Default or 0 choice, the blink and viseme switch and the count note, with nothing clipped or cut short.
-        /// A long mesh name may end in an ellipsis; its switch's tooltip then names it in full.
+        /// the Default or 0 choice, the Hold blink and Hold visemes switches (plan 17 task H) and the count note, with
+        /// nothing clipped or cut short. A long mesh name may end in an ellipsis; its switch's tooltip then names it in
+        /// full.
         /// </summary>
         [Test]
         public void ShapeSetRuleLinesFitAndAlign()
         {
             var menu = avatar.AddMenu();
-            avatar.AddBodyShapes("Smile", "Blink");
+            avatar.AddBodyShapes("Smile", "Blink", "vrc.v_aa");
             avatar.Descriptor.enableEyeLook = true;
             avatar.Descriptor.customEyeLookSettings.eyelidType = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor.EyelidType.Blendshapes;
             avatar.Descriptor.customEyeLookSettings.eyelidsSkinnedMesh = avatar.Body;
             avatar.Descriptor.customEyeLookSettings.eyelidsBlendshapes = new[] { avatar.Mesh.GetBlendShapeIndex("Blink"), -1, -1 };
+            avatar.Descriptor.lipSync = VRC.SDKBase.VRC_AvatarDescriptor.LipSyncStyle.VisemeBlendShape;
+            avatar.Descriptor.VisemeSkinnedMesh = avatar.Body;
+            avatar.Descriptor.VisemeBlendShapes = new string[15];
+            avatar.Descriptor.VisemeBlendShapes[1] = "vrc.v_aa";
             const string longName = "Body_Outfit_Winter_Coat_With_A_Very_Long_Mesh_Name";
             var longGo = new GameObject(longName);
             longGo.transform.SetParent(avatar.Root.transform);
@@ -436,7 +441,7 @@ namespace DocMe.AvatarDoctor.Editor
             pout.source = TriggerSource.Toggle;
             pout.sourceToggleId = hat.id;
             pout.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
-            pout.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Zero, holdTracked = true });
+            pout.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true, value = ShapeSetValue.Zero, holdBlink = true, holdVisemes = true });
 
             var allow = StandardAllowList();
             try
@@ -472,11 +477,13 @@ namespace DocMe.AvatarDoctor.Editor
                                 else Assert.That(on.labelElement.worldBound.xMax, Is.LessThanOrEqualTo(row.Q<Button>("remove").worldBound.xMin + 0.5f), "a long mesh name stops short of the remove button");
                                 var value = row.Q<SegmentedChoice>("ad-shape-set-value");
                                 foreach (var item in value.Items) AssertTextFits(item, entry.name + ": the Default or 0 choice");
-                                var tracked = row.Q<Toggle>("hold-tracked");
-                                Assert.That(tracked != null, Is.EqualTo(rule.mesh == avatar.Body), entry.name + ": the blink and viseme switch shows for the mesh the descriptor blinks with");
-                                if (tracked != null)
+                                foreach (var name in new[] { "hold-blink", "hold-visemes" })
                                 {
-                                    AssertTextFits(tracked.labelElement, entry.name + ": the blink and viseme switch");
+                                    var tracked = row.Q<Toggle>(name);
+                                    Assert.That(tracked != null, Is.EqualTo(rule.mesh == avatar.Body), entry.name + ": " + name + " shows for the mesh the descriptor blinks and speaks with");
+                                    if (tracked == null) continue;
+                                    AssertTextFits(tracked.labelElement, entry.name + ": " + name);
+                                    Assert.That(tracked.worldBound.width, Is.GreaterThan(0f), entry.name + ": " + name + " is laid out");
                                     Assert.That(tracked.worldBound.xMax, Is.LessThanOrEqualTo(view.Detail.worldBound.xMax + 0.5f));
                                 }
                                 var note = row.Q<Label>("ad-shape-set-note");

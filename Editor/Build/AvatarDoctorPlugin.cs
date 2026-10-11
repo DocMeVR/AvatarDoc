@@ -50,11 +50,11 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// The last pass: pin what only exists now, copy each blend shape trigger's shape into its hidden parameter,
-        /// move every pin layer to the end of FX, then apply whatever menu edits are still waiting. The animator
-        /// services are opened here rather than declared on the sequence, so an avatar with neither an override rule
-        /// nor a pin layer never has its final controllers round tripped, and they are closed again before the pass
-        /// returns. Deactivating commits the virtual controllers back to the descriptor (VirtualControllerContext
+        /// The last pass: drop the shape set rule curves nothing else needs, pin what only exists now, copy each blend
+        /// shape trigger's shape into its hidden parameter, move every pin layer to the end of FX, then apply whatever
+        /// menu edits are still waiting. The animator services are opened here rather than declared on the sequence, so
+        /// an avatar with neither an override rule nor a pin layer never has its final controllers round tripped, and
+        /// they are closed again before the pass returns. Deactivating commits the virtual controllers back to the descriptor (VirtualControllerContext
         /// writes them on deactivation, AnimatorServicesContext rewrites the animation paths first), so an optimizer
         /// that runs later and knows nothing of the animator services, and VRCFury's own layers merged straight into
         /// the real controller, both read the controller as this pass leaves it.
@@ -75,6 +75,12 @@ namespace DocMe.AvatarDoctor.Editor
                     var aimedFromElsewhere = needsPinMove ? AnimatorBuilder.FxLayerControlsElsewhere(asc) : null;
                     // VRCFury runs between AvatarDoc's passes and its Write Defaults fixer may have turned these on.
                     if (needsPinMove) AnimatorBuilder.TurnPinLayersWriteDefaultsOff(asc, pins.Names);
+                    // Every layer any tool adds is in the controller now, so this is where a rule finds out which of
+                    // its shapes something else moves and drops the rest. Before the release to rest, so a dropped
+                    // shape is never handed back to rest by its layer; before the copy of each blend shape trigger's
+                    // shape, so the copy is taken from the clips as they will play; the layer order does not matter
+                    // to it, so the move comes after as before.
+                    if (needsPinMove) L.Report(HeldShapePruner.Prune(asc, pins, overrides));
                     // Handing a shape back to rest has to run before both of these: before RunFinal, so an override
                     // that flattens the same shape also flattens the rest curve this adds, rather than the pin's
                     // last-writer position letting it escape the override whenever the trigger is off; before the

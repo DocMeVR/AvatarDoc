@@ -1093,8 +1093,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// A rule on anything but a toggle or a trigger with effects of its own is an error: a radial has two ends,
         /// which the rule's "while on" wording means nothing for, and a flip trigger has no effects to hold it with.
-        /// A missing or outside-avatar mesh is an error too. Several rules for one mesh count as one here, the same
-        /// merge the build follows.
+        /// A missing or outside-avatar mesh is an error too. A large rule is not worth a warning: the build writes only
+        /// the shapes something else moves (HeldShapePruner).
         /// </summary>
         static void ValidateShapeSets(MenuTree tree, AvatarDoc component, MenuEntry entry)
         {
@@ -1109,14 +1109,6 @@ namespace DocMe.AvatarDoctor.Editor
                 if (rule == null) continue;
                 if (rule.mesh == null || IsOutsideAvatar(tree.AvatarRoot, rule.mesh.transform))
                     tree.Messages.Add(ModelMessage.Error("ad.error.shape_set_outside_avatar", entry.PlainName, component).For(entry.id));
-            }
-            foreach (var rule in ShapeSetModel.EffectiveRules(entry))
-            {
-                // The cost regardless of the switch: a large rule the creator has turned off for now still warns,
-                // since turning it back on does not shrink the mesh.
-                int count = ShapeSetModel.CoveredShapeCount(entry, rule, tree.HeldContext);
-                if (count > ShapeSetModel.LargeThreshold)
-                    tree.Messages.Add(ModelMessage.Warning("ad.warn.shape_set_large", entry.PlainName, rule.mesh.name, count.ToString()).For(entry.id));
             }
         }
 

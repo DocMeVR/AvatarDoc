@@ -585,7 +585,10 @@ namespace DocMe.AvatarDoctor.Editor
                 using (L.UseTestLanguage("ja-JP", Japanese))
                 {
                     var view = View(menu);
-                    Assert.That(given, Is.Empty, "nothing goes to NDMF for a view that is not shown yet");
+                    // Only what this test made counts: an AvatarDoc inspector the creator has open is redrawn by the
+                    // language change too, and its parts reach the same recorder.
+                    List<VisualElement> Own(params VisualElement[] roots) => given.Where(e => roots.Any(r => r == e || r.Contains(e))).ToList();
+                    Assert.That(Own(view), Is.Empty, "nothing goes to NDMF for a view that is not shown yet");
                     LayoutProbe.Measure(view, () =>
                     {
                         var parts = view.Children().ToList();
@@ -598,9 +601,9 @@ namespace DocMe.AvatarDoctor.Editor
                         given.Clear();
                         L.SetLanguage("en-us");
                         Assert.That(parts.Any(view.Contains), Is.False, "the parts that had the font are gone");
-                        Assert.That(given, Is.Empty, "and the parts built for English keep Unity's own font");
+                        Assert.That(Own(view), Is.Empty, "and the parts built for English keep Unity's own font");
                         var english = AdMenu.Open(view.LanguagePicker.worldBound, view.LanguagePicker, LanguagePicker.Items());
-                        Assert.That(given, Is.Empty, "as does a menu opened in English");
+                        Assert.That(Own(view, english), Is.Empty, "as does a menu opened in English");
                         english.Close(false);
 
                         L.SetLanguage("zh-hans");
@@ -641,12 +644,15 @@ namespace DocMe.AvatarDoctor.Editor
                     capture.Init(menu, hat.id);
                     editor = UnityEditor.Editor.CreateEditor(shapes);
                     var shapesRoot = ((AvatarDocShapesEditor)editor).CreateInspectorGUI();
-                    Assert.That(given, Is.Empty, "nothing goes to NDMF before they are shown");
                     var roots = new[]
                     {
                         ("the Convert window", import.rootVisualElement), ("the outfit set window", outfits.rootVisualElement),
                         ("the icon capture window", capture.rootVisualElement), ("the AvatarDoc Shapes inspector", shapesRoot),
                     };
+                    // Only what this test made counts: an AvatarDoc inspector the creator has open is redrawn by the
+                    // language change too, and its parts reach the same recorder.
+                    var own = given.Where(e => roots.Any(r => r.Item2 == e || r.Item2.Contains(e))).ToList();
+                    Assert.That(own, Is.Empty, "nothing goes to NDMF before they are shown");
                     foreach (var (what, root) in roots)
                     {
                         LayoutProbe.Measure(root, () =>

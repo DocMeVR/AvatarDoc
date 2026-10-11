@@ -274,14 +274,16 @@ Each rule has a few lines under the list:
 - `Hold at` chooses `Default` or `0`. With `Default`, every other shape stays exactly as the scene shows it, so
   whatever else moves it on the avatar (a gesture, face tracking, another toggle) cannot change it while this is on.
   With `0`, every other shape is cleared.
-- `Blink and visemes` shows only for a mesh the avatar descriptor blinks or speaks with. Off (the default) leaves
-  those shapes free, so blinking and lip sync keep working while the rule holds the rest. On holds them too, and
-  VRChat's own blinking or lip sync pauses while the entry is on and comes back as soon as it is off. VRChat ignores
-  such a pause for a moment after the avatar loads, so for a toggle that is on by default the pause starts about 5
-  seconds after loading. A `Pin` row on one of those shapes, such as the half closed eyes Capture takes from a
-  sleepy face, pauses blinking the same way while the entry is on, and leaves the shape to VRChat while it is off.
-- A note says how many shapes the rule holds and at what, for example "Holds 37 other shapes at their default while
-  this is on."
+- `Hold blink` shows only for a mesh the avatar descriptor blinks with, and `Hold visemes` only for a mesh it
+  speaks with. Off (the default) leaves those shapes free, so blinking and lip sync keep working while the rule holds
+  the rest. `Hold blink` on holds the blink shapes too and pauses VRChat's own blinking while the entry is on;
+  `Hold visemes` on does the same for the viseme shapes and lip sync. Each pause comes back as soon as the entry is
+  off. VRChat ignores such a pause for a moment after the avatar loads, so for a toggle that is on by default the
+  pause starts about 5 seconds after loading. A `Pin` row on one of those shapes, such as the half closed eyes
+  Capture takes from a sleepy face, pauses blinking the same way while the entry is on, and leaves the shape to
+  VRChat while it is off.
+- A note says how many shapes the rule can hold and at what, for example "Holds up to 37 other shapes at their
+  default while this is on."
 
 The shapes the entry has rows for keep their rows' values, and so do the shapes a toggle's own custom animations
 move. A blend shape trigger never holds its own shape, and no rule holds a shape an AvatarDoc Shapes component
@@ -295,12 +297,16 @@ effects of its own; both report an error.
 
 A rule adds no expression parameter and no synced bits. On a toggle or a trigger in its usual mode it adds curves
 to the layer the entry's pinned rows use; a `Fade` contact puts them in its distance layer and a blend shape
-trigger in its own shape layer. A rule above 150 shapes gets a warning, since every one of them is written each
-time it turns on. The scene preview
+trigger in its own shape layer. At upload a rule writes only the shapes something else on the avatar moves (another
+toggle, a merged or Gesture layer, face tracking, another tool's layer), plus, with `0`, the shapes that are not
+at 0 already, and the blink or viseme shapes its switches hold. Every other shape never moves, so it already shows
+the value the rule would hold it at; a message at upload says how many each rule kept. A shape moved only from
+outside the avatar's own animators, for example by an MMD world's dance, is not held any more. The scene preview
 and the wheel's test mode show the held shapes while the entry is previewed on, and the summary lists each rule with
 its mesh, its count and what it holds at. Rules made before `Default` existed keep holding at 0, and now leave the
 blink and viseme shapes free as well; before, a rule on the face mesh held those too, which stopped blinking and lip
-sync altogether.
+sync altogether. A rule saved with the earlier single `Blink and visemes` switch on loads with both `Hold blink` and
+`Hold visemes` on.
 
 A `Fixed` blend shape or material property row on a toggle (not a radial, and not while the shape is pinned) also
 has a `Set a value when off` switch. Off, the row behaves as described above: the shape or property returns to
@@ -1365,6 +1371,7 @@ A few messages are informational and never block an upload:
 | The animation "*clip*" also moves something "*name*" moves, so while that trigger is on, the trigger's own value shows there. | A clip that moves a blend shape trigger's shape also moves one of its effects; the trigger's layer, last in FX, wins while it is on. |
 | "*parameter*" already exists in the avatar's animator, so this control drives it without adding a new parameter, but it will not sync to other players over the network. Declare "*parameter*" under `Parameters` if you need it to sync. (*component*) | A custom parameter name matched an animator-only parameter; it works locally, but will not sync unless you declare it. |
 | Override "*name*" holds "*shape*" at its value in *count* animations. | The override rewrote that many clips to hold the shape at its pinned value. |
+| "*name*" holds *count* of *total* shapes on "*mesh*"; the others never move, so they stay as they are. | The `Hold the rest` rule writes only the shapes something else moves; nothing moves the others, so they already show the value it would hold them at. |
 | "*name*" is in an exclusive group, so its blend time is not used. | A blend time was set on a toggle that also belongs to an exclusive group, which always switches instantly. |
 | "*name*": *count* generated value(s) replace the same curve in its custom animation. | The control's own generated value won over the custom clip on the same curve. |
 | "*name*": its toggle is not built on this platform, so the touch does nothing here. | Nothing to fix; the flip target simply is not part of this platform's build. |

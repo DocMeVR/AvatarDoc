@@ -39,9 +39,9 @@ names go in “”, with a half-width space between Chinese and Latin words, num
 | Build | ビルド | 构建 | NDMF says 构建. |
 | Play | 再生 | 播放 | Unity's Play button, which builds the avatar like an upload does. |
 | Tracking | | | VRChat driving a part of the avatar itself (blinking, lip sync); both translations say it in words. |
-| Blinking | まばたき | 眨眼 | |
+| Blinking | まばたき | 眨眼 | ("Hold blink": まばたきを保持) |
 | Lip sync | リップシンク | 口型同步 | |
-| Viseme | 口パク | 口型 | A mouth shape for one sound, used by lip sync ("Blink and visemes": まばたき・口パク). |
+| Viseme | 口パク | 口型 | A mouth shape for one sound, used by lip sync ("Hold visemes": 口パクを保持). |
 | Eye | 目 | 眼睛 | |
 | PC | PC | PC | The Windows version of VRChat. |
 | Quest | Quest | Quest | The Android version of VRChat (Quest and phones). |

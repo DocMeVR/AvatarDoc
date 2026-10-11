@@ -278,7 +278,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// for blinking (eyelids, Blendshapes type, only while eye look is on) or for a viseme or a jaw flap shape
         /// (only while lip sync is set to read blend shapes), matched by mesh and shape name. Every shape mode counts
         /// here: neither has a separate pin layer of its own to reserve Pin's usual exclusion for. A rule that holds
-        /// those shapes too (ShapeSetRule.holdTracked) counts as well.
+        /// those shapes too counts as well, each switch for its own part: Hold blink for the eyes, Hold visemes for the
+        /// mouth (ShapeSetModel.HeldTracking).
         /// </summary>
         public static void FollowDistanceTracking(MenuEntry entry, VRCAvatarDescriptor descriptor, out bool eyes, out bool mouth)
             => FollowDistanceTracking(entry, ShapeSetModel.ContextFor(descriptor != null ? descriptor.transform : null), out eyes, out mouth);
@@ -599,6 +600,9 @@ namespace DocMe.AvatarDoctor.Editor
                     new VirtualBlendTree.VirtualChildMotion { Motion = onContent.ToClip(asc, name + " Near On"), Threshold = fullAt });
                 var near = sm.AddState("Near", nearTree, new Vector3(300f, 0f, 0f));
                 near.WriteDefaultValues = false;
+                var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(tree.AvatarRoot);
+                HeldShapePruner.Record(pinState, offContent, entry, name, sm, near, 0, baseState, heldContext);
+                HeldShapePruner.Record(pinState, onContent, entry, name, sm, near, 1, baseState, heldContext);
 
                 // Requirements join the way in (every one must hold) and add a way out each (any one failing
                 // leaves). With none, this is the one transition each way the layer always had.

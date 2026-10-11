@@ -475,6 +475,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(ShapeSetModel.HeldShapes(face, effective[0], null).Count, Is.EqualTo(2));
         }
 
+        /// <summary>Plan 17 task H: a rule now costs only the shapes something else moves, so even a large one no longer warns.</summary>
         [Test]
         public void LargeRuleWarns()
         {
@@ -488,7 +489,8 @@ namespace DocMe.AvatarDoctor.Editor
 
             var tree = MenuModel.Build(avatar.Root.transform, avatar.ExpressionsMenu, new[] { menu });
 
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.warn.shape_set_large" && m.EntryIds.Contains(face.id)), Is.True);
+            Assert.That(tree.Messages.Where(m => m.EntryIds.Contains(face.id) && m.Severity >= MessageSeverity.Warning).Select(m => m.Key), Is.Empty, "151 shapes are no reason to warn any more");
+            Assert.That(ShapeSetModel.CoveredShapeCount(face, face.shapeSets[0], tree.HeldContext), Is.EqualTo(151), "sanity: the rule could hold all of them");
         }
 
         [Test]
