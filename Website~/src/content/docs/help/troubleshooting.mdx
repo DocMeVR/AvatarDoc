@@ -38,7 +38,7 @@ Something else writes the same object, shape or material after the toggle does. 
 
 - Two controls change the same thing. The one built later wins: later menu entries first, and triggers after every menu control. An override wins over every control.
 - A preset, or a contact in <Label k="ad.ui.touch.flip" /> mode, changes the toggle's own parameter and turns it on again.
-- A blend shape row is set to <Label k="ad.ui.seg.pin" />. While the toggle is off, a Pin row writes nothing and leaves the shape to the layer that owns it, or to its value in the scene when no layer does.
+- A blend shape row is set to <Label k="ad.ui.seg.pin" />. While the toggle is off, a Pin row writes nothing. When the toggle turns off, and when the avatar loads, it sets the shape back to its value in the scene once, unless another layer owns the shape, and from then on whatever else moves the shape decides it.
 
 ### Fix
 

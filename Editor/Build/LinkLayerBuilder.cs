@@ -16,10 +16,12 @@ namespace DocMe.AvatarDoctor.Editor
     /// it is moved last, its resting state leaving shapes and properties to the final pass's release rule and never
     /// holding a shape VRChat blinks or speaks with.
     ///
-    /// Up to three states: the rest state (Far, or Off in Switch); a driven state below the switch point (Near, or
-    /// Following in Switch when a Follow row moves there); and a driven state at or above it (Near on, or On). Both
-    /// driven states hold the same blend for shapes and properties and differ only in objects and material slots,
-    /// which cannot blend, so those swap exactly at the switch point instead of wherever a blend tree would pick.
+    /// Up to three states and Reset: the rest state (Far, or Off in Switch); a driven state below the switch point
+    /// (Near, or Following in Switch when a Follow row moves there); and a driven state at or above it (Near on, or
+    /// On). Both driven states hold the same blend for shapes and properties and differ only in objects and material
+    /// slots, which cannot blend, so those swap exactly at the switch point instead of wherever a blend tree would
+    /// pick. The layer starts in Load, which passes to Reset and then the rest state, and every way back from a
+    /// driven state to rest passes Reset.
     /// </summary>
     public static class LinkLayerBuilder
     {
@@ -190,9 +192,9 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
             var sm = layer.StateMachine;
 
-            // Rest: objects and material slots at their off values; shapes and properties carry no curve here and
-            // go to the final pass, which rests them only where no other layer owns them. A shape VRChat blinks or
-            // speaks with is never held at all.
+            // Rest: objects and material slots at their off values; shapes and properties never carry a curve here.
+            // The final pass writes their rest values into Reset, once on the way back, and only where no other
+            // layer owns them. A shape VRChat blinks or speaks with is never held at all.
             var restContent = new ClipContent(avatarRoot);
             if (pauseFlag != null)
             {
@@ -239,7 +241,9 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             // Requirements join every way in (all must hold) and add one way out each (any failing leaves). The
-            // shape's own way out comes first, so a shape that drops below everything goes straight to rest.
+            // shape's own way out comes first, so a shape that drops below everything goes straight back. Every
+            // way back goes through Reset, which writes the rest values once, to the rest state.
+            var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, rest, new Vector3(150f, 300f, 0f), false, pinState) : rest;
             AnimatorCondition Mirror(AnimatorConditionMode mode, float value) => new AnimatorCondition { parameter = mirror, mode = mode, threshold = value };
             ImmutableList<AnimatorCondition> With(IEnumerable<AnimatorCondition> requirement, params AnimatorCondition[] own) => ImmutableList.CreateRange(own.Concat(requirement));
 
@@ -254,15 +258,15 @@ namespace DocMe.AvatarDoctor.Editor
 
             if (below != null)
             {
-                var fromBelow = new List<VirtualStateTransition> { AnimatorBuilder.Transition(rest, ImmutableList.Create(Mirror(AnimatorConditionMode.Less, lo))) };
-                fromBelow.AddRange(plan.Leave.Select(l => AnimatorBuilder.Transition(rest, ImmutableList.CreateRange(l))));
+                var fromBelow = new List<VirtualStateTransition> { AnimatorBuilder.Transition(back, ImmutableList.Create(Mirror(AnimatorConditionMode.Less, lo))) };
+                fromBelow.AddRange(plan.Leave.Select(l => AnimatorBuilder.Transition(back, ImmutableList.CreateRange(l))));
                 if (above != null) fromBelow.Add(AnimatorBuilder.Transition(above, ImmutableList.Create(Mirror(AnimatorConditionMode.Greater, hi))));
                 below.Transitions = ImmutableList.CreateRange(fromBelow);
             }
             if (above != null)
             {
-                var fromAbove = new List<VirtualStateTransition> { AnimatorBuilder.Transition(rest, ImmutableList.Create(Mirror(AnimatorConditionMode.Less, below != null ? lo : hi))) };
-                fromAbove.AddRange(plan.Leave.Select(l => AnimatorBuilder.Transition(rest, ImmutableList.CreateRange(l))));
+                var fromAbove = new List<VirtualStateTransition> { AnimatorBuilder.Transition(back, ImmutableList.Create(Mirror(AnimatorConditionMode.Less, below != null ? lo : hi))) };
+                fromAbove.AddRange(plan.Leave.Select(l => AnimatorBuilder.Transition(back, ImmutableList.CreateRange(l))));
                 if (below != null) fromAbove.Add(AnimatorBuilder.Transition(below, ImmutableList.Create(Mirror(AnimatorConditionMode.Less, hi))));
                 above.Transitions = ImmutableList.CreateRange(fromAbove);
             }

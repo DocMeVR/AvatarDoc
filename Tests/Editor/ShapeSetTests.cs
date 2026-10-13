@@ -251,9 +251,10 @@ namespace DocMe.AvatarDoctor.Editor
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
-            var off = State(Layer(FxOf(avatar), "AD: Outfit (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Eye_Big");
-            Assert.That(curve, Is.Not.Null, "nothing else animates Eye_Big, so turning the outfit off has to hand it back");
+            var layer = Layer(FxOf(avatar), "AD: Outfit (pin)");
+            Assert.That(CurveOf(State(layer, "Off").motion, "Body", "blendShape.Eye_Big"), Is.Null, "Off writes no shape");
+            var curve = CurveOf(State(layer, "Reset").motion, "Body", "blendShape.Eye_Big");
+            Assert.That(curve, Is.Not.Null, "nothing else animates Eye_Big, so turning the outfit off has to hand it back, once, on the way out");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(40f), "back to the scene weight from before the build, not to the 0 the rule wrote into the scene");
         }
 

@@ -641,7 +641,7 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = Layer(fx, "AD: Pat (distance)");
             var far = State(layer, "Far");
             var near = State(layer, "Near");
-            Assert.That(layer.stateMachine.defaultState, Is.SameAs(far));
+            Assert.That(layer.stateMachine.defaultState, Is.SameAs(State(layer, "Load")), "the layer starts in Load, which passes to Reset and then Far");
 
             var toNear = far.transitions.Single();
             Assert.That(toNear.destinationState, Is.SameAs(near));
@@ -650,12 +650,17 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(toNear.conditions.Single().mode, Is.EqualTo(AnimatorConditionMode.Greater));
             Assert.That(toNear.conditions.Single().threshold, Is.EqualTo(0.001f));
 
+            var reset = State(layer, "Reset");
             var toFar = near.transitions.Single();
-            Assert.That(toFar.destinationState, Is.SameAs(far));
+            Assert.That(toFar.destinationState, Is.SameAs(reset), "the way back to Far passes Reset");
             Assert.That(toFar.hasExitTime, Is.False);
             Assert.That(toFar.duration, Is.EqualTo(0f));
             Assert.That(toFar.conditions.Single().mode, Is.EqualTo(AnimatorConditionMode.Less));
             Assert.That(toFar.conditions.Single().threshold, Is.EqualTo(0.001f));
+            var fallThrough = reset.transitions.Single();
+            Assert.That(fallThrough.destinationState, Is.SameAs(far));
+            Assert.That(fallThrough.hasExitTime, Is.True);
+            Assert.That(fallThrough.conditions, Is.Empty);
         }
 
         /// <summary>Builds only Follow distance's own layer, without the rest of AnimatorBuilder, so a fake face tracking layer can be added to fx before the deferred release pass runs, exactly the two-context shape PinReleaseTests uses.</summary>
@@ -730,9 +735,10 @@ namespace DocMe.AvatarDoctor.Editor
             var asc1 = context1.ActivateExtensionContextRecursive<AnimatorServicesContext>();
             AnimatorBuilder.ReleasePinsToRest(asc1, pins);
             context1.DeactivateAllExtensionContexts();
-            var farReleased = State(Layer(FxOf(avatar), "AD: Pat (distance)"), "Far");
-            var releasedCurve = CurveOf(farReleased.motion, "Body", "blendShape.Blush");
-            Assert.That(releasedCurve, Is.Not.Null, "without a tracking layer, Far carries the rest value itself");
+            var layer = Layer(FxOf(avatar), "AD: Pat (distance)");
+            Assert.That(CurveOf(State(layer, "Far").motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes the shape");
+            var releasedCurve = CurveOf(State(layer, "Reset").motion, "Body", "blendShape.Blush");
+            Assert.That(releasedCurve, Is.Not.Null, "without a tracking layer, Reset writes the rest value once on the way back");
             Assert.That(releasedCurve.Evaluate(0f), Is.EqualTo(22f));
         }
 
@@ -754,10 +760,14 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc1, pins);
             context1.DeactivateAllExtensionContexts();
 
-            var far = State(Layer(FxOf(avatar), "AD: Blink (distance)"), "Far");
+            var layer = Layer(FxOf(avatar), "AD: Blink (distance)");
+            var far = State(layer, "Far");
+            var reset = State(layer, "Reset");
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Eye_Big"), Is.Null,
                 "the descriptor's own blink shape is never registered for release; VRChat's own tracking owns it while no hand is near");
-            var blushCurve = CurveOf(far.motion, "Body", "blendShape.Blush");
+            Assert.That(CurveOf(reset.motion, "Body", "blendShape.Eye_Big"), Is.Null, "not even for the one frame of reset");
+            Assert.That(CurveOf(far.motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes a shape");
+            var blushCurve = CurveOf(reset.motion, "Body", "blendShape.Blush");
             Assert.That(blushCurve, Is.Not.Null, "an ordinary shape on the same trigger still gets its rest curve");
             Assert.That(blushCurve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -780,10 +790,14 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc1, pins);
             context1.DeactivateAllExtensionContexts();
 
-            var far = State(Layer(FxOf(avatar), "AD: Boop (distance)"), "Far");
+            var layer = Layer(FxOf(avatar), "AD: Boop (distance)");
+            var far = State(layer, "Far");
+            var reset = State(layer, "Reset");
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Eye_Big"), Is.Null,
                 "the descriptor's own viseme shape is never registered for release; VRChat's own lip sync owns it while no hand is near");
-            var blushCurve = CurveOf(far.motion, "Body", "blendShape.Blush");
+            Assert.That(CurveOf(reset.motion, "Body", "blendShape.Eye_Big"), Is.Null, "not even for the one frame of reset");
+            Assert.That(CurveOf(far.motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes a shape");
+            var blushCurve = CurveOf(reset.motion, "Body", "blendShape.Blush");
             Assert.That(blushCurve, Is.Not.Null, "an ordinary shape on the same trigger still gets its rest curve");
             Assert.That(blushCurve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -814,9 +828,10 @@ namespace DocMe.AvatarDoctor.Editor
                 AnimatorBuilder.ReleasePinsToRest(asc2, pins);
                 context2.DeactivateAllExtensionContexts();
 
-                var far = State(Layer(FxOf(owned), "AD: Pat (distance)"), "Far");
-                var curve = CurveOf(far.motion, "Body", "blendShape.Blush");
-                Assert.That(curve, Is.Not.Null, "an unrelated Write Defaults on layer that never animates Blush does not own it");
+                var layer = Layer(FxOf(owned), "AD: Pat (distance)");
+                Assert.That(CurveOf(State(layer, "Far").motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes the shape");
+                var curve = CurveOf(State(layer, "Reset").motion, "Body", "blendShape.Blush");
+                Assert.That(curve, Is.Not.Null, "an unrelated Write Defaults on layer that never animates Blush does not own it, so Reset rests it once");
                 Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
             }
         }
@@ -827,9 +842,11 @@ namespace DocMe.AvatarDoctor.Editor
         {
             using (var owned = BuildDistanceLayerPastFaceTracking(writeDefaultsOff: !writeDefaultsOn, out var fx))
             {
-                var far = State(Layer(fx, "AD: Pat (distance)"), "Far");
-                Assert.That(CurveOf(far.motion, "Body", "blendShape.Blush"), Is.Null,
+                var layer = Layer(fx, "AD: Pat (distance)");
+                Assert.That(CurveOf(State(layer, "Far").motion, "Body", "blendShape.Blush"), Is.Null,
                     "face tracking's Direct tree owns Blush, so Far leaves it alone, whatever Write Defaults the avatar decided");
+                Assert.That(layer.stateMachine.states.Select(s => s.state.name), Is.EquivalentTo(new[] { "Far", "Near" }),
+                    "and with nothing else to rest, the layer keeps no Reset state: Near goes straight back to Far");
 
                 var names = fx.layers.Select(l => l.name).ToList();
                 Assert.That(names.IndexOf("AD: Pat (distance)"), Is.GreaterThan(names.IndexOf("Face Tracking")),

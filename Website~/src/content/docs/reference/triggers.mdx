@@ -146,7 +146,7 @@ Which build makes the trigger. A trigger sits in no submenu, so <Label k="ad.ui.
 
 ## What AvatarDoc builds
 
-At upload, a trigger adds one layer to the avatar's FX animator, named AD: and the trigger's name, with an off state and an on state. Its conditions become the moves between them. It adds no parameter, no menu button and no synced bits: it reads parameters that already exist. A trigger with <Label k="ad.ui.seg.pin" /> rows or a rule that holds the rest puts those in a layer of its own, like a toggle.
+At upload, a trigger adds one layer to the avatar's FX animator, named AD: and the trigger's name, with an off state and an on state. Its conditions become the moves between them. When the trigger changes a material property on an avatar with Write Defaults off, the layer also gets a Reset state, which it passes at load and on its way from on to off to set the property back to rest once; see [Explicit rests](../../how-it-works/layers-and-pins/#explicit-rests). It adds no parameter, no menu button and no synced bits: it reads parameters that already exist. A trigger with <Label k="ad.ui.seg.pin" /> rows or a rule that holds the rest puts those in a layer of its own, like a toggle.
 
 When a trigger and a menu control change the same thing, the one AvatarDoc builds later wins. Triggers come after every menu control.
 

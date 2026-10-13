@@ -2666,3 +2666,82 @@ the focused window, else the window under the pointer, else whatever one of thos
 per mesh, the shapes directly for a single mesh. Properties: `Other...` first, the letter groups, the shader name as
 search text and note. Parameters: the four groups (an empty one is left out), the type as note instead of "(Bool)" in
 the name. Objects: the parent path as note, the full path as search text, the bones in one group.
+
+## Pin layers reset once, then let go (reported 2026-10-13)
+
+A Headpat contact trigger in Follow distance mode that pins seven face shapes stopped blinking and face tracking while
+no hand was near: the shapes stayed at their rest value. `ReleasePinsToRest` wrote a constant rest curve into every
+state of a pin layer that lacked the binding (the off state, Follow distance's `Far`, group members that did not pin
+the shape) unless `SomeNonPinLayerOwns` found another owner, and pin layers sit last in FX with Write Defaults off, so
+that curve overrode every other driver on every frame. The ownership guess fails on real avatars: face tracking made of
+many layers that a `VRCAnimatorLayerControl` fades is left out on purpose, a blink loop with an empty idle state and no
+Direct tree meets no clause, and shape names say nothing reliable.
+
+**The rule.** A pin layer never writes a face shape or a released material property while it is inactive. Every pin
+layer that a final pass will fill gets a state named `Reset` (`PinLayerState.ResetStateName`; `Release` stays the
+tracking pause layers' state), added after its other states by `AnimatorBuilder.AddResetState` and recorded in
+`PinLayerState.Resets` by layer name and occurrence, since a group member can carry the same name. Every transition
+that leaves the active side goes to `Reset`; `Reset` falls through to the idle state by exit time 1, duration 0, no
+condition. `ReleasePinsToRest` writes each rest curve, one frame long (1/60 s), into the recorded `Reset` only; the
+idle state keeps only what it legitimately writes that is not a released binding, such as Follow distance's pause flag
+at 0 and its objects and material slots. When `SomeNonPinLayerOwns` finds an owner, the binding is skipped, frame of
+reset included; when its guess is wrong the cost is one frame. Built without a `PinLayerState` (no final pass to fill
+it), a layer gets no `Reset` and its members go straight back to the idle state.
+
+**Covered layers.** A toggle's or trigger's pin layer and an exclusive group's pin layer (`BuildPinLayer`), Follow
+distance (`Near` to `Reset` to `Far`, on the proximity leave and on every requirement leave), a blend shape trigger's
+layer (every way from a driven state to the rest state), and a condition trigger's own main layer when it handed
+material properties to the final pass (`TriggerBuilder`, only on a Write Defaults off avatar; see the Write Defaults on
+amendment below). The flip layer and the
+tracking pause layers record no rest and are unchanged.
+
+**Exclusive groups.** The pin layer no longer switches members through `AnyState` (see "Phase 5 amendments", now
+superseded): `Off` goes to a member on its own condition, a member goes to `Reset` as soon as its value is not selected,
+and `Reset` goes to `Off`. A member state writes only its own pins. A switch costs a frame or two.
+
+**Every recorded layer resets, not only the lowest.** With a rest held on every idle frame, only the lowest recorded
+layer could carry it, or an upper layer's idle state would mask a lower pin that was still on (`ReleaseLowest`).
+Reset once turns that around: kept, the rule leaves a shape at the upper pin's value whenever the upper pin is left
+after the lower one (a pinned toggle on, a pinned trigger fires, the toggle goes off, the trigger ends: the shape stays
+at the trigger's value). So every layer that recorded a binding writes it into its own `Reset`, and whichever is left
+last puts the shape back. An upper layer left while a lower one still pins the shape covers it for one frame only.
+`ResetOnceTests.PlayedBackTwoPinsOnOneShapeComeBackToRestWhicheverIsLeftLast` plays the sequence back.
+
+**An empty `Reset` is left out.** A clip with no curves lasts a whole second in Unity, so a layer waiting in an empty
+`Reset` could not come back on for that second. After writing the rests, `ReleasePinsToRest` drops every recorded
+`Reset` whose clip ended up empty and points every transition into it at the state it would have fallen through to.
+
+**Order.** The final pass keeps its order: `HeldShapePruner.Prune` first (a dropped shape loses its `PinBinding` once
+its layer writes it nowhere, so its `Reset` never gets a curve for it), then `ReleasePinsToRest`, before
+`OverrideBuilder.RunFinal` (an override flattens the reset curve too) and before `MovePinLayersLast`.
+
+**Proof by playback.** `ResetOnceTests` plays the built FX controller in edit mode through an `AnimatorControllerPlayable`
+in a manually evaluated `PlayableGraph`: with a face tracking layer under a layer control writing the shape at 70 and the
+Follow distance trigger inactive, the shape reads 70 (it read the rest value before the change); with a hand fully near
+it reads the pin's value; leaving writes the rest value for a frame and face tracking has the shape again right after.
+
+**Load (review round, 2026-10-13).** Leaving through `Reset` covers the way out, not the way in: the build writes some
+defaults into the avatar itself (`DefaultsApplier`: an exclusive group's default member, a blend shape trigger that
+starts on), and a pin layer that starts idle never writes the rest over them when the saved value differs, so a group
+loaded on member B kept the default member A's pinned shapes for good. A row's off value (`explicitOff`) on a Fade or
+blend shape trigger, or on a Hold trigger's property, likewise showed only after the effect had come and gone once.
+So a layer that would start idle starts in `Load` (`PinLayerState.LoadStateName`), which plays `Reset`'s own clip and
+passes to `Reset` by exit time 1, duration 0. `Reset` itself as the start state does not work: Unity advances a start
+state by the first frame's time before sampling it, so at 60 frames a second or slower the exit time transition fires in
+the first update and `Reset` is never sampled (measured by playback: first frames of 1/60 s and 1/20 s skipped it,
+1/100 s did not). A state entered by a transition is always sampled once. `DropEmptyResets` removes an empty `Load`
+with its `Reset`. A layer that starts active (a toggle on by default) keeps its start.
+
+**Write Defaults on.** A condition trigger's own layer on a Write Defaults on avatar writes every property it animates
+on every frame of `Off` anyway, the material's own value when it has no curve, so it keeps the rest values in `Off`
+and gets no `Reset`; an off value then shows the whole time the trigger rests. The preview follows: a Hold trigger's
+`Off` on a Write Defaults on avatar writes the row's off value, and a resting trigger's rest written once from `Reset`
+gives way to a later layer's rest, the value the game shows at load.
+
+**Ownership and the fixer (re-review, 2026-10-13).** A recorded Reset or Load state (matched by the Reset clip, which
+Load shares) never counts as a state of its layer when `LayerOwnsBinding` checks every state: otherwise a condition
+trigger's own layer, Write Defaults off with a property row, lost the ownership of a Fixed shape it writes in Off and
+On, and a pin on the same shape flickered it to rest for a moment at load and on the way out. And when a recorded
+ordinary layer's idle state is Write Defaults on by the final pass (VRCFury's Write Defaults fixer turns every state
+on between AvatarDoc's passes when the creator does not choose Skip), `ReleasePinsToRest` writes the rest into that
+idle state too, since it writes the binding on every frame anyway.
