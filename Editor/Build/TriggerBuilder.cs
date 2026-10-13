@@ -34,13 +34,16 @@ namespace DocMe.AvatarDoctor.Editor
                 // A trigger whose blend shape targets are all pinned writes nothing outside its pin layer, so the main layer is left out.
                 if (!plan.Entry.HasPins || offContent.Count > 0 || onContent.Count > 0)
                 {
-                    // Off rests every property the trigger moves unless another layer owns it, the same rule a
-                    // pin's off state follows. Only the final pass sees every layer Modular Avatar and VRCFury
-                    // merge in, so Off hands its property values to it; with no final pass to hand them to, Off
-                    // keeps them.
-                    if (pinState != null)
-                        foreach (var (renderer, property, value) in offContent.TakePropertyWrites())
-                            pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
+                    // With Write Defaults off, every property the trigger moves rests once at load and once on the way
+                    // out, in Reset, unless another layer owns it, the same rule a pin layer follows; Off writes
+                    // nothing for it. Only the final pass sees every layer Modular Avatar and VRCFury merge in, so Off
+                    // hands its property values to it. With Write Defaults on, Off writes every property the layer
+                    // animates on every frame anyway, the material's own value when it has no curve, so it keeps the
+                    // rest values itself and a row's off value shows the whole time the trigger rests. With no final
+                    // pass to hand them to, Off keeps them too.
+                    var rests = pinState != null && !writeDefaults ? offContent.TakePropertyWrites() : new List<(Renderer renderer, string property, float value)>();
+                    foreach (var (renderer, property, value) in rests)
+                        pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
                     var layer = fx.AddLayer(LayerPriority.Default, name);
                     var sm = layer.StateMachine;
                     var off = sm.AddState("Off", offContent.ToClip(asc, name + " Off"), new Vector3(0f, 0f, 0f));
@@ -48,8 +51,9 @@ namespace DocMe.AvatarDoctor.Editor
                     off.WriteDefaultValues = writeDefaults;
                     on.WriteDefaultValues = writeDefaults;
                     sm.DefaultState = off;
+                    var back = rests.Count > 0 ? AnimatorBuilder.AddResetState(sm, name, off, new Vector3(300f, 60f, 0f), writeDefaults, pinState) : off;
                     off.Transitions = ImmutableList.CreateRange(enter.Select(list => AnimatorBuilder.Transition(on, ImmutableList.CreateRange(list))));
-                    on.Transitions = ImmutableList.CreateRange(leave.Select(list => AnimatorBuilder.Transition(off, ImmutableList.CreateRange(list))));
+                    on.Transitions = ImmutableList.CreateRange(leave.Select(list => AnimatorBuilder.Transition(back, ImmutableList.CreateRange(list))));
                 }
 
                 if (!plan.Entry.HasPins) continue;

@@ -163,17 +163,23 @@ namespace DocMe.AvatarDoctor.Editor
                 map[target.slot] = EffectMath.ToggleMaterial(target, on, BaseMaterial(target));
             }
             Vector4 BaseProperty(MaterialPropertyTarget target, MenuEntry entry) => MenuModel.ReadProperty(MenuModel.MaterialWithProperty(target.renderer, target.property, entry), target.property, target.type);
-            void WriteProperty(MaterialPropertyTarget target, MenuEntry entry, Vector4 value)
+            // The properties only a resting trigger wrote. A resting trigger writes its rest once, from its Reset
+            // state at load, so a layer above that rests the same property too writes its own rest over it.
+            var restedOnly = new HashSet<(Renderer renderer, string property)>();
+            void WriteProperty(MaterialPropertyTarget target, MenuEntry entry, Vector4 value, bool rest = false)
             {
                 if (!MenuModel.PropertyExists(target, entry) || MenuModel.IsOutsideAvatar(avatarRoot, target.renderer.transform)) return;
                 if (!properties.TryGetValue(target.renderer, out var map)) properties[target.renderer] = map = new Dictionary<string, PropertyValueEntry>();
                 map[target.property] = new PropertyValueEntry(target.type, value);
+                if (rest) restedOnly.Add((target.renderer, target.property));
+                else restedOnly.Remove((target.renderer, target.property));
             }
             bool PropertyWritten(MaterialPropertyTarget target)
                 => target.renderer != null && properties.TryGetValue(target.renderer, out var written) && written.ContainsKey(target.property ?? "");
+            bool OnlyRested(MaterialPropertyTarget target) => target.renderer != null && restedOnly.Contains((target.renderer, target.property ?? ""));
             // A Hold trigger's layer follows the avatar's Write Defaults. Only Write Defaults off lets its Off state
-            // leave a property to another layer: Write Defaults on writes the property's default every frame, curve
-            // or not. Read once, and only when a resting trigger asks.
+            // leave a property to another layer: Write Defaults on writes the property every frame, so its Off state
+            // carries the row's off value. Read once, and only when a resting trigger asks.
             bool? holdOffLeavesOwned = null;
             bool HoldOffLeavesOwned()
             {
@@ -231,14 +237,16 @@ namespace DocMe.AvatarDoctor.Editor
                 if (entry.BuildsProperties)
                     foreach (var target in entry.properties)
                     {
-                        // A control or a trigger written before this one already wrote the property in this pass,
-                        // so the built state of a trigger that is not met carries no curve for it. Its Far state
-                        // (always Write Defaults off), or a Hold trigger's Off state on a Write Defaults off avatar,
-                        // then leaves the property alone; a Hold trigger's Off state on a Write Defaults on avatar
-                        // writes the property's default, the material's own value, whatever Off value the row has.
-                        if (!on && entry.kind == EntryKind.Trigger && PropertyWritten(target))
+                        // A Hold trigger's Off state on a Write Defaults on avatar writes the row's off value on every
+                        // frame. Otherwise a trigger that is not met writes its off value once, from its Reset state
+                        // at load: over nothing, or over another resting trigger's own once, since the later layer's
+                        // Reset wins. A control, or a trigger that fires, written before this one writes the property
+                        // on every frame and keeps it.
+                        if (!on && entry.kind == EntryKind.Trigger)
                         {
-                            if (!entry.IsFollowDistanceTrigger && !HoldOffLeavesOwned()) WriteProperty(target, entry, BaseProperty(target, entry));
+                            var off = EffectMath.PropertyValue(target, false, BaseProperty(target, entry));
+                            if (!entry.IsFollowDistanceTrigger && !HoldOffLeavesOwned()) WriteProperty(target, entry, off);
+                            else if (!PropertyWritten(target) || OnlyRested(target)) WriteProperty(target, entry, off, rest: true);
                             continue;
                         }
                         WriteProperty(target, entry, EffectMath.PropertyValue(target, on, BaseProperty(target, entry)));
@@ -379,7 +387,7 @@ namespace DocMe.AvatarDoctor.Editor
                     {
                         if (resting)
                         {
-                            if (!PropertyWritten(target)) WriteProperty(target, entry, EffectMath.PropertyValue(target, false, BaseProperty(target, entry)));
+                            if (!PropertyWritten(target) || OnlyRested(target)) WriteProperty(target, entry, EffectMath.PropertyValue(target, false, BaseProperty(target, entry)), rest: true);
                             continue;
                         }
                         WriteProperty(target, entry, EffectMath.LinkPropertyValue(entry, target, weight, BaseProperty(target, entry)));

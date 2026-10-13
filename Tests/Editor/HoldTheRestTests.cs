@@ -298,9 +298,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             Assert.That(avatar.Body.GetBlendShapeWeight(Index("Eye_Big")), Is.EqualTo(0f), "sanity: the clone starts at the other toggle's 0");
-            float clearOff = Weight(State(Layer(fx, "AD: Clear (pin)"), "Off").motion, "Eye_Big");
-            Assert.That(clearOff, Is.EqualTo(40f), "the other toggle hands the shape back to 40 when it turns off");
-            Assert.That(Weight(State(Layer(fx, "AD: Face (pin)"), "On").motion, "Eye_Big"), Is.EqualTo(clearOff), "a held shape and an Off state never disagree");
+            float clearRest = Weight(State(Layer(fx, "AD: Clear (pin)"), "Reset").motion, "Eye_Big");
+            Assert.That(clearRest, Is.EqualTo(40f), "the other toggle hands the shape back to 40 when it turns off");
+            Assert.That(Weight(State(Layer(fx, "AD: Face (pin)"), "On").motion, "Eye_Big"), Is.EqualTo(clearRest), "a held shape and the rest a toggle hands back never disagree");
         }
 
         /// <summary>Guard: a 0 rule still holds at 0; true before and after this task.</summary>
@@ -349,7 +349,7 @@ namespace DocMe.AvatarDoctor.Editor
             SetWeight("Smile", 20f);
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
             face.shapeSets.Add(Rule(ShapeSetValue.Default, blink: true, visemes: true));
-            // A later toggle pins Smile, so the rule keeps it and Face's pin layer is the lowest one that holds it.
+            // A later toggle pins Smile, so the rule keeps it and no ordinary layer owns it.
             var grin = menu.AddEntry(EntryKind.Toggle, "Grin");
             grin.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Smile", weight = 100f, mode = ShapeEffectMode.Pin });
 
@@ -370,9 +370,14 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Parameter(off.motion, flag).Evaluate(0f), Is.EqualTo(0f), "and 0 at rest");
             Assert.That(fx.parameters.Single(p => p.name == flag).type, Is.EqualTo(AnimatorControllerParameterType.Float));
 
-            Assert.That(Shape(off.motion, "Blink"), Is.Null, "the blink shape is never handed back to rest: VRChat's blinking owns it while off");
-            Assert.That(Shape(off.motion, "vrc.v_aa"), Is.Null);
-            Assert.That(Weight(off.motion, "Smile"), Is.EqualTo(20f), "an ordinary held shape is still handed back to rest when no ordinary layer owns it");
+            var reset = State(layer, "Reset");
+            foreach (var state in new[] { off, reset })
+            {
+                Assert.That(Shape(state.motion, "Blink"), Is.Null, state.name + ": the blink shape is never handed back to rest: VRChat's blinking owns it while off");
+                Assert.That(Shape(state.motion, "vrc.v_aa"), Is.Null, state.name);
+            }
+            Assert.That(Shape(off.motion, "Smile"), Is.Null, "Off writes no shape");
+            Assert.That(Weight(reset.motion, "Smile"), Is.EqualTo(20f), "an ordinary held shape is still handed back to rest, once, when no ordinary layer owns it");
         }
 
         [Test]
@@ -392,7 +397,7 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = Layer(fx, "AD: Face (pin)");
             var flag = State(Layer(fx, "AD: Blink pause"), "Idle").transitions.Single().conditions.Single().parameter;
             Assert.That(Parameter(State(layer, "Sleepy").motion, flag).Evaluate(0f), Is.EqualTo(1f), "the member whose rule holds the blink shape");
-            Assert.That(Parameter(State(layer, "Smug").motion, flag).Evaluate(0f), Is.EqualTo(0f), "another member: the layer moves straight between members, never through Off");
+            Assert.That(Parameter(State(layer, "Smug").motion, flag).Evaluate(0f), Is.EqualTo(0f), "another member's own state lowers it");
             Assert.That(Parameter(State(layer, "Off").motion, flag).Evaluate(0f), Is.EqualTo(0f));
         }
 
@@ -437,8 +442,11 @@ namespace DocMe.AvatarDoctor.Editor
             var on = State(layer, "On");
             var off = State(layer, "Off");
             Assert.That(Weight(on.motion, "Blink"), Is.EqualTo(60f), "the captured eyes stay half closed while on");
+            var reset = State(layer, "Reset");
             Assert.That(Shape(off.motion, "Blink"), Is.Null, "while off the blink shape is VRChat's again: no rest curve");
-            Assert.That(Weight(off.motion, "Smile"), Is.EqualTo(20f), "an ordinary captured shape is still handed back to rest");
+            Assert.That(Shape(reset.motion, "Blink"), Is.Null, "not even for the one frame of reset");
+            Assert.That(Shape(off.motion, "Smile"), Is.Null, "Off writes no shape");
+            Assert.That(Weight(reset.motion, "Smile"), Is.EqualTo(20f), "an ordinary captured shape is still handed back to rest, once");
             var flag = State(Layer(fx, "AD: Blink pause"), "Idle").transitions.Single().conditions.Single().parameter;
             Assert.That(Parameter(on.motion, flag).Evaluate(0f), Is.EqualTo(1f), "blinking pauses while the toggle is on");
             Assert.That(Parameter(off.motion, flag).Evaluate(0f), Is.EqualTo(0f), "and comes back when it is off");

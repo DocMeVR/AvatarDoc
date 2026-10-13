@@ -53,6 +53,14 @@ namespace DocMe.AvatarDoctor.Editor
         static AnimationCurve Glossiness(Motion motion)
             => AnimationUtility.GetEditorCurve((AnimationClip)motion, EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "material._Glossiness"));
 
+        /// <summary>The glossiness curve of the layer's Reset state, after checking its resting state writes none itself; null when the layer has no Reset state left.</summary>
+        static AnimationCurve ResetGlossiness(AnimatorControllerLayer layer, string restingState = "Off")
+        {
+            Assert.That(Glossiness(State(layer, restingState).motion), Is.Null, layer.name + ": " + restingState + " never writes the property itself");
+            var reset = layer.stateMachine.states.Select(s => s.state).SingleOrDefault(s => s.name == "Reset");
+            return reset == null ? null : Glossiness(reset.motion);
+        }
+
         static MaterialPropertyTarget Shine(TestAvatar a, float value) => new MaterialPropertyTarget { renderer = a.Body, property = "_Glossiness", type = PropertyValueType.Float, value = value };
 
         /// <summary>The whole build the way NDMF runs it: AvatarDoc's own pass, then the final pass the Optimizing phase runs after every other tool.</summary>
@@ -108,10 +116,10 @@ namespace DocMe.AvatarDoctor.Editor
 
             var layer = Layer(fx, "AD: Pat");
             var on = Glossiness(State(layer, "On").motion);
-            var off = Glossiness(State(layer, "Off").motion);
+            var off = ResetGlossiness(layer);
             Assert.That(on, Is.Not.Null, "the On state writes the property");
             Assert.That(on.Evaluate(0f), Is.EqualTo(0.7f).Within(0.0001f), "at the row's value");
-            Assert.That(off, Is.Not.Null, "nothing else animates the property, so Off hands it back to rest itself");
+            Assert.That(off, Is.Not.Null, "nothing else animates the property, so Reset hands it back to rest once on the way out");
             Assert.That(off.Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f), "at the material's own value");
         }
 
@@ -127,8 +135,8 @@ namespace DocMe.AvatarDoctor.Editor
 
             var triggerLayer = Layer(fx, "AD: Pat");
             Assert.That(Glossiness(State(triggerLayer, "On").motion).Evaluate(0f), Is.EqualTo(0.7f).Within(0.0001f));
-            Assert.That(Glossiness(State(triggerLayer, "Off").motion), Is.Null,
-                "the toggle's own layer writes the property in every state, so it owns it: the trigger's Off leaves it alone and the toggle shows through while the trigger is not met");
+            Assert.That(ResetGlossiness(triggerLayer), Is.Null,
+                "the toggle's own layer writes the property in every state, so it owns it: the trigger leaves it alone, not even a frame of reset, and the toggle shows through while the trigger is not met");
             var toggleLayer = Layer(fx, "AD: Shiny");
             Assert.That(Glossiness(State(toggleLayer, "Off").motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f), "the toggle keeps its own rest");
             Assert.That(Glossiness(State(toggleLayer, "On").motion).Evaluate(0f), Is.EqualTo(0.9f).Within(0.0001f));
@@ -151,13 +159,14 @@ namespace DocMe.AvatarDoctor.Editor
                 var layer = Layer(fx, "AD: Pat");
                 Assert.That(State(layer, "Off").writeDefaultValues, Is.True, "the trigger's layer follows the avatar's Write Defaults");
                 var off = Glossiness(State(layer, "Off").motion);
-                Assert.That(off, Is.Not.Null, "the trigger's own Write Defaults on layer is not another layer that owns the property");
+                Assert.That(off, Is.Not.Null, "Write Defaults on writes the property on every frame of Off anyway, so Off carries the rest value itself");
                 Assert.That(off.Evaluate(0f), Is.EqualTo(0.3f).Within(0.0001f));
+                Assert.That(layer.stateMachine.states.Select(s => s.state.name), Is.EquivalentTo(new[] { "Off", "On" }), "and the layer needs no Reset");
             }
         }
 
         [Test]
-        public void AHoldAndAFadeTriggerOnOnePropertyRestItOnce()
+        public void AHoldAndAFadeTriggerOnOnePropertyEachRestItOnce()
         {
             var hold = ContactTrigger("Hold", TouchMode.Hold);
             hold.properties.Add(Shine(avatar, 0.7f));
@@ -166,15 +175,17 @@ namespace DocMe.AvatarDoctor.Editor
 
             var fx = BuildAll();
 
-            var holdOff = Glossiness(State(Layer(fx, "AD: Hold"), "Off").motion);
-            Assert.That(holdOff, Is.Not.Null, "the Hold trigger's layer sits below every pin layer, so it is the one that rests the property");
+            var holdOff = ResetGlossiness(Layer(fx, "AD: Hold"));
+            Assert.That(holdOff, Is.Not.Null, "the Hold trigger's layer rests the property once on its way out");
             Assert.That(holdOff.Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
-            Assert.That(Glossiness(State(Layer(fx, "AD: Fade (distance)"), "Far").motion), Is.Null,
-                "Far, above it, leaves the property alone, so the Hold trigger still shows while no hand is near the Fade contact");
+            var fadeRest = ResetGlossiness(Layer(fx, "AD: Fade (distance)"), "Far");
+            Assert.That(fadeRest, Is.Not.Null, "so does the Fade trigger's, so the property never stays at the Fade value when the Fade contact is left last");
+            Assert.That(fadeRest.Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f),
+                "and Far, above the Hold layer, writes nothing, so the Hold trigger still shows while no hand is near the Fade contact");
         }
 
         [Test]
-        public void TwoHoldTriggersOnOnePropertyRestOnlyTheLowerOne()
+        public void TwoHoldTriggersOnOnePropertyEachRestItOnce()
         {
             var first = ContactTrigger("First", TouchMode.Hold);
             first.properties.Add(Shine(avatar, 0.6f));
@@ -185,16 +196,17 @@ namespace DocMe.AvatarDoctor.Editor
 
             var names = LayerNames(fx);
             Assert.That(names.IndexOf("AD: Second"), Is.GreaterThan(names.IndexOf("AD: First")), "the later trigger's layer sits above, so it wins while both fire");
-            var firstOff = Glossiness(State(Layer(fx, "AD: First"), "Off").motion);
-            Assert.That(firstOff, Is.Not.Null, "the lower layer rests the property");
+            var firstOff = ResetGlossiness(Layer(fx, "AD: First"));
+            Assert.That(firstOff, Is.Not.Null, "the lower layer rests the property once on its way out");
             Assert.That(firstOff.Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
-            Assert.That(Glossiness(State(Layer(fx, "AD: Second"), "Off").motion), Is.Null, "the upper Off stays empty, so the lower trigger shows through while only it fires");
+            Assert.That(ResetGlossiness(Layer(fx, "AD: Second")), Is.Not.Null,
+                "the upper one too, for 1/60 of a second only: its Off stays empty, so the lower trigger shows through while only it fires");
             Assert.That(Glossiness(State(Layer(fx, "AD: First"), "On").motion).Evaluate(0f), Is.EqualTo(0.6f).Within(0.0001f));
             Assert.That(Glossiness(State(Layer(fx, "AD: Second"), "On").motion).Evaluate(0f), Is.EqualTo(0.8f).Within(0.0001f));
         }
 
         [Test]
-        public void TheReleaseRestsAnOrdinaryLayerBeforeAPinLayerWhateverTheirOrder()
+        public void AnOrdinaryLayerAndAPinLayerBothRestAPropertyWhateverTheirOrder()
         {
             var hold = ContactTrigger("Hold", TouchMode.Hold);
             hold.properties.Add(Shine(avatar, 0.7f));
@@ -202,20 +214,20 @@ namespace DocMe.AvatarDoctor.Editor
             fade.properties.Add(Shine(avatar, 0.9f));
 
             // A tool between the passes leaves the distance layer below the Hold layer; the final pass moves every
-            // pin layer back above the ordinary ones, so the Hold layer is still the one an animation falls through to.
+            // pin layer back above the ordinary ones, and both layers rest the property whatever their order.
             var fx = BuildAll(betweenPasses: virtualFx =>
                 virtualFx.Layers = virtualFx.Layers.OrderBy(l => l.Name == "AD: Fade (distance)" ? 0 : 1).ToList());
 
             var names = LayerNames(fx);
             Assert.That(names.IndexOf("AD: Fade (distance)"), Is.GreaterThan(names.IndexOf("AD: Hold")), "the final pass moved the distance layer last again");
-            var holdOff = Glossiness(State(Layer(fx, "AD: Hold"), "Off").motion);
-            Assert.That(holdOff, Is.Not.Null, "the ordinary layer rests the property, though the distance layer had the smaller index when the release ran");
+            var holdOff = ResetGlossiness(Layer(fx, "AD: Hold"));
+            Assert.That(holdOff, Is.Not.Null, "the ordinary layer rests the property once, though the distance layer had the smaller index when the release ran");
             Assert.That(holdOff.Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
-            Assert.That(Glossiness(State(Layer(fx, "AD: Fade (distance)"), "Far").motion), Is.Null, "Far, last in FX after the move, leaves it alone");
+            Assert.That(ResetGlossiness(Layer(fx, "AD: Fade (distance)"), "Far"), Is.Not.Null, "and so does the distance layer, whatever the order; Far, last in FX after the move, writes nothing");
         }
 
         [Test]
-        public void FadeTriggerPropertyBlendsInTheNearTreeAndRestsAtFar()
+        public void FadeTriggerPropertyBlendsInTheNearTreeAndRestsOnceOnTheWayToFar()
         {
             var pat = ContactTrigger("Pat", TouchMode.FollowDistance);
             pat.contactFullAt = 0.6f;
@@ -231,8 +243,8 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Glossiness(tree.children[0].motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f), "the blend starts at rest");
             Assert.That(tree.children[1].threshold, Is.EqualTo(0.6f).Within(0.0001f));
             Assert.That(Glossiness(tree.children[1].motion).Evaluate(0f), Is.EqualTo(0.7f).Within(0.0001f), "and reaches the row's value at Fully on");
-            var far = Glossiness(State(layer, "Far").motion);
-            Assert.That(far, Is.Not.Null, "nothing else animates the property, so Far rests it");
+            var far = ResetGlossiness(layer, "Far");
+            Assert.That(far, Is.Not.Null, "nothing else animates the property, so Reset rests it once on the way back to Far");
             Assert.That(far.Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
         }
 
@@ -247,8 +259,8 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll();
 
             var layer = Layer(fx, "AD: Pat (distance)");
-            Assert.That(Glossiness(State(layer, "Far").motion), Is.Null,
-                "Fade's own rule: Far carries no curve for a binding another layer owns, or this layer, last in FX, would hide the toggle for good");
+            Assert.That(ResetGlossiness(layer, "Far"), Is.Null,
+                "Fade's own rule: no curve for a binding another layer owns, not even in Reset, or this layer, last in FX, would hide the toggle");
             var tree = (BlendTree)State(layer, "Near").motion;
             Assert.That(Glossiness(tree.children[1].motion).Evaluate(0f), Is.EqualTo(0.7f).Within(0.0001f), "the blend itself is unchanged");
         }
@@ -272,15 +284,16 @@ namespace DocMe.AvatarDoctor.Editor
 
             var toggleSourced = Layer(fx, "AD: WhileHat");
             Assert.That(Glossiness(State(toggleSourced, "On").motion).Evaluate(0f), Is.EqualTo(0.6f).Within(0.0001f));
-            Assert.That(Glossiness(State(toggleSourced, "Off").motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
+            Assert.That(ResetGlossiness(toggleSourced).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
             var parameterSourced = Layer(fx, "AD: WhileExisting");
             var on = (AnimationClip)State(parameterSourced, "On").motion;
-            var off = (AnimationClip)State(parameterSourced, "Off").motion;
+            Assert.That(AnimationUtility.GetCurveBindings((AnimationClip)State(parameterSourced, "Off").motion), Is.Empty, "Off writes nothing for the properties");
+            var off = (AnimationClip)State(parameterSourced, "Reset").motion;
             foreach (var (channel, onValue, offValue) in new[] { ("r", 1f, 0.1f), ("g", 0.5f, 0.2f), ("b", 0.25f, 0.3f), ("a", 1f, 0.4f) })
             {
                 var binding = EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "material._Color." + channel);
                 Assert.That(AnimationUtility.GetEditorCurve(on, binding).Evaluate(0f), Is.EqualTo(onValue).Within(0.0001f), "On " + channel);
-                Assert.That(AnimationUtility.GetEditorCurve(off, binding).Evaluate(0f), Is.EqualTo(offValue).Within(0.0001f), "Off " + channel);
+                Assert.That(AnimationUtility.GetEditorCurve(off, binding).Evaluate(0f), Is.EqualTo(offValue).Within(0.0001f), "Reset " + channel);
             }
         }
 
@@ -301,11 +314,12 @@ namespace DocMe.AvatarDoctor.Editor
             var off = State(layer, "Off");
             var on = State(layer, "On");
             Assert.That(Glossiness(on.motion).Evaluate(0f), Is.EqualTo(0.8f).Within(0.0001f));
-            Assert.That(Glossiness(off.motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
+            Assert.That(ResetGlossiness(layer).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f));
             Assert.That(off.transitions.Length, Is.EqualTo(2), "one way in per group");
             Assert.That(off.transitions.All(t => t.destinationState == on && t.conditions.Length == 2), Is.True, "each with its own condition and the gate");
             Assert.That(on.transitions.Length, Is.GreaterThan(0));
-            Assert.That(on.transitions.All(t => t.destinationState == off), Is.True);
+            Assert.That(on.transitions.All(t => t.destinationState == State(layer, "Reset")), Is.True, "every way out passes Reset");
+            Assert.That(State(layer, "Reset").transitions.Single().destinationState, Is.SameAs(off));
         }
 
         // Model and plan
@@ -503,7 +517,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
-        public void ARestingHoldTriggerWithAnOffValueShowsTheMaterialValueOnAWriteDefaultsOnAvatar()
+        public void ARestingHoldTriggerWithAnOffValueShowsItOnAWriteDefaultsOnAvatar()
         {
             using (var owned = TestAvatar.Create(writeDefaultsOff: false))
             {
@@ -523,8 +537,17 @@ namespace DocMe.AvatarDoctor.Editor
 
                 var holdOff = PreviewModel.Compute(owned.Root.transform, components, new Dictionary<string, float> { [hold.id] = 0f }, SceneReader.Direct);
 
-                Assert.That(holdOff.TryGetValue(owned.Body, out var state) && state.Properties.ContainsKey("_Glossiness"), Is.False,
-                    "the toggle owns the property, so the built Off state carries no curve for it, and Write Defaults on writes the material's own value there, not the row's Off value");
+                Assert.That(holdOff[owned.Body].Properties["_Glossiness"].Value.x, Is.EqualTo(0.45f).Within(0.0001f),
+                    "Write Defaults on writes the property on every frame of the trigger's Off state anyway, so Off carries the row's off value, above the toggle's layer");
+
+                var fx = BuildAll(owned);
+
+                Assert.That(Glossiness(State(Layer(fx, "AD: Hold"), "Off").motion).Evaluate(0f), Is.EqualTo(0.45f).Within(0.0001f));
+                using (var player = new ResetOnceTests.Player(owned.Root, fx, owned.Body))
+                {
+                    player.Settled("Blush");
+                    Assert.That(player.Property("_Glossiness"), Is.EqualTo(0.45f).Within(0.0001f), "and the game at load shows what the preview shows");
+                }
             }
         }
 
@@ -565,14 +588,24 @@ namespace DocMe.AvatarDoctor.Editor
             var bothOn = PreviewModel.Compute(avatar.Root.transform, components, new Dictionary<string, float> { [fade.id] = 1f, [hold.id] = 1f }, SceneReader.Direct);
             Assert.That(bothOn[avatar.Body].Properties["_Glossiness"].Value.x, Is.EqualTo(0.9f).Within(0.0001f), "the Fade trigger is first in the tree, but its layer sits above every Hold layer");
             var bothOff = PreviewModel.Compute(avatar.Root.transform, components, new Dictionary<string, float> { [fade.id] = 0f, [hold.id] = 0f }, SceneReader.Direct);
-            Assert.That(bothOff[avatar.Body].Properties["_Glossiness"].Value.x, Is.EqualTo(0.4f).Within(0.0001f), "both resting: the Hold layer holds the rest, and Far leaves it alone");
+            Assert.That(bothOff[avatar.Body].Properties["_Glossiness"].Value.x, Is.EqualTo(0.6f).Within(0.0001f),
+                "both resting: each layer writes its off value once at load, and the Fade layer, above, writes last");
 
             var fx = BuildAll();
 
             var names = LayerNames(fx);
             Assert.That(names.IndexOf("AD: Fade (distance)"), Is.GreaterThan(names.IndexOf("AD: Hold")), "the build agrees: Fade's layer is above");
-            Assert.That(Glossiness(State(Layer(fx, "AD: Hold"), "Off").motion).Evaluate(0f), Is.EqualTo(0.4f).Within(0.0001f));
-            Assert.That(Glossiness(State(Layer(fx, "AD: Fade (distance)"), "Far").motion), Is.Null);
+            Assert.That(ResetGlossiness(Layer(fx, "AD: Hold")).Evaluate(0f), Is.EqualTo(0.4f).Within(0.0001f));
+            Assert.That(ResetGlossiness(Layer(fx, "AD: Fade (distance)"), "Far").Evaluate(0f), Is.EqualTo(0.6f).Within(0.0001f));
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Settled("Blush");
+                Assert.That(player.Property("_Glossiness"), Is.EqualTo(0.6f).Within(0.0001f), "the game at load shows what the preview shows with both resting");
+                player.Set(TouchBuilder.ParameterFor(hold, "AD"), 1f);
+                player.Set(TouchBuilder.ParameterFor(fade, "AD"), 1f);
+                player.Settled("Blush");
+                Assert.That(player.Property("_Glossiness"), Is.EqualTo(0.9f).Within(0.0001f), "and with a hand on both, what it shows with both on");
+            }
         }
 
         // Inspector

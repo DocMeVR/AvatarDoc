@@ -614,7 +614,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
-        public void GroupPinLayerSwitchesMembersDirectly()
+        public void GroupPinLayerSwitchesMembersThroughOff()
         {
             var a = PinToggle("A");
             a.exclusiveGroup = "Outfits";
@@ -625,12 +625,19 @@ namespace DocMe.AvatarDoctor.Editor
 
             Assert.That(errors, Is.Empty);
             var main = Layer(fx, "AD: Outfits").stateMachine.anyStateTransitions;
-            var pin = Layer(fx, "AD: Outfits (pin)").stateMachine.anyStateTransitions;
-            Assert.That(DestinationsOf(pin), Is.EqualTo(new[] { "Off", "A", "B" }));
-            Assert.That(DestinationsOf(main), Is.EqualTo(new[] { "Off", "A", "B" }));
-            Assert.That(ConditionsOf(pin), Is.EqualTo(ConditionsOf(main)));
-            foreach (var name in new[] { "Off", "A", "B" })
-                Assert.That(State(Layer(fx, "AD: Outfits (pin)"), name).transitions, Is.Empty, name);
+            var pinLayer = Layer(fx, "AD: Outfits (pin)");
+            Assert.That(DestinationsOf(main), Is.EqualTo(new[] { "Off", "A", "B" }), "the main layer still switches members through Any State");
+            Assert.That(pinLayer.stateMachine.anyStateTransitions, Is.Empty,
+                "the pin layer goes from member to member through Off, so a member state writes only its own pins and never holds another member's shape at rest");
+            var off = State(pinLayer, "Off");
+            Assert.That(DestinationsOf(off.transitions), Is.EqualTo(new[] { "A", "B" }));
+            Assert.That(ConditionsOf(off.transitions), Is.EqualTo(ConditionsOf(main.Where(t => t.destinationState.name != "Off").ToArray())), "a member is entered on the same condition as in the main layer");
+            foreach (var name in new[] { "A", "B" })
+            {
+                var leave = State(pinLayer, name).transitions.Single();
+                Assert.That(leave.destinationState.name, Is.EqualTo("Off"), name + ": with no final pass to fill a Reset, a member goes straight back to Off");
+                Assert.That(leave.conditions.Single().mode, Is.EqualTo(AnimatorConditionMode.NotEqual), name + " is left as soon as it is not selected");
+            }
         }
 
         [Test]
@@ -646,10 +653,10 @@ namespace DocMe.AvatarDoctor.Editor
 
             Assert.That(errors, Is.Empty);
             var main = Layer(fx, "AD: Outfits").stateMachine.anyStateTransitions;
-            var pin = Layer(fx, "AD: Outfits (pin)").stateMachine.anyStateTransitions;
-            Assert.That(DestinationsOf(pin), Is.EqualTo(new[] { "Off", "A" }), "the pin layer has no state for an unpinned member");
+            var pinLayer = Layer(fx, "AD: Outfits (pin)");
+            Assert.That(pinLayer.stateMachine.states.Select(s => s.state.name), Is.EquivalentTo(new[] { "Off", "A" }), "the pin layer has no state for an unpinned member");
             var toA = main.Single(t => t.destinationState.name == "A").conditions.Single();
-            var pinOff = pin.Single(t => t.destinationState.name == "Off").conditions;
+            var pinOff = State(pinLayer, "A").transitions.Single().conditions;
             Assert.That(pinOff.Length, Is.EqualTo(1), "the pin layer releases as soon as A is not selected");
             Assert.That(pinOff[0].mode, Is.EqualTo(AnimatorConditionMode.NotEqual));
             Assert.That(pinOff[0].parameter, Is.EqualTo(toA.parameter));

@@ -77,14 +77,14 @@ namespace DocMe.AvatarDoctor.Editor
                     if (needsPinMove) AnimatorBuilder.TurnPinLayersWriteDefaultsOff(asc, pins.Names);
                     // Every layer any tool adds is in the controller now, so this is where a rule finds out which of
                     // its shapes something else moves and drops the rest. Before the release to rest, so a dropped
-                    // shape is never handed back to rest by its layer; before the copy of each blend shape trigger's
+                    // shape gets no curve in its layer's Reset either; before the copy of each blend shape trigger's
                     // shape, so the copy is taken from the clips as they will play; the layer order does not matter
                     // to it, so the move comes after as before.
                     if (needsPinMove) L.Report(HeldShapePruner.Prune(asc, pins, overrides));
-                    // Handing a shape back to rest has to run before both of these: before RunFinal, so an override
-                    // that flattens the same shape also flattens the rest curve this adds, rather than the pin's
-                    // last-writer position letting it escape the override whenever the trigger is off; before the
-                    // move, so the pin layers are still in the relative order that decides which one is lowest.
+                    // Writing the rest values into each layer's Reset runs before RunFinal, so an override that
+                    // flattens the same shape also flattens the rest curve this adds, rather than the pin's
+                    // last-writer position letting the frame of reset escape the override; and before the move,
+                    // which only reorders layers this has already written into.
                     if (needsPinMove) AnimatorBuilder.ReleasePinsToRest(asc, pins);
                     // This is the first point every layer any tool will ever add is already in the controller, so
                     // it is the only place that can tell whether a VRCFT template, a sleep or an AFK setup already
