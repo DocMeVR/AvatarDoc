@@ -110,7 +110,7 @@ The row has no buttons. It says which shape the trigger follows in the scene. Wh
 
 At upload, after Modular Avatar and VRCFury have added their animations, AvatarDoc copies the shape's weight into a hidden value in every FX animation that moves the shape. The hidden value is named after the parameter prefix, Shape and the trigger's name, such as AD/Shape/Smile blush. It is not an expression parameter, so it costs no synced bits: every player's copy of your avatar works it out from the same animations.
 
-The trigger gets one layer of its own, named AD: and the trigger's name with (shape) after it, placed after everything Modular Avatar and VRCFury add. While the effects rest, it leaves every shape and property to whatever else moves them, and never holds a shape VRChat blinks or speaks with. When an effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effects are on.
+The trigger gets one layer of its own, named AD: and the trigger's name with (shape) after it, placed after everything Modular Avatar and VRCFury add. When the effects come to rest, and when the avatar loads, it sets their shapes and properties back to rest once, unless another layer owns them. While the effects rest, it leaves every shape and property to whatever else moves them, and never holds a shape VRChat blinks or speaks with. When an effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effects are on.
 
 The Builds line reads, for example, **Builds: 1 FX layer, blends from 0 to 100, a hidden copy of the shape's weight, no synced bits**.
 
