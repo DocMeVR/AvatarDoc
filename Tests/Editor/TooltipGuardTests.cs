@@ -1,7 +1,6 @@
 #if DOCME_NDMF && DOCME_VRCSDK3A
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
@@ -453,23 +452,9 @@ namespace DocMe.AvatarDoctor.Editor
             AssertAllTooltipped(view.Detail.Q<TargetListView>("ad-blendshapes").RowAt(0), "pinned (override) blend shape row");
         }
 
-        // ---- tests 3 and 4: the JSON's own ".tip" text and its bookkeeping ------------------------------------
+        // ---- tests 3 and 4: the English file's own ".tip" text and its bookkeeping ------------------------------
 
-        static Dictionary<string, string> ReadLocalizationEntries()
-        {
-            var guids = AssetDatabase.FindAssets("AvatarDoctor.en-US t:TextAsset");
-            Assert.That(guids.Length, Is.GreaterThan(0), "the English localization file must exist");
-            var path = AssetDatabase.GUIDToAssetPath(guids[0]);
-            var text = File.ReadAllText(path);
-            var result = new Dictionary<string, string>();
-            foreach (Match m in Regex.Matches(text, "\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\""))
-            {
-                var key = Regex.Unescape(m.Groups[1].Value);
-                var value = Regex.Unescape(m.Groups[2].Value);
-                result[key] = value;
-            }
-            return result;
-        }
+        static Dictionary<string, string> ReadLocalizationEntries() => LocalizationFileTests.ShippedTexts("en-US");
 
         /// <summary>Sentence-ending periods only: one inside a number such as "0.005" is not a second sentence.</summary>
         static int SentenceCount(string text) => Regex.Matches(text, @"\.(?=\s+[A-Z]|$)").Count;
@@ -504,15 +489,15 @@ namespace DocMe.AvatarDoctor.Editor
         public void EveryTipKeyHasItsControlKey()
         {
             var entries = ReadLocalizationEntries();
-            var jsonTipKeys = new HashSet<string>(entries.Keys.Where(k => k.EndsWith(".tip", StringComparison.Ordinal)));
+            var fileTipKeys = new HashSet<string>(entries.Keys.Where(k => k.EndsWith(".tip", StringComparison.Ordinal)));
             var codeKeys = new HashSet<string>(L.KnownKeys.Concat(L.UiKeys));
             var codeTipKeys = new HashSet<string>(codeKeys.Where(k => k.EndsWith(".tip", StringComparison.Ordinal)));
 
-            var orphanInJson = jsonTipKeys.Except(codeTipKeys).ToList();
-            Assert.That(orphanInJson, Is.Empty, "these .tip keys are in the JSON but missing from L.cs's KnownKeys or UiKeys: " + string.Join(", ", orphanInJson));
+            var orphanInFile = fileTipKeys.Except(codeTipKeys).ToList();
+            Assert.That(orphanInFile, Is.Empty, "these .tip keys are in AvatarDoctor.en-US.po but missing from L.cs's KnownKeys or UiKeys: " + string.Join(", ", orphanInFile));
 
-            var orphanInCode = codeTipKeys.Except(jsonTipKeys).ToList();
-            Assert.That(orphanInCode, Is.Empty, "these .tip keys are listed in L.cs but missing from the JSON: " + string.Join(", ", orphanInCode));
+            var orphanInCode = codeTipKeys.Except(fileTipKeys).ToList();
+            Assert.That(orphanInCode, Is.Empty, "these .tip keys are listed in L.cs but missing from AvatarDoctor.en-US.po: " + string.Join(", ", orphanInCode));
         }
     }
 }
