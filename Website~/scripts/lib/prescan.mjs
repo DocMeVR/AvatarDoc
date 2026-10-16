@@ -15,7 +15,7 @@ export function prescanPages(pages, strings, { shotNames, allowMissing }) {
     }
     for (const key of usedHeadingKeys(source)) {
       if (!Object.prototype.hasOwnProperty.call(strings, key)) {
-        errors.push(`${file}: Heading marker uses the unknown UI label key "${key}". It is not in AvatarDoctor.en-US.json.`);
+        errors.push(`${file}: Heading marker uses the unknown UI label key "${key}". It is not in AvatarDoctor.en-US.po.`);
       }
     }
     if (!allowMissing) {

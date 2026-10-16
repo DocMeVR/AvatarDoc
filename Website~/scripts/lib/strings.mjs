@@ -17,7 +17,7 @@ export function loadStrings(tablePath) {
 export function labelText(strings, key) {
   if (!Object.prototype.hasOwnProperty.call(strings, key)) {
     throw new Error(
-      `Unknown UI label key "${key}". It is not in AvatarDoctor.en-US.json: fix the key, or remove the label from the page.`,
+      `Unknown UI label key "${key}". It is not in AvatarDoctor.en-US.po: fix the key, or remove the label from the page.`,
     );
   }
   const text = stripRichText(strings[key]);

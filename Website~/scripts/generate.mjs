@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import siteData from '../src/data/site.json' with { type: 'json' };
-import { loadStrings } from './lib/strings.mjs';
+import { loadPoStrings } from './lib/po.mjs';
 import { messageEntries, renderMessages } from './lib/messages.mjs';
 import { listFiles } from './lib/checks.mjs';
 import { prescanPages } from './lib/prescan.mjs';
@@ -10,7 +10,7 @@ import { changelogPage, glossaryPage, translatePage, messagesPage, parseNotes } 
 
 const site = fileURLToPath(new URL('..', import.meta.url));
 const pkg = path.resolve(site, '..');
-const table = path.join(pkg, 'Editor', 'Localization', 'AvatarDoctor.en-US.json');
+const table = path.join(pkg, 'Editor', 'Localization', 'AvatarDoctor.en-US.po');
 const docs = path.join(site, 'src', 'content', 'docs');
 
 function write(file, text) {
@@ -23,7 +23,7 @@ function read(file) {
 }
 
 const edit = (file) => `${siteData.githubRepo}/edit/main/${file}`;
-const strings = loadStrings(table);
+const strings = loadPoStrings(table);
 write(path.join(site, 'src', 'data', 'strings.en-US.json'), JSON.stringify(strings, null, 2));
 
 const notesFile = path.join(site, 'src', 'data', 'message-notes.yml');
@@ -34,7 +34,7 @@ if (unknownNotes.length > 0) {
 }
 write(
   path.join(docs, 'reference', 'messages.md'),
-  messagesPage(renderMessages(messageEntries(strings), notes), 'Editor/Localization/AvatarDoctor.en-US.json', edit('Website~/src/data/message-notes.yml'), strings['ad.ui.message.learn_more']),
+  messagesPage(renderMessages(messageEntries(strings), notes), 'Editor/Localization/AvatarDoctor.en-US.po', edit('Website~/src/data/message-notes.yml'), strings['ad.ui.message.learn_more']),
 );
 
 write(path.join(docs, 'help', 'changelog.md'), changelogPage(read(path.join(pkg, 'CHANGELOG.md')), 'CHANGELOG.md', edit('CHANGELOG.md')));
