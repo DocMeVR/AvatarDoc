@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'Website~/**'
-      - 'Editor/Localization/AvatarDoctor.en-US.json'
+      - 'Editor/Localization/AvatarDoctor.en-US.po'
       - 'CHANGELOG.md'
       - 'Docs~/glossary.md'
       - 'Docs~/translating.md'
