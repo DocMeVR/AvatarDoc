@@ -314,8 +314,9 @@ adds the USS class `ad-wide`, which switches the grid to tree beside detail. Str
   (`#3FC9A8` dark, `#128A6E` light chosen by `EditorGUIUtility.isProSkin`, applied as a class on the root), semantic
   colours for warnings and errors, violet for source chips. Icons are 32 px PNGs under `Editor/UI/Icons`, located
   through the GUID of a marker asset so the folder can move.
-- Localization: every inspector string and error message is a key in `Editor/Localization/AvatarDoctor.en-US.json`,
-  read through `L.Text`. Since plan 16 each language is one more file beside it; see "Languages" at the end.
+- Localization: every inspector string and error message is a key in `Editor/Localization/AvatarDoctor.en-US.po`,
+  read through `L.Text`. Since plan 16 each language is one more file beside it, and since plan 18 the files are
+  gettext `.po` files instead of JSON; see "Languages" at the end.
 - Renaming a submenu in the editor updates `installPath` on every other component in the scene that points at it,
   with Undo.
 - Every edit the inspector makes outside `SerializedObject` binding (add, duplicate, delete, move, rename, id repair)
@@ -383,7 +384,8 @@ Packages/dev.docme.avatar-doctor/   (Assets/DocMe/AvatarDoctor/ until 2026-10-10
       TreeRow.cs, EntryDetailView.cs, TargetListView.cs, WheelModel.cs, WheelView.cs, KindGlyph.cs, MemoryBar.cs,
       ParameterPicker.cs, ShapePicker.cs, EntryEditing.cs, AvatarPlanCache.cs, HierarchyDropManipulator.cs,
       AvatarDoctor.uss
-    Localization/L.cs, LanguageTables.cs, LanguageFile.cs, LanguageCheck.cs, AvatarDoctor.<code>.json
+    Localization/L.cs, LanguageTables.cs, LanguageFile.cs, PoFile.cs, LanguageFileUpdater.cs, LanguageCheck.cs,
+      AvatarDoctor.<code>.po
     Introspection/AvatarDoctorParameterProvider.cs
   Tests/Editor/DocMe.AvatarDoctor.Tests.asmdef, *.cs
 ```
@@ -2542,14 +2544,14 @@ sentence reads "When "Body/Blush" moves and "Hat" is on" (Fade: "When a hand com
 The creator asked for Japanese and Simplified Chinese as modular files people can maintain, in the language NDMF and
 Modular Avatar share rather than a setting of AvatarDoc's own.
 
-**One file per language, found by name.** `LanguageTables` treats every TextAsset named `AvatarDoctor.<code>.json` as a
-language table, wherever it sits; the code is normalised the way NDMF does it (`CultureInfo`), and a name that is not a
+**One file per language, found by name.** `LanguageTables` treats every file named `AvatarDoctor.<code>.po` (`.json`
+until plan 18, see "Language files as .po" below) as a language table, wherever it sits; the code is normalised the way NDMF does it (`CultureInfo`), and a name that is not a
 language is ignored. The package's own files come first, then any others by path, and several files of one code merge
 key by key, the later winning, so a contributor's file under `Assets` can override a shipped text without editing the
 package. Files are read on first use and read again when an `AssetPostprocessor` (`LanguageFileWatcher`) sees one
-saved, added, moved or deleted. `LanguageFile` reads strictly (one JSON object of string pairs, UTF-8 with or without
-BOM), so a file that loads here also loads in any translation tool; a file it cannot read is left out with one Console
-warning, and English shows in its place.
+saved, added, moved or deleted. `LanguageFile` reads strictly (UTF-8 with or without BOM), so a file that loads here
+also loads in any translation tool; a file it cannot read is left out with one Console warning, and English shows in
+its place.
 
 **Lookup and fallback.** `L.Text` looks a key up in the current language, then any other form of the same language
 (`zh-Hant` reads `zh-Hans`), then English (`L.LookupOrder`, the order NDMF uses). A blank text counts as missing. A key
@@ -2604,12 +2606,38 @@ AvatarDoc's to add more of.
 
 **Maintenance.** The contributor guide is `Docs~/translating.md` and the term table `Docs~/glossary.md`: `Docs~` stays
 out of the installed package, and a test keeps every `.md` file out of `Editor/` and `Runtime/`. `LanguageCheck` holds
-the checks (valid JSON in UTF-8, no key twice, no key English lacks, the same placeholders, no stray brace, closed
-`<b>`, `<i>` and `<color>` tags, no empty text, the English order, and every key in a shipped language), each naming
-the language, the key and the fix. `LocalizationFileTests` runs them on every file in the project, and saving a
-language file writes the same findings to the Console. Tests use `L.UseTestLanguage`, a table injected in memory that
-never touches a file, NDMF's saved choice or EditorPrefs; scopes nest, also on one code. Every run is pinned to English:
-the project's runner wraps it, and `EnglishDuringTests`, a `[SetUpFixture]`, does the same in Unity's Test Runner.
+the checks (a readable file in UTF-8, no key twice, no key English lacks and no old entry, no outdated translation, the
+same placeholders, no stray brace, closed `<b>`, `<i>` and `<color>` tags, no empty text, the English order, and every
+key in a shipped language), each naming the language, the key and the fix. `LocalizationFileTests` runs them on every
+file in the project, and saving a language file writes the same findings to the Console. Tests use
+`L.UseTestLanguage`, a table injected in memory that never touches a file, NDMF's saved choice or EditorPrefs; scopes
+nest, also on one code. Every run is pinned to English: the project's runner wraps it, and `EnglishDuringTests`, a
+`[SetUpFixture]`, does the same in Unity's Test Runner.
+
+**Language files as .po (asked 2026-10-16, plan 18).** A JSON table could not tell when an English text was reworded
+under the same key, so a translation kept its old meaning and nothing noticed. The files are gettext `.po` now, in the
+DocMe Shader UI's dialect: `msgid` is the stable key (never the English sentence), `msgstr` the text, `#. en:` the
+English a translation was made from (absent in the English file), `#. was:` the English before a change, `#, fuzzy` an
+outdated translation and `#~` an entry English dropped. Poedit, Weblate and Crowdin read the comments and the fuzzy
+state. `PoFile` is a copy of the Shader UI's reader rather than a shared package; this copy keeps each entry's line and
+the comments above the header, says its problems in full sentences, keeps a key written twice in its entries (the first
+wins) so the check can name both lines, and refuses a stray double quote or backslash and every escape but `\\`, `\"`,
+`\n`, `\t` and `\r`. `LanguageFile` reads through it, and a fuzzy or empty text counts as missing, so English shows.
+`LanguageFileUpdater` keeps a translation in step with English: a new key arrives with its `#. en:` and an empty text
+in English order, a translation whose `#. en:` differs from today's English turns fuzzy and records `#. was:`, a key
+English dropped moves to the end as `#~`, and no translation is deleted. It writes a file only when that changed what
+the file holds, so a file in step keeps its layout (Poedit's wrapped lines, Windows line ends), and it never writes a
+file it cannot read (not UTF-8, or a line it does not understand). `TheShippedTranslationsFollowEnglish` runs it on
+the shipped files and fails when it had to write, so a reworded English text shows up as fuzzy lines in the diff, and
+`NoShippedLanguageHasAnOutdatedText` keeps failing until they are translated: the old rule that every string ships in
+all three files, now also for a reworded one. A comment line loses the spaces at its ends, so the English under
+`#. en:` is kept and compared without them (`LanguageFileUpdater.Source`); four English texts start or end with a space.
+No Unity `LocalizationAsset` is read: Unity still imports `.po` files natively, which is harmless, but AvatarDoc needs
+the comments, the fuzzy flag and drop-in files found anywhere, so it reads the text itself. There are no gettext plural
+forms; the `.one` keys stay. An `AvatarDoctor.<code>.json` left in a project is not read and gets one Console warning
+that says how to make the `.po` file. The docs site reads the English file with `Website~/scripts/lib/po.mjs`. The
+switch changed no text: every key of the three languages resolved to the same text before and after, and the inspector
+showed the same labels and tooltips.
 
 ## Search in the pickers (asked 2026-10-10, plan 16 task Q)
 

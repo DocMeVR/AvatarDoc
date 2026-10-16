@@ -1,0 +1,3397 @@
+msgid ""
+msgstr ""
+"Language: en-US\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "ad.info.path_created"
+msgstr "AvatarDoc created the submenu \"{0}\" for the install path of {1}."
+
+msgid "ad.info.same_submenu_merged"
+msgstr "\"{0}\" joins the submenu of the same name that is already in the menu. ({1})"
+
+msgid "ad.info.menu_split"
+msgstr "The submenu \"{0}\" has more controls than VRChat allows on one page; the extra controls were moved to a \"More\" page. Move some controls into their own submenu to avoid the extra page."
+
+msgid "ad.warn.orphan_entry"
+msgstr "The entry \"{0}\" pointed at a submenu that no longer exists, so it was placed at the top of its component instead. Move it into a submenu that exists, or leave it here. ({1})"
+
+msgid "ad.warn.target_missing"
+msgstr "\"{0}\" has a missing target: an object, renderer, material slot or blend shape it pointed at is gone, so that row was skipped. Open \"{0}\" and fix or remove the empty target row. ({1})"
+
+msgid "ad.warn.target_outside_avatar"
+msgstr "\"{0}\" targets an object that is not part of this avatar, so that target was skipped. Pick a target that is part of this avatar. ({1})"
+
+msgid "ad.warn.duplicate_entry_id"
+msgstr "The entry \"{0}\" shares its internal id with another entry (usually a copied component). Both still work; the inspector will assign a new id. ({1})"
+
+msgid "ad.info.parameter_reused"
+msgstr "\"{0}\" already exists on the avatar, so its own saved, synced and default settings apply. ({1})"
+
+msgid "ad.info.target_shared"
+msgstr "{0} is changed by more than one control ({1}); the one built later wins: later menu entries first, triggers after every menu control. ({2})"
+
+msgid "ad.info.target_shared_override"
+msgstr "\"{0}\" is written by {1}; the override wins over every control, whatever the menu order. ({2})"
+
+msgid "ad.warn.no_effects"
+msgstr "\"{0}\" has no targets, so nothing was generated for it. Add an object, blend shape or other target with \"+ Add\". ({1})"
+
+msgid "ad.warn.group_multiple_defaults"
+msgstr "The exclusive group \"{0}\" has more than one toggle set as default; \"{1}\" is used because it comes first. Turn off \"Default on\" on the others. ({2})"
+
+msgid "ad.error.group_value_conflict"
+msgstr "The exclusive group \"{0}\" has two toggles with the value {1}. Change one of the values, or select one of the toggles and press \"Give each member its own value\". ({2})"
+
+msgid "ad.error.parameter_type_conflict"
+msgstr "The parameter \"{0}\" is already {1} here, but this control needs a {2} parameter. Pick a different name, or match the type. ({3})"
+
+msgid "ad.error.bits_exceeded"
+msgstr "Synced parameters need {0} bits but VRChat allows {1}. AvatarDoc adds {2} of them. Turn off \"Synced\" on toggles that do not need to sync, or remove some."
+
+msgid "ad.warn.bits_exceeded_vrcfury"
+msgstr "Synced parameters need {0} bits but VRChat allows {1}. AvatarDoc adds {2} of them. VRCFury is installed and compresses parameters at upload until they fit, so the build goes on. To fit without VRCFury's help, turn off \"Synced\" on toggles that do not need to sync, or remove some."
+
+msgid "ad.error.menu_icon_too_large"
+msgstr "The icon on \"{0}\" is {1}x{2} pixels or is not compressed, and VRChat's upload check rejects that. Re-import it at 256x256 pixels or smaller with compression turned on."
+
+msgid "ad.warn.write_defaults_mixed"
+msgstr "Your avatar's own FX layers mix Write Defaults on and off: on in {0}, off in {1}. Make every layer use the same setting; AvatarDoc otherwise builds with Write Defaults on."
+
+msgid "ad.error.no_fx_layer"
+msgstr "The avatar has no FX playable layer, so AvatarDoc has nowhere to add toggles. Add an FX controller under \"Playable Layers\" in the avatar's VRC Avatar Descriptor."
+
+msgid "ad.info.curve_overwritten"
+msgstr "The animation \"{0}\" also moves something \"{1}\" moves, so while that trigger is on, the trigger's own value shows there."
+
+msgid "ad.warn.marker_clip_skipped"
+msgstr "Clip \"{0}\" is one of VRChat's own proxy animations, so \"{1}\" left it alone and does not follow the shape while it plays. This is expected and needs no fix."
+
+msgid "ad.warn.trigger_source_missing"
+msgstr "The trigger \"{0}\" refers to a toggle, parameter, or blend shape that no longer exists, so it was skipped. Pick a source under \"When\" for it. ({1})"
+
+msgid "ad.warn.parameter_type_unknown"
+msgstr "The trigger \"{1}\" reads the parameter \"{0}\", but nothing on this avatar declares it, so it is treated as a Float. Declare \"{0}\" under Parameters with its real type if it should be a whole number or true/false."
+
+msgid "ad.warn.link_effect_is_source"
+msgstr "\"{0}\" lists its own shape \"{1}\" as one of its effects, so that effect is ignored. Remove \"{1}\" from its effects list."
+
+msgid "ad.info.parameter_animator_only"
+msgstr "\"{0}\" already exists in the avatar's animator, so this control drives it without adding a new parameter, but it will not sync to other players over the network. Declare \"{0}\" under Parameters if you need it to sync. ({1})"
+
+msgid "ad.warn.replace_kept_source"
+msgstr "\"{0}\" is set to Replace but has no effect it can build, so the shape's own curve in the clip \"{1}\" was kept. Add an effect to the trigger, or set its Mode to Add."
+
+msgid "ad.info.override_applied"
+msgstr "Override \"{0}\" holds \"{1}\" at its value in {2} animations."
+
+msgid "ad.info.override_applied.one"
+msgstr "Override \"{0}\" holds \"{1}\" at its value in {2} animation."
+
+msgid "ad.warn.override_unused"
+msgstr "Override \"{0}\" found no animation that moves \"{1}\" on this avatar, so it only set the mesh's own value. Check that \"{1}\" and its renderer are the ones you meant, or remove this override if that is all you wanted. ({2})"
+
+msgid "ad.warn.override_conflict"
+msgstr "Overrides \"{0}\" and \"{1}\" both hold \"{2}\" at different values; \"{1}\" wins because it comes later. Remove one of them, or match their values. ({3})"
+
+msgid "ad.warn.override_target_gone"
+msgstr "Override \"{0}\": its renderer no longer exists at build time, so the shape \"{1}\" was not pinned. Point it at a renderer that still exists on this avatar."
+
+msgid "ad.error.edit_cycle"
+msgstr "The change made to \"{0}\" would move its submenu into itself, so it was not applied. Pick a different \"Move to\" path for it. ({1})"
+
+msgid "ad.warn.edit_own_entry"
+msgstr "The change made to \"{0}\" points at an AvatarDoc entry, so it was ignored. Edit \"{0}\" directly in its own panel instead. ({1})"
+
+msgid "ad.warn.edit_source_missing"
+msgstr "The change saved for \"{0}\" cannot apply: that menu item was no longer found, so nothing changed. Use \"Remove\" to clear this edit."
+
+msgid "ad.warn.preset_empty"
+msgstr "Preset \"{0}\" sets nothing yet, so pressing it does nothing. Add a control or parameter with \"+ Add\"."
+
+msgid "ad.warn.preset_target_missing"
+msgstr "The preset \"{0}\" refers to a control that no longer exists, so that row was skipped. Remove that row from the preset. ({1})"
+
+msgid "ad.info.preset_pick_control"
+msgstr "A row of the preset \"{0}\" has no control yet, so it sets nothing. Pick a control with the row's button, or remove the row. ({1})"
+
+msgid "ad.error.preset_group_conflict"
+msgstr "The preset \"{0}\" turns on two members of the exclusive group \"{1}\" at once, but only one can be on; only the first listed is applied, and the upload stops until you fix it. Remove one of them from the preset. ({2})"
+
+msgid "ad.warn.preset_parameter_unknown"
+msgstr "The parameter \"{0}\" set by the preset \"{1}\" is not declared in the expression parameters or the FX controller, so it is written anyway. Declare \"{0}\" under Parameters if you want VRChat to recognise it. ({2})"
+
+msgid "ad.warn.property_missing"
+msgstr "\"{0}\": no material on \"{1}\" has the property \"{2}\", so that row was skipped. Pick a property that exists on \"{1}\"'s materials."
+
+msgid "ad.warn.property_differs"
+msgstr "\"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them; edit the materials first if you want a different one used."
+
+msgid "ad.info.blend_ignored_in_group"
+msgstr "\"{0}\" is in an exclusive group, so its blend time is not used."
+
+msgid "ad.warn.animation_proxy"
+msgstr "\"{0}\": the clip \"{1}\" is one of VRChat's own proxy clips, so it was not merged. This is expected and needs no fix."
+
+msgid "ad.info.animation_overridden"
+msgstr "\"{0}\": {1} generated values replace the same curve in its custom animation."
+
+msgid "ad.info.animation_overridden.one"
+msgstr "\"{0}\": {1} generated value replaces the same curve in its custom animation."
+
+msgid "ad.warn.animation_binding_missing"
+msgstr "\"{0}\": {1} values in its custom animation do not match anything on this avatar, so they were left out of the off state. Check that clip's object paths and properties are correct."
+
+msgid "ad.warn.animation_binding_missing.one"
+msgstr "\"{0}\": {1} value in its custom animation does not match anything on this avatar, so it was left out of the off state. Check that clip's object paths and properties are correct."
+
+msgid "ad.import.note.unsupported_action"
+msgstr "The action \"{0}\" was not carried over."
+
+msgid "ad.import.note.transition"
+msgstr "The toggle's transition animation was not carried over."
+
+msgid "ad.import.note.security"
+msgstr "The toggle's security lock was not carried over."
+
+msgid "ad.import.note.separate_local"
+msgstr "The toggle's separate local state was not carried over."
+
+msgid "ad.import.note.hold_button"
+msgstr "The toggle's hold button behaviour was not carried over."
+
+msgid "ad.import.note.invert_rest_logic"
+msgstr "The toggle's inverted rest logic was not carried over."
+
+msgid "ad.import.note.extra_tags"
+msgstr "Only \"{1}\" became the exclusive group; the other tags ({0}) were dropped."
+
+msgid "ad.import.note.clip_paths"
+msgstr "The clip's paths are used as they are. VRCFury may have rewritten them at build time, so check that they start at the avatar root."
+
+msgid "ad.import.note.shape_changer_delete"
+msgstr "The blend shape \"{0}\" is deleted by Modular Avatar; deleting a shape cannot be carried over."
+
+msgid "ad.import.note.reactive_inverted"
+msgstr "Modular Avatar's Inverted option on \"{0}\" cannot be carried over; that reaction was skipped."
+
+msgid "ad.import.note.slot_missing"
+msgstr "A material slot that does not exist on \"{0}\" was skipped."
+
+msgid "ad.import.reason.no_supported_action"
+msgstr "None of this item's actions could be carried over."
+
+msgid "ad.import.reason.ma_merge_animator"
+msgstr "This item's effects come from an animator Modular Avatar merges from \"{0}\". AvatarDoc reads such a controller only when it is set and its layer type is FX. You can still rename, move, re-icon or hide the item."
+
+msgid "ad.import.reason.nothing_here"
+msgstr "This item comes from a menu asset or a component that AvatarDoc cannot convert. You can still rename, move, re-icon or hide it."
+
+msgid "ad.import.reason.nothing_under"
+msgstr "Nothing under this submenu can be converted."
+
+msgid "ad.import.reason.not_a_toggle"
+msgstr "This Modular Avatar menu item is not a Toggle."
+
+msgid "ad.import.reason.edit_locked"
+msgstr "A locked component holds a menu edit for this item. Unlock it or remove the edit first."
+
+msgid "ad.import.note.fx_path_missing"
+msgstr "A curve's path does not resolve on this avatar; it was skipped."
+
+msgid "ad.import.reason.property_partial"
+msgstr "The material property \"{0}\" is only partly animated, so it could not be carried over."
+
+msgid "ad.import.reason.fx_no_layer"
+msgstr "This control's parameter does not drive any FX layer."
+
+msgid "ad.import.reason.fx_parameter_shared"
+msgstr "The parameter \"{0}\" is used by more than one layer, or elsewhere as a blend tree, motion time or speed parameter."
+
+msgid "ad.import.reason.fx_other_condition"
+msgstr "A transition into the on state also checks another parameter, so it could not be carried over."
+
+msgid "ad.import.reason.fx_no_on_state"
+msgstr "The layer has no state reachable on this parameter."
+
+msgid "ad.import.reason.fx_blend_tree"
+msgstr "The on state's motion is a blend tree, which cannot be carried over."
+
+msgid "ad.import.reason.fx_no_motion"
+msgstr "The on state has no motion."
+
+msgid "ad.import.reason.fx_unsupported_curve"
+msgstr "The curve \"{0}\" on {1} could not be carried over."
+
+msgid "ad.warn.removed_layer_missing"
+msgstr "The layer \"{0}\" was already removed or renamed in the FX controller, so there was nothing here to remove. If you renamed it, update the name under \"Layers left out of the build\". ({1})"
+
+msgid "ad.import.reason.shared_layer"
+msgstr "The layer switches between several states on this parameter, so it cannot be converted one control at a time."
+
+msgid "ad.import.reason.shared_parameter_controls"
+msgstr "Other menu controls use the same parameter."
+
+msgid "ad.import.reason.behaviours"
+msgstr "The layer has state behaviours that a converted toggle would lose."
+
+msgid "ad.import.reason.layer_control"
+msgstr "The avatar uses animator layer control, which refers to layers by position, so layers cannot be removed safely."
+
+msgid "ad.import.reason.layer_masked"
+msgstr "The layer has a mask or a weight of zero."
+
+msgid "ad.import.reason.transition_chain"
+msgstr "The layer plays a transition animation between off and on."
+
+msgid "ad.import.reason.already_converted"
+msgstr "This layer was already converted."
+
+msgid "ad.import.reason.layer_name_not_unique"
+msgstr "Several layers share this name, so the old one cannot be left out safely."
+
+msgid "ad.import.reason.off_values_differ"
+msgstr "The old off state sets values that a toggle cannot reproduce."
+
+msgid "ad.import.reason.inverted_default_mismatch"
+msgstr "The layer rests in its on state but the parameter does not default to true, so what it should rest on could not be told."
+
+msgid "ad.import.reason.group_needs_removal"
+msgstr "This set replaces a Merge Animator, so its originals have to be removed with it."
+
+msgid "ad.import.note.osc"
+msgstr "Anything outside the avatar that set the old parameter, such as an OSC app, has to use the new one."
+
+msgid "ad.import.reason.radial_shape"
+msgstr "The layer is not one blend tree of two constant clips at 0 and 1 on this parameter, so it could not be carried over."
+
+msgid "ad.import.reason.radial_bindings"
+msgstr "The two ends of the blend tree animate different things, so they could not be carried over."
+
+msgid "ad.import.reason.synced_layer"
+msgstr "Another layer copies this one's states, so it cannot be left out of the build safely."
+
+msgid "ad.import.reason.ma_renamed_parameters"
+msgstr "Modular Avatar renames the parameter \"{0}\" at build time, so the names inside the merged animator would no longer match what gets declared. Nothing of this set can be converted."
+
+msgid "ad.import.note.merge_converted"
+msgstr "The merged animator layer \"{0}\" became this entry's own effects."
+
+msgid "ad.import.note.merge_parameter_control"
+msgstr "This item keeps the parameter \"{0}\" and stays driven by the merged animator: {1}"
+
+msgid "ad.import.note.merge_button"
+msgstr "A Button is momentary, which an entry cannot reproduce."
+
+msgid "ad.warn.removed_layer_ambiguous"
+msgstr "\"{0}\" was not removed because {1} layers share that same name, so removing by name would take all of them. Give the FX controller's layers unique names, then build again. ({2})"
+
+msgid "ad.import.note.driven_elsewhere"
+msgstr "Another layer drives this parameter; that keeps working."
+
+msgid "ad.import.note.ma_radio_set"
+msgstr "These items share the parameter \"{0}\", so they convert together as one exclusive group where only one can be on."
+
+msgid "ad.import.reason.driven_elsewhere"
+msgstr "Another layer of this animator writes the parameter \"{0}\", and that layer stays merged."
+
+msgid "ad.import.note.off_values"
+msgstr "The old off state sets values of its own; they were carried over as this toggle's off values."
+
+msgid "ad.warn.removed_layer_unsafe"
+msgstr "The layer \"{0}\" and its parameter were kept because another controller in the build switches FX layers by their position, and removing one would shift the rest. Remove that layer control behaviour first if you still want \"{0}\" gone, then build again."
+
+msgid "ad.warn.converted_layer_unsafe"
+msgstr "Layer \"{0}\" was not removed because the avatar uses animator layer control, and removing a layer would shift the ones after it by position. Remove that layer control first if you still want \"{0}\" gone, then build again. ({1})"
+
+msgid "ad.info.removed_parameter"
+msgstr "\"{0}\" left the expression parameters and freed {1} synced bits."
+
+msgid "ad.info.removed_parameter.one"
+msgstr "\"{0}\" left the expression parameters and freed {1} synced bit."
+
+msgid "ad.info.removed_kept"
+msgstr "\"{0}\" stays in the expression parameters: {1}"
+
+msgid "ad.removal.kept.control"
+msgstr "another menu control uses it"
+
+msgid "ad.removal.kept.entry"
+msgstr "an AvatarDoc entry uses it"
+
+msgid "ad.removal.kept.layer"
+msgstr "an animator layer that stays reads it"
+
+msgid "ad.removal.kept.other_controller"
+msgstr "another animator of this avatar reads it"
+
+msgid "ad.removal.kept.driver"
+msgstr "a parameter driver writes it"
+
+msgid "ad.removal.kept.contact"
+msgstr "a contact receiver or a PhysBone writes it"
+
+msgid "ad.removal.kept.other_tool"
+msgstr "another tool on the avatar uses it"
+
+msgid "ad.removal.kept.builtin"
+msgstr "VRChat owns this parameter"
+
+msgid "ad.error.contact_no_anchor"
+msgstr "The trigger \"{0}\" has no object set for \"Anchor\", so its contact has nowhere to attach. Pick an object for \"Anchor\". ({1})"
+
+msgid "ad.error.contact_no_tags"
+msgstr "The trigger \"{0}\" has no tags ticked under \"Touched by\", so nothing can touch it. Tick at least one tag. ({1})"
+
+msgid "ad.error.contact_nobody"
+msgstr "The trigger \"{0}\" has both \"Self\" and \"Others\" off, so its contact can never fire. Turn on \"Self\", \"Others\", or both. ({1})"
+
+msgid "ad.error.physbone_missing"
+msgstr "The trigger \"{0}\" has no PhysBone chosen, so it has nothing to watch. Pick a PhysBone in its \"PhysBone\" field. ({1})"
+
+msgid "ad.error.flip_target"
+msgstr "The trigger \"{0}\" cannot flip its \"Toggle\": none is picked, or the one picked is not a toggle. Pick a toggle for it to flip. ({1})"
+
+msgid "ad.error.touch_parameter_type"
+msgstr "\"{0}\": the parameter \"{1}\" needs to be {2} here, but the avatar already has it as {3}. Rename the PhysBone's parameter, or match the type. ({4})"
+
+msgid "ad.error.touch_outside_avatar"
+msgstr "\"{0}\": its \"Anchor\" object or PhysBone belongs to another avatar. Pick one that is part of this avatar."
+
+msgid "ad.error.contact_start_no_head"
+msgstr "This avatar has no \"Head\" bone yet. Set its Animator to Humanoid and assign an Avatar, then try the start again."
+
+msgid "ad.warn.follow_distance_one_contact"
+msgstr "Fade on \"{0}\" reads only the card its first contact is in: that contact drives the fade and the rest of that card are requirements. The conditions in its other cards are kept but not used; move what you need into the first card with + And, or remove the other cards. ({1})"
+
+msgid "ad.warn.follow_distance_no_follows"
+msgstr "\"{0}\": Follows cannot fade with distance and is not built in Follow distance. Switch to Hold to use it. ({1})"
+
+msgid "ad.warn.follow_distance_tracking_left_to"
+msgstr "{0} is left to \"{1}\", which already sets it to Animation. AvatarDoc's own pause layer was not built here."
+
+msgid "ad.warn.physbone_renamed"
+msgstr "\"{0}\" watches the PhysBone \"{1}\", but Modular Avatar renames its parameter at build, so the trigger would watch the old name. Give \"{1}\" a parameter that Modular Avatar does not rename. ({2})"
+
+msgid "ad.info.group_default_excluded"
+msgstr "The default of group \"{0}\" is not built on this platform, so nothing in it is on by default here."
+
+msgid "ad.warn.merge_no_controller"
+msgstr "This merged animator has no \"Controller\" set, so nothing was merged from it. Pick a controller in its \"Controller\" field. ({0})"
+
+msgid "ad.warn.merge_override_no_controller"
+msgstr "The merged animator \"{0}\" is an Animator Override Controller whose own \"Controller\" field is empty, so it has nothing to merge and was left out. Set that field on \"{0}\", or pick a different animator. ({1})"
+
+msgid "ad.warn.merge_skip_missing"
+msgstr "\"{1}\" has no layer named \"{0}\" to leave out, so that entry under \"Layers\" does nothing. Remove it, or fix the spelling to match a real layer. ({2})"
+
+msgid "ad.error.merge_outside_avatar"
+msgstr "The merged animator \"{0}\" has its \"Path root\" set to an object outside this avatar, so it was not merged. Point \"Path root\" at an object on this avatar, or leave it empty. ({1})"
+
+msgid "ad.error.explicit_off_pin"
+msgstr "The toggle \"{0}\" turns on \"Set a value when off\" for the blend shape \"{1}\", but that shape's effect is set to \"Pin\", which writes nothing while off. Turn off \"Set a value when off\", or change \"{1}\" away from \"Pin\". ({2})"
+
+msgid "ad.error.merge_parameter_type"
+msgstr "The merged animator \"{0}\" needs the parameter \"{1}\" as {2}, but the avatar already has it as {3}. Match the type or rename one of them. ({4})"
+
+msgid "ad.error.merge_synced_layer"
+msgstr "Animator \"{0}\": the layer \"{1}\" is synced to \"{2}\", but \"{2}\" is left out of the merge. Include \"{2}\" too, or turn off the layer sync in the controller. ({3})"
+
+msgid "ad.error.merge_layer_control"
+msgstr "The merged animator \"{0}\" changes layer weights itself, so leaving layers out of it would point those changes at the wrong layer. Merge every layer, or remove the layer control. ({1})"
+
+msgid "ad.warn.parameter_control_unused"
+msgstr "\"{0}\" drives the parameter \"{1}\", but nothing on this avatar reads it, so it has no effect yet. Remove it, or point it at a parameter a merged animator, VRCFury or Modular Avatar actually uses. ({2})"
+
+msgid "ad.info.flip_target_excluded"
+msgstr "\"{0}\": its toggle is not built on this platform, so the touch does nothing here."
+
+msgid "ad.warn.platform_parity"
+msgstr "This avatar and \"{0}\" share a blueprint but their parameters differ at position {1}: \"{2}\" here, \"{3}\" there, so other platforms would see the wrong toggles. Rebuild both platforms from the same menu order to fix it."
+
+msgid "ad.error.gate_target"
+msgstr "The trigger \"{0}\" needs a toggle for \"Only while\", but the one picked is missing, a preset, or the toggle this trigger already flips. Pick a different toggle for \"Only while\". ({1})"
+
+msgid "ad.info.hidden_toggle_unreachable"
+msgstr "\"{0}\" has no menu button, so nothing can turn it on unless something else drives it. Turn on \"Default on\", add it to a preset, or add a trigger that flips it. ({1})"
+
+msgid "ad.ui.menu"
+msgstr "Menu"
+
+msgid "ad.ui.install"
+msgstr "Install into"
+
+msgid "ad.ui.install.root"
+msgstr "Avatar root menu"
+
+msgid "ad.ui.install.pick"
+msgstr "Pick a submenu"
+
+msgid "ad.ui.install.mode"
+msgstr "Install as"
+
+msgid "ad.ui.install.mode.append"
+msgstr "Append items"
+
+msgid "ad.ui.install.mode.submenu"
+msgstr "As submenu"
+
+msgid "ad.ui.menu_name"
+msgstr "Submenu name"
+
+msgid "ad.ui.menu_icon"
+msgstr "Submenu icon"
+
+msgid "ad.ui.prefix"
+msgstr "Parameter prefix"
+
+msgid "ad.ui.memory.avatar.one"
+msgstr "Avatar {0} bit"
+
+msgid "ad.ui.memory.avatar"
+msgstr "Avatar {0} bits"
+
+msgid "ad.ui.memory.ad.one"
+msgstr "AvatarDoc {0} bit"
+
+msgid "ad.ui.memory.ad"
+msgstr "AvatarDoc {0} bits"
+
+msgid "ad.ui.memory.free"
+msgstr "{0} of {1} free"
+
+msgid "ad.ui.memory.free_bits"
+msgstr "{0} of {1} bits free"
+
+msgid "ad.ui.memory.over"
+msgstr "{0} bits over the limit"
+
+msgid "ad.ui.memory.over.one"
+msgstr "{0} bit over the limit"
+
+msgid "ad.ui.disabled"
+msgstr "This component is disabled and will not be installed."
+
+msgid "ad.ui.no_avatar"
+msgstr "Put this component under an avatar with a VRC Avatar Descriptor to see the merged menu."
+
+msgid "ad.ui.other_components.one"
+msgstr "{0} other component installs into this menu"
+
+msgid "ad.ui.other_components"
+msgstr "{0} other components install into this menu"
+
+msgid "ad.ui.add.toggle"
+msgstr "+ Toggle"
+
+msgid "ad.ui.add.radial"
+msgstr "+ Radial"
+
+msgid "ad.ui.add.submenu"
+msgstr "+ Submenu"
+
+msgid "ad.ui.triggers"
+msgstr "Triggers"
+
+msgid "ad.ui.triggers.note.one"
+msgstr "{0} rule, no menu buttons"
+
+msgid "ad.ui.triggers.note"
+msgstr "{0} rules, no menu buttons"
+
+msgid "ad.ui.existing"
+msgstr "existing"
+
+msgid "ad.ui.disabled_chip"
+msgstr "disabled"
+
+msgid "ad.ui.drop.tree"
+msgstr "Drop objects from the Hierarchy here to make toggles"
+
+msgid "ad.ui.detail.toggle"
+msgstr "Toggle"
+
+msgid "ad.ui.detail.radial"
+msgstr "Radial"
+
+msgid "ad.ui.detail.submenu"
+msgstr "Submenu"
+
+msgid "ad.ui.detail.trigger"
+msgstr "Trigger"
+
+msgid "ad.ui.detail.none"
+msgstr "Select an entry in the menu above."
+
+msgid "ad.ui.name"
+msgstr "Name"
+
+msgid "ad.ui.icon"
+msgstr "Icon"
+
+msgid "ad.ui.default_on"
+msgstr "Default on"
+
+msgid "ad.ui.default_value"
+msgstr "Default"
+
+msgid "ad.ui.saved"
+msgstr "Saved"
+
+msgid "ad.ui.synced"
+msgstr "Synced"
+
+msgid "ad.ui.group"
+msgstr "Exclusive group"
+
+msgid "ad.ui.group.none"
+msgstr "None"
+
+msgid "ad.ui.group.settings"
+msgstr "Group saved and synced"
+
+msgid "ad.ui.group.value"
+msgstr "Value in group"
+
+msgid "ad.ui.group.number"
+msgstr "Give each member its own value"
+
+msgid "ad.ui.parameter"
+msgstr "Parameter"
+
+msgid "ad.ui.parameter.auto"
+msgstr "auto"
+
+msgid "ad.ui.parameter.custom"
+msgstr "custom"
+
+msgid "ad.ui.parameter.use_custom"
+msgstr "Custom name"
+
+msgid "ad.ui.parameter.bits"
+msgstr "{0}, {1} bits"
+
+msgid "ad.ui.parameter.bits.one"
+msgstr "{0}, {1} bit"
+
+msgid "ad.ui.parameter.no_bits"
+msgstr "{0}, no new bits"
+
+msgid "ad.ui.parameter.value"
+msgstr "Value"
+
+msgid "ad.ui.parameter.group_note"
+msgstr "Members use the group's parameter."
+
+msgid "ad.ui.slots"
+msgstr "{0} of {1} used"
+
+msgid "ad.ui.slots.chip"
+msgstr "{0} of {1}"
+
+msgid "ad.ui.more_page"
+msgstr "More (page {0})"
+
+msgid "ad.ui.synced.cost.none"
+msgstr "0 bits"
+
+msgid "ad.ui.synced.cost.bit"
+msgstr "+1 bit"
+
+msgid "ad.ui.synced.cost.bits"
+msgstr "+8 bits"
+
+msgid "ad.ui.ready"
+msgstr "Ready to upload ✓"
+
+msgid "ad.ui.ready.problems.one"
+msgstr "{0} problem"
+
+msgid "ad.ui.ready.problems"
+msgstr "{0} problems"
+
+msgid "ad.ui.ready.warnings.one"
+msgstr "{0} warning"
+
+msgid "ad.ui.ready.warnings"
+msgstr "{0} warnings"
+
+msgid "ad.ui.ready.show"
+msgstr "Show"
+
+msgid "ad.ui.ready.show.tip"
+msgstr "Selects the next problem row and reveals it in the menu tree."
+
+msgid "ad.ui.ready.tip"
+msgstr "Whether the avatar has any error or warning left to fix before upload."
+
+msgid "ad.ui.problems.arrow.tip"
+msgstr "Opens or closes the list of every error and warning."
+
+msgid "ad.ui.problems.more"
+msgstr "Show {0} more"
+
+msgid "ad.ui.problems.line_count"
+msgstr "{0} ×{1}"
+
+msgid "ad.ui.message.learn_more"
+msgstr "Learn more"
+
+msgid "ad.ui.message.learn_more.tip"
+msgstr "Opens this message's entry in the online guide, with what it means and what to do."
+
+msgid "ad.ui.quickstart.full_guide"
+msgstr "Open the full guide"
+
+msgid "ad.ui.quickstart.full_guide.tip"
+msgstr "Opens the step by step guide on the AvatarDoc website."
+
+msgid "ad.ui.write_defaults"
+msgstr "Matches your avatar: Write Defaults {0}"
+
+msgid "ad.ui.write_defaults.on"
+msgstr "on"
+
+msgid "ad.ui.write_defaults.off"
+msgstr "off"
+
+msgid "ad.ui.write_defaults.tip"
+msgstr "The Write Defaults setting AvatarDoc's own layers will use, matched to the avatar's existing FX layers."
+
+msgid "ad.ui.builds.line"
+msgstr "Builds: {0}"
+
+msgid "ad.ui.builds.controls.one"
+msgstr "{0} menu control"
+
+msgid "ad.ui.builds.controls"
+msgstr "{0} menu controls"
+
+msgid "ad.ui.builds.bits.one"
+msgstr "{0} synced bit"
+
+msgid "ad.ui.builds.bits"
+msgstr "{0} synced bits"
+
+msgid "ad.ui.builds.layers.one"
+msgstr "{0} FX layer"
+
+msgid "ad.ui.builds.layers"
+msgstr "{0} FX layers"
+
+msgid "ad.ui.builds.clips.one"
+msgstr "rewrites {0} clip"
+
+msgid "ad.ui.builds.clips"
+msgstr "rewrites {0} clips"
+
+msgid "ad.ui.builds.contacts.one"
+msgstr "{0} contact"
+
+msgid "ad.ui.builds.contacts"
+msgstr "{0} contacts"
+
+msgid "ad.ui.builds.physbones.one"
+msgstr "{0} PhysBone"
+
+msgid "ad.ui.builds.physbones"
+msgstr "{0} PhysBones"
+
+msgid "ad.ui.builds.constraints.one"
+msgstr "{0} constraint"
+
+msgid "ad.ui.builds.constraints"
+msgstr "{0} constraints"
+
+msgid "ad.ui.builds.follow_distance"
+msgstr "fades with distance, fully on at {0}%"
+
+msgid "ad.ui.builds.pauses_blink"
+msgstr "Blinking pauses while a hand is near and every requirement holds"
+
+msgid "ad.ui.builds.pauses_lipsync"
+msgstr "Lip sync pauses while a hand is near and every requirement holds"
+
+msgid "ad.ui.builds.blink_left_to"
+msgstr "Blinking is left to {0}"
+
+msgid "ad.ui.builds.lipsync_left_to"
+msgstr "Lip sync is left to {0}"
+
+msgid "ad.ui.part.blinking"
+msgstr "Blinking"
+
+msgid "ad.ui.part.lipsync"
+msgstr "Lip sync"
+
+msgid "ad.ui.builds.nothing.platform"
+msgstr "Builds nothing: not built for {0}."
+
+msgid "ad.ui.builds.nothing.empty"
+msgstr "Builds nothing yet: add a target above."
+
+msgid "ad.ui.builds.nothing.no_clips"
+msgstr "Builds nothing yet: no animation on this avatar uses this shape."
+
+msgid "ad.ui.builds.nothing.disabled"
+msgstr "Builds nothing: this component is disabled."
+
+msgid "ad.ui.builds.tip"
+msgstr "What this entry adds to the avatar when it builds."
+
+msgid "ad.ui.objects"
+msgstr "Objects"
+
+msgid "ad.ui.blendshapes"
+msgstr "Blendshapes"
+
+msgid "ad.ui.materials"
+msgstr "Materials"
+
+msgid "ad.ui.add"
+msgstr "+ Add"
+
+msgid "ad.ui.seg.shown"
+msgstr "Shown"
+
+msgid "ad.ui.seg.hidden"
+msgstr "Hidden"
+
+msgid "ad.ui.drop.objects"
+msgstr "Drop GameObjects here"
+
+msgid "ad.ui.weight"
+msgstr "Weight"
+
+msgid "ad.ui.min"
+msgstr "Min"
+
+msgid "ad.ui.max"
+msgstr "Max"
+
+msgid "ad.ui.slot"
+msgstr "Slot"
+
+msgid "ad.ui.other_component"
+msgstr "This entry belongs to the AvatarDoc on \"{0}\"."
+
+msgid "ad.ui.select_component"
+msgstr "Select that component"
+
+msgid "ad.ui.existing_note"
+msgstr "\"{0}\" comes from the avatar's own expressions menu. AvatarDoc leaves it as it is; you can install submenus into it by path."
+
+msgid "ad.ui.trigger_note"
+msgstr "Triggers fire their effects when a toggle, a parameter, or an animated blend shape says so. They cost no synced bits."
+
+msgid "ad.ui.menu.rename"
+msgstr "Rename"
+
+msgid "ad.ui.menu.duplicate"
+msgstr "Duplicate"
+
+msgid "ad.ui.menu.delete"
+msgstr "Delete"
+
+msgid "ad.ui.menu.move"
+msgstr "Move to"
+
+msgid "ad.ui.menu.move.root"
+msgstr "Root"
+
+msgid "ad.ui.pick.shape"
+msgstr "Pick a blendshape"
+
+msgid "ad.ui.pick.renderer"
+msgstr "Pick a renderer first"
+
+msgid "ad.ui.add.trigger"
+msgstr "+ Trigger"
+
+msgid "ad.ui.add.override"
+msgstr "+ Override"
+
+msgid "ad.ui.overrides"
+msgstr "Overrides"
+
+msgid "ad.ui.overrides.note.one"
+msgstr "{0} rule, applied to every animation"
+
+msgid "ad.ui.overrides.note"
+msgstr "{0} rules, applied to every animation"
+
+msgid "ad.ui.detail.override"
+msgstr "Override"
+
+msgid "ad.ui.override_note"
+msgstr "Overrides hold a blend shape at a value in every animation that uses it. They cost no synced bits and add no menu buttons."
+
+msgid "ad.ui.trigger.when"
+msgstr "When"
+
+msgid "ad.ui.trigger.source.toggle"
+msgstr "Another toggle"
+
+msgid "ad.ui.trigger.source.parameter"
+msgstr "A parameter"
+
+msgid "ad.ui.trigger.source.blendshape"
+msgstr "A blendshape is animated"
+
+msgid "ad.ui.trigger.toggle"
+msgstr "Toggle"
+
+msgid "ad.ui.trigger.no_toggles"
+msgstr "No toggles in this component"
+
+msgid "ad.ui.trigger.toggle.on"
+msgstr "is on"
+
+msgid "ad.ui.trigger.toggle.off"
+msgstr "is off"
+
+msgid "ad.ui.trigger.parameter"
+msgstr "Parameter"
+
+msgid "ad.ui.trigger.condition"
+msgstr "Condition"
+
+msgid "ad.ui.trigger.condition.is_true"
+msgstr "Is on"
+
+msgid "ad.ui.trigger.condition.is_false"
+msgstr "Is off"
+
+msgid "ad.ui.trigger.condition.equals"
+msgstr "Equals"
+
+msgid "ad.ui.trigger.condition.not_equals"
+msgstr "Is not"
+
+msgid "ad.ui.trigger.condition.greater"
+msgstr "Is above"
+
+msgid "ad.ui.trigger.condition.less"
+msgstr "Is below"
+
+msgid "ad.ui.trigger.value"
+msgstr "Value"
+
+msgid "ad.ui.trigger.shape"
+msgstr "Shape"
+
+msgid "ad.ui.trigger.mode"
+msgstr "Mode"
+
+msgid "ad.ui.trigger.link_note"
+msgstr "AvatarDoc copies the shape's weight into a hidden value in every FX animation that moves it, and this trigger follows that copy. It costs no synced bits. A shape VRChat moves itself, for blinking or lip sync, cannot be followed."
+
+msgid "ad.ui.trigger.parameter_note"
+msgstr "Parameters declared by the avatar, its components, and VRChat."
+
+msgid "ad.ui.effect.fixed"
+msgstr "Fixed weight"
+
+msgid "ad.ui.effect.follow"
+msgstr "Follow source"
+
+msgid "ad.ui.seg.fixed"
+msgstr "Fixed"
+
+msgid "ad.ui.seg.pin"
+msgstr "Pin"
+
+msgid "ad.ui.effect.multiplier"
+msgstr "Multiplier"
+
+msgid "ad.ui.override.value"
+msgstr "Pinned value"
+
+msgid "ad.ui.override.usage"
+msgstr "Animated in {0} clips"
+
+msgid "ad.ui.override.usage.one"
+msgstr "Animated in {0} clip"
+
+msgid "ad.ui.override.unused"
+msgstr "Nothing on this avatar animates this shape yet. The value still applies to the mesh."
+
+msgid "ad.ui.usage.chip"
+msgstr "{0} clips"
+
+msgid "ad.ui.usage.chip.one"
+msgstr "{0} clip"
+
+msgid "ad.ui.preview.always"
+msgstr "Applied in the preview whenever it is on."
+
+msgid "ad.ui.pick.parameter.avatar"
+msgstr "Avatar"
+
+msgid "ad.ui.pick.parameter.doctor"
+msgstr "AvatarDoc"
+
+msgid "ad.ui.pick.parameter.vrchat"
+msgstr "VRChat"
+
+msgid "ad.ui.preview"
+msgstr "Scene preview"
+
+msgid "ad.ui.preview.default"
+msgstr "Default"
+
+msgid "ad.ui.preview.on"
+msgstr "On"
+
+msgid "ad.ui.preview.off"
+msgstr "Off"
+
+msgid "ad.ui.preview.follows"
+msgstr "Follows {0}/{1} in the scene."
+
+msgid "ad.ui.preview.off_note"
+msgstr "Scene preview is off. Switch it on under Tools > NDM Framework > Enable Previews, then turn on the AvatarDoc entry under Tools > NDM Framework > Configure Previews, to see entries applied to the avatar."
+
+msgid "ad.ui.preview.reset"
+msgstr "Reset preview"
+
+msgid "ad.ui.wheel"
+msgstr "Wheel"
+
+msgid "ad.ui.wheel.count"
+msgstr "{0} of {1}"
+
+msgid "ad.ui.wheel.select"
+msgstr "Select"
+
+msgid "ad.ui.wheel.test"
+msgstr "Test"
+
+msgid "ad.ui.wheel.reset"
+msgstr "Reset"
+
+msgid "ad.ui.copy"
+msgstr "Copy"
+
+msgid "ad.ui.root_menu"
+msgstr "Avatar menu"
+
+msgid "ad.ui.window.none"
+msgstr "Select an avatar or an object with an AvatarDoc component to edit its menu here."
+
+msgid "ad.ui.chip.trigger_off"
+msgstr "{0} off"
+
+msgid "ad.ui.trigger.source_disabled"
+msgstr "That toggle is on a disabled component. The build skips it, so this trigger will not fire."
+
+msgid "ad.ui.style.bold"
+msgstr "B"
+
+msgid "ad.ui.style.italic"
+msgstr "I"
+
+msgid "ad.ui.style.raw_label"
+msgstr "Rich text tags"
+
+msgid "ad.ui.style.custom"
+msgstr "Custom tags: edit the raw text."
+
+msgid "ad.ui.style"
+msgstr "Style"
+
+msgid "ad.ui.style.preview"
+msgstr "In game"
+
+msgid "ad.ui.capture"
+msgstr "Capture icon"
+
+msgid "ad.ui.capture.title"
+msgstr "Capture icon"
+
+msgid "ad.ui.capture.fit"
+msgstr "Fit"
+
+msgid "ad.ui.capture.background"
+msgstr "Background"
+
+msgid "ad.ui.capture.transparent"
+msgstr "Transparent"
+
+msgid "ad.ui.capture.solid"
+msgstr "Solid colour"
+
+msgid "ad.ui.capture.save"
+msgstr "Save icon"
+
+msgid "ad.ui.capture.none"
+msgstr "This entry has no pieces to show. Add an object, blend shape or material target first."
+
+msgid "ad.ui.capture.saved"
+msgstr "Saved {0} and assigned it as the icon."
+
+msgid "ad.ui.capture.fill"
+msgstr "Fill"
+
+msgid "ad.ui.capture.fill.tip"
+msgstr "Zooms in on what is actually drawn, so the piece fills the icon."
+
+msgid "ad.ui.chip.modular_avatar"
+msgstr "Modular Avatar"
+
+msgid "ad.ui.chip.vrcfury"
+msgstr "VRCFury"
+
+msgid "ad.ui.existing.title"
+msgstr "Existing item"
+
+msgid "ad.ui.existing.move"
+msgstr "Move to"
+
+msgid "ad.ui.existing.stay"
+msgstr "(stay where it is)"
+
+msgid "ad.ui.existing.reset"
+msgstr "Reset"
+
+msgid "ad.ui.edit.remove"
+msgstr "Remove"
+
+msgid "ad.ui.existing.late_note"
+msgstr "Applied at build, after {0} has added this item."
+
+msgid "ad.ui.existing.original"
+msgstr "Original: {0}"
+
+msgid "ad.ui.existing.hide"
+msgstr "Hide"
+
+msgid "ad.ui.existing.show"
+msgstr "Show"
+
+msgid "ad.ui.existing.move_refused"
+msgstr "An item cannot move into itself."
+
+msgid "ad.ui.chip.edited"
+msgstr "edited"
+
+msgid "ad.ui.existing.remove"
+msgstr "Remove from avatar"
+
+msgid "ad.ui.existing.remove.tip"
+msgstr "Leaves the control out of the built avatar, with the parameter and the FX layers nothing else needs. The avatar's own assets are never changed."
+
+msgid "ad.ui.existing.remove_frees"
+msgstr "Frees {0} and {1}"
+
+msgid "ad.ui.existing.remove_frees.bits"
+msgstr "{0} bits"
+
+msgid "ad.ui.existing.remove_frees.bits.one"
+msgstr "{0} bit"
+
+msgid "ad.ui.existing.remove_frees.layers"
+msgstr "{0} layers"
+
+msgid "ad.ui.existing.remove_frees.layers.one"
+msgstr "{0} layer"
+
+msgid "ad.ui.existing.remove_keeps"
+msgstr "Keeps \"{0}\": {1}"
+
+msgid "ad.ui.chip.hidden"
+msgstr "hidden"
+
+msgid "ad.ui.chip.removed"
+msgstr "removed"
+
+msgid "ad.ui.add.preset"
+msgstr "+ Preset"
+
+msgid "ad.ui.detail.preset"
+msgstr "Preset"
+
+msgid "ad.ui.preset.sets"
+msgstr "Sets"
+
+msgid "ad.ui.preset.add"
+msgstr "+ Add"
+
+msgid "ad.ui.preset.from_preview"
+msgstr "From preview"
+
+msgid "ad.ui.preset.from_preview.tip"
+msgstr "Adds every control that currently has a scene preview override, with the value it is previewing."
+
+msgid "ad.ui.preset.on"
+msgstr "On"
+
+msgid "ad.ui.preset.off"
+msgstr "Off"
+
+msgid "ad.ui.preset.parameters"
+msgstr "Other parameters"
+
+msgid "ad.ui.preset.parameters.tip"
+msgstr "Sets a parameter AvatarDoc does not own, such as one from VRCFury or Modular Avatar."
+
+msgid "ad.ui.preset.none"
+msgstr "This preset sets nothing yet."
+
+msgid "ad.ui.preset.missing"
+msgstr "(missing control)"
+
+msgid "ad.ui.preset.pick"
+msgstr "Pick a control"
+
+msgid "ad.ui.targets.properties"
+msgstr "Properties"
+
+msgid "ad.ui.targets.animations"
+msgstr "Animations"
+
+msgid "ad.ui.property.pick"
+msgstr "Pick property"
+
+msgid "ad.ui.property.other"
+msgstr "Other..."
+
+msgid "ad.ui.property.type.float"
+msgstr "Float"
+
+msgid "ad.ui.property.type.color"
+msgstr "Colour"
+
+msgid "ad.ui.property.type.vector"
+msgstr "Vector"
+
+msgid "ad.ui.animation.path_root"
+msgstr "Path root"
+
+msgid "ad.ui.animation.path_root.tip"
+msgstr "Leave empty when the clip's paths start at the avatar root. Set it to the prefab's root when the clip was made inside a prefab."
+
+msgid "ad.ui.animations.no_preview"
+msgstr "Custom animations are not shown by the scene preview."
+
+msgid "ad.ui.blend"
+msgstr "Blend time"
+
+msgid "ad.ui.blend.tip"
+msgstr "Seconds the toggle takes to fade between off and on. Pieces stay visible during the fade."
+
+msgid "ad.ui.blend.group_note"
+msgstr "Blend time is not used while the toggle is in an exclusive group."
+
+msgid "ad.ui.import"
+msgstr "Convert"
+
+msgid "ad.ui.import.tooltip"
+msgstr "Convert toggles from VRCFury, Modular Avatar or hand made layers"
+
+msgid "ad.ui.import.intro"
+msgstr "Converts toggles made with other tools into AvatarDoc entries. Tick what you want, then convert."
+
+msgid "ad.ui.import.select_all"
+msgstr "All"
+
+msgid "ad.ui.import.select_none"
+msgstr "None"
+
+msgid "ad.ui.import.none"
+msgstr "Nothing here to convert."
+
+msgid "ad.ui.import.remove"
+msgstr "Remove originals"
+
+msgid "ad.ui.import.remove.tip"
+msgstr "Removes the converted VRCFury, Modular Avatar or hand made layer originals once the conversion finishes. A set that replaces a Merge Animator can only be converted with this switch on."
+
+msgid "ad.ui.import.button"
+msgstr "Convert {0} items"
+
+msgid "ad.ui.import.button.one"
+msgstr "Convert 1 item"
+
+msgid "ad.ui.import.done"
+msgstr "Converted {0}. Undo brings everything back."
+
+msgid "ad.ui.import.layers"
+msgstr "Layers left out of the build"
+
+msgid "ad.ui.import.restore"
+msgstr "Restore"
+
+msgid "ad.ui.import.group.fx"
+msgstr "Animator layers"
+
+msgid "ad.ui.import.group.animator"
+msgstr "Merged animators"
+
+msgid "ad.ui.import.kind.animator"
+msgstr "Animator"
+
+msgid "ad.ui.import.summary.merged_layers"
+msgstr "{0} layers stay merged"
+
+msgid "ad.ui.import.summary.merged_layers.one"
+msgstr "{0} layer stays merged"
+
+msgid "ad.ui.import.summary.objects"
+msgstr "{0} objects"
+
+msgid "ad.ui.import.summary.objects.one"
+msgstr "{0} object"
+
+msgid "ad.ui.import.summary.blendshapes"
+msgstr "{0} blend shapes"
+
+msgid "ad.ui.import.summary.blendshapes.one"
+msgstr "{0} blend shape"
+
+msgid "ad.ui.import.summary.materials"
+msgstr "{0} materials"
+
+msgid "ad.ui.import.summary.materials.one"
+msgstr "{0} material"
+
+msgid "ad.ui.import.summary.properties"
+msgstr "{0} properties"
+
+msgid "ad.ui.import.summary.properties.one"
+msgstr "{0} property"
+
+msgid "ad.ui.import.summary.animations"
+msgstr "{0} animations"
+
+msgid "ad.ui.import.summary.animations.one"
+msgstr "{0} animation"
+
+msgid "ad.ui.convert"
+msgstr "Convert to AvatarDoc"
+
+msgid "ad.ui.ok"
+msgstr "OK"
+
+msgid "ad.ui.import.rescanned"
+msgstr "The scene changed, so the list was refreshed. Check it and convert again."
+
+msgid "ad.ui.trigger.source.contact"
+msgstr "Contact"
+
+msgid "ad.ui.trigger.source.physbone"
+msgstr "PhysBone"
+
+msgid "ad.ui.touch.anchor"
+msgstr "Anchor"
+
+msgid "ad.ui.touch.radius"
+msgstr "Radius"
+
+msgid "ad.ui.touch.offset"
+msgstr "Offset"
+
+msgid "ad.ui.touch.tags"
+msgstr "Touched by"
+
+msgid "ad.ui.touch.more_tags"
+msgstr "More tags"
+
+msgid "ad.ui.touch.custom_tag"
+msgstr "Custom tag"
+
+msgid "ad.ui.touch.who"
+msgstr "Who"
+
+msgid "ad.ui.touch.self"
+msgstr "Self"
+
+msgid "ad.ui.touch.others"
+msgstr "Others"
+
+msgid "ad.ui.touch.distance"
+msgstr "Distance"
+
+msgid "ad.ui.touch.touch"
+msgstr "Touch"
+
+msgid "ad.ui.touch.closer"
+msgstr "Closer than"
+
+msgid "ad.ui.touch.physbone"
+msgstr "PhysBone"
+
+msgid "ad.ui.touch.event"
+msgstr "Event"
+
+msgid "ad.ui.touch.event.grabbed"
+msgstr "Grabbed"
+
+msgid "ad.ui.touch.event.posed"
+msgstr "Posed"
+
+msgid "ad.ui.touch.event.angle"
+msgstr "Bent past"
+
+msgid "ad.ui.touch.event.stretch"
+msgstr "Stretched past"
+
+msgid "ad.ui.touch.event.squish"
+msgstr "Squished past"
+
+msgid "ad.ui.touch.threshold"
+msgstr "Amount"
+
+msgid "ad.ui.touch.mode"
+msgstr "Mode"
+
+msgid "ad.ui.touch.hold"
+msgstr "Hold"
+
+msgid "ad.ui.touch.flip"
+msgstr "Flip"
+
+msgid "ad.ui.touch.follow"
+msgstr "Fade"
+
+msgid "ad.ui.touch.flip_target"
+msgstr "Toggle"
+
+msgid "ad.ui.touch.simulate"
+msgstr "Simulate touch"
+
+msgid "ad.ui.touch.scene_hint"
+msgstr "Drag the handles in the Scene view to place the contact."
+
+msgid "ad.ui.touch.fullat"
+msgstr "Fully on at"
+
+msgid "ad.ui.touch.fullat_note"
+msgstr "Effects start at the edge of the radius and are fully on at this closeness."
+
+msgid "ad.outfit.everything_off"
+msgstr "Everything off"
+
+msgid "ad.outfit.none"
+msgstr "None"
+
+msgid "ad.outfit.default_name"
+msgstr "Outfits"
+
+msgid "ad.ui.add.outfit"
+msgstr "+ Outfit set"
+
+msgid "ad.ui.outfit.title"
+msgstr "Outfit set"
+
+msgid "ad.ui.outfit.intro"
+msgstr "Builds a submenu of outfits from pieces of your avatar. Everything it makes is ordinary and can be edited afterwards."
+
+msgid "ad.ui.outfit.name"
+msgstr "Set name"
+
+msgid "ad.ui.outfit.mode"
+msgstr "Mode"
+
+msgid "ad.ui.outfit.mode.one"
+msgstr "One at a time"
+
+msgid "ad.ui.outfit.mode.mix"
+msgstr "Mix freely"
+
+msgid "ad.ui.outfit.none_option"
+msgstr "Add a None option"
+
+msgid "ad.ui.outfit.add"
+msgstr "+ Outfit"
+
+msgid "ad.ui.outfit.default"
+msgstr "Default"
+
+msgid "ad.ui.outfit.drop"
+msgstr "Drop pieces from the Hierarchy here"
+
+msgid "ad.ui.outfit.hidden"
+msgstr "Hidden while any outfit is on"
+
+msgid "ad.ui.outfit.shrinks"
+msgstr "Shrink shapes found by name"
+
+msgid "ad.ui.outfit.show_all"
+msgstr "Show all ({0})"
+
+msgid "ad.ui.outfit.capture"
+msgstr "Capture icons"
+
+msgid "ad.ui.outfit.create"
+msgstr "Create outfit set"
+
+msgid "ad.ui.outfit.empty"
+msgstr "Add at least one outfit with a piece."
+
+msgid "ad.ui.outfit.split.each"
+msgstr "One outfit per object"
+
+msgid "ad.ui.outfit.split.all"
+msgstr "One outfit with all of them"
+
+msgid "ad.ui.outfit.outside"
+msgstr "That object is not part of this avatar."
+
+msgid "ad.ui.outfit.created"
+msgstr "Created the set \"{0}\"."
+
+msgid "ad.ui.outfit.add_piece"
+msgstr "+ Add piece"
+
+msgid "ad.ui.capture_missing"
+msgstr "Capture missing icons"
+
+msgid "ad.ui.capture_missing.done"
+msgstr "Captured {0} icons."
+
+msgid "ad.ui.capture_missing.done.one"
+msgstr "Captured {0} icon."
+
+msgid "ad.ui.platform"
+msgstr "Platform"
+
+msgid "ad.ui.platform.inherit"
+msgstr "Inherit"
+
+msgid "ad.ui.platform.both"
+msgstr "Both"
+
+msgid "ad.ui.platform.pc"
+msgstr "PC only"
+
+msgid "ad.ui.platform.quest"
+msgstr "Quest only"
+
+msgid "ad.ui.platform.current"
+msgstr "Building for {0}"
+
+msgid "ad.ui.platform.name.pc"
+msgstr "PC"
+
+msgid "ad.ui.platform.name.quest"
+msgstr "Quest"
+
+msgid "ad.ui.chip.pc_only"
+msgstr "PC only"
+
+msgid "ad.ui.chip.quest_only"
+msgstr "Quest only"
+
+msgid "ad.ui.summary"
+msgstr "Summary"
+
+msgid "ad.ui.summary.plain"
+msgstr "Plain"
+
+msgid "ad.ui.summary.markdown"
+msgstr "Markdown"
+
+msgid "ad.ui.summary.copy"
+msgstr "Copy"
+
+msgid "ad.ui.summary.copied"
+msgstr "Copied."
+
+msgid "ad.ui.lock"
+msgstr "Lock"
+
+msgid "ad.ui.lock.tip"
+msgstr "Makes this component read only for whoever uses the prefab. Install path, prefix and platform stay editable."
+
+msgid "ad.ui.lock.note"
+msgstr "Note for users"
+
+msgid "ad.ui.locked"
+msgstr "Locked by its maker. Install path, prefix and platform can still be changed."
+
+msgid "ad.ui.locked.refused"
+msgstr "This component is locked. Unlock it to make changes."
+
+msgid "ad.ui.unlock"
+msgstr "Unlock"
+
+msgid "ad.summary.local"
+msgstr "local"
+
+msgid "ad.summary.bits"
+msgstr "{0} {1}"
+
+msgid "ad.summary.bits.adds"
+msgstr "Adds {0} synced bits."
+
+msgid "ad.summary.bits.adds.one"
+msgstr "Adds {0} synced bit."
+
+msgid "ad.summary.bits.total"
+msgstr "AvatarDoc uses {0} synced bits on this avatar in total."
+
+msgid "ad.summary.bits.total.one"
+msgstr "AvatarDoc uses {0} synced bit on this avatar in total."
+
+msgid "ad.summary.platform"
+msgstr "Platform: {0}."
+
+msgid "ad.summary.parameters"
+msgstr "Parameters"
+
+msgid "ad.summary.parameters.animator_only"
+msgstr "Animator only parameters"
+
+msgid "ad.summary.parameters.synced"
+msgstr "synced"
+
+msgid "ad.summary.parameters.saved"
+msgstr "saved"
+
+msgid "ad.summary.parameters.default"
+msgstr "Default"
+
+msgid "ad.summary.parameters.default_value"
+msgstr "default {0}"
+
+msgid "ad.summary.parameters.uses_existing"
+msgstr "uses existing"
+
+msgid "ad.summary.parameters.shared_group"
+msgstr "shared group"
+
+msgid "ad.summary.yes"
+msgstr "Yes"
+
+msgid "ad.summary.no"
+msgstr "No"
+
+msgid "ad.summary.menu"
+msgstr "Menu"
+
+msgid "ad.summary.menu.install_path"
+msgstr "Installs at: {0}"
+
+msgid "ad.summary.menu.install_root"
+msgstr "Installs at the avatar's root menu."
+
+msgid "ad.summary.menu.none"
+msgstr "No menu controls."
+
+msgid "ad.summary.menu.slots"
+msgstr "{0}/{1} slots on {2}"
+
+msgid "ad.summary.needs"
+msgstr "Needs"
+
+msgid "ad.summary.needs.ndmf"
+msgstr "NDMF"
+
+msgid "ad.summary.needs.vrcsdk"
+msgstr "VRChat SDK"
+
+msgid "ad.summary.needs.modular_avatar"
+msgstr "Modular Avatar"
+
+msgid "ad.summary.needs.vrcfury"
+msgstr "VRCFury"
+
+msgid "ad.summary.touch"
+msgstr "Touch"
+
+msgid "ad.summary.touch.contacts"
+msgstr "{0} contact receivers"
+
+msgid "ad.summary.touch.contacts.one"
+msgstr "{0} contact receiver"
+
+msgid "ad.summary.touch.physbones"
+msgstr "{0} PhysBones"
+
+msgid "ad.summary.touch.physbones.one"
+msgstr "{0} PhysBone"
+
+msgid "ad.summary.messages"
+msgstr "Messages"
+
+msgid "ad.summary.messages.info"
+msgstr "Info"
+
+msgid "ad.summary.messages.warning"
+msgstr "Warning"
+
+msgid "ad.summary.messages.error"
+msgstr "Error"
+
+msgid "ad.summary.animators"
+msgstr "Merged animators"
+
+msgid "ad.summary.animators.layers"
+msgstr "{0}: {1} layers"
+
+msgid "ad.summary.animators.layers.one"
+msgstr "{0}: {1} layer"
+
+msgid "ad.summary.footer"
+msgstr "Made with AvatarDoc"
+
+msgid "ad.ui.animators"
+msgstr "Animators"
+
+msgid "ad.ui.animators.note"
+msgstr "{0} merged"
+
+msgid "ad.ui.animator_note"
+msgstr "Merged animators join a controller's layers to the avatar's FX controller. They cost no synced bits of their own; a toggle or radial with a custom parameter and no targets can still drive one of their parameters."
+
+msgid "ad.ui.animator.unnamed"
+msgstr "(no controller)"
+
+msgid "ad.ui.detail.animator"
+msgstr "Animator"
+
+msgid "ad.ui.add.animator"
+msgstr "+ Animator"
+
+msgid "ad.ui.animator.controller"
+msgstr "Controller"
+
+msgid "ad.ui.animator.match_write_defaults"
+msgstr "Match write defaults"
+
+msgid "ad.ui.animator.layers"
+msgstr "Layers"
+
+msgid "ad.ui.animator.parameters"
+msgstr "Parameters"
+
+msgid "ad.ui.animator.no_preview"
+msgstr "Merged animators are not shown by the scene preview."
+
+msgid "ad.ui.animator.existing"
+msgstr "existing on the avatar"
+
+msgid "ad.ui.animator.not_synced"
+msgstr "not synced"
+
+msgid "ad.ui.animator.declared_synced"
+msgstr "declared, synced"
+
+msgid "ad.ui.animator.declared_local"
+msgstr "declared, not synced"
+
+msgid "ad.ui.animator.add_control"
+msgstr "Add control"
+
+msgid "ad.ui.parameter_control_note"
+msgstr "Drives a parameter only."
+
+msgid "ad.ui.target.explicit_off"
+msgstr "Set a value when off"
+
+msgid "ad.ui.target.explicit_off.tip"
+msgstr "When off, the toggle writes this value instead of returning to what the scene has."
+
+msgid "ad.ui.target.on_value"
+msgstr "On value"
+
+msgid "ad.ui.target.off_value"
+msgstr "Off value"
+
+msgid "ad.ui.trigger.gate"
+msgstr "Only while"
+
+msgid "ad.ui.trigger.gate.always"
+msgstr "(always)"
+
+msgid "ad.ui.trigger.gate.add"
+msgstr "Add a menu switch"
+
+msgid "ad.ui.in_menu"
+msgstr "In menu"
+
+msgid "ad.ui.chip.no_menu"
+msgstr "no menu"
+
+msgid "ad.ui.chip.problem"
+msgstr "problem"
+
+msgid "ad.ui.wheel.not_in_menu"
+msgstr "Not in the menu"
+
+msgid "ad.summary.hidden"
+msgstr "Not in the menu"
+
+msgid "ad.summary.gated_triggers"
+msgstr "Gated triggers"
+
+msgid "ad.summary.gated_triggers.line"
+msgstr "\"{0}\": only while \"{1}\" {2}"
+
+msgid "ad.error.trigger_too_complex"
+msgstr "\"{0}\" has too many conditions for VRChat to build: {1} groups create {2} ways to turn it back off. Use at most 4 groups of 4 conditions each, and keep the group sizes multiplied together at 64 or less."
+
+msgid "ad.error.trigger_too_complex.one"
+msgstr "\"{0}\" has too many conditions for VRChat to build: {1} group creates {2} ways to turn it back off. Use at most 4 groups of 4 conditions each, and keep the group sizes multiplied together at 64 or less."
+
+msgid "ad.warn.trigger_no_condition"
+msgstr "\"{0}\" has no condition under \"When\", so it never fires. Add at least one condition there."
+
+msgid "ad.warn.condition_group_empty"
+msgstr "\"{0}\" has a group with no conditions in it, so that group was left out. Add a condition to it with \"+ And\", or remove the empty group."
+
+msgid "ad.ui.fires"
+msgstr "Fires"
+
+msgid "ad.ui.fires.tip"
+msgstr "The rule in words, put together from every condition below."
+
+msgid "ad.ui.when.any_of"
+msgstr "Any of these"
+
+msgid "ad.ui.when.all_of"
+msgstr "All of"
+
+msgid "ad.ui.when.add_and"
+msgstr "+ And"
+
+msgid "ad.ui.when.add_or"
+msgstr "+ Or"
+
+msgid "ad.ui.when.remove"
+msgstr "Remove this condition"
+
+msgid "ad.ui.when.remove_group"
+msgstr "Remove this group"
+
+msgid "ad.ui.when.kind.toggle"
+msgstr "Toggle"
+
+msgid "ad.ui.when.kind.parameter"
+msgstr "Parameter"
+
+msgid "ad.ui.when.kind.contact"
+msgstr "Contact"
+
+msgid "ad.ui.when.kind.physbone"
+msgstr "PhysBone"
+
+msgid "ad.ui.when.note"
+msgstr "The trigger is on while any group is met, and a group is met while all of its conditions are."
+
+msgid "ad.ui.when.pick_toggle"
+msgstr "(no toggle)"
+
+msgid "ad.ui.when.sentence"
+msgstr "When {0}"
+
+msgid "ad.ui.when.and"
+msgstr " and "
+
+msgid "ad.ui.when.or"
+msgstr " or "
+
+msgid "ad.ui.when.nothing"
+msgstr "This trigger has no condition, so it never fires."
+
+msgid "ad.ui.when.missing"
+msgstr "(nothing)"
+
+msgid "ad.ui.when.position"
+msgstr " (group {0}, condition {1})"
+
+msgid "ad.ui.when.with_gate"
+msgstr "{0}, and only while {1}"
+
+msgid "ad.ui.when.toggle_on"
+msgstr "\"{0}\" is on"
+
+msgid "ad.ui.when.toggle_off"
+msgstr "\"{0}\" is off"
+
+msgid "ad.ui.when.is_true"
+msgstr "{0} is on"
+
+msgid "ad.ui.when.is_false"
+msgstr "{0} is off"
+
+msgid "ad.ui.when.equals"
+msgstr "{0} equals {1}"
+
+msgid "ad.ui.when.not_equals"
+msgstr "{0} is not {1}"
+
+msgid "ad.ui.when.greater"
+msgstr "{0} is above {1}"
+
+msgid "ad.ui.when.less"
+msgstr "{0} is below {1}"
+
+msgid "ad.ui.when.contact"
+msgstr "\"{0}\" is touched"
+
+msgid "ad.ui.when.contact_near"
+msgstr "something is closer than {1} to \"{0}\""
+
+msgid "ad.ui.when.pb_grabbed"
+msgstr "\"{0}\" is grabbed"
+
+msgid "ad.ui.when.pb_posed"
+msgstr "\"{0}\" is posed"
+
+msgid "ad.ui.when.pb_angle"
+msgstr "\"{0}\" is bent past {1}"
+
+msgid "ad.ui.when.pb_stretch"
+msgstr "\"{0}\" is stretched past {1}"
+
+msgid "ad.ui.when.pb_squish"
+msgstr "\"{0}\" is squished past {1}"
+
+msgid "ad.summary.conditions"
+msgstr "Trigger conditions"
+
+msgid "ad.summary.conditions.line"
+msgstr "\"{0}\": {1}"
+
+msgid "ad.ui.when.settings"
+msgstr "Settings"
+
+msgid "ad.ui.when.chip_more"
+msgstr "{0} +{1}"
+
+msgid "ad.ui.pick.bones"
+msgstr "Bones"
+
+msgid "ad.ui.pick.inactive"
+msgstr "(inactive)"
+
+msgid "ad.ui.pick.none"
+msgstr "No objects found."
+
+msgid "ad.warn.menu_asset_missing"
+msgstr "This menu asset install has no \"Menu asset\" chosen, so nothing was installed. Pick a menu asset for it. ({0})"
+
+msgid "ad.warn.parameter_declared_twice"
+msgstr "The parameter \"{0}\" is declared under Parameters, but an entry already plans one with this name, so the entry's own settings win. Remove this declaration, or give it a different name. ({1})"
+
+msgid "ad.error.parameter_declared_type"
+msgstr "The declared parameter \"{0}\" is a {1} here, but the avatar already has it as {2}. Match the type or rename one of them. ({3})"
+
+msgid "ad.warn.parameter_undeclared"
+msgstr "Nothing declares the parameter \"{0}\" that the installed control \"{1}\" drives, so VRChat ignores that control. Add a declaration for \"{0}\" under Parameters. ({2})"
+
+msgid "ad.import.note.takeover"
+msgstr "The menu asset, its parameter declarations and the merged animator come over unchanged."
+
+msgid "ad.ui.menu_assets"
+msgstr "Menu assets"
+
+msgid "ad.ui.menu_assets.note"
+msgstr "{0} installed"
+
+msgid "ad.ui.menu_assets.tip"
+msgstr "A finished expressions menu asset is installed into the merged menu. The asset itself is never changed: its controls are written as copies, they count toward the page limit, and menu edits can rename, re-icon, hide or move them."
+
+msgid "ad.ui.add.menu_asset"
+msgstr "+ Menu asset"
+
+msgid "ad.ui.detail.menu_asset"
+msgstr "Menu asset"
+
+msgid "ad.ui.menu_asset.unnamed"
+msgstr "(no menu asset)"
+
+msgid "ad.ui.menu_asset.asset"
+msgstr "Menu asset"
+
+msgid "ad.ui.menu_asset.path"
+msgstr "Install path"
+
+msgid "ad.ui.menu_asset.path.tip"
+msgstr "Submenu path from the avatar's root menu, such as Outfits/Summer. Empty installs where this component installs, and a single slash installs into the avatar's root menu."
+
+msgid "ad.ui.menu_asset.place"
+msgstr "Place"
+
+msgid "ad.ui.menu_asset.place.submenu"
+msgstr "As submenu"
+
+msgid "ad.ui.menu_asset.place.append"
+msgstr "Append items"
+
+msgid "ad.ui.menu_asset.parameters"
+msgstr "Parameters"
+
+msgid "ad.ui.menu_asset.note"
+msgstr "The asset is read like the avatar's own menu and written as copies, so nothing is ever saved back into it."
+
+msgid "ad.ui.menu_asset.declare"
+msgstr "Add declaration"
+
+msgid "ad.ui.menu_asset.declared"
+msgstr "declared here"
+
+msgid "ad.ui.menu_asset.undeclared"
+msgstr "nobody declares it"
+
+msgid "ad.ui.chip.asset"
+msgstr "asset"
+
+msgid "ad.ui.parameters"
+msgstr "Parameters"
+
+msgid "ad.ui.parameters.note"
+msgstr "{0} declared"
+
+msgid "ad.ui.parameters.tip"
+msgstr "Parameters this component declares itself, for merged animators and installed menu assets that no entry gives a parameter. They are planned after the entries, in this order, and identically on PC and Quest."
+
+msgid "ad.ui.parameters.none"
+msgstr "Nothing declared yet."
+
+msgid "ad.ui.parameters.total"
+msgstr "Total {0} bits"
+
+msgid "ad.ui.parameters.total.one"
+msgstr "Total {0} bit"
+
+msgid "ad.ui.parameters.bits"
+msgstr "{0} bits"
+
+msgid "ad.ui.parameters.bits.one"
+msgstr "{0} bit"
+
+msgid "ad.ui.parameters.add"
+msgstr "+ Parameter"
+
+msgid "ad.ui.parameters.new"
+msgstr "New parameter"
+
+msgid "ad.ui.import.group.menu_asset"
+msgstr "Menu assets"
+
+msgid "ad.ui.import.kind.menu_asset"
+msgstr "Menu asset"
+
+msgid "ad.ui.import.summary.parameters"
+msgstr "{0} parameters"
+
+msgid "ad.ui.import.summary.parameters.one"
+msgstr "{0} parameter"
+
+msgid "ad.ui.import.summary.declarations"
+msgstr "{0} declarations"
+
+msgid "ad.ui.import.summary.declarations.one"
+msgstr "{0} declaration"
+
+msgid "ad.ui.import.keep"
+msgstr "Keep as it is"
+
+msgid "ad.ui.import.keep.tip"
+msgstr "Takes the menu asset, the parameter declarations and the merged animator over unchanged: no layer becomes a real entry, and the controller keeps every one of them."
+
+msgid "ad.summary.menu_assets"
+msgstr "Menu assets"
+
+msgid "ad.summary.menu_assets.line"
+msgstr "{0}: {1} controls"
+
+msgid "ad.summary.menu_assets.line.one"
+msgstr "{0}: {1} control"
+
+msgid "ad.summary.declared"
+msgstr "Declared parameters"
+
+msgid "ad.summary.declared.line"
+msgstr "{0} ({1}, {2} bits)"
+
+msgid "ad.summary.declared.line.one"
+msgstr "{0} ({1}, {2} bit)"
+
+msgid "ad.summary.removed"
+msgstr "Removes from the avatar"
+
+msgid "ad.summary.removed.freed"
+msgstr "{0} is freed ({1} synced bits)"
+
+msgid "ad.summary.removed.freed.one"
+msgstr "{0} is freed ({1} synced bit)"
+
+msgid "ad.summary.removed.kept"
+msgstr "{0} stays: {1}"
+
+msgid "ad.import.reason.install_target_unknown"
+msgstr "Its menu installer targets a menu that could not be found on this avatar."
+
+msgid "ad.info.shapes_follow_kept_own"
+msgstr "The animation \"{0}\" already writes \"{1}\" on the piece \"{2}\", so it keeps its own values."
+
+msgid "ad.info.shapes_never_on"
+msgstr "Nothing turns this object on, so its shapes are never applied."
+
+msgid "ad.info.shapes_always_on"
+msgstr "\"{0}\" is always on, so its shape values are simply applied to the avatar. ({1})"
+
+msgid "ad.warn.shapes_active_not_constant"
+msgstr "The animation \"{0}\" fades \"{1}\" in and out rather than switching it at a fixed point, so AvatarDoc left it alone and did not add this piece's shape rules to it. Change it to a plain on/off switch if you want those rules to apply there too. ({2})"
+
+msgid "ad.warn.shapes_clip_owns_shape"
+msgstr "The animation \"{0}\" already writes the shape \"{1}\" itself, so it keeps its own values instead of the ones \"{2}\" asks for. Remove \"{1}\" from that animation if you want \"{2}\"'s rule to apply there instead. ({3})"
+
+msgid "ad.warn.shapes_conflict"
+msgstr "\"{0}\" and \"{1}\" both hold the shape \"{2}\", but different layers switch them, and the later layer wins: \"{1}\" decides the shape, and switching it off puts the shape back even while \"{0}\" is on. Put both pieces on one toggle, or put them in one exclusive group. ({3})"
+
+msgid "ad.info.shapes_larger_wins"
+msgstr "\"{0}\" and \"{1}\" hold the shape \"{2}\" at different values, and one animation turns both on or both stay on, so the larger value, {3}, holds while both are on. ({4})"
+
+msgid "ad.warn.shapes_missing_shape"
+msgstr "AvatarDoc Shapes on \"{0}\": \"{1}\" has no shape called \"{2}\", so that row was skipped. Pick a shape that exists on \"{1}\", or remove the row. ({3})"
+
+msgid "ad.error.shapes_outside_avatar"
+msgstr "AvatarDoc Shapes on \"{0}\": the mesh for \"{1}\" is missing or not part of this avatar, so that row was skipped. Point it at a mesh that is part of this avatar. ({2})"
+
+msgid "ad.error.shapes_no_mesh"
+msgstr "AvatarDoc Shapes on \"{0}\" has follow rows, but the object carries no skinned mesh of its own. Put the component on the piece's mesh or remove those rows. ({1})"
+
+msgid "ad.import.reason.shapes_delete"
+msgstr "This Shape Changer deletes the shape \"{0}\". AvatarDoc Shapes can set a value, not delete a shape."
+
+msgid "ad.ui.shapes.note"
+msgstr "Blend shape rules that travel with this piece. They cost no parameter and no layer: the values go into the animations that already switch the piece."
+
+msgid "ad.ui.shapes.follows"
+msgstr "Follows"
+
+msgid "ad.ui.shapes.follows.note"
+msgstr "This piece's own shapes copy a shape of another mesh, wherever that mesh is animated."
+
+msgid "ad.ui.shapes.while_on"
+msgstr "While this object is on"
+
+msgid "ad.ui.shapes.while_on.note"
+msgstr "While this object is on, these shapes hold their value; while it is off, they are back where they were."
+
+msgid "ad.ui.shapes.source_mesh"
+msgstr "Source mesh"
+
+msgid "ad.ui.shapes.source_shape"
+msgstr "Source shape"
+
+msgid "ad.ui.shapes.local_shape"
+msgstr "On this piece"
+
+msgid "ad.ui.shapes.same_name"
+msgstr "Same name"
+
+msgid "ad.ui.shapes.mesh"
+msgstr "Mesh"
+
+msgid "ad.ui.shapes.shape"
+msgstr "Shape"
+
+msgid "ad.ui.shapes.value"
+msgstr "Value"
+
+msgid "ad.ui.shapes.add"
+msgstr "Add"
+
+msgid "ad.ui.shapes.add_matching"
+msgstr "Add matching shapes"
+
+msgid "ad.ui.shapes.add_matching.tip"
+msgstr "Adds a row for every shape name this piece and the chosen mesh both have, skipping the rows that are already here."
+
+msgid "ad.ui.shapes.none"
+msgstr "No rows yet."
+
+msgid "ad.ui.import.group.shapes"
+msgstr "Shapes on a piece"
+
+msgid "ad.ui.import.kind.shapes"
+msgstr "Shapes"
+
+msgid "ad.ui.shapes.count.follows"
+msgstr "{0} follows"
+
+msgid "ad.ui.shapes.count.follows.one"
+msgstr "{0} follow"
+
+msgid "ad.ui.shapes.count.while_on"
+msgstr "{0} while on"
+
+msgid "ad.summary.shapes"
+msgstr "Shapes on outfit pieces"
+
+msgid "ad.info.capture_nothing_above_zero"
+msgstr "Every shape of \"{0}\" is at 0, so nothing was captured."
+
+msgid "ad.info.shape_set_count"
+msgstr "Holds up to {0} other shapes at 0 while this is on."
+
+msgid "ad.info.shape_set_count.one"
+msgstr "Holds up to {0} other shape at 0 while this is on."
+
+msgid "ad.info.shape_set_count.default"
+msgstr "Holds up to {0} other shapes at their default while this is on."
+
+msgid "ad.info.shape_set_count.default.one"
+msgstr "Holds up to {0} other shape at its default while this is on."
+
+msgid "ad.info.shape_set_pruned"
+msgstr "\"{0}\" holds {1} of {2} shapes on \"{3}\"; the others never move, so they stay as they are."
+
+msgid "ad.info.shape_set_pruned.one"
+msgstr "\"{0}\" holds {1} of {2} shape on \"{3}\"; it never moves, so it stays as it is."
+
+msgid "ad.error.shape_set_outside_avatar"
+msgstr "\"{0}\": the mesh of a \"Hold the rest\" rule is missing or not part of this avatar, so that rule was skipped. Point it at a mesh that is part of this avatar. ({1})"
+
+msgid "ad.error.shape_set_not_a_toggle"
+msgstr "\"{0}\" has a \"Hold the rest\" rule, but only a toggle or a trigger with effects of its own can hold one. Move the rule to one of those, or remove it. ({1})"
+
+msgid "ad.ui.shape_set.capture"
+msgstr "Capture"
+
+msgid "ad.ui.shape_set.hold"
+msgstr "Hold the rest"
+
+msgid "ad.ui.shape_set.zero_others"
+msgstr "Everything else on {0}"
+
+msgid "ad.ui.shape_set.hold_at"
+msgstr "Hold at"
+
+msgid "ad.ui.shape_set.value.default"
+msgstr "Default"
+
+msgid "ad.ui.shape_set.value.zero"
+msgstr "0"
+
+msgid "ad.ui.shape_set.hold_blink"
+msgstr "Hold blink"
+
+msgid "ad.ui.shape_set.hold_visemes"
+msgstr "Hold visemes"
+
+msgid "ad.summary.shape_sets"
+msgstr "Held shapes"
+
+msgid "ad.summary.shape_sets.line"
+msgstr "{0}: \"{1}\", up to {2} other shapes held at 0"
+
+msgid "ad.summary.shape_sets.line.one"
+msgstr "{0}: \"{1}\", up to {2} other shape held at 0"
+
+msgid "ad.summary.shape_sets.line.default"
+msgstr "{0}: \"{1}\", up to {2} other shapes held at their default"
+
+msgid "ad.summary.shape_sets.line.default.one"
+msgstr "{0}: \"{1}\", up to {2} other shape held at its default"
+
+msgid "ad.error.follow_not_on_off"
+msgstr "\"{0}\" cannot follow anything: only a toggle or a trigger has an on and off state to drive a Follow row. Move this row to a toggle or a trigger, or remove it. ({1})"
+
+msgid "ad.error.follow_self"
+msgstr "\"{0}\" cannot follow: the object and the target it should follow are the same one. Pick a different target to follow. ({1})"
+
+msgid "ad.error.follow_outside_avatar"
+msgstr "\"{0}\": the object or the transform it should follow is not part of this avatar, so this Follow row was skipped. Pick an object and a target that are both part of this avatar. ({1})"
+
+msgid "ad.error.follow_existing_constraint"
+msgstr "\"{0}\": \"{1}\" already carries a constraint of its own, so AvatarDoc left it alone. Remove that constraint first if you want AvatarDoc to drive \"{1}\", or pick a different object. ({2})"
+
+msgid "ad.error.follow_no_rest_parent"
+msgstr "\"{0}\" cannot follow: the avatar's root object has no parent of its own to rest under when the control is off. Put the avatar under an empty parent object, then build again. ({1})"
+
+msgid "ad.error.follow_too_many_sources"
+msgstr "\"{0}\" has {1} follow rows, more than the {2} VRChat allows on one object. Remove or combine some of these rows: {3}."
+
+msgid "ad.warn.follow_claim_unresolved"
+msgstr "\"{0}\" cannot follow \"{1}\": its trigger condition could not be resolved, so it will never follow. Fix that trigger's \"When\" condition first. ({2})"
+
+msgid "ad.error.grab_no_object"
+msgstr "\"{0}\" needs an object to grab before it can build anything. Pick an object for its \"Object\" field. ({1})"
+
+msgid "ad.error.grab_outside_avatar"
+msgstr "\"{0}\": the object it grabs is not part of this avatar, so it cannot build. Pick an object that is part of this avatar. ({1})"
+
+msgid "ad.error.grab_no_hand"
+msgstr "\"{0}\" cannot grab: the avatar has no humanoid rig, or is missing a hand bone that its \"Hands\" setting needs. Set the avatar's rig to Humanoid with both hands mapped. ({1})"
+
+msgid "ad.error.grab_inside_physbone"
+msgstr "\"{0}\": its object already sits inside \"{1}\"'s own PhysBone chain, so a second PhysBone cannot be added there. Pick a different object, or move it out of that chain. ({2})"
+
+msgid "ad.info.grab_uses_existing_physbone"
+msgstr "\"{0}\" reuses the PhysBone already on its object instead of adding a second one."
+
+msgid "ad.warn.grab_existing_physbone_unsuitable"
+msgstr "\"{0}\" reuses a PhysBone that does not allow grabbing, or whose root is a different object. Turn on grabbing on that PhysBone, and set its root to this object."
+
+msgid "ad.ui.targets.follows"
+msgstr "Follows"
+
+msgid "ad.ui.target.keep_offset"
+msgstr "Keep offset"
+
+msgid "ad.summary.follows"
+msgstr "Follows"
+
+msgid "ad.summary.follows.line"
+msgstr "{0}: \"{1}\" follows \"{2}\""
+
+msgid "ad.summary.grabbables"
+msgstr "Grabbables"
+
+msgid "ad.summary.grabbables.line"
+msgstr "{0}: \"{1}\" is held by {2}"
+
+msgid "ad.ui.add.grabbable"
+msgstr "+ Grabbable"
+
+msgid "ad.ui.detail.grabbable"
+msgstr "Grabbable"
+
+msgid "ad.ui.grab.object"
+msgstr "Object"
+
+msgid "ad.ui.grab.hands"
+msgstr "Hands"
+
+msgid "ad.ui.grab.hands.both"
+msgstr "Both"
+
+msgid "ad.ui.grab.hands.left"
+msgstr "Left"
+
+msgid "ad.ui.grab.hands.right"
+msgstr "Right"
+
+msgid "ad.ui.grab.summary"
+msgstr "Builds a PhysBone, one contact per hand, and a follow that snaps the object into the hand that holds it."
+
+msgid "ad.ui.grab.anyone"
+msgstr "Anyone may grab"
+
+msgid "ad.ui.grab.return_seconds"
+msgstr "Return time"
+
+msgid "ad.ui.grab.menu_toggle"
+msgstr "Menu toggle"
+
+msgid "ad.ui.grab.reach"
+msgstr "Reach"
+
+msgid "ad.ui.grab.fold"
+msgstr "More options"
+
+msgid "ad.ui.select_component.tip"
+msgstr "Jumps to the AvatarDoc component that actually owns this entry so you can edit it there."
+
+msgid "ad.ui.icon.tip"
+msgstr "The picture VRChat shows for this control in its menu."
+
+msgid "ad.ui.capture.tip"
+msgstr "Opens a window that renders only this entry's own pieces and saves the result as its icon."
+
+msgid "ad.ui.platform.tip"
+msgstr "Chooses which build actually creates this entry; its parameter still keeps its place on every platform."
+
+msgid "ad.ui.default_on.tip"
+msgstr "Starts this toggle on when the avatar loads."
+
+msgid "ad.ui.saved.tip"
+msgstr "Remembers this control's state between avatar loads."
+
+msgid "ad.ui.synced.tip"
+msgstr "Costs a synced bit and lets other players see this control's state."
+
+msgid "ad.ui.in_menu.tip"
+msgstr "Off removes this control's button from the menu but keeps its parameter and effects working."
+
+msgid "ad.ui.group.tip"
+msgstr "Only one toggle sharing this same group name can be on at a time."
+
+msgid "ad.ui.group.value.tip"
+msgstr "The number the group's parameter takes while this toggle is on. 0 lets AvatarDoc pick one."
+
+msgid "ad.ui.group.number.tip"
+msgstr "Numbers the members of this group 1, 2, 3 and so on in menu order, so no two share a value."
+
+msgid "ad.ui.parameter.tip"
+msgstr "The synced value VRChat uses for this control, named automatically unless you give it your own."
+
+msgid "ad.ui.parameter.use_custom.tip"
+msgstr "Names the parameter yourself so it can reuse or drive one that already exists on the avatar."
+
+msgid "ad.ui.parameter.value.tip"
+msgstr "The value this toggle writes to its parameter while it is on."
+
+msgid "ad.ui.preview.tip"
+msgstr "Shows this control's targets on the avatar in the Scene without changing anything in the build."
+
+msgid "ad.ui.preview.default.tip"
+msgstr "Clears the preview override and falls back to this control's own default state."
+
+msgid "ad.ui.touch.simulate.tip"
+msgstr "Flips the target toggle's own preview once, the same as a real touch would."
+
+msgid "ad.ui.chip.no_menu.tip"
+msgstr "This control has no button in the built menu, though its parameter and effects still work."
+
+msgid "ad.ui.trigger.when.tip"
+msgstr "Picks what starts this trigger: another toggle, a parameter, a blend shape, a touch or a PhysBone."
+
+msgid "ad.ui.trigger.toggle.tip"
+msgstr "The toggle whose state starts this trigger."
+
+msgid "ad.ui.trigger.toggle_state.tip"
+msgstr "Whether the toggle has to be on or off for the trigger to fire."
+
+msgid "ad.ui.trigger.parameter.tip"
+msgstr "The parameter this trigger watches; pick one from the list or type a name by hand."
+
+msgid "ad.ui.trigger.condition.tip"
+msgstr "How the parameter's value must compare before the trigger fires."
+
+msgid "ad.ui.trigger.value.tip"
+msgstr "The value the condition compares the parameter against."
+
+msgid "ad.ui.trigger.shape.tip"
+msgstr "The blend shape whose weight drives this trigger's effects."
+
+msgid "ad.ui.trigger.mode.tip"
+msgstr "Add keeps the shape moving as its animations say with the effects on top; Replace takes the shape's own animation out so only the effects show."
+
+msgid "ad.ui.trigger.gate.tip"
+msgstr "Limits this trigger to firing only while the chosen toggle is on or off."
+
+msgid "ad.ui.trigger.gate_state.tip"
+msgstr "Whether the gate toggle must be on or off for this trigger to be allowed to fire."
+
+msgid "ad.ui.trigger.gate.add.tip"
+msgstr "Creates a plain menu toggle and sets it as this trigger's gate in one step."
+
+msgid "ad.ui.name.tip"
+msgstr "The text this control shows; style it below with colour, bold or italic."
+
+msgid "ad.ui.style.tip"
+msgstr "Colours and styles the whole name at once; switch to Tags to hand edit part of it."
+
+msgid "ad.ui.style.color.tip"
+msgstr "Sets the name's colour; the x beside it clears it back to none."
+
+msgid "ad.ui.style.clear_color.tip"
+msgstr "Clears the name's colour."
+
+msgid "ad.ui.style.bold.tip"
+msgstr "Makes the whole name bold."
+
+msgid "ad.ui.style.italic.tip"
+msgstr "Makes the whole name italic."
+
+msgid "ad.ui.style.raw.tip"
+msgstr "Shows the name's raw text with its colour and style tags written out, to style part of it by hand."
+
+msgid "ad.ui.style.preview.tip"
+msgstr "How VRChat will actually render this name, tags included."
+
+msgid "ad.ui.existing.move.tip"
+msgstr "Moves this item into another submenu without touching the tool that created it."
+
+msgid "ad.ui.existing.reset.tip"
+msgstr "Clears every change here and puts the item back exactly as the avatar or the tool built it."
+
+msgid "ad.ui.animator.controller.tip"
+msgstr "The controller whose layers merge into the build; the asset itself is never changed."
+
+msgid "ad.ui.animator.match_write_defaults.tip"
+msgstr "Makes the merged layers follow the avatar's own Write Defaults choice instead of the controller's own."
+
+msgid "ad.ui.animator.layers.tip"
+msgstr "Unticking a layer leaves it out of the merge entirely."
+
+msgid "ad.ui.animator.parameters.tip"
+msgstr "Lists every parameter the controller uses and who is already responsible for it."
+
+msgid "ad.ui.animator.add_control.tip"
+msgstr "Gives this parameter a menu control here, without adding another layer for it."
+
+msgid "ad.ui.menu_asset.asset.tip"
+msgstr "The finished menu this component installs; it is never changed, only copied into the build."
+
+msgid "ad.ui.menu_asset.place.tip"
+msgstr "As submenu wraps the asset in one new submenu; Append items puts its controls directly into the menu."
+
+msgid "ad.ui.menu_asset.name.tip"
+msgstr "The submenu's own name; only used while it installs As submenu."
+
+msgid "ad.ui.menu_asset.parameters.tip"
+msgstr "Every parameter this asset's controls need, and who already provides it."
+
+msgid "ad.ui.menu_asset.declare.tip"
+msgstr "Declares this parameter here so VRChat does not ignore the control that needs it."
+
+msgid "ad.ui.parameters.add.tip"
+msgstr "Declares a parameter of your own, for a menu asset or a merged animator that needs one."
+
+msgid "ad.ui.parameters.row_name.tip"
+msgstr "The name this declared parameter uses; match an existing avatar parameter to reuse it."
+
+msgid "ad.ui.parameters.type.tip"
+msgstr "Bool, Int or Float: the kind of value this parameter holds."
+
+msgid "ad.ui.parameters.default.tip"
+msgstr "The value this parameter starts with when the avatar loads."
+
+msgid "ad.ui.preset.sets.tip"
+msgstr "Every control this preset puts into a state when it is pressed."
+
+msgid "ad.ui.preset.add.tip"
+msgstr "Adds another control for this preset to set."
+
+msgid "ad.ui.preset.parameters.add.tip"
+msgstr "Adds another parameter this preset writes, such as one from VRCFury or Modular Avatar."
+
+msgid "ad.ui.preset.control.tip"
+msgstr "The control this row sets; click to pick a different one from the menu."
+
+msgid "ad.ui.preset.value.tip"
+msgstr "How far this radial is set when the preset is applied."
+
+msgid "ad.ui.preset.on.tip"
+msgstr "Whether this control is switched on or off when the preset is applied."
+
+msgid "ad.ui.preset.param_name.tip"
+msgstr "The parameter this row writes; pick one from the list or type a name by hand."
+
+msgid "ad.ui.preset.param_value.tip"
+msgstr "The value written to that parameter when the preset is applied."
+
+msgid "ad.ui.touch.anchor.tip"
+msgstr "The object the contact sphere follows, usually a bone."
+
+msgid "ad.ui.touch.radius.tip"
+msgstr "How big the contact sphere is, from 0.005 to 1."
+
+msgid "ad.ui.touch.offset.tip"
+msgstr "How far the sphere sits from the anchor."
+
+msgid "ad.ui.touch.who.tip"
+msgstr "Whether your own colliders, other players' colliders, or both, can touch this contact."
+
+msgid "ad.ui.touch.self.tip"
+msgstr "Lets your own colliders touch this contact."
+
+msgid "ad.ui.touch.others.tip"
+msgstr "Lets other players' colliders touch this contact."
+
+msgid "ad.ui.touch.tags.tip"
+msgstr "Which VRChat contact tags can reach this contact; none ticked means it touches nobody."
+
+msgid "ad.ui.touch.more_tags.tip"
+msgstr "Shows the rest of VRChat's own contact tags."
+
+msgid "ad.ui.touch.custom_tag_chip.tip"
+msgstr "Removes this tag from the list."
+
+msgid "ad.ui.touch.custom_tag.tip"
+msgstr "Adds any other contact tag this contact should also react to."
+
+msgid "ad.ui.touch.distance.tip"
+msgstr "Touch fires only on contact; Closer than fires once something is near, using a fraction of the radius."
+
+msgid "ad.ui.touch.proximity.tip"
+msgstr "How close something must get before Closer than counts as met."
+
+msgid "ad.ui.touch.physbone.tip"
+msgstr "The PhysBone this trigger watches."
+
+msgid "ad.ui.touch.event.tip"
+msgstr "Which PhysBone state starts this trigger: grabbed, posed, or past a bend, stretch or squish amount."
+
+msgid "ad.ui.touch.threshold.tip"
+msgstr "How far the PhysBone has to bend, stretch or squish before this trigger fires."
+
+msgid "ad.ui.touch.mode.tip"
+msgstr "Hold applies while the touch is active, Flip flips a toggle's own parameter on each touch, and Fade blends the effects in as the hand gets closer."
+
+msgid "ad.ui.touch.hold.tip"
+msgstr "Applies the trigger's own targets while the touch is active, and stops the moment it is not."
+
+msgid "ad.ui.touch.flip.tip"
+msgstr "Flips a toggle's own parameter on each touch, through a local parameter driver."
+
+msgid "ad.ui.touch.follow.tip"
+msgstr "Effects fade in as a hand comes closer, fully on at the Fully on at value."
+
+msgid "ad.ui.touch.flip_target.tip"
+msgstr "The toggle this trigger flips on each touch; other players can flip it too when Others is on."
+
+msgid "ad.ui.touch.fullat.tip"
+msgstr "How close the hand must get, as a fraction of the radius, before the effects are fully on."
+
+msgid "ad.ui.touch.radius_follow.tip"
+msgstr "How big the contact sphere is, and where the effects start fading in, from 0.005 to 1."
+
+msgid "ad.ui.when.add_and.tip"
+msgstr "Adds another condition that must also be true in this group."
+
+msgid "ad.ui.when.add_and.limit.tip"
+msgstr "A group holds at most {0} conditions: use + Or to start another group."
+
+msgid "ad.ui.when.add_or.tip"
+msgstr "Adds a new group; the trigger fires while any group is fully met."
+
+msgid "ad.ui.when.all_of.tip"
+msgstr "Every condition in this group must be true together."
+
+msgid "ad.ui.when.kind.tip"
+msgstr "What this condition reads: a toggle, a parameter, a contact or a PhysBone."
+
+msgid "ad.ui.when.settings.tip"
+msgstr "Opens this condition's contact or PhysBone settings and its Scene view handle."
+
+msgid "ad.ui.when.any_of.tip"
+msgstr "The trigger fires while any one of these groups is fully met."
+
+msgid "ad.ui.objects.tip"
+msgstr "GameObjects this control switches on or off."
+
+msgid "ad.ui.blendshapes.tip"
+msgstr "Blend shape weights this control drives on a skinned mesh."
+
+msgid "ad.ui.materials.tip"
+msgstr "Material slots this control swaps while it is on."
+
+msgid "ad.ui.targets.properties.tip"
+msgstr "Shader properties this control drives on a renderer's materials."
+
+msgid "ad.ui.targets.animations.tip"
+msgstr "Your own animation clips merged into this control's generated one."
+
+msgid "ad.ui.objects.add.tip"
+msgstr "Adds an empty object row, or drag GameObjects from the Hierarchy onto the list instead."
+
+msgid "ad.ui.blendshapes.add.tip"
+msgstr "Opens the shape picker to add another blend shape row."
+
+msgid "ad.ui.materials.add.tip"
+msgstr "Adds a new material slot row to fill in."
+
+msgid "ad.ui.targets.properties.add.tip"
+msgstr "Adds a new shader property row to drive."
+
+msgid "ad.ui.targets.animations.add.tip"
+msgstr "Adds a row for your own animation clip to merge in."
+
+msgid "ad.ui.shape_set.capture.tip"
+msgstr "Captures every blend shape of the chosen mesh that is above 0 right now; on a toggle it also holds the rest of that mesh at 0."
+
+msgid "ad.ui.target.object.tip"
+msgstr "The GameObject this row switches; drag one from the Hierarchy or pick it here."
+
+msgid "ad.ui.target.mode.tip"
+msgstr "Shown when on shows this object while the control is on; Hidden when on does the opposite."
+
+msgid "ad.ui.target.shape.tip"
+msgstr "The blend shape this row drives; click to pick a different one."
+
+msgid "ad.ui.min.tip"
+msgstr "The shape's weight when the radial is at its lowest."
+
+msgid "ad.ui.max.tip"
+msgstr "The shape's weight when the radial is at its highest."
+
+msgid "ad.ui.effect.link_mode.tip"
+msgstr "Fixed weight goes from rest to its weight as the trigger comes on; Follow source copies the source shape times the multiplier."
+
+msgid "ad.ui.weight.tip"
+msgstr "How far this blend shape moves while the control is on."
+
+msgid "ad.ui.effect.multiplier.tip"
+msgstr "Scales the source shape's own curve, clamped to the 0 to 100 range."
+
+msgid "ad.ui.override.value.tip"
+msgstr "The weight this override holds the shape at; 0 switches it off."
+
+msgid "ad.ui.seg.fixed_pin.tip"
+msgstr "Fixed also captures the shape's off value; Pin writes nothing while off, so other animations can move the shape."
+
+msgid "ad.ui.target.off_value.tip"
+msgstr "The value written while the control is off instead of the scene's own value."
+
+msgid "ad.ui.target.renderer.tip"
+msgstr "The renderer whose material slot this row swaps."
+
+msgid "ad.ui.slot.tip"
+msgstr "Which material slot of that renderer this row swaps, counted from 0."
+
+msgid "ad.ui.target.material.tip"
+msgstr "The material placed in that slot while the control is on."
+
+msgid "ad.ui.property.renderer.tip"
+msgstr "The renderer whose materials this row's shader property comes from."
+
+msgid "ad.ui.property.pick_button.tip"
+msgstr "The shader property this row drives; click to pick a different one."
+
+msgid "ad.ui.target.clip.tip"
+msgstr "Your own animation clip, merged into this control's generated one."
+
+msgid "ad.ui.usage.chip.tip"
+msgstr "This shape is already animated elsewhere on the avatar; the clips are listed here."
+
+msgid "ad.ui.property.value_type.tip"
+msgstr "Float, Colour or Vector: the kind of value this shader property holds."
+
+msgid "ad.ui.property.min.tip"
+msgstr "The property's value when the radial is at its lowest."
+
+msgid "ad.ui.property.max.tip"
+msgstr "The property's value when the radial is at its highest."
+
+msgid "ad.ui.property.value.tip"
+msgstr "The value written to the property while the control is on."
+
+msgid "ad.ui.shape_set.zero_others.tip"
+msgstr "Holds every other shape of \"{0}\" while this is on; switched off, the rule stays but holds nothing."
+
+msgid "ad.ui.shape_set.hold.tip"
+msgstr "Picks a mesh whose other shapes this holds at their default while it is on."
+
+msgid "ad.ui.shape_set.value.tip"
+msgstr "What the other shapes are held at: their weight in the scene when you upload, or 0."
+
+msgid "ad.ui.shape_set.value.default.tip"
+msgstr "Holds each other shape at the weight the scene shows when you upload."
+
+msgid "ad.ui.shape_set.value.zero.tip"
+msgstr "Holds each other shape at 0."
+
+msgid "ad.ui.shape_set.hold_blink.tip"
+msgstr "Holds the shapes VRChat blinks with too, pausing blinking while this is on; off leaves blinking free."
+
+msgid "ad.ui.shape_set.hold_visemes.tip"
+msgstr "Holds the shapes VRChat speaks with too, pausing lip sync while this is on; off leaves lip sync free."
+
+msgid "ad.ui.shape_set.remove.tip"
+msgstr "Removes this rule; the rows it captured stay."
+
+msgid "ad.ui.summary.format.tip"
+msgstr "Plain suits a store page; Markdown adds a parameter table for a place that renders it."
+
+msgid "ad.ui.summary.text.tip"
+msgstr "The full summary text in the format chosen above; select and copy it directly if you prefer."
+
+msgid "ad.ui.summary.copy.tip"
+msgstr "Copies the summary text to the clipboard."
+
+msgid "ad.ui.lock.note.tip"
+msgstr "Shown in the locked banner for whoever uses this prefab."
+
+msgid "ad.ui.summary.toggle.tip"
+msgstr "Opens a copyable summary of this component, for a store page or documentation."
+
+msgid "ad.ui.install.tip"
+msgstr "Submenu path this component's entries land in; empty means the avatar's root menu."
+
+msgid "ad.ui.install.mode.tip"
+msgstr "Append items puts entries directly at the install path; As submenu wraps them in one new submenu there."
+
+msgid "ad.ui.menu_name.tip"
+msgstr "The submenu's own name, used only while Install as is As submenu."
+
+msgid "ad.ui.menu_icon.tip"
+msgstr "The icon on the submenu control this component installs."
+
+msgid "ad.ui.prefix.tip"
+msgstr "Automatic parameter names are prefix/name; changing it renames every automatic parameter at once."
+
+msgid "ad.ui.platform.component.tip"
+msgstr "Sets what every entry under this component builds on, unless an entry says otherwise."
+
+msgid "ad.ui.preview.reset.tip"
+msgstr "Clears every scene preview you set, on every avatar in the editor, in one press."
+
+msgid "ad.ui.edit.remove.tip"
+msgstr "Removes this menu edit whose target is already gone."
+
+msgid "ad.ui.memory.bar.tip"
+msgstr "Shows the avatar's own synced bits, AvatarDoc's added share, and how many of VRChat's 256 bits are still free."
+
+msgid "ad.ui.wheel.mode.tip"
+msgstr "Select clicks a wedge to choose it; Test clicks a wedge to preview it on the avatar instead."
+
+msgid "ad.ui.wheel.ring.tip"
+msgstr "Click a wedge to select or open it; in Test mode a click previews it on the avatar instead."
+
+msgid "ad.ui.wheel.radial_slider.tip"
+msgstr "Drags this radial's own preview value; the ring's accent arc follows it live."
+
+msgid "ad.ui.wheel.triggers_strip.tip"
+msgstr "Presses simulate a parameter, contact or PhysBone trigger without waiting for its real condition."
+
+msgid "ad.ui.wheel.not_in_menu.tip"
+msgstr "Toggles hidden from the menu still show here in Test mode, so you can try them."
+
+msgid "ad.ui.wheel.trigger_button.tip"
+msgstr "Presses this trigger once; press again to release it."
+
+msgid "ad.ui.wheel.hidden_button.tip"
+msgstr "Flips this hidden toggle's own preview, the same as its panel would."
+
+msgid "ad.ui.wheel.crumb.tip"
+msgstr "Steps back to that submenu in the wheel."
+
+msgid "ad.ui.add.toggle.tip"
+msgstr "Adds a toggle that switches its own targets on or off."
+
+msgid "ad.ui.add.radial.tip"
+msgstr "Adds a control that blends its targets between two ends as its value moves from 0 to 1."
+
+msgid "ad.ui.add.submenu.tip"
+msgstr "Adds a new submenu that other controls can be placed inside."
+
+msgid "ad.ui.add.trigger.tip"
+msgstr "Adds a rule that fires its effects on its own, with no button in the menu and no synced bits."
+
+msgid "ad.ui.add.override.tip"
+msgstr "Adds a rule that holds a blend shape at one value in every animation that already uses it."
+
+msgid "ad.ui.add.preset.tip"
+msgstr "Adds a button that puts several other controls into one state at once."
+
+msgid "ad.ui.add.animator.tip"
+msgstr "Adds an existing animator controller's layers to the build, the way a Modular Avatar Merge Animator does."
+
+msgid "ad.ui.add.menu_asset.tip"
+msgstr "Installs a whole finished expressions menu into this menu."
+
+msgid "ad.ui.add.outfit.tip"
+msgstr "Opens a wizard that builds a whole outfit selector from GameObjects at once."
+
+msgid "ad.ui.wheel.toggle.tip"
+msgstr "Shows the selected submenu as VRChat's own radial menu would draw it."
+
+msgid "ad.ui.search.tip"
+msgstr "Filters the tree to rows whose name matches what you type; a submenu stays open while something inside it matches."
+
+msgid "ad.ui.search.placeholder"
+msgstr "Search"
+
+msgid "ad.log.slow_refresh"
+msgstr "AvatarDoc on '{0}' took {1} ms to refresh: plan {2} ms, header {3} ms, menu tree {4} ms, entry panel {5} ms, other {6} ms; the plan was dropped by: {7}. Please send this line to the developer if it keeps happening."
+
+msgid "ad.log.menu_closed"
+msgstr "An AvatarDoc menu closed by itself: {0}. The plan was last dropped by: {1}. Please send this line to the developer if it keeps happening."
+
+msgid "ad.log.menu_closed.view_gone"
+msgstr "the panel it belongs to was rebuilt or closed"
+
+msgid "ad.log.menu_closed.removed"
+msgstr "its window took it away"
+
+msgid "ad.log.menu_closed.resized"
+msgstr "the window changed size"
+
+msgid "ad.log.menu_closed.undo"
+msgstr "an undo or redo changed the data under it"
+
+msgid "ad.log.menu_closed.window_focus"
+msgstr "the window lost the focus to {0}"
+
+msgid "ad.log.menu_closed.focus_taken"
+msgstr "the focus kept moving to {0}"
+
+msgid "ad.log.menu_closed.other_app"
+msgstr "another application"
+
+msgid "ad.log.menu_closed.nothing"
+msgstr "nothing"
+
+msgid "ad.log.plan_reused"
+msgstr "nothing, the plan was reused"
+
+msgid "ad.log.ids_repaired"
+msgstr "AvatarDoc on '{0}' used item ids that another AvatarDoc on this avatar already has, which happens when a component is copied. The repeated ids were given new ones, which is why the scene shows as changed."
+
+msgid "ad.ui.shapes.follows.tip"
+msgstr "This piece's own shapes copy a shape of another mesh, wherever that mesh is animated."
+
+msgid "ad.ui.shapes.add_follow.tip"
+msgstr "Adds a row that copies a shape from another mesh onto this piece."
+
+msgid "ad.ui.shapes.while_on.tip"
+msgstr "Holds a shape on any mesh at a value while this piece is switched on."
+
+msgid "ad.ui.shapes.add_while_on.tip"
+msgstr "Adds a row that holds a mesh's shape at a value while this piece is on."
+
+msgid "ad.ui.shapes.platform.tip"
+msgstr "A piece left out on this platform writes none of these shape values there."
+
+msgid "ad.ui.shapes.source_mesh.tip"
+msgstr "The mesh to read the source shape from, usually the body."
+
+msgid "ad.ui.shapes.mesh.tip"
+msgstr "The mesh to change while this object is on, usually the body."
+
+msgid "ad.ui.shapes.value.tip"
+msgstr "How much this shape is held at while the object is on."
+
+msgid "ad.ui.shapes.source_shape.tip"
+msgstr "The shape on the source mesh to copy."
+
+msgid "ad.ui.shapes.local_shape.tip"
+msgstr "The shape on this piece that copies the source; Same name uses the source's own name."
+
+msgid "ad.ui.shapes.shape.tip"
+msgstr "The shape on that mesh to hold at a value while this object is on."
+
+msgid "ad.ui.import.select_all.tip"
+msgstr "Ticks every candidate that can be converted."
+
+msgid "ad.ui.import.select_none.tip"
+msgstr "Unticks every candidate."
+
+msgid "ad.ui.import.button.tip"
+msgstr "Creates AvatarDoc entries for every ticked candidate; Remove originals also takes away the old components."
+
+msgid "ad.ui.import.restore.tip"
+msgstr "Brings this layer's old control and layer back together, undoing its conversion."
+
+msgid "ad.ui.import.candidate.tip"
+msgstr "Tick to include this item in the conversion."
+
+msgid "ad.ui.outfit.name.tip"
+msgstr "Names the submenu and exclusive group this wizard builds."
+
+msgid "ad.ui.outfit.mode.tip"
+msgstr "One at a time makes one exclusive toggle per outfit; Mix freely lets several pieces be worn together."
+
+msgid "ad.ui.outfit.none_option.tip"
+msgstr "Adds a None choice that leaves every outfit off and shows the pieces hidden while any outfit is on."
+
+msgid "ad.ui.outfit.add.tip"
+msgstr "Adds a new, empty outfit card to drop pieces onto."
+
+msgid "ad.ui.outfit.hidden.tip"
+msgstr "Pieces here are turned off by every outfit's own toggle, so they disappear once any outfit is worn."
+
+msgid "ad.ui.outfit.capture.tip"
+msgstr "Captures an icon automatically for every entry the wizard creates that has pieces."
+
+msgid "ad.ui.outfit.create.tip"
+msgstr "Builds the submenu, groups or presets and shrink shapes, all in one Undo step."
+
+msgid "ad.ui.outfit.split.each.tip"
+msgstr "Makes one outfit for every object you dropped."
+
+msgid "ad.ui.outfit.split.all.tip"
+msgstr "Makes one outfit holding every object you dropped together."
+
+msgid "ad.ui.outfit.card_name.tip"
+msgstr "This outfit's own name, shown as its toggle or preset label."
+
+msgid "ad.ui.outfit.default.tip"
+msgstr "Click to make this the outfit that starts on."
+
+msgid "ad.ui.outfit.shrinks.tip"
+msgstr "Tick a suggestion to add it as a blend shape target on the toggle that shows this piece."
+
+msgid "ad.ui.outfit.shrink_toggle.tip"
+msgstr "Adds this shape as a blend shape target on the toggle that shows this piece; only tick a real match."
+
+msgid "ad.ui.outfit.show_all.tip"
+msgstr "Shows every shrink suggestion for this piece, not just the first eight."
+
+msgid "ad.ui.outfit.add_piece.tip"
+msgstr "Opens the avatar picker to add a piece, as an alternative to dragging from the Hierarchy."
+
+msgid "ad.ui.capture.background.tip"
+msgstr "Transparent clears to nothing; Solid colour fills behind the pieces with the colour beside it."
+
+msgid "ad.ui.capture.color.tip"
+msgstr "The colour drawn behind the pieces when the background is Solid colour."
+
+msgid "ad.ui.capture.fit.tip"
+msgstr "Points the camera at this entry's own pieces and freezes the framing until you press it again."
+
+msgid "ad.ui.capture.save.tip"
+msgstr "Writes the preview as this entry's icon; capturing again under the same name overwrites the same file."
+
+msgid "ad.ui.chip.asset.tip"
+msgstr "This control was installed from a finished menu asset rather than built here directly."
+
+msgid "ad.ui.unlock.tip"
+msgstr "Allows editing this component again."
+
+msgid "ad.ui.default_value.tip"
+msgstr "Where the radial sits when the avatar loads."
+
+msgid "ad.ui.targets.follows.tip"
+msgstr "While this control is on, or this trigger is met, each object here follows its target instead of hanging where it belongs."
+
+msgid "ad.ui.targets.follows.add.tip"
+msgstr "Adds an object that follows another transform while this control is on or this trigger is met."
+
+msgid "ad.ui.target.follow_object.tip"
+msgstr "The object that moves. It must already be part of this avatar."
+
+msgid "ad.ui.target.follow_target.tip"
+msgstr "The transform the object follows while this control is on or this trigger is met."
+
+msgid "ad.ui.target.keep_offset.tip"
+msgstr "On: keeps the pose the object has relative to the target right now, as you posed it in the scene. Off: it snaps exactly onto the target's own origin."
+
+msgid "ad.ui.add.grabbable.tip"
+msgstr "Adds a grabbable: pick an object and AvatarDoc builds the PhysBone, the contacts and the follow that let a hand hold it."
+
+msgid "ad.ui.grab.object.tip"
+msgstr "The object a hand can pick up. It must already be part of this avatar."
+
+msgid "ad.ui.grab.hands.tip"
+msgstr "Which hand or hands may hold this object."
+
+msgid "ad.ui.grab.anyone.tip"
+msgstr "On: other players may grab it too. Off: only its own wearer can."
+
+msgid "ad.ui.grab.return_seconds.tip"
+msgstr "Seconds the object takes to blend back to its rest place once released."
+
+msgid "ad.ui.grab.menu_toggle.tip"
+msgstr "On: adds a normal menu toggle that turns grabbing on and off. Off: grabbing is always available and the entry has no menu control of its own."
+
+msgid "ad.ui.grab.reach.tip"
+msgstr "How close the hand has to be to grab it, as a multiplier on the size AvatarDoc already computes."
+
+msgid "ad.ui.grab.fold.tip"
+msgstr "Shows who may grab it, how long it takes to return, its reach, and its menu toggle."
+
+msgid "ad.info.drag_needs_no_search"
+msgstr "Clear the search to move rows."
+
+msgid "ad.info.drop_refused"
+msgstr "Can't move it there: {0}"
+
+msgid "ad.info.drop_refused.locked"
+msgstr "this component is locked"
+
+msgid "ad.info.drop_refused.own_descendant"
+msgstr "a submenu can't move into its own descendant"
+
+msgid "ad.info.drop_refused.not_a_container"
+msgstr "that row can't hold other rows"
+
+msgid "ad.ui.drag_target.into"
+msgstr "Into \"{0}\""
+
+msgid "ad.ui.drag_target.root"
+msgstr "To the root menu"
+
+msgid "ad.ui.detail.select_hint"
+msgstr "Select a row to edit it. New here? Drag an object from the Hierarchy onto the menu to make a toggle."
+
+msgid "ad.ui.settings_fold"
+msgstr "Component settings"
+
+msgid "ad.ui.settings_fold.tip"
+msgstr "Shows Install into, Install as, Parameter prefix and Platform for this component."
+
+msgid "ad.ui.settings_fold.dot.tip"
+msgstr "A setting inside is not at its default value."
+
+msgid "ad.ui.toolbar.convert"
+msgstr "Convert"
+
+msgid "ad.ui.more"
+msgstr "+ More"
+
+msgid "ad.ui.more.tip"
+msgstr "Opens the rest of the add actions, each with a one line description."
+
+msgid "ad.ui.add.contact_starts"
+msgstr "Contact starts"
+
+msgid "ad.ui.add.contact_starts.headpat"
+msgstr "Headpat"
+
+msgid "ad.ui.add.contact_starts.headpat.tip"
+msgstr "Closes the eyes slowly as a hand pats the head."
+
+msgid "ad.ui.add.contact_starts.eye_touch"
+msgstr "Eye touch"
+
+msgid "ad.ui.add.contact_starts.eye_touch.tip"
+msgstr "Closes an eye slowly as a finger comes near it."
+
+msgid "ad.ui.add.contact_starts.nose_boop"
+msgstr "Nose boop"
+
+msgid "ad.ui.add.contact_starts.nose_boop.tip"
+msgstr "Opens the mouth slowly as a finger nears the nose."
+
+msgid "ad.ui.welcome.title"
+msgstr "Let's get your first item onto the menu."
+
+msgid "ad.ui.welcome.toggle"
+msgstr "Make a toggle"
+
+msgid "ad.ui.welcome.toggle.desc"
+msgstr "Opens the avatar object picker. The chosen object becomes a toggle, the same as dropping it."
+
+msgid "ad.ui.welcome.toggle.tip"
+msgstr "Picks an object on the avatar and turns it into a toggle."
+
+msgid "ad.ui.welcome.convert.title"
+msgstr "Convert from VRCFury or Modular Avatar"
+
+msgid "ad.ui.welcome.convert"
+msgstr "Convert {0} items from {1}"
+
+msgid "ad.ui.welcome.convert.one"
+msgstr "Convert {0} item from {1}"
+
+msgid "ad.ui.welcome.convert.desc"
+msgstr "It opens the Convert window."
+
+msgid "ad.ui.welcome.convert.mixed_source"
+msgstr "VRCFury or Modular Avatar"
+
+msgid "ad.ui.welcome.convert.tip"
+msgstr "Opens the window that converts what another tool would install here."
+
+msgid "ad.ui.welcome.outfit"
+msgstr "Start an outfit set"
+
+msgid "ad.ui.welcome.outfit.desc"
+msgstr "The existing outfit wizard."
+
+msgid "ad.ui.welcome.outfit.tip"
+msgstr "Opens the wizard that builds a whole outfit selector from objects at once."
+
+msgid "ad.ui.welcome.quickstart"
+msgstr "Quick start"
+
+msgid "ad.ui.welcome.quickstart.tip"
+msgstr "Opens the package's own quick start guide."
+
+msgid "ad.ui.row.move.tip"
+msgstr "Moves this row into another submenu or the root menu."
+
+msgid "ad.ui.row.duplicate.tip"
+msgstr "Adds a copy of this row right after it."
+
+msgid "ad.ui.row.delete.tip"
+msgstr "Removes this row and its own targets."
+
+msgid "ad.ui.row.convert.tip"
+msgstr "Brings this item into this component so it can be edited here."
+
+msgid "ad.ui.row.rename.tip"
+msgstr "Puts the focus on this row's own name field."
+
+msgid "ad.ui.shortcut.delete"
+msgstr "Del"
+
+msgid "ad.ui.menu.back"
+msgstr "Back"
+
+msgid "ad.ui.add.contact"
+msgstr "+ Contact"
+
+msgid "ad.ui.add.contact.tip"
+msgstr "Adds a ready made contact start: Headpat, Eye touch or Nose boop."
+
+msgid "ad.ui.toolbar.capture"
+msgstr "Capture icons"
+
+msgid "ad.ui.capture_missing.tip"
+msgstr "Renders an icon for every entry of this component that has none yet."
+
+msgid "ad.ui.tagfilter"
+msgstr "Filter"
+
+msgid "ad.ui.tagfilter.count"
+msgstr "Filter ({0})"
+
+msgid "ad.ui.tagfilter.tip"
+msgstr "Narrows the tree to rows that match the ticked tags."
+
+msgid "ad.ui.tagfilter.clear"
+msgstr "Clear"
+
+msgid "ad.ui.tagfilter.clear.tip"
+msgstr "Removes every ticked tag."
+
+msgid "ad.ui.tagfilter.chip.remove.tip"
+msgstr "Removes this one tag from the filter."
+
+msgid "ad.ui.tagfilter.group.kind"
+msgstr "Kind"
+
+msgid "ad.ui.tagfilter.group.from"
+msgstr "From"
+
+msgid "ad.ui.tagfilter.group.state"
+msgstr "State"
+
+msgid "ad.ui.tagfilter.group.platform"
+msgstr "Platform"
+
+msgid "ad.ui.tagfilter.from.avatardoc"
+msgstr "AvatarDoc"
+
+msgid "ad.ui.tagfilter.from.avatar_menu"
+msgstr "Avatar menu"
+
+msgid "ad.ui.tagfilter.state.has_problems"
+msgstr "has problems"
+
+msgid "ad.ui.advanced_fold"
+msgstr "Advanced"
+
+msgid "ad.ui.advanced_fold.tip"
+msgstr "Shows the platform, parameter, Saved, Synced and blend time settings this panel tucks away by default."
+
+msgid "ad.ui.advanced_fold.dot.tip"
+msgstr "One of the settings this fold hides is not at its default."
+
+msgid "ad.ui.add_effect"
+msgstr "+ Add effect"
+
+msgid "ad.ui.add_effect.tip"
+msgstr "Adds a section for another kind of effect this control can have."
+
+msgid "ad.ui.add_effect.objects"
+msgstr "turn objects on or off"
+
+msgid "ad.ui.add_effect.blendshapes"
+msgstr "set shape weights"
+
+msgid "ad.ui.add_effect.materials"
+msgstr "swap a material"
+
+msgid "ad.ui.add_effect.properties"
+msgstr "change a material value"
+
+msgid "ad.ui.add_effect.animations"
+msgstr "play your own clip"
+
+msgid "ad.ui.add_effect.follows"
+msgstr "make an object follow another"
+
+msgid "ad.ui.tips_switch_label"
+msgstr "First-use tips"
+
+msgid "ad.ui.tips_switch"
+msgstr "Show again"
+
+msgid "ad.ui.tips_switch.tip"
+msgstr "Turns every dismissed first-use tip back on."
+
+msgid "ad.ui.tip.dismiss.tip"
+msgstr "Dismisses this tip for good."
+
+msgid "ad.ui.row.more.tip"
+msgstr "Opens this row's own actions."
+
+msgid "ad.info.drag_needs_no_search_or_tags"
+msgstr "Clear the search and the tag filters to move rows."
+
+msgid "ad.info.drag_needs_no_tags"
+msgstr "Clear the tag filters to move rows."
+
+msgid "ad.tip.toggle"
+msgstr "A toggle switches its targets on or off from the menu. Drag an object onto the tree, or add an effect below, to give it something to switch."
+
+msgid "ad.tip.radial"
+msgstr "A radial blends its targets between two ends as its slider moves, instead of switching them on or off. Add a blend shape below and set what its low and high ends look like."
+
+msgid "ad.tip.submenu"
+msgstr "A submenu groups other entries under one menu button. Drag entries into it, or add new ones while it is selected, to fill it."
+
+msgid "ad.tip.trigger"
+msgstr "A trigger fires its effects on its own, from a toggle, a parameter, a touch or a blend shape, without taking a menu slot of its own. Pick what starts it below."
+
+msgid "ad.tip.override"
+msgstr "An override holds a blend shape at one value in every animation that already uses it, so nothing else can fight it. Add the shape it should hold below."
+
+msgid "ad.tip.preset"
+msgstr "A preset puts several other controls into one state with a single button. Add the states it should set below."
+
+msgid "ad.tip.grabbable"
+msgstr "A grabbable lets a creator pick up and hold an object in a hand. Pick the object and which hand or hands below."
+
+msgid "ad.tip.animator"
+msgstr "A merged animator brings an existing controller's layers straight into the build, unchanged. Pick the controller below."
+
+msgid "ad.tip.menu_asset"
+msgstr "An installed menu asset brings a finished menu asset into the build as it already is. Pick the asset above."
+
+msgid "ad.tip.header"
+msgstr "This header holds the component's own install settings and the avatar's shared memory bar. Add your first entry in the tree below to get started."
+
+msgid "ad.tip.header.simple"
+msgstr "This header shows whether the avatar is ready to upload and how much of VRChat's memory the menu uses. Add your first entry in the tree below to get started."
+
+msgid "ad.ui.mode.simple"
+msgstr "Simple"
+
+msgid "ad.ui.mode.advanced"
+msgstr "Advanced"
+
+msgid "ad.ui.mode.tip"
+msgstr "Simple shows only what most avatars need; Advanced shows every tool. Nothing you made is hidden."
+
+msgid "ad.ui.advanced_item.note"
+msgstr "This is an advanced item; switch to Advanced to add more like it."
+
+msgid "ad.warn.link_clips_outside_fx"
+msgstr "\"{0}\" follows {1}, but that shape also moves in {2}, outside the FX layer, where the trigger cannot see it. Move that animation into the FX layer if the trigger should react to it there."
+
+msgid "ad.warn.link_source_tracked"
+msgstr "\"{0}\" follows {1}, which VRChat moves itself for blinking or lip sync outside every animation, so the trigger never sees it move. Pick a shape your own animations move instead. ({2})"
+
+msgid "ad.warn.smooth_range"
+msgstr "\"{0}\" starts at {1} but is fully on at {2}, which is not above it, so it is fully on just above Starts at instead. Set Fully on at higher than Starts at. ({3})"
+
+msgid "ad.warn.requirements_one_card"
+msgstr "\"{0}\" reads only the card its shape is in, so the conditions in its other cards are kept but not used. Move what you need into the first card with + And, or remove the other cards. ({1})"
+
+msgid "ad.ui.trigger.style"
+msgstr "Style"
+
+msgid "ad.ui.trigger.style.tip"
+msgstr "Smooth blends the effects in as the shape moves; Switch turns them fully on at one weight."
+
+msgid "ad.ui.trigger.style.smooth"
+msgstr "Smooth"
+
+msgid "ad.ui.trigger.style.smooth.tip"
+msgstr "The effects blend in from Starts at to Fully on at as the shape moves."
+
+msgid "ad.ui.trigger.style.switch"
+msgstr "Switch"
+
+msgid "ad.ui.trigger.style.switch.tip"
+msgstr "The effects switch fully on once the shape reaches Switch at."
+
+msgid "ad.ui.trigger.smooth_start"
+msgstr "Starts at"
+
+msgid "ad.ui.trigger.smooth_start.tip"
+msgstr "The shape weight at which the effects start to come in."
+
+msgid "ad.ui.trigger.smooth_full"
+msgstr "Fully on at"
+
+msgid "ad.ui.trigger.smooth_full.tip"
+msgstr "The shape weight at which the effects are fully on."
+
+msgid "ad.ui.trigger.switch_at"
+msgstr "Switch at"
+
+msgid "ad.ui.trigger.switch_at.tip"
+msgstr "The shape weight at which the whole trigger switches on."
+
+msgid "ad.ui.trigger.swap_at"
+msgstr "Swaps at"
+
+msgid "ad.ui.trigger.swap_at.tip"
+msgstr "The shape weight at which objects switch and materials swap, since those cannot blend."
+
+msgid "ad.ui.trigger.mode.add"
+msgstr "Add"
+
+msgid "ad.ui.trigger.mode.replace"
+msgstr "Replace"
+
+msgid "ad.ui.when.shape_moves"
+msgstr "\"{0}\" moves"
+
+msgid "ad.ui.when.hand_near"
+msgstr "a hand comes near \"{0}\""
+
+msgid "ad.ui.when.add_requirement.tip"
+msgstr "Adds a requirement: while any requirement fails, the effects rest."
+
+msgid "ad.ui.when.add_and.limit_driver.tip"
+msgstr "This card holds at most {0} rows, its first row included."
+
+msgid "ad.ui.when.requirements_note"
+msgstr "Each + And adds a requirement. While any requirement fails, the effects rest; while all hold, the first row moves them."
+
+msgid "ad.ui.preview.unchecked"
+msgstr "The preview cannot check a parameter, contact or PhysBone requirement, so it counts those as met."
+
+msgid "ad.ui.builds.smooth"
+msgstr "blends from {0} to {1}"
+
+msgid "ad.ui.builds.switch"
+msgstr "switches at {0}"
+
+msgid "ad.ui.builds.mirror"
+msgstr "a hidden copy of the shape's weight, no synced bits"
+
+msgid "ad.summary.parameters.mirror"
+msgstr "a hidden copy of a blend shape's weight, never synced"
+
+msgid "ad.warn.link_no_fx_clip"
+msgstr "No animation in the FX layer moves {1}, so \"{0}\" cannot follow that shape and its effects stay where the shape rests. Animate {1} in an FX animation, or pick a shape one already moves."
+
+msgid "ad.ui.when.ignored"
+msgstr "Kept but not used"
+
+msgid "ad.ui.when.ignored.tip"
+msgstr "A blend shape trigger reads only its first card, so this card is kept for you to move or remove what it holds."
+
+msgid "ad.ui.builds.pauses_blink_shape"
+msgstr "Blinking pauses while the effects are on"
+
+msgid "ad.ui.builds.pauses_lipsync_shape"
+msgstr "Lip sync pauses while the effects are on"
+
+msgid "ad.ui.language.tip"
+msgstr "The language AvatarDoc is shown in, shared with Modular Avatar and NDMF."
+
+msgid "ad.ui.list.separator"
+msgstr ", "
+
+msgid "ad.ui.aside"
+msgstr "{0} ({1})"
+
+msgid "ad.ui.brackets"
+msgstr "({0})"
+
+msgid "ad.ui.quoted"
+msgstr "\"{0}\""
+
+msgid "ad.ui.labelled"
+msgstr "{0}: {1}"
+
+msgid "ad.summary.parameters.name"
+msgstr "Name"
+
+msgid "ad.summary.parameters.type"
+msgstr "Type"
+
+msgid "ad.summary.parameters.notes"
+msgstr "Notes"
+
+msgid "ad.ui.blend.unit"
+msgstr "s"
+
+msgid "ad.ui.pick.search.tip"
+msgstr "Type to filter the list. Up and Down move through the results, Enter picks the highlighted one, Escape clears the search."
+
+msgid "ad.ui.pick.no_match"
+msgstr "Nothing matches \"{0}\"."
+
+msgid "ad.ui.pick.more"
+msgstr "{0} more. Type more letters to narrow the list."
+
+msgid "ad.ui.pick.more.one"
+msgstr "{0} more. Type more letters to narrow the list."

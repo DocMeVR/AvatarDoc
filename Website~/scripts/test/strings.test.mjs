@@ -25,7 +25,7 @@ test('labelText returns the text of a key', () => {
 test('labelText names an unknown key', () => {
   assert.throws(
     () => labelText(strings, 'ad.ui.nope'),
-    { message: 'Unknown UI label key "ad.ui.nope". It is not in AvatarDoctor.en-US.json: fix the key, or remove the label from the page.' },
+    { message: 'Unknown UI label key "ad.ui.nope". It is not in AvatarDoctor.en-US.po: fix the key, or remove the label from the page.' },
   );
 });
 

@@ -11,18 +11,23 @@ using UnityEngine;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// Every language AvatarDoc can show. A language is a TextAsset named AvatarDoctor.&lt;code&gt;.json anywhere in the
+    /// Every language AvatarDoc can show. A language is a gettext file named AvatarDoctor.&lt;code&gt;.po anywhere in the
     /// project, found by its name alone, so adding a language means adding one file. Files are read when a language is
-    /// first asked for and read again when one is saved, added, moved or deleted.
+    /// first asked for and read again when one is saved, added, moved or deleted. A file in the old JSON format,
+    /// AvatarDoctor.&lt;code&gt;.json, is not read: it gets one Console warning saying how to convert it.
     /// </summary>
     public static class LanguageTables
     {
         public const string English = "en-US";
 
-        /// <summary>The English table's asset id. It travels with the file, so the package is found wherever it sits (Assets or Packages).</summary>
-        public const string EnglishGuid = "4765286081f70184ea750f2a579fe0eb";
+        /// <summary>The English file's asset id. It travels with the file, so the package is found wherever it sits (Assets or Packages).</summary>
+        public const string EnglishGuid = "983e0544c4fdb25459124fe8a621374d";
 
-        static readonly Regex FileNamePattern = new Regex(@"^AvatarDoctor\.([A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)\.json$", RegexOptions.CultureInvariant);
+        public const string Extension = ".po";
+
+        static readonly Regex FileNamePattern = new Regex(@"^AvatarDoctor\.([A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)\.po$", RegexOptions.CultureInvariant);
+
+        static readonly Regex OldFileNamePattern = new Regex(@"^AvatarDoctor\.([A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)\.json$", RegexOptions.CultureInvariant);
 
         public readonly struct Found
         {
@@ -42,11 +47,12 @@ namespace DocMe.AvatarDoctor.Editor
         static readonly Dictionary<string, Dictionary<string, string>> tables = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         static readonly Dictionary<string, Dictionary<string, string>> injected = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         static readonly HashSet<string> warned = new HashSet<string>(StringComparer.Ordinal);
+        static readonly HashSet<string> warnedOld = new HashSet<string>(StringComparer.Ordinal);
 
         /// <summary>Moves whenever what the tables hold may have changed: a reload, or a test's table coming or going.</summary>
         public static int Version { get; private set; }
 
-        /// <summary>The language code a file name stands for, written the standard way ("ja-JP", "zh-Hans"); null when the name is not AvatarDoctor.&lt;code&gt;.json or no language has that code.</summary>
+        /// <summary>The language code a file name stands for, written the standard way ("ja-JP", "zh-Hans"); null when the name is not AvatarDoctor.&lt;code&gt;.po or no language has that code.</summary>
         public static string CodeFromFileName(string fileName)
         {
             if (string.IsNullOrEmpty(fileName)) return null;
@@ -73,34 +79,61 @@ namespace DocMe.AvatarDoctor.Editor
         public static string PackageRoot()
         {
             var english = AssetDatabase.GUIDToAssetPath(EnglishGuid);
-            if (string.IsNullOrEmpty(english) || Path.GetFileName(english) != "AvatarDoctor." + English + ".json")
-                english = FindByName().Where(f => f.code == English).Select(f => f.path).FirstOrDefault();
+            if (string.IsNullOrEmpty(english) || Path.GetFileName(english) != "AvatarDoctor." + English + Extension)
+                english = FindByName(null).Where(f => f.code == English).Select(f => f.path).FirstOrDefault();
             if (string.IsNullOrEmpty(english)) return null;
             var localization = Path.GetDirectoryName(english);
             var editor = localization == null ? null : Path.GetDirectoryName(localization);
             return editor == null ? null : Path.GetDirectoryName(editor)?.Replace('\\', '/');
         }
 
-        static IEnumerable<(string code, string path)> FindByName()
+        /// <summary>
+        /// Every language file, Packages included, by its name alone: Unity imports a .po file as an asset of its own
+        /// kind, not as a TextAsset. Files in the old JSON format are added to old when it is given.
+        /// </summary>
+        static List<(string code, string path)> FindByName(List<string> old)
         {
-            foreach (var guid in AssetDatabase.FindAssets("AvatarDoctor t:TextAsset"))
+            var files = new List<(string code, string path)>();
+            foreach (var guid in AssetDatabase.FindAssets("AvatarDoctor"))
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var code = CodeFromFileName(Path.GetFileName(path));
-                if (code != null) yield return (code, path);
+                if (code != null)
+                {
+                    if (!files.Any(f => f.path == path)) files.Add((code, path));
+                }
+                else if (old != null && IsOldLanguageFile(path) && !old.Contains(path)) old.Add(path);
             }
+            return files;
         }
 
-        /// <summary>Every language file in the project: the package's own first, then the others by path, so a file outside the package wins over a shipped one key by key.</summary>
+        /// <summary>
+        /// Every language file in the project: the package's own first, then the others by path, so a file outside the
+        /// package wins over a shipped one key by key. A file in the old JSON format gets its warning the first time it
+        /// is found, and again only after it was gone once.
+        /// </summary>
         public static IReadOnlyList<Found> Files()
         {
             if (found != null) return found;
             var root = PackageRoot();
-            found = FindByName()
+            var old = new List<string>();
+            found = FindByName(old)
                 .Select(f => new Found(f.code, f.path, root != null && f.path.StartsWith(root + "/", StringComparison.Ordinal)))
                 .OrderBy(f => f.Shipped ? 0 : 1).ThenBy(f => f.Path, StringComparer.Ordinal)
                 .ToList();
+            warnedOld.RemoveWhere(path => !old.Contains(path));
+            foreach (var path in old.Where(warnedOld.Add).ToList())
+                Debug.LogWarning(OldFileWarning(path));
             return found;
+        }
+
+        /// <summary>The Console warning for a language file in the old JSON format, which AvatarDoc no longer reads.</summary>
+        public static string OldFileWarning(string path)
+        {
+            var name = Path.GetFileNameWithoutExtension(path ?? "") + Extension;
+            return "[AvatarDoc] " + path + " is a language file in the old JSON format, which AvatarDoc no longer reads, so its texts do not show. "
+                + "Make " + name + " from it: copy AvatarDoctor." + English + Extension + " from AvatarDoc's Editor/Localization folder, name the copy " + name
+                + ", change its Language line to the code in that name, and put each translation after msgstr in place of the English. Then delete this file.";
         }
 
         public static LanguageFile Read(Found file)
@@ -198,14 +231,20 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>Whether a path names a language file, by its name alone.</summary>
         public static bool IsLanguageFile(string path) => FileNamePattern.IsMatch(Path.GetFileName(path ?? ""));
+
+        /// <summary>Whether a path names a language file in the old JSON format, which AvatarDoc no longer reads.</summary>
+        public static bool IsOldLanguageFile(string path) => OldFileNamePattern.IsMatch(Path.GetFileName(path ?? ""));
     }
 
-    /// <summary>Reads the languages again when a language file is saved, added, moved or deleted, and says in the Console what is wrong with a saved one.</summary>
+    /// <summary>
+    /// Reads the languages again when a language file is saved, added, moved or deleted, and says in the Console what
+    /// is wrong with a saved one. A file in the old JSON format reads them again too, so its warning shows at once.
+    /// </summary>
     sealed class LanguageFileWatcher : AssetPostprocessor
     {
         static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFrom)
         {
-            var touched = imported.Concat(deleted).Concat(moved).Concat(movedFrom).Where(LanguageTables.IsLanguageFile).ToList();
+            var touched = imported.Concat(deleted).Concat(moved).Concat(movedFrom).Where(p => LanguageTables.IsLanguageFile(p) || LanguageTables.IsOldLanguageFile(p)).ToList();
             if (touched.Count == 0) return;
             var saved = imported.Concat(moved).Where(LanguageTables.IsLanguageFile).ToList();
             EditorApplication.delayCall += () =>

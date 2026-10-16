@@ -37,7 +37,9 @@ The list holds the languages that NDMF knows, the languages that AvatarDoc has f
 
 ## Adding a language
 
-A language is one text file named `AvatarDoctor.<code>.json`, for example `AvatarDoctor.ko-KR.json`. AvatarDoc finds a file by its name alone, anywhere in the project. Add the file, or save a change to one, and the list updates. You do not need to change any code. [Help translate](../../help/translate/) explains the file, the key names and the agreed words.
+A language is one text file named `AvatarDoctor.<code>.po`, for example `AvatarDoctor.ko-KR.po`. It is a gettext file, so translation tools such as Poedit open it. AvatarDoc finds a file by its name alone, anywhere in the project. Add the file, or save a change to one, and the list updates. You do not need to change any code. [Help translate](../../help/translate/) explains the file, the key names and the agreed words.
+
+AvatarDoc no longer reads the `AvatarDoctor.<code>.json` files of earlier versions. When one is in your project, the Console shows a warning that says how to make the `.po` file from it.
 
 ## What AvatarDoc builds
 

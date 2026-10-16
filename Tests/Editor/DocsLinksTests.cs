@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -345,7 +344,8 @@ namespace DocMe.AvatarDoctor.Editor
 
         static readonly string[] MessageKeys = { "ad.error.bits_exceeded", "ad.error.trigger_too_complex", "ad.ui.message.learn_more" };
 
-        static readonly Dictionary<string, Dictionary<string, string>> Languages = new Dictionary<string, Dictionary<string, string>>
+        /// <summary>Read when a test asks, not when the class loads, so a language file that cannot be read fails one test instead of every test of the class.</summary>
+        static Dictionary<string, Dictionary<string, string>> Languages() => new Dictionary<string, Dictionary<string, string>>
         {
             { "en-US", null },
             { "ja-JP", DocsFixesTests.Real("ja-JP", MessageKeys) },
@@ -355,7 +355,7 @@ namespace DocMe.AvatarDoctor.Editor
         [Test]
         public void ABoxWithTheButtonFitsAt300And360InEveryLanguage()
         {
-            foreach (var language in Languages)
+            foreach (var language in Languages())
             foreach (float width in new[] { 300f, 360f })
             {
                 using (L.UseTestLanguage(language.Key, language.Value))
@@ -386,13 +386,9 @@ namespace DocMe.AvatarDoctor.Editor
 
         static string ExpectedToolLinks()
         {
-            var text = File.ReadAllText(Path.GetFullPath(L.TablePath("en-US")));
             var anchors = new List<string>();
-            foreach (Match m in Regex.Matches(text, "\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*\""))
-            {
-                var key = Regex.Unescape(m.Groups[1].Value);
+            foreach (var key in LocalizationFileTests.ShippedTexts("en-US").Keys)
                 if (DocsLinks.IsMessageKey(key) && !key.EndsWith(".one", StringComparison.Ordinal)) anchors.Add(DocsLinks.Anchor(key));
-            }
             anchors.Sort(StringComparer.Ordinal);
             var pages = new[] { "reference/inspector", "reference/avatardoc-shapes", DocsLinks.QuickStartPage, DocsLinks.MessagesPage };
             var json = new StringBuilder("{\n  \"pages\": [\n");

@@ -8,7 +8,7 @@ The rule: any change that adds, renames or removes a control, a setting or a mes
 
 Most facts are written once.
 
-- **UI labels** come from `Editor/Localization/AvatarDoctor.en-US.json`. A page writes a label as `<Label k="ad.ui.add.toggle" />` and the build prints the current text. If you rename a button in the tool, every page changes with it. If you remove a key that a page uses, the build fails and names the page and the key.
+- **UI labels** come from `Editor/Localization/AvatarDoctor.en-US.po`, which `Website~/scripts/lib/po.mjs` reads. A page writes a label as `<Label k="ad.ui.add.toggle" />` and the build prints the current text. If you rename a button in the tool, every page changes with it. If you remove a key that a page uses, the build fails and names the page and the key.
 - **Generated pages** are never edited by hand: Messages (from the English table and `Website~/src/data/message-notes.yml`), Changelog (from `CHANGELOG.md`), Glossary (from `Docs~/glossary.md`) and Help translate (from `Docs~/translating.md`). Each one starts with a comment that names its source, and its Edit page link points at that source on GitHub.
 - **Addresses and the version** come from `Website~/src/data/site.json`. The version is read from `package.json` and printed on every page as "Docs for AvatarDoc x.y.z" in the footer, so it follows each release by itself.
 - **Links from the tool** into the site are listed in `Website~/src/data/tool-links.json`. The build checks that each page and anchor exists.
@@ -74,7 +74,7 @@ Astro and Starlight are pinned to exact versions in `Website~/package.json`, wit
 
 1. Add the language to `locales` in `Website~/astro.config.mjs`.
 2. Put the pages in a folder named for the language: `ja/` or `zh-cn/`, with the same page names.
-3. Add a strings file for the language beside `strings.en-US.json`, from the tool's own table, so `<Label>` prints the translated text.
+3. Add a strings file for the language beside `strings.en-US.json`, made from the tool's own `AvatarDoctor.<code>.po` with `loadPoStrings` (`Website~/scripts/lib/po.mjs`), so `<Label>` prints the translated text.
 4. Re-shoot the pictures with the tool set to that language, and name them so they do not replace the English ones.
 
 ## Line endings
