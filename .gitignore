@@ -12,6 +12,7 @@ Website~/node_modules/
 Website~/dist/
 Website~/.astro/
 Website~/src/data/strings.*.json
+Website~/src/data/translation-status.json
 Website~/src/content/docs/reference/messages.md
 Website~/src/content/docs/help/changelog.md
 Website~/src/content/docs/how-it-works/glossary.md

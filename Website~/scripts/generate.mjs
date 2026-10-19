@@ -2,15 +2,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import siteData from '../src/data/site.json' with { type: 'json' };
+import locales from '../src/data/locales.json' with { type: 'json' };
 import { loadPoStrings } from './lib/po.mjs';
 import { messageEntries, renderMessages } from './lib/messages.mjs';
 import { listFiles } from './lib/checks.mjs';
 import { prescanPages } from './lib/prescan.mjs';
 import { changelogPage, glossaryPage, translatePage, messagesPage, parseNotes } from './lib/pages.mjs';
+import { checkTranslations } from './lib/translations.mjs';
 
 const site = fileURLToPath(new URL('..', import.meta.url));
 const pkg = path.resolve(site, '..');
-const table = path.join(pkg, 'Editor', 'Localization', 'AvatarDoctor.en-US.po');
+const localization = path.join(pkg, 'Editor', 'Localization');
+const table = path.join(localization, 'AvatarDoctor.en-US.po');
 const docs = path.join(site, 'src', 'content', 'docs');
 
 function write(file, text) {
@@ -25,6 +28,11 @@ function read(file) {
 const edit = (file) => `${siteData.githubRepo}/edit/main/${file}`;
 const strings = loadPoStrings(table);
 write(path.join(site, 'src', 'data', 'strings.en-US.json'), JSON.stringify(strings, null, 2));
+for (const [key, { table: name }] of Object.entries(locales)) {
+  if (key === 'root' || !name) continue;
+  const local = loadPoStrings(path.join(localization, `AvatarDoctor.${name}.po`));
+  write(path.join(site, 'src', 'data', `strings.${name}.json`), JSON.stringify(local, null, 2));
+}
 
 const notesFile = path.join(site, 'src', 'data', 'message-notes.yml');
 const notes = fs.existsSync(notesFile) ? parseNotes(read(notesFile)) : {};
@@ -50,9 +58,15 @@ const shotNames = new Set(
     path.relative(path.join(site, 'src', 'assets', 'shots'), file).split(path.sep).join('/').replace(/\.png$/, ''),
   ),
 );
-const problems = prescanPages(pages, strings, { shotNames, allowMissing: process.env.DOCS_ALLOW_MISSING_SHOTS === '1' });
+const translated = checkTranslations(pages, Object.keys(locales));
+const problems = [...prescanPages(pages, strings, { shotNames, allowMissing: process.env.DOCS_ALLOW_MISSING_SHOTS === '1' }), ...translated.problems];
 if (problems.length > 0) {
   throw new Error('Page problems found before the build:\n  ' + problems.join('\n  '));
 }
 
-console.log('Generated strings, Messages, Changelog, Glossary and Help translate.');
+write(
+  path.join(site, 'src', 'data', 'translation-status.json'),
+  JSON.stringify(Object.fromEntries(translated.translations.map(({ file, ...rest }) => [file, rest])), null, 2),
+);
+
+console.log('Generated strings, Messages, Changelog, Glossary, Help translate and the translation status.');

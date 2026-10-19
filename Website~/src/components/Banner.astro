@@ -1,0 +1,44 @@
+---
+import Default from '@astrojs/starlight/components/Banner.astro';
+import site from '../data/site.json';
+import status from '../data/translation-status.json';
+import { linkParts } from '../../scripts/lib/translations.mjs';
+
+type Translation = { englishUrl: string; stale: boolean };
+const route = Astro.locals.starlightRoute;
+const info = route.isFallback ? undefined : (status as Record<string, Translation>)[route.entry.filePath];
+const t = Astro.locals.t;
+---
+<Default />
+{info && (
+  <div class="translation-banner" data-pagefind-ignore>
+    <style is:inline>
+      .translation-banner {
+        background-color: var(--sl-color-bg-accent);
+        color: var(--sl-color-text-invert);
+        line-height: var(--sl-line-height-headings);
+        text-align: center;
+        text-wrap: balance;
+        box-shadow: var(--sl-shadow-sm);
+      }
+      .translation-banner p {
+        margin: 0;
+        padding: var(--sl-nav-pad-y) var(--sl-nav-pad-x);
+      }
+      .translation-banner a {
+        color: inherit;
+      }
+      .translation-banner .translation-outdated {
+        background-color: var(--sl-color-orange-low);
+        color: var(--sl-color-orange-high);
+        font-weight: 600;
+      }
+    </style>
+    <p>
+      {linkParts(t('avatardoc.translation.notice')).map((part) =>
+        part.link ? <a href={`${site.base}/${info.englishUrl}`} hreflang="en">{part.text}</a> : part.text,
+      )}
+    </p>
+    {info.stale && <p class="translation-outdated">{t('avatardoc.translation.outdated')}</p>}
+  </div>
+)}

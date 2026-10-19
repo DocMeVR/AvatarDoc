@@ -1,0 +1,5 @@
+{
+  "root": { "label": "English", "lang": "en", "table": "en-US" },
+  "ja": { "label": "日本語", "lang": "ja", "table": "ja-JP" },
+  "ar": { "label": "العربية", "lang": "ar", "dir": "rtl" }
+}

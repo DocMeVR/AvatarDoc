@@ -6,6 +6,7 @@ on:
     paths:
       - 'Website~/**'
       - 'Editor/Localization/AvatarDoctor.en-US.po'
+      - 'Editor/Localization/AvatarDoctor.ja-JP.po'
       - 'CHANGELOG.md'
       - 'Docs~/glossary.md'
       - 'Docs~/translating.md'
