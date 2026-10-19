@@ -79,7 +79,7 @@ To switch the reaction on and off from the menu, open the panel's <Label k="ad.u
 
 At upload, AvatarDoc adds the touch area to the avatar it uploads, never to your scene. It is a VRChat contact on a new object under the anchor, named AD Contact and the trigger's name. Every player's own copy of your avatar senses the touch, so a contact trigger costs no synced bits.
 
-A <Label k="ad.ui.touch.follow" /> trigger never holds the shapes VRChat blinks or speaks with while no hand is near. When its effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effect is on.
+While no hand is near, a <Label k="ad.ui.touch.follow" /> trigger writes nothing for the shapes it moves, so face tracking, blinking and your other toggles keep moving them. When the hand leaves, and when the avatar loads, it sets those shapes back to rest once, and never touches the shapes VRChat blinks or speaks with. When its effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effect is on.
 
 ## Check it worked
 

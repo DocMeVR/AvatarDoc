@@ -71,6 +71,13 @@ namespace DocMe.AvatarDoctor.Editor
                 .Where(b => b.path == path && b.type == typeof(SkinnedMeshRenderer) && b.propertyName.StartsWith("blendShape."))
                 .Select(b => b.propertyName.Substring("blendShape.".Length)).ToList();
 
+        /// <summary>Every shape of the renderer at this path that the layer's Reset state writes, none when it has no Reset state left.</summary>
+        static List<string> ResetShapes(AnimatorControllerLayer layer, string path)
+        {
+            var reset = layer.stateMachine.states.Select(s => s.state).SingleOrDefault(s => s.name == "Reset");
+            return reset == null ? new List<string>() : Shapes(reset.motion, path);
+        }
+
         static AnimationCurve Curve(Motion motion, string path, string shape)
             => AnimationUtility.GetEditorCurve((AnimationClip)motion, EditorCurveBinding.FloatCurve(path, typeof(SkinnedMeshRenderer), "blendShape." + shape));
 
@@ -188,8 +195,9 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = Layer(fx, "AD: Holder (pin)");
             Assert.That(Shapes(State(layer, "On").motion, "Face"), Is.EquivalentTo(Expected(value)),
                 "another toggle (A), a merged animator (B), the Gesture layer (C) and the blink shape Hold blink holds (F); E only for a Zero rule");
-            Assert.That(Shapes(State(layer, "Off").motion, "Face"), Does.Not.Contain("D"), "a dropped shape gets no rest curve either");
-            Assert.That(Shapes(State(layer, "Off").motion, "Face"), Does.Not.Contain("F"), "the blink shape is still never handed back to rest");
+            Assert.That(Shapes(State(layer, "Off").motion, "Face"), Is.Empty, "Off writes no shape");
+            Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("D"), "a dropped shape gets no rest curve either");
+            Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("F"), "the blink shape is still never handed back to rest");
         }
 
         [TestCase(ShapeSetValue.Default)]
@@ -209,7 +217,8 @@ namespace DocMe.AvatarDoctor.Editor
             NoErrors(errors);
             var layer = Layer(fx, "AD: Pout (pin)");
             Assert.That(Shapes(State(layer, "On").motion, "Face"), Is.EquivalentTo(Expected(value)));
-            Assert.That(Shapes(State(layer, "Off").motion, "Face"), Does.Not.Contain("D"));
+            Assert.That(Shapes(State(layer, "Off").motion, "Face"), Is.Empty);
+            Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("D"));
         }
 
         [TestCase(ShapeSetValue.Default)]
@@ -233,8 +242,9 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(near.children.Length, Is.EqualTo(2));
             foreach (var child in near.children)
                 Assert.That(Shapes(child.motion, "Face"), Is.EquivalentTo(Expected(value)), "every child of the Near tree drops the same shapes, at " + child.threshold);
-            Assert.That(Shapes(State(layer, "Far").motion, "Face"), Does.Not.Contain("D"), "Far gets no rest curve for a dropped shape");
-            Assert.That(Shapes(State(layer, "Far").motion, "Body"), Does.Contain("Blush"), "sanity: the row's own shape is still handed back to rest");
+            Assert.That(Shapes(State(layer, "Far").motion, "Face"), Is.Empty, "Far writes no shape");
+            Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("D"), "Reset gets no rest curve for a dropped shape");
+            Assert.That(ResetShapes(layer, "Body"), Does.Contain("Blush"), "sanity: the row's own shape is still handed back to rest");
         }
 
         [TestCase(ShapeSetValue.Default)]
@@ -256,7 +266,8 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(near.children.Length, Is.GreaterThanOrEqualTo(2));
             foreach (var child in near.children)
                 Assert.That(Shapes(child.motion, "Face"), Is.EquivalentTo(Expected(value)), "every child of the link layer's tree drops the same shapes, at " + child.threshold);
-            Assert.That(Shapes(State(layer, "Far").motion, "Face"), Does.Not.Contain("D"));
+            Assert.That(Shapes(State(layer, "Far").motion, "Face"), Is.Empty);
+            Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("D"));
         }
 
         // ---- what counts as moving -----------------------------------------------------------------------------

@@ -14,10 +14,10 @@ using VRC.SDKBase;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// A pin layer's off state used to write nothing at all, so with Write Defaults off a shape nobody else
-    /// animated kept whatever value the pin last wrote, forever; an additive layer then added on top of that
-    /// stale value instead of the rest pose. These tests cover the fix: the final pass hands a pinned shape back
-    /// to rest unless some other, non-additive layer can really take it.
+    /// With Write Defaults off, a shape nobody else animated kept whatever value the pin last wrote, forever, once
+    /// the pin was left; an additive layer then added on top of that stale value instead of the rest pose. These
+    /// tests cover the final pass that hands a pinned shape back to rest, once, in the pin layer's Reset state,
+    /// unless some other, non-additive layer can really take it. Off itself never writes the shape.
     /// </summary>
     public class PinReleaseTests
     {
@@ -53,6 +53,20 @@ namespace DocMe.AvatarDoctor.Editor
 
         static AnimationCurve CurveOf(Motion motion, string path, string property)
             => AnimationUtility.GetEditorCurve((AnimationClip)motion, EditorCurveBinding.FloatCurve(path, typeof(SkinnedMeshRenderer), property));
+
+        /// <summary>The curve the layer's Reset state writes for the property, or null when the layer has no Reset state left or it writes nothing for the property.</summary>
+        static AnimationCurve ResetCurveOf(AnimatorControllerLayer layer, string path, string property)
+        {
+            var reset = layer.stateMachine.states.Select(s => s.state).SingleOrDefault(s => s.name == "Reset");
+            return reset == null ? null : CurveOf(reset.motion, path, property);
+        }
+
+        /// <summary>The rest curve the pin layer hands its shape back with, after checking its Off state never writes the shape itself.</summary>
+        static AnimationCurve RestCurveOf(AnimatorControllerLayer layer, string path, string property)
+        {
+            Assert.That(CurveOf(State(layer, "Off").motion, path, property), Is.Null, layer.name + ": Off never writes " + property + " itself");
+            return ResetCurveOf(layer, path, property);
+        }
 
         MenuEntry PinnedFace(float sceneWeight)
         {
@@ -97,8 +111,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "nobody else animates Blush, so the pin has to hand it back itself");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f), "handed back to the scene value from before the build, not 0");
         }
@@ -123,8 +136,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
-            var off = State(Layer(FxOf(avatar), "AD: Headpat (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Headpat (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "nobody else animates Blush, so the trigger's own pin has to hand it back itself");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -154,8 +166,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            Assert.That(CurveOf(off.motion, "Body", "blendShape.Blush"), Is.Null, "an override layer elsewhere can already hand the shape back");
+            Assert.That(RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Null, "an override layer elsewhere can already hand the shape back");
         }
 
         [Test]
@@ -184,8 +195,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "an additive layer cannot replace the rest pose, so the pin hands it back itself");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -196,6 +206,7 @@ namespace DocMe.AvatarDoctor.Editor
             // The user's exact shape: a toggle pinned with Capture (Sleepy), and a trigger pinned the same way
             // (Headpat), both on Blush. AnimatorBuilder.Build makes every toggle's pin layer before
             // TriggerBuilder.Build makes any trigger's, so Sleepy's pin is the lower one and Headpat's is the higher.
+            // ResetOnceTests.PlayedBackTwoPinsOnOneShapeComeBackToRestWhicheverIsLeftLast plays the same pair back.
             var sleepy = menu.AddEntry(EntryKind.Toggle, "Sleepy");
             sleepy.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 90f, mode = ShapeEffectMode.Pin });
             var petSource = menu.AddEntry(EntryKind.Toggle, "PetSource");
@@ -214,19 +225,20 @@ namespace DocMe.AvatarDoctor.Editor
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
             var fx = FxOf(avatar);
-            var sleepyOff = State(Layer(fx, "AD: Sleepy (pin)"), "Off");
-            var headpatOff = State(Layer(fx, "AD: Headpat (pin)"), "Off");
-            Assert.That(CurveOf(sleepyOff.motion, "Body", "blendShape.Blush"), Is.Not.Null,
-                "Sleepy's pin is the lower one, so it is the one that hands Blush back to rest");
-            Assert.That(CurveOf(headpatOff.motion, "Body", "blendShape.Blush"), Is.Null,
-                "Headpat's pin sits above Sleepy's; while off it must leave Blush alone, or its own rest curve would mask Sleepy's pin whenever Sleepy is actually on, which was the user's bug");
+            var sleepyRest = RestCurveOf(Layer(fx, "AD: Sleepy (pin)"), "Body", "blendShape.Blush");
+            var headpatRest = RestCurveOf(Layer(fx, "AD: Headpat (pin)"), "Body", "blendShape.Blush");
+            Assert.That(sleepyRest, Is.Not.Null, "Sleepy hands Blush back to rest once on its own way out");
+            Assert.That(headpatRest, Is.Not.Null,
+                "so does Headpat, so Blush never stays at Headpat's value when Headpat is left last; its Off writes nothing, so it cannot mask Sleepy's pin while Sleepy is on, which was the user's bug");
+            Assert.That(sleepyRest.Evaluate(0f), Is.EqualTo(5f));
+            Assert.That(headpatRest.Evaluate(0f), Is.EqualTo(5f));
         }
 
         [Test]
         public void TwoPinsOnOneShapeDoNotMaskEachOtherInReverseBuildOrder()
         {
             // The same two pins, added the other way round: whichever entry is built first is the lower pin,
-            // whatever its name, so this proves the rule tracks build order and not identity.
+            // whatever its name, and neither order changes who resets.
             var headpat = menu.AddEntry(EntryKind.Toggle, "Headpat");
             headpat.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 10f, mode = ShapeEffectMode.Pin });
             var sleepy = menu.AddEntry(EntryKind.Toggle, "Sleepy");
@@ -242,10 +254,8 @@ namespace DocMe.AvatarDoctor.Editor
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
             var fx = FxOf(avatar);
-            var headpatOff = State(Layer(fx, "AD: Headpat (pin)"), "Off");
-            var sleepyOff = State(Layer(fx, "AD: Sleepy (pin)"), "Off");
-            Assert.That(CurveOf(headpatOff.motion, "Body", "blendShape.Blush"), Is.Not.Null, "built first this time, so Headpat is the lower pin and hands Blush back to rest");
-            Assert.That(CurveOf(sleepyOff.motion, "Body", "blendShape.Blush"), Is.Null, "built second, so Sleepy is the higher pin and must leave this binding alone");
+            Assert.That(RestCurveOf(Layer(fx, "AD: Headpat (pin)"), "Body", "blendShape.Blush"), Is.Not.Null, "built first this time, Headpat still resets Blush once on its way out");
+            Assert.That(RestCurveOf(Layer(fx, "AD: Sleepy (pin)"), "Body", "blendShape.Blush"), Is.Not.Null, "and so does Sleepy, built second");
         }
 
         [Test]
@@ -266,8 +276,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "nothing but the override animates Blush, so the pin still has to hand it back itself");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(0f),
                 "the override flattens the rest curve to its own pinned value, the same as it flattens every other clip carrying this shape; the pin's last-writer position must not let it escape");
@@ -301,8 +310,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "Idle's own clip does not carry Blush, so this layer cannot be trusted to hold it whenever Idle is the state actually playing");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -334,8 +342,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "a layer at zero weight contributes nothing at runtime, so it cannot be trusted to hold the shape either");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -368,8 +375,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            Assert.That(CurveOf(off.motion, "Body", "blendShape.Blush"), Is.Null, "every state of AFK is Write Defaults on, so it owns Blush and the pin leaves this binding to it");
+            Assert.That(RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Null, "every state of AFK is Write Defaults on, so it owns Blush and the pin leaves this binding to it");
         }
 
         [Test]
@@ -401,8 +407,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "Unrelated is Write Defaults on throughout but never animates Blush anywhere, so it does not own it");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -440,8 +445,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc, pins);
             context.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "a layer control fades the face tracking layer itself, so it cannot be trusted and the pin hands the shape back itself");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -498,9 +502,8 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            Assert.That(CurveOf(off.motion, "Body", "blendShape.Blush"), Is.Null,
-                "the control fades another layer, so face tracking still owns Blush; a rest curve here would freeze tracking on Blush whenever the pin is off");
+            Assert.That(RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Null,
+                "the control fades another layer, so face tracking still owns Blush and the pin writes no rest for it, not even once");
         }
 
         [TestCase(true, TestName = "ALayerControlInActionOnTheFaceTrackingLayerTakesItsOwnership")]
@@ -543,8 +546,7 @@ namespace DocMe.AvatarDoctor.Editor
                 AnimatorBuilder.ReleasePinsToRest(asc2, pins);
                 context2.DeactivateAllExtensionContexts();
 
-                var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-                var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+                var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
                 if (aimAtFaceTracking)
                 {
                     Assert.That(curve, Is.Not.Null, "the Action control fades the face tracking layer itself, so the pin hands Blush back itself");
@@ -744,9 +746,8 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(AllStates(relay[0].stateMachine).SelectMany(s => s.behaviours).OfType<VRCAnimatorLayerControl>()
                     .Any(c => c.playable == VRC_AnimatorLayerControl.BlendableLayer.FX), Is.True, "and the relay fades FX layers");
 
-                var off = State(Layer(fx, "AD: Face (pin)"), "Off");
-                Assert.That(CurveOf(off.motion, "Body", "blendShape.Blush"), Is.Null,
-                    "the relay fades the avatar's first layers, never face tracking, so face tracking still owns Blush and the pin's Off state must leave it alone");
+                Assert.That(RestCurveOf(Layer(fx, "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Null,
+                    "the relay fades the avatar's first layers, never face tracking, so face tracking still owns Blush and the pin writes no rest for it, not even once");
             }
             finally
             {
@@ -792,9 +793,8 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            Assert.That(CurveOf(off.motion, "Body", "blendShape.Blush"), Is.Null,
-                "the Direct tree's child drives Blush, so face tracking owns it; writing rest here would freeze tracking on Blush for good whenever the pin is off");
+            Assert.That(RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Null,
+                "the Direct tree's child drives Blush, so face tracking owns it and the pin writes no rest for it, not even once");
         }
 
         [Test]
@@ -828,8 +828,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            var curve = CurveOf(off.motion, "Body", "blendShape.Blush");
+            var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush");
             Assert.That(curve, Is.Not.Null, "the Direct tree drives a different shape, so it does not own Blush and the pin still has to hand it back itself");
             Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
         }
@@ -869,8 +868,7 @@ namespace DocMe.AvatarDoctor.Editor
             AnimatorBuilder.ReleasePinsToRest(asc2, pins);
             context2.DeactivateAllExtensionContexts();
 
-            var off = State(Layer(FxOf(avatar), "AD: Face (pin)"), "Off");
-            Assert.That(CurveOf(off.motion, "Body", "blendShape.Blush"), Is.Null,
+            Assert.That(RestCurveOf(Layer(FxOf(avatar), "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Null,
                 "a Direct tree nested one level inside an ordinary blend tree still owns the shapes its own children drive");
         }
 
@@ -894,15 +892,17 @@ namespace DocMe.AvatarDoctor.Editor
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
             var layer = Layer(FxOf(avatar), "AD: G (pin)");
-            var offState = State(layer, "Off");
             var aState = State(layer, "A");
             var bState = State(layer, "B");
-            Assert.That(CurveOf(offState.motion, "Body", "blendShape.Blush"), Is.Not.Null, "off releases A's pin");
-            Assert.That(CurveOf(bState.motion, "Body", "blendShape.Blush"), Is.Not.Null,
-                "switching straight from A to B never visits off, so B's own state has to release A's pin itself or Blush would stay pinned for good the moment A is left");
+            var rest = RestCurveOf(layer, "Body", "blendShape.Blush");
+            Assert.That(rest, Is.Not.Null, "Reset releases A's pin");
+            Assert.That(rest.Evaluate(0f), Is.EqualTo(5f));
+            Assert.That(CurveOf(bState.motion, "Body", "blendShape.Blush"), Is.Null,
+                "switching from A to B passes Reset and Off, so B's own state writes only B's pins");
+            Assert.That(aState.transitions.Select(t => t.destinationState.name), Is.EqualTo(new[] { "Reset" }), "A is left through Reset, so Blush never stays pinned once A is left");
             var aCurve = CurveOf(aState.motion, "Body", "blendShape.Blush");
             Assert.That(aCurve, Is.Not.Null, "A's own state still pins Blush itself");
-            Assert.That(aCurve.Evaluate(0f), Is.EqualTo(100f), "A's own pinned value must not be overwritten by the rest curve it hands to every other state");
+            Assert.That(aCurve.Evaluate(0f), Is.EqualTo(100f), "A's own pinned value must not be overwritten by the rest curve");
         }
     }
 }

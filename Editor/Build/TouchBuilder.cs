@@ -503,9 +503,12 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// One layer per Follow distance trigger: Far (the off pose, its blend shapes and material properties left
-        /// to the same deferred release pass a pin layer's off state uses) and Near (a Simple1D blend from the off pose to the on pose,
-        /// over the receiver's own float). Built exactly like a real pin layer, both states Write Defaults off, at
+        /// One layer per Follow distance trigger: Far (the off pose without its blend shapes and material
+        /// properties, which it never writes), Near (a Simple1D blend from the off pose to the on pose, over the
+        /// receiver's own float) and Reset, which the layer passes from Near back to Far, and Load, where it starts
+        /// and which passes to Reset: the same deferred release pass a pin layer uses writes those shapes and
+        /// properties back to rest there once.
+        /// Built exactly like a real pin layer, every state Write Defaults off, at
         /// the highest priority and named into pinLayerNames, so it always ends up above whatever it shares a
         /// binding with, face tracking merged in later included, and it never counts as its own owner. Every shape
         /// mode blends the same way here; there is no separate pin layer to reserve Pin's usual behaviour for. The
@@ -552,15 +555,16 @@ namespace DocMe.AvatarDoctor.Editor
                 var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
                 var sm = layer.StateMachine;
 
-                // Far carries no curve of its own for the shapes the on pose writes: the same deferred pass that
-                // releases a pin's off state hands them back to rest only once nothing else, such as face
-                // tracking's own Direct tree, already holds them, so blinking keeps working while no hand is near.
-                // The rest value it releases to is the off pose's own value, the same one Near's off child shows,
-                // so nothing jumps at the boundary; the only difference is a binding some other layer already owns.
+                // Far never carries a curve for the shapes the on pose writes, so blinking and face tracking keep
+                // them while no hand is near. Leaving Near goes through Reset, where the final pass writes their
+                // rest values once, unless another layer, such as face tracking's own Direct tree, already holds
+                // them. The rest value is the off pose's own value, the same one Near's off child shows, so nothing
+                // jumps at the boundary.
                 var farContent = new ClipContent(tree.AvatarRoot);
                 farContent.WriteFarPose(entry, baseState);
-                // A property follows the same rule as a shape here: Far rests it only when no other layer owns it,
-                // or this layer, last in FX, would hide a toggle that moves the same property for good.
+                // A property follows the same rule as a shape here: Reset rests it once, and only when no other
+                // layer owns it; Far writes nothing for it, or this layer, last in FX, would hide a toggle that moves
+                // the same property for good.
                 if (pinState != null)
                     foreach (var (renderer, property, value) in farContent.TakePropertyWrites())
                         pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
@@ -605,13 +609,15 @@ namespace DocMe.AvatarDoctor.Editor
                 HeldShapePruner.Record(pinState, onContent, entry, name, sm, near, 1, baseState, heldContext);
 
                 // Requirements join the way in (every one must hold) and add a way out each (any one failing
-                // leaves). With none, this is the one transition each way the layer always had.
+                // leaves). With none, this is the one transition each way the layer always had. Every way out goes
+                // through Reset back to Far.
+                var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, far, new Vector3(150f, 150f, 0f), false, pinState) : far;
                 var enter = requirements != null ? requirements.Enter : new List<List<AnimatorCondition>> { new List<AnimatorCondition>() };
                 var leave = requirements != null ? requirements.Leave : new List<List<AnimatorCondition>>();
                 far.Transitions = ImmutableList.CreateRange(enter.Select(e =>
                     AnimatorBuilder.Transition(near, ImmutableList.Create(Cond(info.Parameter, AnimatorConditionMode.Greater, 0.001f)).AddRange(e))));
-                near.Transitions = ImmutableList.Create(AnimatorBuilder.Transition(far, ImmutableList.Create(Cond(info.Parameter, AnimatorConditionMode.Less, 0.001f))))
-                    .AddRange(leave.Select(l => AnimatorBuilder.Transition(far, ImmutableList.CreateRange(l))));
+                near.Transitions = ImmutableList.Create(AnimatorBuilder.Transition(back, ImmutableList.Create(Cond(info.Parameter, AnimatorConditionMode.Less, 0.001f))))
+                    .AddRange(leave.Select(l => AnimatorBuilder.Transition(back, ImmutableList.CreateRange(l))));
             }
             return messages;
         }

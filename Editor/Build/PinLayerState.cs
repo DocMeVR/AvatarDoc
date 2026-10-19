@@ -16,7 +16,20 @@ namespace DocMe.AvatarDoctor.Editor
         public bool Ready;
         public readonly HashSet<string> Names = new HashSet<string>();
         /// <summary>True when there is a named pin layer to move, a binding to release, a shape to copy or a rule curve to check. Follow distance's own layer, its shared tracking pause layers and every blend shape trigger's layer are named in here too, since they are all built as pin layers.</summary>
-        public bool HasAny => Names.Count > 0 || Bindings.Count > 0 || PropertyRests.Count > 0 || ShapeMirrors.Count > 0 || HeldCurves.Count > 0;
+        public bool HasAny => Names.Count > 0 || Bindings.Count > 0 || PropertyRests.Count > 0 || ShapeMirrors.Count > 0 || HeldCurves.Count > 0 || Resets.Count > 0;
+
+        /// <summary>The name of the state a layer passes through on its way back to rest.</summary>
+        public const string ResetStateName = "Reset";
+
+        /// <summary>The name of the state a layer with a Reset starts in when it would otherwise start idle: it plays Reset's clip and passes to Reset, so the rests are written at load.</summary>
+        public const string LoadStateName = "Load";
+
+        /// <summary>
+        /// Every layer built with a Reset state, by its exact name, with which of its states named Reset is that one,
+        /// counted from 0: a group member can carry the same name. The final pass writes the rest values into it, and
+        /// leaves it out again when it ends up with nothing to write.
+        /// </summary>
+        public readonly Dictionary<string, int> Resets = new Dictionary<string, int>();
 
         /// <summary>
         /// One blend shape trigger the final pass still has to connect to its shape: every FX clip that moves the
@@ -47,7 +60,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// weight it held before any AvatarDoc effect touched it. Recorded where the pin layer is built, since that
         /// is the only place the entry's target and the pre-effect scene value are both in hand; read back by the
         /// final pass, the only place with a complete view of every layer any tool has added, to decide whether the
-        /// pin's off state must hand the shape back to rest itself.</summary>
+        /// pin's Reset state must hand the shape back to rest once on the way out.</summary>
         public sealed class PinBinding
         {
             public string LayerName;
@@ -61,7 +74,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>One material property channel a trigger's inactive state (a Hold trigger's Off, a Fade
         /// trigger's Far) leaves to the final pass: the layer, the renderer, the animated property name such as
         /// "material._Glow" or "material._Color.r", and the value it rests at. The final pass writes it into that
-        /// state only when no other layer owns the binding, by the same rule a pinned shape is handed back by.</summary>
+        /// layer's Reset state only when no other layer owns the binding, by the same rule a pinned shape is handed
+        /// back by.</summary>
         public sealed class PropertyRest
         {
             public string LayerName;

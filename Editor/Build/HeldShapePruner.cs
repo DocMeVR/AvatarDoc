@@ -48,9 +48,11 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Runs before ReleasePinsToRest, so a dropped shape is never handed back to rest by its layer, and before
-        /// ClipRewriter, so a blend shape trigger copies its shape from the clips as they will play. Says once per rule
-        /// how many of its shapes it still holds, when that is fewer than all of them. overrides may be null.
+        /// Runs before ReleasePinsToRest, so a dropped shape is never handed back to rest by its layer: a layer that no
+        /// longer writes the shape in any state loses its binding here, and its Reset state, still empty now, never gets
+        /// a curve for it. Runs before ClipRewriter too, so a blend shape trigger copies its shape from the clips as they
+        /// will play. Says once per rule how many of its shapes it still holds, when that is fewer than all of them.
+        /// overrides may be null.
         /// </summary>
         public static List<ModelMessage> Prune(AnimatorServicesContext asc, PinLayerState pins, OverrideState overrides)
         {

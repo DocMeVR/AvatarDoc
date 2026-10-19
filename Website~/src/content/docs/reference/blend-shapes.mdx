@@ -74,7 +74,7 @@ The button shows the mesh and the shape, such as Face › Smile. Press it to pic
 **Shown in:** Simple and Advanced, on a toggle, on a trigger in <Label k="ad.ui.touch.hold" /> mode, and on a trigger that follows a toggle or a parameter · **Default:** <Label k="ad.ui.seg.fixed" /> · **Choices:** <Label k="ad.ui.seg.fixed" />, <Label k="ad.ui.seg.pin" />
 
 - <Label k="ad.ui.seg.fixed" /> writes the row's weight while the entry is on, and the shape's weight in the scene while it is off.
-- <Label k="ad.ui.seg.pin" /> writes the weight only while the entry is on. While it is off, AvatarDoc leaves the shape to whatever else moves it, such as gestures, face tracking or another toggle. Pin rows go into a layer of their own, after the layers other tools add, so they hold over face tracking while the entry is on.
+- <Label k="ad.ui.seg.pin" /> writes the weight only while the entry is on. When the entry turns off, and when the avatar loads, it sets the shape back to its weight in the scene for a moment, unless another layer owns the shape. While it is off, AvatarDoc leaves the shape to whatever else moves it, such as gestures, face tracking, blinking or another toggle. Pin rows go into a layer of their own, after the layers other tools add, so they hold over face tracking while the entry is on. See [Layers, Write Defaults and pinned layers](../../how-it-works/layers-and-pins/#explicit-rests).
 
 A <Label k="ad.ui.seg.pin" /> row on a shape VRChat blinks or speaks with pauses blinking or lip sync while the entry is on.
 
@@ -88,7 +88,7 @@ How far the shape moves while the entry is on. On a blend shape trigger, the sha
 
 **Shown in:** Simple and Advanced, on a <Label k="ad.ui.seg.fixed" /> row of a toggle or a trigger · **Default:** Off · **Choices:** On, Off
 
-On adds an <Label k="ad.ui.target.off_value" /> slider, and the entry writes that weight while it is off instead of the shape's weight in the scene. It starts at the shape's weight in the scene, so nothing changes until you move it. A <Label k="ad.ui.seg.pin" /> row writes nothing while off, so it hides this switch.
+On adds an <Label k="ad.ui.target.off_value" /> slider, and the entry writes that weight while it is off instead of the shape's weight in the scene. A toggle holds it the whole time it is off. A trigger in <Label k="ad.ui.touch.follow" /> mode sets it when the avatar loads and every time its effect ends, and then leaves the shape to whatever else moves it. It starts at the shape's weight in the scene, so nothing changes until you move it. See [Off values](../../how-it-works/layers-and-pins/#off-values). A <Label k="ad.ui.seg.pin" /> row writes nothing while off, so it hides this switch.
 
 ### Off value [#off-value k=ad.ui.target.off_value]
 

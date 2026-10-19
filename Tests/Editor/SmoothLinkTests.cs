@@ -187,11 +187,12 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Blush link (shape)");
-            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Far", "Near" }));
+            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Far", "Near", "Reset", "Load" }));
             var far = State(layer, "Far");
             var near = State(layer, "Near");
-            Assert.That(layer.stateMachine.defaultState, Is.SameAs(far));
-            Assert.That(far.writeDefaultValues || near.writeDefaultValues, Is.False, "Write Defaults off, like every layer that is moved last");
+            var reset = State(layer, "Reset");
+            Assert.That(layer.stateMachine.defaultState, Is.SameAs(State(layer, "Load")), "the layer starts in Load, which passes to Reset and then Far");
+            Assert.That(far.writeDefaultValues || near.writeDefaultValues || reset.writeDefaultValues, Is.False, "Write Defaults off, like every layer that is moved last");
 
             var tree = (BlendTree)near.motion;
             Assert.That(tree.blendType, Is.EqualTo(BlendTreeType.Simple1D));
@@ -199,14 +200,16 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(tree.children.Select(c => c.threshold), Is.EqualTo(new[] { 20f, 80f }), "from rest at Start to the effect at Full");
             Assert.That(Shape(tree.children[0].motion, "Eye_Big").Evaluate(0f), Is.EqualTo(0f));
             Assert.That(Shape(tree.children[1].motion, "Eye_Big").Evaluate(0f), Is.EqualTo(80f));
-            Assert.That(Shape(far.motion, "Eye_Big").Evaluate(0f), Is.EqualTo(0f), "nothing else moves Eye_Big, so the final pass rests it in Far");
+            Assert.That(Shape(far.motion, "Eye_Big"), Is.Null, "Far writes no shape");
+            Assert.That(Shape(reset.motion, "Eye_Big").Evaluate(0f), Is.EqualTo(0f), "nothing else moves Eye_Big, so the final pass rests it once, in Reset");
 
             var enter = far.transitions.Single();
             Assert.That(enter.destinationState, Is.SameAs(near));
             Assert.That(On(enter, Mirror).mode, Is.EqualTo(AnimatorConditionMode.Greater));
             Assert.That(On(enter, Mirror).threshold, Is.EqualTo(20f).Within(0.05f));
             var leave = near.transitions.Single();
-            Assert.That(leave.destinationState, Is.SameAs(far));
+            Assert.That(leave.destinationState, Is.SameAs(reset), "the way back passes Reset");
+            Assert.That(reset.transitions.Single().destinationState, Is.SameAs(far), "which falls through to Far");
             Assert.That(On(leave, Mirror).mode, Is.EqualTo(AnimatorConditionMode.Less));
             Assert.That(On(leave, Mirror).threshold, Is.EqualTo(On(enter, Mirror).threshold), "in and out at the same point, so the two never fire together");
 
@@ -229,7 +232,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Blush link (shape)");
-            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Far", "Near", "Near on" }));
+            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Far", "Near", "Near on", "Reset", "Load" }));
             var far = State(layer, "Far");
             var near = State(layer, "Near");
             var nearOn = State(layer, "Near on");
@@ -268,7 +271,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Blush link (shape)");
-            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Off", "On" }));
+            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Off", "On", "Reset", "Load" }));
             var off = State(layer, "Off");
             var on = State(layer, "On");
             Assert.That(on.motion, Is.InstanceOf<AnimationClip>(), "a switch needs no blend");
@@ -301,8 +304,8 @@ namespace DocMe.AvatarDoctor.Editor
             var enter = far.transitions.Single();
             Assert.That(enter.conditions.Select(c => c.parameter), Is.EquivalentTo(new[] { "AD/Hat", Mirror }), "all requirements and the shape together");
             Assert.That(enter.conditions.Single(c => c.parameter == "AD/Hat").mode, Is.EqualTo(AnimatorConditionMode.If));
-            var leave = near.transitions.Where(t => t.destinationState == far).ToList();
-            Assert.That(leave.Count, Is.EqualTo(2), "one way out for the requirement, one for the shape");
+            var leave = near.transitions.Where(t => t.destinationState == State(layer, "Reset")).ToList();
+            Assert.That(leave.Count, Is.EqualTo(2), "one way out for the requirement, one for the shape, both through Reset");
             Assert.That(leave.Any(t => t.conditions.Length == 1 && t.conditions[0].parameter == "AD/Hat" && t.conditions[0].mode == AnimatorConditionMode.IfNot), Is.True);
             Assert.That(leave.Any(t => t.conditions.Length == 1 && t.conditions[0].parameter == Mirror && t.conditions[0].mode == AnimatorConditionMode.Less), Is.True);
         }
@@ -343,7 +346,8 @@ namespace DocMe.AvatarDoctor.Editor
             var tree = (BlendTree)State(layer, "Near").motion;
             Assert.That(Glossiness(tree.children[0].motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f), "rest at Start is the material's own value");
             Assert.That(Glossiness(tree.children[1].motion).Evaluate(0f), Is.EqualTo(0.9f).Within(0.0001f), "the row's value at Full");
-            Assert.That(Glossiness(State(layer, "Far").motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f), "nothing else moves it, so Far rests it");
+            Assert.That(Glossiness(State(layer, "Far").motion), Is.Null, "Far writes nothing for the property");
+            Assert.That(Glossiness(State(layer, "Reset").motion).Evaluate(0f), Is.EqualTo(0.2f).Within(0.0001f), "nothing else moves it, so Reset rests it once");
         }
 
         [Test]
@@ -447,6 +451,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             Assert.That(Shape(State(Layer(fx, "AD: Blush link (shape)"), "Far").motion, "Eye_Big"), Is.Null, "VRChat's own blinking writes that shape while the trigger rests");
+            Assert.That(StateNames(Layer(fx, "AD: Blush link (shape)")), Does.Not.Contain("Reset"), "and with nothing else to rest, not even a frame of reset writes it");
         }
 
         /// <summary>Written after the first failing run, so it never ran red; its body fails without the requirement receivers in TouchBuilder.Describe.</summary>
@@ -599,7 +604,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Old link (shape)");
-            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Far", "Near", "Near on" }), "it builds as Smooth");
+            Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Far", "Near", "Near on", "Reset", "Load" }), "it builds as Smooth");
             var swap = On(To(State(layer, "Near"), "Near on").Single(), "AD/Shape/Old link");
             Assert.That(swap.mode, Is.EqualTo(AnimatorConditionMode.Greater));
             Assert.That(swap.threshold, Is.EqualTo(35f).Within(0.01f), "the hat swaps at the stored threshold");

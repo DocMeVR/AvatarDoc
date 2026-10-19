@@ -267,28 +267,35 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// A pin layer's off state used to write nothing by design, so an animation below it could still hold the
-        /// shape while the control was off. When nothing below does, the property keeps whatever was last written,
-        /// forever; when only an additive layer does, that layer adds on top of the stale value instead of the rest
-        /// pose. This runs after Modular Avatar and VRCFury, the only point where every layer that will ever exist
-        /// is already in the controller, and before both OverrideBuilder.RunFinal (an override's own flatten has to
-        /// see the rest curve this adds, or a trigger that pins an overridden shape would escape the override
-        /// whenever it is off) and MovePinLayersLast (moving first would lose the relative order among pin layers
-        /// that decides which one is lowest, below). Safe to call with no recorded bindings: nothing changes.
+        /// Gives every layer that pins a shape or moves a property its way back to rest: the rest value goes into the
+        /// layer's Reset state, which plays for one frame on the way out, and never into the idle state, which writes
+        /// nothing for it. An idle state that wrote the rest value would hold it from the last FX layer on every frame
+        /// the layer is idle, over face tracking and blinking, whenever the guess below about who owns the shape was
+        /// wrong; written in Reset, a wrong guess costs one frame. With nothing at all to write, a layer's Reset is left out
+        /// (DropEmptyResets). This runs after Modular Avatar and VRCFury, the only point where every layer that will
+        /// ever exist is already in the controller, and before OverrideBuilder.RunFinal, so an override's own flatten
+        /// sees the rest curve this adds and the frame of reset shows the override's value too. Safe to call with
+        /// nothing recorded: nothing changes.
         /// </summary>
         public static void ReleasePinsToRest(AnimatorServicesContext asc, PinLayerState pins)
         {
-            if (pins == null || (pins.Bindings.Count == 0 && pins.PropertyRests.Count == 0)) return;
+            if (pins == null || (pins.Bindings.Count == 0 && pins.PropertyRests.Count == 0 && pins.Resets.Count == 0)) return;
             if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return;
 
             var layers = fx.Layers.ToList();
-            var byName = new Dictionary<string, (VirtualLayer layer, int index)>();
-            for (int i = 0; i < layers.Count; i++)
-                if (layers[i].Name != null && !byName.ContainsKey(layers[i].Name)) byName[layers[i].Name] = (layers[i], i);
+            var byName = new Dictionary<string, VirtualLayer>();
+            foreach (var layer in layers)
+                if (layer.Name != null && !byName.ContainsKey(layer.Name)) byName[layer.Name] = layer;
             // A layer a control can fade cannot be trusted to hold anything. Modular Avatar's MMD relay, VRCFury's MMD
             // support and full body emotes add such controls to many face tracking avatars, aimed at other layers,
             // so only the layers they aim at are left out.
             var underLayerControl = LayersUnderLayerControl(asc, fx, layers);
+            // The clips of every recorded Reset, which its Load plays too. They hold only rest curves and only play
+            // for a moment at load and on the way out, so they never decide whether a layer owns a binding.
+            var resetClips = new HashSet<VirtualClip>();
+            foreach (var layerName in pins.Resets.Keys)
+                if (byName.TryGetValue(layerName, out var recordedLayer) && ResetStateOf(recordedLayer, layerName, pins)?.Motion is VirtualClip resetClip)
+                    resetClips.Add(resetClip);
 
             foreach (var group in pins.Bindings.GroupBy(b => (b.Renderer, b.Shape)))
             {
@@ -296,7 +303,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (renderer == null || !MenuModel.ShapeExists(renderer, shape)) continue;
                 var path = asc.ObjectPathRemapper.GetVirtualPathForObject(renderer.gameObject);
                 var binding = EditorCurveBinding.FloatCurve(path, typeof(SkinnedMeshRenderer), "blendShape." + shape);
-                ReleaseLowest(asc, layers, byName, pins.Names, underLayerControl, binding, group.Select(b => (b.LayerName, b.RestValue)));
+                ReleaseFromEveryLayer(asc, layers, byName, pins, underLayerControl, resetClips, binding, group.Select(b => (b.LayerName, b.RestValue)));
             }
 
             // A material property channel a trigger's inactive state left here goes by the same rule. Its binding
@@ -307,48 +314,137 @@ namespace DocMe.AvatarDoctor.Editor
                 if (renderer == null || string.IsNullOrEmpty(property)) continue;
                 var path = asc.ObjectPathRemapper.GetVirtualPathForObject(renderer.gameObject);
                 var binding = EditorCurveBinding.FloatCurve(path, renderer.GetType(), property);
-                ReleaseLowest(asc, layers, byName, pins.Names, underLayerControl, binding, group.Select(r => (r.LayerName, r.RestValue)));
+                ReleaseFromEveryLayer(asc, layers, byName, pins, underLayerControl, resetClips, binding, group.Select(r => (r.LayerName, r.RestValue)));
             }
+
+            DropEmptyResets(byName, pins);
         }
 
         /// <summary>
-        /// Hands one binding back to rest from the layers that recorded it, unless some other layer owns it. Every
-        /// pin layer sits above every ordinary layer once MovePinLayersLast runs, so the lowest recorded layer is
-        /// an ordinary one (a Hold trigger's own layer) when there is one, else the pin layer with the smallest
-        /// current index: that is the one an animation could still fall through to. Every recorded layer above it
-        /// must leave this binding alone, or its own rest curve would mask whichever one of them is actually on,
-        /// exactly as an unpinned layer below them would be.
+        /// Hands one binding back to rest from every layer that recorded it, unless some other layer owns it: each of
+        /// them writes the rest value into its own Reset. Whichever of them is left last puts the shape back, so it
+        /// never stays at the value of a pin that was left after another one on the same shape. A layer left while a
+        /// lower one still pins the same shape covers that pin for its moment of reset and no longer, so no layer
+        /// needs to stand back for a lower one. A recorded ordinary layer (a trigger's own layer) whose idle state is
+        /// Write Defaults on by now, after VRCFury's Write Defaults fixer say, writes the binding on every frame of
+        /// that state anyway, the default when it has no curve, so the idle state gets the rest value as well.
         /// </summary>
-        static void ReleaseLowest(AnimatorServicesContext asc, List<VirtualLayer> layers, Dictionary<string, (VirtualLayer layer, int index)> byName,
-            ICollection<string> pinLayerNames, HashSet<VirtualLayer> underLayerControl, EditorCurveBinding binding, IEnumerable<(string layerName, float restValue)> recorded)
+        static void ReleaseFromEveryLayer(AnimatorServicesContext asc, List<VirtualLayer> layers, Dictionary<string, VirtualLayer> byName,
+            PinLayerState pins, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips, EditorCurveBinding binding, IEnumerable<(string layerName, float restValue)> recorded)
         {
             var present = recorded.Where(r => r.layerName != null && byName.ContainsKey(r.layerName)).ToList();
             if (present.Count == 0) return;
-            var recordedLayers = new HashSet<VirtualLayer>(present.Select(r => byName[r.layerName].layer));
-            if (SomeNonPinLayerOwns(asc, layers, pinLayerNames, recordedLayers, binding, underLayerControl)) return;
-            var lowest = present
-                .OrderBy(r => IsKnownPinLayer(byName[r.layerName].layer, pinLayerNames) ? 1 : 0)
-                .ThenBy(r => byName[r.layerName].index)
-                .First();
-            ReleaseToRest(byName[lowest.layerName].layer, binding, lowest.restValue);
+            var recordedLayers = new HashSet<VirtualLayer>(present.Select(r => byName[r.layerName]));
+            if (SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips)) return;
+            foreach (var (layerName, restValue) in present)
+            {
+                var layer = byName[layerName];
+                var reset = ResetStateOf(layer, layerName, pins);
+                if (reset == null) continue;
+                ReleaseToRest(reset, binding, restValue);
+                if (IsKnownPinLayer(layer, pins.Names)) continue;
+                var idle = reset.Transitions.FirstOrDefault()?.DestinationState;
+                if (idle != null && idle.WriteDefaultValues) ReleaseToRest(idle, binding, restValue);
+            }
+        }
+
+        /// <summary>Writes the rest value into a state's clip, 1/60 of a second long, unless the clip already writes the binding.</summary>
+        static void ReleaseToRest(VirtualState state, EditorCurveBinding binding, float restValue)
+        {
+            if (!(state.Motion is VirtualClip clip) || clip.GetFloatCurve(binding) != null) return;
+            clip.SetFloatCurve(binding, AnimationCurve.Constant(0f, ResetSeconds, restValue));
+        }
+
+        /// <summary>How long a Reset state plays: 1/60 of a second, one frame at 60 frames a second and a few at higher rates.</summary>
+        const float ResetSeconds = 1f / 60f;
+
+        /// <summary>The Reset state AddResetState gave this layer, or null when it had none or another tool rebuilt the layer since.</summary>
+        static VirtualState ResetStateOf(VirtualLayer layer, string layerName, PinLayerState pins)
+        {
+            if (layer?.StateMachine == null || !pins.Resets.TryGetValue(layerName, out int occurrence)) return null;
+            return layer.StateMachine.AllStates().Where(s => s.Name == PinLayerState.ResetStateName).Skip(occurrence).FirstOrDefault();
         }
 
         /// <summary>
-        /// Writes the rest value into every state of this pin layer that does not already write the binding itself.
-        /// A toggle's or a trigger's pin layer has only its off state to give; an exclusive group's pin layer moves
-        /// straight from one pinned member to another through AnyState, never visiting off, so every member state
-        /// that does not pin this particular shape needs the same rest curve or that member would leave it pinned
-        /// for good the moment its own control is left.
+        /// Leaves out every Reset state that ended up with nothing to write, because every binding of its layer is
+        /// owned elsewhere or held by VRChat's own tracking: an empty clip lasts a whole second in Unity, and a layer
+        /// waiting in it could not come back on for that second. Every way into it goes straight to the state it would
+        /// have fallen through to instead, and a layer that started in Load starts there.
         /// </summary>
-        static void ReleaseToRest(VirtualLayer layer, EditorCurveBinding binding, float restValue)
+        static void DropEmptyResets(Dictionary<string, VirtualLayer> byName, PinLayerState pins)
         {
-            if (layer?.StateMachine == null) return;
-            var curve = AnimationCurve.Constant(0f, 1f / 60f, restValue);
-            foreach (var state in layer.StateMachine.AllStates())
+            foreach (var layerName in pins.Resets.Keys.ToList())
             {
-                if (!(state.Motion is VirtualClip clip) || clip.GetFloatCurve(binding) != null) continue;
-                clip.SetFloatCurve(binding, curve);
+                if (!byName.TryGetValue(layerName, out var layer)) continue;
+                var reset = ResetStateOf(layer, layerName, pins);
+                if (reset == null || !(reset.Motion is VirtualClip clip)) continue;
+                if (clip.GetFloatCurveBindings().Any() || clip.GetObjectCurveBindings().Any()) continue;
+                var idle = reset.Transitions.FirstOrDefault()?.DestinationState;
+                if (idle == null) continue;
+                var sm = layer.StateMachine;
+                foreach (var state in sm.AllStates())
+                    foreach (var transition in state.Transitions)
+                        if (transition.DestinationState == reset) transition.SetDestination(idle);
+                foreach (var transition in sm.AnyStateTransitions)
+                    if (transition.DestinationState == reset) transition.SetDestination(idle);
+                foreach (var transition in sm.EntryTransitions)
+                    if (transition.DestinationState == reset) transition.SetDestination(idle);
+                if (sm.DefaultState == reset) sm.DefaultState = idle;
+                sm.States = sm.States.RemoveAll(child => child.State == reset);
+                var load = sm.DefaultState;
+                if (load != null && load.Name == PinLayerState.LoadStateName && load.Transitions.Count == 1 && load.Transitions[0].DestinationState == idle)
+                {
+                    sm.DefaultState = idle;
+                    sm.States = sm.States.RemoveAll(child => child.State == load);
+                }
+                pins.Resets.Remove(layerName);
             }
+        }
+
+        /// <summary>
+        /// Adds the state a layer passes through on its way back to rest: Reset, Write Defaults as given, falling
+        /// through to idle by exit time with no condition. Its clip starts empty; ReleasePinsToRest writes the rest
+        /// values into it in the final pass, each 1/60 of a second long, so the layer writes them once on the way out
+        /// and nothing at all while it is idle. Added after every other state of the layer. A layer that would start
+        /// idle starts in Load instead, which passes straight to Reset, so the rests are written once at load too: the
+        /// build writes some defaults into the avatar itself (an exclusive group's default member, a blend shape
+        /// trigger that starts on), which a different saved value would otherwise leave in place, and a row's own off
+        /// value would otherwise show only after the effect had come and gone once.
+        /// </summary>
+        internal static VirtualState AddResetState(VirtualStateMachine sm, string layerName, VirtualState idle, Vector3 position, bool writeDefaults, PinLayerState pinState)
+        {
+            int occurrence = sm.AllStates().Count(s => s.Name == PinLayerState.ResetStateName);
+            var reset = sm.AddState(PinLayerState.ResetStateName, VirtualClip.Create(layerName + " Reset"), position);
+            reset.WriteDefaultValues = writeDefaults;
+            var back = VirtualStateTransition.Create();
+            back.SetDestination(idle);
+            back.Conditions = ImmutableList<AnimatorCondition>.Empty;
+            back.ExitTime = 1f;
+            back.Duration = 0f;
+            back.HasFixedDuration = true;
+            back.CanTransitionToSelf = false;
+            reset.Transitions = ImmutableList.Create(back);
+            if (sm.DefaultState == idle)
+            {
+                // Reset as the start state itself would not do: Unity advances a start state by the first frame's
+                // time before it samples it, so a first frame of 1/60 of a second or longer leaves Reset by exit time
+                // unseen. A state entered by a transition is always sampled once. So the layer starts in Load, which
+                // plays Reset's own clip and passes to Reset the same way Reset passes to idle: whichever of the two
+                // the first frame samples, the rests are written.
+                var load = sm.AddState(PinLayerState.LoadStateName, reset.Motion, position + new Vector3(0f, 80f, 0f));
+                load.WriteDefaultValues = writeDefaults;
+                var start = VirtualStateTransition.Create();
+                start.SetDestination(reset);
+                start.Conditions = ImmutableList<AnimatorCondition>.Empty;
+                start.ExitTime = 1f;
+                start.Duration = 0f;
+                start.HasFixedDuration = true;
+                start.CanTransitionToSelf = false;
+                load.Transitions = ImmutableList.Create(start);
+                sm.DefaultState = load;
+            }
+            pinState.Resets[layerName] = occurrence;
+            return reset;
         }
 
         /// <summary>
@@ -362,13 +458,12 @@ namespace DocMe.AvatarDoctor.Editor
         /// binding; or some state's motion holds a Direct blend tree with a child, at any depth under it, that
         /// carries the binding. The last clause exists for face tracking: typically one state holding a Direct tree
         /// with dozens of children, each moving one shape, beside a disabled or idle state with Write Defaults off and no
-        /// motion at all, which the first two clauses both fail. Losing ownership there would write a rest curve
-        /// above face tracking and freeze it on every shape a pin also touches, which is far worse than the one
-        /// case this clause accepts: while that layer actually sits in its disabled state, the shape keeps
-        /// whatever value it last had, the same as any other property nothing currently writes. When every clause
-        /// fails this says no, and the pin writes rest.
+        /// motion at all, which the first two clauses both fail. Owned there, the shape skips even the frame of reset:
+        /// while that layer actually sits in its disabled state, the shape keeps whatever value it last had, the same
+        /// as any other property nothing currently writes. When every clause fails this says no, and the layer's Reset
+        /// writes the rest value once; a wrong no costs that one frame and nothing more.
         /// </summary>
-        static bool SomeNonPinLayerOwns(AnimatorServicesContext asc, List<VirtualLayer> layers, ICollection<string> pinLayerNames, HashSet<VirtualLayer> recordedLayers, EditorCurveBinding binding, HashSet<VirtualLayer> underLayerControl)
+        static bool SomeNonPinLayerOwns(AnimatorServicesContext asc, List<VirtualLayer> layers, ICollection<string> pinLayerNames, HashSet<VirtualLayer> recordedLayers, EditorCurveBinding binding, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips)
         {
             var clips = new HashSet<VirtualClip>(asc.AnimationIndex.GetClipsForBinding(binding));
             if (clips.Count == 0) return false;
@@ -380,14 +475,15 @@ namespace DocMe.AvatarDoctor.Editor
                 if (layer.BlendingMode == AnimatorLayerBlendingMode.Additive) continue;
                 if (layer.DefaultWeight <= 0f) continue;
                 if (underLayerControl.Contains(layer)) continue;
-                if (LayerOwnsBinding(layer, clips)) return true;
+                if (LayerOwnsBinding(layer, clips, resetClips)) return true;
             }
             return false;
         }
 
-        static bool LayerOwnsBinding(VirtualLayer layer, HashSet<VirtualClip> clipsForBinding)
+        /// <summary>Whether this layer holds the binding by one of the three clauses SomeNonPinLayerOwns names. A recorded Reset or Load state (its clip in resetClips) does not count as one of its states.</summary>
+        static bool LayerOwnsBinding(VirtualLayer layer, HashSet<VirtualClip> clipsForBinding, HashSet<VirtualClip> resetClips)
         {
-            var states = layer.StateMachine.AllStates().ToList();
+            var states = layer.StateMachine.AllStates().Where(s => !(s.Motion is VirtualClip clip && resetClips.Contains(clip))).ToList();
             if (states.Count == 0) return false;
             // Unity only writes a Write Defaults value for a property the layer itself animates somewhere; a layer
             // whose states are all Write Defaults on but that never touches this binding at all (an unrelated
@@ -555,14 +651,16 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Pin targets get their own layer with Write Defaults off, so a state left otherwise empty really releases
-        /// the shape to whatever is below, rather than reasserting whatever Write Defaults would restore. Off gets
-        /// a rest curve later, by ReleasePinsToRest, when nothing else can take the shape back; that pass also has
-        /// to reach every other state of an exclusive group's pin layer, not only Off, since passing anyStateOff
-        /// here gives the layer the exclusive group's topology: every switch goes through AnyState, so moving
-        /// straight from one member to another never visits Off at all.
+        /// Pin targets get their own layer with Write Defaults off, so Off, which writes no shape at all, really
+        /// leaves the shape to whatever is below, rather than reasserting whatever Write Defaults would restore.
+        /// Off goes to a member when the member's conditions hold; a member leaves through Reset, where
+        /// ReleasePinsToRest writes the rest value of every shape the layer pins once, then Off. An exclusive group
+        /// takes the same way from one member to the next, through Reset and Off, so a member state writes only its
+        /// own pins and the switch costs a frame or two. The layer starts in Load, which passes to Reset and then
+        /// Off, or in its member for a toggle that is on by default. Without a PinLayerState there is no final pass
+        /// to fill Reset, so the layer starts in Off and the members go straight back to it.
         /// </summary>
-        internal static void BuildPinLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, string baseName, IReadOnlyList<PinMember> members, BaseState baseState, Transform avatarRoot, ImmutableList<AnimatorCondition> anyStateOff = null, bool defaultOn = false, ICollection<string> pinLayerNames = null, PinLayerState pinState = null)
+        internal static void BuildPinLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, string baseName, IReadOnlyList<PinMember> members, BaseState baseState, Transform avatarRoot, bool defaultOn = false, ICollection<string> pinLayerNames = null, PinLayerState pinState = null)
         {
             var name = UniqueLayerName(fx, baseName + PinSuffix);
             // Recorded under its exact, already-deduped name: this is the only place a pin layer is created, so
@@ -574,8 +672,7 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
             var sm = layer.StateMachine;
 
-            // A member's pause flag is 1 in its own state and 0 everywhere else in the layer, Off included: an
-            // exclusive group's layer moves straight from one member to another, never through Off.
+            // A member's pause flag is 1 in its own state and 0 in every other member's state and in Off.
             var flags = members.Select(m => m.PauseFlag).Where(f => f != null).Distinct().ToList();
             foreach (var flag in flags)
             {
@@ -612,20 +709,12 @@ namespace DocMe.AvatarDoctor.Editor
             // The pin layer follows its main layer: a toggle that is on by default starts with its pins written.
             if (defaultOn && states.Count == 1) sm.DefaultState = states[0];
 
-            if (anyStateOff != null)
-            {
-                var anyState = new List<VirtualStateTransition> { Transition(off, anyStateOff) };
-                for (int i = 0; i < members.Count; i++)
-                    foreach (var conditions in members[i].Enter) anyState.Add(Transition(states[i], conditions));
-                sm.AnyStateTransitions = ImmutableList.CreateRange(anyState);
-                return;
-            }
-
+            var back = pinState != null ? AddResetState(sm, name, off, new Vector3(300f, 0f, 0f), false, pinState) : off;
             var offTransitions = ImmutableList.CreateBuilder<VirtualStateTransition>();
             for (int i = 0; i < members.Count; i++)
             {
                 foreach (var conditions in members[i].Enter) offTransitions.Add(Transition(states[i], conditions));
-                states[i].Transitions = ImmutableList.CreateRange(members[i].Leave.Select(conditions => Transition(off, conditions)));
+                states[i].Transitions = ImmutableList.CreateRange(members[i].Leave.Select(conditions => Transition(back, conditions)));
             }
             off.Transitions = offTransitions.ToImmutable();
         }
@@ -679,9 +768,8 @@ namespace DocMe.AvatarDoctor.Editor
             }
             sm.AnyStateTransitions = ImmutableList.CreateRange(anyState);
 
-            // The pin layer has a state for the pinned members only, so it must release as soon as none of those
-            // is selected. Checking the whole group instead would leave it on a pinned member while an unpinned
-            // member is shown.
+            // The pin layer has a state for the pinned members only, and each one is left the moment its own value
+            // is not selected, so an unpinned member shown in its place leaves the pin layer resting in Off.
             var pinned = members.Where(member => member.Entry.HasPins).ToList();
             if (pinned.Count > 0)
                 BuildPinLayer(asc, fx, name, pinned.Select(member => new PinMember
@@ -689,8 +777,9 @@ namespace DocMe.AvatarDoctor.Editor
                     StateName = member.Entry.PlainName,
                     Entry = member.Entry,
                     Enter = new[] { Conditions(group, plan.Bindings[member].Value, true) },
+                    Leave = new[] { Conditions(group, plan.Bindings[member].Value, false) },
                     PauseFlag = PauseFlagOf(touch, member.Entry),
-                }).ToList(), baseState, avatarRoot, NoMemberSelected(group, plan, pinned), pinLayerNames: pinLayerNames, pinState: pinState);
+                }).ToList(), baseState, avatarRoot, pinLayerNames: pinLayerNames, pinState: pinState);
         }
 
         /// <summary>The "none of these members is selected" conditions of a group layer: the parameter differs from every one of their values.</summary>

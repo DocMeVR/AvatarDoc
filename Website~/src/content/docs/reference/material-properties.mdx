@@ -73,7 +73,7 @@ The value the property has while the toggle is on, or while the trigger fires. A
 
 **Shown in:** Simple and Advanced, on a toggle and a trigger · **Default:** Off · **Choices:** On, Off
 
-Off: while the toggle is off, the property goes back to the material's own value. On: an <Label k="ad.ui.target.off_value" /> field appears, and the toggle writes that value instead. The field starts at the material's current value, so nothing changes until you edit it.
+Off: while the toggle is off, the property goes back to the material's own value. On: an <Label k="ad.ui.target.off_value" /> field appears, and the toggle writes that value instead. A toggle holds it the whole time it is off. A trigger sets it when the avatar loads and every time its effect ends, unless another layer owns the property, and then leaves the property to whatever else moves it; on an avatar with Write Defaults on, a <Label k="ad.ui.touch.hold" /> trigger holds it the whole time it rests. The field starts at the material's current value, so nothing changes until you edit it. See [Off values](../../how-it-works/layers-and-pins/#off-values).
 
 ### Off value [#off-value k=ad.ui.target.off_value]
 
