@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/DocMeVR/AvatarDoc/compare/0.4.0...0.4.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* **build:** reset held shapes once, then let go, so blinking and face tracking keep working ([#5](https://github.com/DocMeVR/AvatarDoc/issues/5)) ([c431f1e](https://github.com/DocMeVR/AvatarDoc/commit/c431f1e35989bc448c270150588dab6f8bfb2522))
+
 ## [0.4.0](https://github.com/DocMeVR/AvatarDoc/compare/0.3.0...0.4.0) (2026-10-11)
 
 
