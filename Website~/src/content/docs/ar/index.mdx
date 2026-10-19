@@ -1,0 +1,42 @@
+---
+title: AvatarDoc
+description: مفاتيح تبديل وعناصر تحكم دائرية وقوائم فرعية ومُشغِّلات لأفاتارات VRChat، تُبنى عند الرفع عبر NDMF.
+template: splash
+hero:
+  tagline: "مفاتيح تبديل ومنزلقات ومنتقيات أزياء وتفاعلات مع اللمس لأفاتارك، تُعِدّها في واجهة واحدة وتُبنى عند الرفع."
+sourceHash: "0acd76d3fbbd1541d8353a1e9674dd951a0daedd201572a6f8e31b47d2f0271b"
+---
+
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import Shot from '../../../components/Shot.astro';
+import site from '../../../data/site.json';
+
+<LinkButton href={site.vccAddUrl} variant="primary">أضف إلى VCC</LinkButton>{' '}
+<LinkButton href={`${site.base}/ar/start-here/install/`} variant="minimal">ابدأ</LinkButton>
+
+<div class="home-shot">
+<Shot name="home/hero" alt="واجهة AvatarDoc وفيها قائمة من مفاتيح التبديل وعنصر تحكم دائري وقائمة Outfits الفرعية، مع تحديد مفتاح Smile." />
+</div>
+
+## ماذا تريد أن تفعل؟ [#what-do-you-want-to-do]
+
+<CardGrid>
+  <Card title="أول مفتاح تبديل لك" icon="pencil">
+    أظهِر قبعة أو أخفِها من قائمة الأفاتار. [أنشئ مفتاح تبديل](start-here/first-toggle/)
+  </Card>
+  <Card title="أول منتقي أزياء لك" icon="puzzle">
+    اختر زيًّا واحدًا من بين عدة أزياء. [أنشئ منتقي أزياء](start-here/first-outfit-selector/)
+  </Card>
+  <Card title="التفاعل مع اللمس" icon="star">
+    اجعل الأفاتار يتفاعل عندما تلمس يدٌ موضعًا فيه أو تقترب منه. [التفاعل مع اللمس](guides/react-to-touch/)
+  </Card>
+  <Card title="تغيير لون أو توهّج" icon="setting">
+    غيّر لون مادة أو توهّجها ما دام مفتاح التبديل مفعّلًا. [غيّر لونًا](guides/colour-and-glow/)
+  </Card>
+  <Card title="التحويل من VRCFury أو Modular Avatar" icon="random">
+    حوّل مفاتيح التبديل المصنوعة بأدوات أخرى إلى عناصر في AvatarDoc. [حوّل](guides/convert/)
+  </Card>
+  <Card title="الرسائل" icon="information">
+    اعرف معنى التحذير وما عليك فعله. [الرسائل](reference/messages/)
+  </Card>
+</CardGrid>

@@ -1,0 +1,70 @@
+---
+title: はじめてのトグル
+description: 帽子を表示・非表示にするトグルを作り、再生モードかVRChatで試します。
+sidebar:
+  order: 2
+sourceHash: "390917379fcbd124e15e91f8760b7cc8b80891a2e17f6412bdccc1c2fa1b78b1"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+<Shot name="start-here/first-toggle-done" alt="ツリーで新しい「Hat」トグルが選択され、1の「Objects」リストに帽子が入っているAvatarDocのインスペクター。" />
+
+図の1は、トグルの<Label k="ad.ui.objects" />リストです。トグルがオンとオフを切り替えるオブジェクトが入ります。
+
+このページを終えると、アバターメニューに「Hat」トグルができます。押すと、帽子が表示されたり隠れたりします。
+
+## 始める前に [#before-you-start]
+
+- プロジェクトにAvatarDocがインストールされていること。[AvatarDocをインストールする](../install/)を参照してください。
+- 開いているシーンにアバターがあること。
+- 表示と非表示を切り替えたいオブジェクトがアバターにあること。このページでは帽子を使います。
+
+## 手順 [#steps]
+
+<Steps>
+
+1. ヒエラルキーでアバターを選択します。
+
+2. インスペクターで**Add Component**を押します。
+
+   Unityのコンポーネントの一覧が、検索欄と一緒に表示されます。
+
+3. `AvatarDoc`と入力し、**AvatarDoc**を選びます。
+
+   AvatarDocのインスペクターが表示されます。メニューツリーの下にあるウェルカムカードに、いくつかの始め方が並んでいます。このページでは<Label k="ad.ui.welcome.toggle" />を使います。
+
+   <Shot name="start-here/first-toggle-welcome" alt="ウェルカムカードの1「Make a toggle」、2「Start an outfit set」、3「Quick start」に印が付いた、新しいAvatarDocコンポーネントのインスペクター。" />
+
+   - 1：<Label k="ad.ui.welcome.toggle" />は、1つのオブジェクトからトグルを作ります。
+   - 2：<Label k="ad.ui.welcome.outfit" />は、[はじめての衣装切り替え](../first-outfit-selector/)で使う衣装セットのウィンドウを開きます。
+   - 3：<Label k="ad.ui.welcome.quickstart" />は、Unityの中で短いガイドを開きます。そのウィンドウの上部には<Label k="ad.ui.quickstart.full_guide" />があり、Webサイトにあるこの手順ガイドを開きます。
+
+4. ウェルカムカードで<Label k="ad.ui.welcome.toggle" />を押します。
+
+   アバターにあるオブジェクトの一覧が、検索欄と一緒に表示されます。
+
+5. 帽子の名前を入力し、一覧から選びます。
+
+   帽子と同じ名前のトグルが、ツリーで選択された状態で表示されます。そのパネルの<Label k="ad.ui.objects" />リストには帽子が入っていて、<Label k="ad.ui.seg.shown" />に設定されています。ウェルカムカードは消えます。
+
+</Steps>
+
+## 試してみる [#test-it]
+
+VCCからプロジェクトに追加できる無料のツール、Gesture Managerを使う場合：
+
+1. Unityのメニューバーで**Tools > Gesture Manager Emulator**を選びます。
+2. 再生ボタンを押します。AvatarDocが、アップロードのときと同じ方法でメニューをビルドします。
+3. ヒエラルキーで**GestureManager**を選択します。そのインスペクターに、アバターのメニューがホイールとして表示されます。
+4. **Expressions**を開き、帽子のトグルを押します。
+
+新しいトグルは初期状態がオフなので、帽子ははじめは隠れています。押すたびに、帽子が表示されたり隠れたりします。最初から帽子を表示しておくには、トグルのパネルで<Label k="ad.ui.default_on" />にチェックを入れます。
+
+Gesture Managerを使わない場合は、アバターをアップロードし、VRChatのExpressions Menuでトグルを押します。
+
+## 次へ [#next]
+
+[はじめての衣装切り替え](../first-outfit-selector/)：一度に1つの衣装だけを着るサブメニューを作ります。

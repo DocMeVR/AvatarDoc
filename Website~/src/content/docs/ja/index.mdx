@@ -1,0 +1,42 @@
+---
+title: AvatarDoc
+description: VRChatアバターのトグル、ラジアル、サブメニュー、トリガーを、アップロード時にNDMFでビルドします。
+template: splash
+hero:
+  tagline: "アバターのトグル、スライダー、衣装切り替え、タッチへの反応を1つのインスペクターで設定し、アップロード時にビルドします。"
+sourceHash: "0acd76d3fbbd1541d8353a1e9674dd951a0daedd201572a6f8e31b47d2f0271b"
+---
+
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import Shot from '../../../components/Shot.astro';
+import site from '../../../data/site.json';
+
+<LinkButton href={site.vccAddUrl} variant="primary">VCCに追加</LinkButton>{' '}
+<LinkButton href={`${site.base}/ja/start-here/install/`} variant="minimal">はじめる</LinkButton>
+
+<div class="home-shot">
+<Shot name="home/hero" alt="トグルのメニュー、ラジアル、「Outfits」サブメニューがあり、「Smile」トグルが選択されているAvatarDocのインスペクター。" />
+</div>
+
+## 何をしたいですか？ [#what-do-you-want-to-do]
+
+<CardGrid>
+  <Card title="はじめてのトグル" icon="pencil">
+    アバターメニューから帽子を表示・非表示にします。[トグルを作る](start-here/first-toggle/)
+  </Card>
+  <Card title="はじめての衣装切り替え" icon="puzzle">
+    複数の衣装から1つを選びます。[衣装切り替えを作る](start-here/first-outfit-selector/)
+  </Card>
+  <Card title="タッチに反応する" icon="star">
+    手が特定の場所に触れたり近づいたりしたときに、アバターを反応させます。[タッチに反応する](guides/react-to-touch/)
+  </Card>
+  <Card title="色や発光を変える" icon="setting">
+    トグルがオンの間、マテリアルの色や発光を変えます。[色を変える](guides/colour-and-glow/)
+  </Card>
+  <Card title="VRCFuryやModular Avatarから変換する" icon="random">
+    ほかのツールで作ったトグルを、AvatarDocの項目に変えます。[変換する](guides/convert/)
+  </Card>
+  <Card title="メッセージ" icon="information">
+    警告の意味と、どうすればよいかを調べます。[メッセージ](reference/messages/)
+  </Card>
+</CardGrid>

@@ -1,0 +1,57 @@
+---
+title: シンプルか詳細か？
+description: インスペクターの各モードで表示されるものと、モードの切り替え方です。
+sidebar:
+  order: 5
+sourceHash: "4146c6c2ce9f78a040a32d7ac090513c7b1f512545e0f432b65a18ff3e4a53a4"
+---
+
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+AvatarDocのインスペクターには2つのモードがあります。初期設定の<Label k="ad.ui.mode.advanced" />は、すべてのツールを表示します。<Label k="ad.ui.mode.simple" />は、ほとんどのアバターに必要なものだけを表示します。切り替えで変わるのは見えるものだけで、作ったものは決して変わりません。
+
+<Shot name="start-here/simple-mode" alt="「Hat」トグルを選択したSimpleモードのAvatarDocのインスペクターで、1はモードの切り替え、2はヘッダー、3はツールバー、4はトグルのパネル。" />
+
+<Shot name="start-here/advanced-mode" alt="同じインスペクターのAdvancedモードで、同じ4つの部分に印があり、1はモードの切り替え、2はヘッダー、3はツールバー、4はトグルのパネル。" />
+
+1. モードの切り替え。
+2. ヘッダー。
+3. ツールバー。
+4. 選択中の項目のパネル。ここでは「Hat」トグル。
+
+## 各モードで表示されるもの [#what-each-mode-shows]
+
+| 部分 | シンプル | 詳細 |
+|---|---|---|
+| ヘッダー | ステータス行、問題があるときの<Label k="ad.ui.ready.show" />、<Label k="ad.ui.summary" />とメモリーバー。さらに、中の設定を変えたときは<Label k="ad.ui.settings_fold" /> | 同じ内容で、<Label k="ad.ui.settings_fold" />は常に表示 |
+| ツールバー | <Label k="ad.ui.add.toggle" />、<Label k="ad.ui.add.radial" />、<Label k="ad.ui.add.submenu" />、<Label k="ad.ui.add.outfit" />と検索欄 | すべての追加ボタン。<Label k="ad.ui.add.trigger" />、<Label k="ad.ui.add.override" />、<Label k="ad.ui.add.preset" />、<Label k="ad.ui.add.grabbable" />、<Label k="ad.ui.add.animator" />、<Label k="ad.ui.add.menu_asset" />、<Label k="ad.ui.parameters.add" />、<Label k="ad.ui.add.contact" />も含みます。掴めるオブジェクトについては[Grabbable](../../reference/grabbable/)のページを参照してください。さらに<Label k="ad.ui.toolbar.capture" />、<Label k="ad.ui.toolbar.convert" />、<Label k="ad.ui.wheel" />、<Label k="ad.ui.tagfilter" /> |
+| トグルのパネル | <Label k="ad.ui.name" />、<Label k="ad.ui.icon" />、<Label k="ad.ui.default_on" />、<Label k="ad.ui.in_menu" />と、<Label k="ad.ui.objects" />と<Label k="ad.ui.blendshapes" />のセクション | <Label k="ad.ui.name" />、<Label k="ad.ui.icon" />、<Label k="ad.ui.default_on" />、<Label k="ad.ui.in_menu" />と<Label k="ad.ui.objects" />のセクション。さらに<Label k="ad.ui.style" />、<Label k="ad.ui.style.raw_label" />、ビルド内容（Builds）の行、<Label k="ad.ui.group" />、<Label k="ad.ui.preview" />、<Label k="ad.ui.advanced_fold" />の折りたたみ。<Label k="ad.ui.blendshapes" />やほかのセクションは、<Label k="ad.ui.add_effect" />で追加すると表示されます。 |
+| トグルの<Label k="ad.ui.add_effect" /> | <Label k="ad.ui.objects" />、<Label k="ad.ui.blendshapes" />、<Label k="ad.ui.targets.properties" /> | 同じ内容に加えて、<Label k="ad.ui.materials" />、<Label k="ad.ui.targets.animations" />、<Label k="ad.ui.targets.follows" /> |
+| ラジアルのパネル | <Label k="ad.ui.name" />、<Label k="ad.ui.icon" />、<Label k="ad.ui.default_value" />、<Label k="ad.ui.in_menu" />と、<Label k="ad.ui.blendshapes" />のセクション | 同じ内容に加えて、<Label k="ad.ui.style" />、<Label k="ad.ui.style.raw_label" />、ビルド内容（Builds）の行、<Label k="ad.ui.preview" />、<Label k="ad.ui.advanced_fold" />の折りたたみ |
+| ラジアルの<Label k="ad.ui.add_effect" /> | <Label k="ad.ui.blendshapes" />、<Label k="ad.ui.targets.properties" /> | 同じ内容に加えて、<Label k="ad.ui.targets.animations" /> |
+| サブメニューのパネル | <Label k="ad.ui.name" />、<Label k="ad.ui.icon" />と、使用中のスロットの数 | 同じ内容に加えて、<Label k="ad.ui.style" />、<Label k="ad.ui.style.raw_label" />、ビルド内容（Builds）の行、<Label k="ad.ui.advanced_fold" />の折りたたみ |
+| ウェルカムカード | <Label k="ad.ui.welcome.toggle" />、<Label k="ad.ui.welcome.outfit" />、<Label k="ad.ui.welcome.quickstart" /> | 同じ内容に加えて、AvatarDocが変換できるものがアバターにあるときは、変換の始め方 |
+| そのほかの項目 | パネル全体。シンプルモードでは同じ種類をこれ以上追加できないときは、その注意書き | パネル全体 |
+
+右クリックメニューは、どちらのモードでも同じです。
+
+## モードを切り替える [#switch-modes]
+
+AvatarDocのインスペクターの上部で、<Label k="ad.ui.mode.simple" />か<Label k="ad.ui.mode.advanced" />を押します。**Tools > DocMe > AvatarDoc**にあるAvatarDocウィンドウにも、同じ切り替えがあります。
+
+このモードはコンポーネントごとの設定ではなく、あなた個人の設定です。
+
+- インスペクターでもウィンドウでも、すべてのAvatarDocコンポーネントがこの設定に従います。
+- 次にプロジェクトを開いたときも、Unityが覚えています。
+- 1か所で切り替えると、開いているすべてのAvatarDocのインスペクターとウィンドウが一度に切り替わります。
+
+## 何も失われません [#nothing-is-lost]
+
+切り替えで変わるのは、インスペクターの表示だけです。コンポーネントには何も書き込まず、ビルドもやり直しません。
+
+シンプルモードは、作ったものを決して隠しません。ツリーにはすべての項目が表示され、中身のある部分は表示されたままです。たとえば<Label k="ad.ui.materials" />を使っているトグルでは、シンプルモードでも<Label k="ad.ui.materials" />セクションが表示されます。詳細モードで設定したタグフィルターはシンプルモードでは一時停止し、詳細モードに戻すと再び働きます。
+
+## 次へ [#next]
+
+[メッセージ](../../reference/messages/)：警告の意味と、どうすればよいかを調べます。
