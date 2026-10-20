@@ -281,6 +281,27 @@ See [Toggle clothing and accessories](../../guides/toggle-clothing/).
 
 See [Report a bug](../report-a-bug/).
 
+## A colour or glow does not change in VRChat [#property-not-in-game]
+
+### Likely cause
+
+The material's shader locks the material at upload and fixed the property at its value. Poiyomi does this with every property that is not marked as animated. A material that was already locked before the property was marked keeps the old values too. Poiyomi leaves the materials locked after an upload, so a material locked at an earlier upload does not change in Play mode either.
+
+A material swapped in outside AvatarDoc's own material rows, by your own animations, an AvatarDoc custom animation, a Modular Avatar Material Swap or VRCFury, is not checked by AvatarDoc, so no warning names it.
+
+### Fix
+
+1. Select the toggle, radial or trigger and read its messages. A warning that a Poiyomi material does not mark the property as animated names the materials. Press <Label k="ad.ui.poiyomi.mark_animated" /> under it. See [the message](../../reference/messages/#ad-warn-poiyomi-not-animated).
+2. A warning that a Poiyomi material is locked with the property fixed has no button. Select the material, press **Unlock Shader** at the top of its inspector, right-click the property and choose **Animated (when locked)**. Then lock it again, or leave it: Poiyomi locks it at upload. See [the message](../../reference/messages/#ad-warn-poiyomi-baked).
+3. For a material swapped in outside AvatarDoc's material rows, and for another shader that locks its materials, mark the property as animated in the material's own inspector, then lock the material again.
+4. Upload again and test in VRChat. Play mode shows the change only while the material is unlocked: a material locked at an earlier upload behaves there as it does in VRChat.
+
+More about the marks: [On a Poiyomi material](../../guides/colour-and-glow/#poiyomi).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
 ## VRChat or VRCFury warns about mixed Write Defaults [#write-defaults-warning]
 
 ### Likely cause

@@ -95,18 +95,28 @@ The value at the highest point of the dial. The dial blends between <Label k="ad
 
 ## The value while off
 
-While a toggle is off, the property takes the value of the first material of the mesh that has it, and AvatarDoc writes that value to every material of the mesh. When the materials of one mesh hold different values for the property, a warning says that they all get the first one while the toggle is off. Edit the materials first, or tick <Label k="ad.ui.target.explicit_off" />.
+While a toggle is off, the property takes the value of the first material of the mesh that has it, and AvatarDoc writes that value to every material of the mesh. When the materials of one mesh hold different values for the property, a warning says that they all get the first one while the toggle is off. Edit the materials first, or tick <Label k="ad.ui.target.explicit_off" />. One exception: a Poiyomi material that marks the property **Renamed (when locked)** keeps its own value in the game while the toggle is off, under the property's new name, so the warning leaves it out.
 
-When no material of the mesh has the property, the row is skipped with a warning. One case works anyway: the same toggle swaps in a material that has the property, in its <Label k="ad.ui.materials" /> section. AvatarDoc then reads the value from that material, as a dissolve effect needs.
+When no material of the mesh has the property, the row is skipped with a warning. One case works anyway: the same toggle swaps in a material that has the property, in its <Label k="ad.ui.materials" /> section. AvatarDoc then reads the value from that material, as a dissolve effect needs. A locked Poiyomi material that renamed the property has it under its new name, and AvatarDoc reads the value from there, also where the locked material keeps an unused copy under the old name.
 
 ## What AvatarDoc builds
 
-The property's values go into the entry's own layer in the avatar's FX animator, like its blend shapes. Some shaders, such as Poiyomi when its materials are locked, keep only the properties marked as animated. Mark the property as animated in the shader's own inspector before you lock the material, or the change shows in the editor but not in the game.
+The property's values go into the entry's own layer in the avatar's FX animator, like its blend shapes.
+
+Poiyomi locks its materials at upload, and a locked material keeps every property at its value unless the property is marked as animated. AvatarDoc knows a Poiyomi material by its shader's name and reads the marks the material keeps. It reads the mesh's own materials, every material an AvatarDoc control or trigger of the avatar swaps onto the mesh, and the material a swap that is on by default replaces, since Poiyomi locks those at upload too. A material variant is read through the material it is made from, which is the one Poiyomi locks:
+
+- **Animated (when locked):** the value is written under the property's own name.
+- **Renamed (when locked):** the value is written twice, under the property's own name, which works while the material is not locked, and under the name Poiyomi gives the property when it locks the material. A locked material keeps the new name it was locked with, also after you rename or copy it. A property you picked from a locked material already has the new name: it is written under that name and, while the material is unlocked, under its own name too, unless another material of the mesh still changes the property under its own name in the game.
+- **Not marked:** the change would do nothing in the game, so a warning says so. Its button <Label k="ad.ui.poiyomi.mark_animated" /> marks the property **Animated (when locked)** on those materials, in one Undo step. A locked component refuses it. A material that is already locked gets a warning without a button: unlock it, mark the property, then lock it again.
+
+The scene preview writes the value under the name each material draws with. Material swaps made outside AvatarDoc's own material rows, such as your own animations, a custom animation of an entry, Modular Avatar's Material Swap or VRCFury, are not checked: mark the property on the materials they swap in yourself. Other shaders that lock their materials are not checked either: mark the property as animated in their own inspector before they lock.
 
 ## Messages
 
 - [No material of the mesh has the property](../messages/#ad-warn-property-missing): the row is skipped.
 - [The materials disagree on the property](../messages/#ad-warn-property-differs).
+- [A Poiyomi material does not mark the property as animated](../messages/#ad-warn-poiyomi-not-animated).
+- [A locked Poiyomi material fixed the property at its value](../messages/#ad-warn-poiyomi-baked).
 - [A target is missing](../messages/#ad-warn-target-missing): the row has no renderer.
 - [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
 - [More than one control changes the same thing](../messages/#ad-info-target-shared).

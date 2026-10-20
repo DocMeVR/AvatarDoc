@@ -110,6 +110,8 @@
     "ad-warn-parameter-undeclared",
     "ad-warn-physbone-renamed",
     "ad-warn-platform-parity",
+    "ad-warn-poiyomi-baked",
+    "ad-warn-poiyomi-not-animated",
     "ad-warn-preset-empty",
     "ad-warn-preset-parameter-unknown",
     "ad-warn-preset-target-missing",
