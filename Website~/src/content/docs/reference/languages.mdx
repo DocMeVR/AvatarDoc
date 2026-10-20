@@ -5,6 +5,7 @@ description: How to change the language AvatarDoc is shown in, how it is shared 
 
 import Label from '../../../components/Label.astro';
 import Shot from '../../../components/Shot.astro';
+import site from '../../../data/site.json';
 
 <Shot name="reference-languages/picker" alt="The inspector with the language list open: 1 the Simple and Advanced switch, 2 the language button at the right end of its row." />
 
@@ -13,7 +14,7 @@ import Shot from '../../../components/Shot.astro';
 
 ## When to use it
 
-AvatarDoc speaks English, Japanese and Simplified Chinese. Use the language button when you want the tool, its messages and its tooltips in another language. The pages of this site are in English.
+AvatarDoc speaks English, Japanese and Simplified Chinese. Use the language button when you want the tool, its messages and its tooltips in another language. The pages of this site are in English; the Start here guide is also in <a href={`${site.base}/ja/start-here/install/`}>Japanese</a> and <a href={`${site.base}/ar/start-here/install/`}>Arabic</a>.
 
 ## Settings
 
@@ -37,7 +38,9 @@ The list holds the languages that NDMF knows, the languages that AvatarDoc has f
 
 ## Adding a language
 
-A language is one text file named `AvatarDoctor.<code>.json`, for example `AvatarDoctor.ko-KR.json`. AvatarDoc finds a file by its name alone, anywhere in the project. Add the file, or save a change to one, and the list updates. You do not need to change any code. [Help translate](../../help/translate/) explains the file, the key names and the agreed words.
+A language is one text file named `AvatarDoctor.<code>.po`, for example `AvatarDoctor.ko-KR.po`. It is a gettext file, so translation tools such as Poedit open it. AvatarDoc finds a file by its name alone, anywhere in the project. Add the file, or save a change to one, and the list updates. You do not need to change any code. [Help translate](../../help/translate/) explains the file, the key names and the agreed words.
+
+AvatarDoc no longer reads the `AvatarDoctor.<code>.json` files of earlier versions. When one is in your project, the Console shows a warning that says how to make the `.po` file from it.
 
 ## What AvatarDoc builds
 

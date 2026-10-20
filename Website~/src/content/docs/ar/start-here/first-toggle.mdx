@@ -1,0 +1,70 @@
+---
+title: أول مفتاح تبديل لك
+description: أنشئ مفتاح تبديل يُظهر قبعة أو يخفيها، ثم جرّبه في وضع Play أو في VRChat.
+sidebar:
+  order: 2
+sourceHash: "390917379fcbd124e15e91f8760b7cc8b80891a2e17f6412bdccc1c2fa1b78b1"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+<Shot name="start-here/first-toggle-done" alt="واجهة AvatarDoc وفيها مفتاح Hat الجديد محدد في الشجرة، و1 قائمة Objects الخاصة به وفيها القبعة." />
+
+في الصورة، 1 هو قائمة <Label k="ad.ui.objects" /> الخاصة بمفتاح التبديل: الكائنات التي يفعّلها ويعطّلها.
+
+في نهاية هذه الصفحة سيكون في قائمة الأفاتار مفتاح تبديل باسم Hat. الضغط عليه يُظهر القبعة أو يخفيها.
+
+## قبل أن تبدأ [#before-you-start]
+
+- AvatarDoc مثبَّت في مشروعك. راجع [تثبيت AvatarDoc](../install/).
+- الأفاتار موجود في المشهد المفتوح.
+- في الأفاتار كائن تريد إظهاره وإخفاءه. تستخدم هذه الصفحة قبعة.
+
+## الخطوات [#steps]
+
+<Steps>
+
+1. في نافذة Hierarchy، حدّد الأفاتار.
+
+2. في نافذة Inspector، اضغط **Add Component**.
+
+   يُفترض أن ترى الآن قائمة مكوّنات Unity مع حقل بحث.
+
+3. اكتب `AvatarDoc` واختر **AvatarDoc**.
+
+   يُفترض أن ترى الآن واجهة AvatarDoc في نافذة Inspector. تحت شجرة القائمة، تعرض بطاقة الترحيب بضع طرق للبدء. تستخدم هذه الصفحة <Label k="ad.ui.welcome.toggle" />.
+
+   <Shot name="start-here/first-toggle-welcome" alt="واجهة مكوّن AvatarDoc جديد، وعلى بطاقة الترحيب علامات على 1 Make a toggle و2 Start an outfit set و3 Quick start." />
+
+   - 1: <Label k="ad.ui.welcome.toggle" /> ينشئ مفتاح تبديل من كائن واحد.
+   - 2: <Label k="ad.ui.welcome.outfit" /> يفتح نافذة مجموعة الأزياء التي تستخدمها صفحة [أول منتقي أزياء لك](../first-outfit-selector/).
+   - 3: <Label k="ad.ui.welcome.quickstart" /> يفتح دليلًا قصيرًا داخل Unity. وفي أعلى تلك النافذة <Label k="ad.ui.quickstart.full_guide" />، الذي يفتح هذا الدليل خطوة بخطوة على الموقع.
+
+4. في بطاقة الترحيب، اضغط <Label k="ad.ui.welcome.toggle" />.
+
+   يُفترض أن ترى الآن قائمة بالكائنات الموجودة في الأفاتار، مع حقل بحث.
+
+5. اكتب اسم القبعة واخترها من القائمة.
+
+   يُفترض أن ترى الآن مفتاح تبديل يحمل اسم القبعة، محددًا في الشجرة. وفي لوحته، تحتوي قائمة <Label k="ad.ui.objects" /> على القبعة، مضبوطةً على <Label k="ad.ui.seg.shown" />. وتختفي بطاقة الترحيب.
+
+</Steps>
+
+## جرّبه [#test-it]
+
+باستخدام Gesture Manager، وهي أداة مجانية يمكنك إضافتها إلى مشروعك من VCC:
+
+1. في شريط قوائم Unity، اختر **Tools > Gesture Manager Emulator**.
+2. اضغط Play. يبني AvatarDoc القائمة بالطريقة نفسها التي يبنيها بها عند الرفع.
+3. في نافذة Hierarchy، حدّد **GestureManager**. تعرض نافذة Inspector الخاصة به قائمة الأفاتار على شكل عجلة.
+4. افتح **Expressions** واضغط مفتاح تبديل القبعة.
+
+تبدأ القبعة مخفية، لأن مفتاح التبديل الجديد يبدأ معطّلًا. كل ضغطة تُظهرها أو تخفيها. لتبدأ والقبعة ظاهرة، حدّد خانة <Label k="ad.ui.default_on" /> في لوحة مفتاح التبديل.
+
+من دون Gesture Manager، ارفع الأفاتار واضغط مفتاح التبديل في قائمة Expressions في VRChat.
+
+## التالي [#next]
+
+[أول منتقي أزياء لك](../first-outfit-selector/): ابنِ قائمة فرعية يُلبَس فيها زيّ واحد في كل مرة.

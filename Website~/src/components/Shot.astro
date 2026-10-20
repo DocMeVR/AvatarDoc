@@ -6,7 +6,7 @@ import { altProblem } from '../../scripts/lib/shots.mjs';
 interface Props { name: string; alt: string; caption?: string }
 const { name, alt, caption } = Astro.props;
 
-const problem = altProblem(alt);
+const problem = altProblem(alt, Astro.locals.starlightRoute?.entryMeta.lang ?? 'en');
 if (problem) throw new Error(`Shot "${name}": ${problem}`);
 
 const keyOf = (path: string) => path.replace(/^.*\/assets\/shots\//, '').replace(/\.(png|json)$/, '');

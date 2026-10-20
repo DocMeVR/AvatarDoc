@@ -27,11 +27,11 @@ namespace DocMe.AvatarDoctor.Editor
 
         static string Show(IReadOnlyList<int> placeholders) => placeholders.Count == 0 ? "none" : string.Join(" ", placeholders.Select(n => "{" + n + "}"));
 
-        /// <summary>Whether the file is valid JSON in UTF-8 and holds only "key": "text" pairs.</summary>
+        /// <summary>Whether the file is a .po file in UTF-8 that holds only msgid and msgstr entries, comments and its header.</summary>
         public static List<string> Format(LanguageFile file)
         {
             var problems = new List<string>();
-            if (file.Error != null) problems.Add(Name(file) + " cannot be read: " + file.Error + " Compare it with AvatarDoctor.en-US.json, which has the right shape.");
+            if (file.Error != null) problems.Add(Name(file) + " cannot be read: " + file.Error + " Compare it with AvatarDoctor.en-US.po, which has the right shape.");
             return problems;
         }
 
@@ -47,7 +47,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var known = new HashSet<string>(english.Entries.Select(e => e.Key), StringComparer.Ordinal);
             return file.Entries.Where(e => !known.Contains(e.Key)).Select(e => e.Key).Distinct()
-                .Select(key => Name(file) + ": \"" + key + "\" is not in English, so nothing shows it. Check its spelling against AvatarDoctor.en-US.json, or remove it if English no longer has it.")
+                .Select(key => Name(file) + ": \"" + key + "\" is not in English, so nothing shows it. Check its spelling against AvatarDoctor.en-US.po, or remove it if English no longer has it.")
                 .ToList();
         }
 
@@ -129,7 +129,7 @@ namespace DocMe.AvatarDoctor.Editor
         public static List<string> EmptyTexts(LanguageFile file)
         {
             return file.Entries.Where(e => string.IsNullOrWhiteSpace(e.Text))
-                .Select(e => Name(file) + ": \"" + e.Key + "\" is empty (line " + e.Line + "). Write its translation; English shows until you do.")
+                .Select(e => Name(file) + ": \"" + e.Key + "\" is empty (line " + e.Line + "). Write its translation after msgstr; English shows until you do.")
                 .ToList();
         }
 
@@ -147,7 +147,7 @@ namespace DocMe.AvatarDoctor.Editor
                 return new List<string>
                 {
                     Name(file) + ": \"" + shared[i].Key + "\" (line " + shared[i].Line + ") is out of order: in English it comes before \"" + shared[i - 1].Key
-                    + "\". Put the keys in the same order as AvatarDoctor.en-US.json, so a change is easy to compare.",
+                    + "\". Put the keys in the same order as AvatarDoctor.en-US.po, so a change is easy to compare.",
                 };
             }
             return new List<string>();
@@ -158,7 +158,43 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var have = new HashSet<string>(file.Entries.Select(e => e.Key), StringComparer.Ordinal);
             return english.Entries.Where(e => !have.Contains(e.Key)).Select(e => e.Key).Distinct()
-                .Select(key => Name(file) + ": \"" + key + "\" is missing. A language that ships with AvatarDoc needs every English key: add it with its translation, in the same place as in AvatarDoctor.en-US.json.")
+                .Select(key => Name(file) + ": \"" + key + "\" is missing. A language that ships with AvatarDoc needs every English key: add it with its translation, in the same place as in AvatarDoctor.en-US.po.")
+                .ToList();
+        }
+
+        /// <summary>
+        /// The translations made from an English text that changed since: each marked outdated ("#, fuzzy"), and each
+        /// whose "#. en:" line names another English than today's. A file that does not say its English has nothing to
+        /// compare. A shipped language must have none, so a reworded English text fails the tests until it is translated.
+        /// </summary>
+        public static List<string> Outdated(LanguageFile english, LanguageFile file)
+        {
+            var englishTexts = english.ToTable();
+            var problems = new List<string>();
+            foreach (var entry in file.Entries)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Text)) continue;
+                var now = englishTexts.TryGetValue(entry.Key, out var text) ? LanguageFileUpdater.Source(text) : null;
+                if (entry.Fuzzy)
+                {
+                    var change = now == null ? ""
+                        : entry.PreviousEnglish != null ? " English changed from \"" + entry.PreviousEnglish + "\" to \"" + now + "\"."
+                        : " English now says \"" + now + "\".";
+                    problems.Add(Name(file) + ": \"" + entry.Key + "\" (line " + entry.Line + ") is marked outdated (#, fuzzy), so English shows in its place." + change
+                        + " Check the translation against the English, then delete its #, fuzzy line and its #. was: line.");
+                }
+                else if (entry.English != null && now != null && LanguageFileUpdater.Source(entry.English) != now)
+                    problems.Add(Name(file) + ": \"" + entry.Key + "\" (line " + entry.Line + ") was translated from the English \"" + entry.English + "\", but English now says \""
+                        + now + "\". Check the translation, then write the new English after #. en: on the line above it.");
+            }
+            return problems;
+        }
+
+        /// <summary>The old entries ("#~"): keys English dropped, kept in the file with their translation.</summary>
+        public static List<string> Obsolete(LanguageFile file)
+        {
+            return file.Obsolete
+                .Select(e => Name(file) + ": \"" + e.Key + "\" (line " + e.Line + ") is an old entry (#~): English no longer has this key, so nothing shows it. Delete it when you no longer need its text.")
                 .ToList();
         }
 
@@ -170,6 +206,8 @@ namespace DocMe.AvatarDoctor.Editor
             problems.AddRange(DuplicateKeys(file));
             if (file.Code == LanguageTables.English && file.Shipped) return problems;
             problems.AddRange(UnknownKeys(english, file));
+            problems.AddRange(Obsolete(file));
+            problems.AddRange(Outdated(english, file));
             problems.AddRange(Placeholders(english, file));
             problems.AddRange(Braces(english, file));
             problems.AddRange(Tags(file));
@@ -185,7 +223,7 @@ namespace DocMe.AvatarDoctor.Editor
             var paths = new HashSet<string>(savedPaths ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
             if (paths.Count == 0) return;
             foreach (var path in paths.Where(p => LanguageTables.CodeFromFileName(System.IO.Path.GetFileName(p)) == null))
-                Debug.LogWarning("[AvatarDoc] " + path + " is not used: the part between \"AvatarDoctor.\" and \".json\" is not a language code NDMF knows. Use a code such as ja-JP, zh-Hans or ko-KR.");
+                Debug.LogWarning("[AvatarDoc] " + path + " is not used: the part between \"AvatarDoctor.\" and \".po\" is not a language code NDMF knows. Use a code such as ja-JP, zh-Hans or ko-KR.");
             var english = LanguageTables.ReadEnglish();
             foreach (var found in LanguageTables.Files().Where(f => paths.Contains(f.Path)))
             {

@@ -1,0 +1,69 @@
+---
+title: أول تربيتة على الرأس
+description: اجعل الأفاتار يحمرّ خجلًا عندما تقترب يدٌ من أعلى رأسه.
+sidebar:
+  order: 4
+sourceHash: "9a434204ebb3b334186c0b64b7f65dd6005fb604d82054345de20db39111a08e"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+<Shot name="start-here/first-headpat-contact" alt="لوحة المُشغِّل Headpat وفيها 1 نقطة ارتكازه على عظمة Head، و2 الوسمان Hand وFinger محددان، و3 صف Blush بوزن 100." />
+
+في الصورة، 1 هو <Label k="ad.ui.touch.anchor" />، أي العظمة التي تتبعها منطقة اللمس. و2 هو <Label k="ad.ui.touch.tags" />، أي أجزاء الجسم التي تُحسب لمسًا. و3 هو شكل المزج الذي يُظهره المُشغِّل تدريجيًا.
+
+في نهاية هذه الصفحة سيحمرّ الأفاتار خجلًا عندما تقترب يدٌ من أعلى رأسه.
+
+## قبل أن تبدأ [#before-you-start]
+
+- مكوّن AvatarDoc على الأفاتار، كما في [أول مفتاح تبديل لك](../first-toggle/).
+- الواجهة في وضع <Label k="ad.ui.mode.advanced" />، وهو الوضع الافتراضي. لا يمكن إضافة المُشغِّلات في الوضع Simple: تشرح صفحة [Simple أم Advanced؟](../simple-or-advanced/) الوضعين.
+- مكوّن Animator في الأفاتار مضبوط على Humanoid ومُسنَد إليه Avatar، حتى يتمكن AvatarDoc من العثور على عظمة Head.
+- شكل مزج (blend shape) لاحمرار الخدين على وجه الأفاتار. تستخدم هذه الصفحة شكلًا اسمه Blush.
+
+## الخطوات [#steps]
+
+<Steps>
+
+1. في نافذة Hierarchy، حدّد الكائن الذي يحمل مكوّن AvatarDoc.
+
+2. في شريط أدوات الواجهة، اضغط <Label k="ad.ui.more" />، ثم <Label k="ad.ui.add.contact" />. وإذا كانت نافذة Inspector عريضة، فستجده على شريط الأدوات نفسه.
+
+   يُفترض أن ترى الآن <Label k="ad.ui.add.contact_starts.headpat" /> و<Label k="ad.ui.add.contact_starts.eye_touch" /> و<Label k="ad.ui.add.contact_starts.nose_boop" />.
+
+3. اختر <Label k="ad.ui.add.contact_starts.headpat" />.
+
+   يُفترض أن ترى الآن مُشغِّلًا باسم Headpat، محددًا تحت <Label k="ad.ui.triggers" /> في الشجرة. وفي لوحته تكون قيمة <Label k="ad.ui.touch.mode" /> هي <Label k="ad.ui.touch.follow" />، فيقوى التأثير كلما اقتربت اليد. و<Label k="ad.ui.touch.anchor" /> هي عظمة Head، وفي <Label k="ad.ui.touch.tags" /> يكون **Hand** و**Finger** محددين.
+
+4. في قسم <Label k="ad.ui.blendshapes" /> من اللوحة، اضغط زر الشكل في الصف. يعرض هذا الزر اسم شبكة الوجه.
+
+   يُفترض أن ترى الآن قائمة بأشكال المزج، مع حقل بحث.
+
+5. اكتب `Blush` واختر شكل احمرار الخدين.
+
+   يُفترض أن ترى الآن الصف يعرض شكل احمرار الخدين، وقيمة <Label k="ad.ui.weight" /> هي 100.
+
+6. في نافذة Scene، انظر إلى أعلى رأس الأفاتار.
+
+   يُفترض أن ترى الآن كرة المُشغِّل هناك، مع مقابض لتحريكها وتغيير حجمها.
+
+</Steps>
+
+## جرّبه [#test-it]
+
+باستخدام Gesture Manager:
+
+1. ادخل وضع Play باستخدام Gesture Manager، كما في [أول مفتاح تبديل لك](../first-toggle/#test-it).
+2. في نافذة Inspector الخاصة بـ GestureManager، افتح علامة التبويب **Tools**.
+3. وسّع **Clickable Contacts** وحدّد خانة **Enabled**.
+4. في نافذة Game، انقر مع الاستمرار على أعلى رأس الأفاتار.
+
+يحمرّ الأفاتار خجلًا ما دمت تضغط. وإذا لم تعرض نافذة Game الأفاتار، فوسّع **Scene Camera** في علامة التبويب نفسها واضغط زرّها: عندها تتبع نافذة Game نافذة Scene.
+
+ويمكنك أيضًا رفع الأفاتار والتربيت على رأسه في VRChat. <Label k="ad.ui.touch.self" /> و<Label k="ad.ui.touch.others" /> مفعّلان كلاهما، لذلك تُحسب يداك أنت كما تُحسب أيدي اللاعبين الآخرين.
+
+## التالي [#next]
+
+[Simple أم Advanced؟](../simple-or-advanced/): اعرف ما يعرضه كل وضع من أوضاع الواجهة، وبدّل بينهما.

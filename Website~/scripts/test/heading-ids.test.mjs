@@ -76,3 +76,35 @@ test('the table cache follows the file when its text and time change', async () 
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+const locales = { root: { lang: 'en', table: 'en-US' }, ja: { lang: 'ja', table: 'ja-JP' }, ar: { lang: 'ar', dir: 'rtl' } };
+const localeStrings = { ja: { 'ad.ui.target.objects': 'オブジェクト' } };
+const english = { 'ad.ui.target.objects': 'Objects', 'ad.ui.only_english': 'Only English' };
+
+function runIn(file, text) {
+  const t = tree(text);
+  headingIds({ strings: english, locales, localeStrings })(t, { path: file });
+  return t.children[0];
+}
+
+test('a heading marker on a Japanese page matches the Japanese text', () => {
+  const h = runIn('/site/src/content/docs/ja/reference/toggle.mdx', 'オブジェクト [#objects k=ad.ui.target.objects]');
+  assert.equal(h.data.hProperties.id, 'objects');
+  assert.equal(h.children[0].value, 'オブジェクト');
+  assert.throws(
+    () => runIn(['C:', 'site', 'src', 'content', 'docs', 'ja', 'reference', 'toggle.mdx'].join('\\'), 'Objects [#objects k=ad.ui.target.objects]'),
+    /no longer matches ad\.ui\.target\.objects in the ja-JP table \("オブジェクト"\)/,
+  );
+});
+
+test('a key the Japanese table lacks is checked against English, and Arabic pages always are', () => {
+  assert.equal(runIn('/site/src/content/docs/ja/x.mdx', 'Only English [#only k=ad.ui.only_english]').data.hProperties.id, 'only');
+  assert.equal(runIn('/site/src/content/docs/ar/reference/toggle.mdx', 'Objects [#objects k=ad.ui.target.objects]').data.hProperties.id, 'objects');
+  assert.throws(() => runIn('/site/src/content/docs/ar/reference/toggle.mdx', 'أشياء [#objects k=ad.ui.target.objects]'), /no longer matches ad\.ui\.target\.objects \("Objects"\)/);
+});
+
+test('English pages and folders that are not a language keep the English check', () => {
+  assert.throws(() => runIn('/site/src/content/docs/reference/toggle.mdx', 'オブジェクト [#objects k=ad.ui.target.objects]'), /\("Objects"\)/);
+  assert.throws(() => runIn('/site/src/content/docs/guides/ja.mdx', 'オブジェクト [#objects k=ad.ui.target.objects]'), /\("Objects"\)/);
+  assert.throws(() => runIn('/site/src/content/docs/ja/x.mdx', 'Nope [#n k=ad.ui.nope]'), /unknown UI label key ad\.ui\.nope/);
+});

@@ -1,0 +1,57 @@
+---
+title: Simple أم Advanced؟
+description: ما يعرضه كل وضع من أوضاع الواجهة، وكيف تبدّل بينهما.
+sidebar:
+  order: 5
+sourceHash: "4146c6c2ce9f78a040a32d7ac090513c7b1f512545e0f432b65a18ff3e4a53a4"
+---
+
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+لواجهة AvatarDoc وضعان. يعرض <Label k="ad.ui.mode.advanced" />، وهو الوضع الافتراضي، كل الأدوات. ويعرض <Label k="ad.ui.mode.simple" /> ما تحتاجه معظم الأفاتارات فقط. التبديل يغيّر ما تراه، ولا يغيّر أبدًا ما صنعته.
+
+<Shot name="start-here/simple-mode" alt="واجهة AvatarDoc في الوضع Simple مع تحديد مفتاح Hat: 1 مبدّل الوضع، و2 الترويسة، و3 شريط الأدوات، و4 لوحة مفتاح التبديل." />
+
+<Shot name="start-here/advanced-mode" alt="الواجهة نفسها في الوضع Advanced مع تمييز الأجزاء الأربعة نفسها: 1 مبدّل الوضع، و2 الترويسة، و3 شريط الأدوات، و4 لوحة مفتاح التبديل." />
+
+1. مبدّل الوضع.
+2. الترويسة.
+3. شريط الأدوات.
+4. لوحة العنصر المحدد، وهو هنا مفتاح Hat.
+
+## ما يعرضه كل وضع [#what-each-mode-shows]
+
+| الجزء | Simple | Advanced |
+|---|---|---|
+| الترويسة | سطر الحالة، و<Label k="ad.ui.ready.show" /> ما دامت هناك مشكلة، و<Label k="ad.ui.summary" /> وشريط الذاكرة، إضافةً إلى <Label k="ad.ui.settings_fold" /> بعد تغيير أحد الإعدادات فيه | الشيء نفسه، مع ظهور <Label k="ad.ui.settings_fold" /> دائمًا |
+| شريط الأدوات | <Label k="ad.ui.add.toggle" /> و<Label k="ad.ui.add.radial" /> و<Label k="ad.ui.add.submenu" /> و<Label k="ad.ui.add.outfit" /> وحقل البحث | كل أزرار الإضافة، ومنها أيضًا <Label k="ad.ui.add.trigger" /> و<Label k="ad.ui.add.override" /> و<Label k="ad.ui.add.preset" /> و<Label k="ad.ui.add.grabbable" /> (راجع [Grabbable](../../reference/grabbable/)) و<Label k="ad.ui.add.animator" /> و<Label k="ad.ui.add.menu_asset" /> و<Label k="ad.ui.parameters.add" /> و<Label k="ad.ui.add.contact" />، إضافةً إلى <Label k="ad.ui.toolbar.capture" /> و<Label k="ad.ui.toolbar.convert" /> و<Label k="ad.ui.wheel" /> و<Label k="ad.ui.tagfilter" /> |
+| لوحة مفتاح التبديل | <Label k="ad.ui.name" /> و<Label k="ad.ui.icon" /> و<Label k="ad.ui.default_on" /> و<Label k="ad.ui.in_menu" />، وقسما <Label k="ad.ui.objects" /> و<Label k="ad.ui.blendshapes" /> | <Label k="ad.ui.name" /> و<Label k="ad.ui.icon" /> و<Label k="ad.ui.default_on" /> و<Label k="ad.ui.in_menu" /> وقسم <Label k="ad.ui.objects" />، إضافةً إلى <Label k="ad.ui.style" /> و<Label k="ad.ui.style.raw_label" /> وسطر Builds و<Label k="ad.ui.group" /> و<Label k="ad.ui.preview" /> والقسم القابل للطي <Label k="ad.ui.advanced_fold" />. ويظهر <Label k="ad.ui.blendshapes" /> والأقسام الأخرى بعد أن تضيفها باستخدام <Label k="ad.ui.add_effect" />. |
+| <Label k="ad.ui.add_effect" /> في مفتاح تبديل | <Label k="ad.ui.objects" />، <Label k="ad.ui.blendshapes" />، <Label k="ad.ui.targets.properties" /> | الشيء نفسه، إضافةً إلى <Label k="ad.ui.materials" /> و<Label k="ad.ui.targets.animations" /> و<Label k="ad.ui.targets.follows" /> |
+| لوحة عنصر التحكم الدائري | <Label k="ad.ui.name" /> و<Label k="ad.ui.icon" /> و<Label k="ad.ui.default_value" /> و<Label k="ad.ui.in_menu" />، وقسم <Label k="ad.ui.blendshapes" /> | الشيء نفسه، إضافةً إلى <Label k="ad.ui.style" /> و<Label k="ad.ui.style.raw_label" /> وسطر Builds و<Label k="ad.ui.preview" /> والقسم القابل للطي <Label k="ad.ui.advanced_fold" /> |
+| <Label k="ad.ui.add_effect" /> في عنصر تحكم دائري | <Label k="ad.ui.blendshapes" />، <Label k="ad.ui.targets.properties" /> | الشيء نفسه، إضافةً إلى <Label k="ad.ui.targets.animations" /> |
+| لوحة القائمة الفرعية | <Label k="ad.ui.name" /> و<Label k="ad.ui.icon" />، وعدد الخانات المستخدمة فيها | الشيء نفسه، إضافةً إلى <Label k="ad.ui.style" /> و<Label k="ad.ui.style.raw_label" /> وسطر Builds والقسم القابل للطي <Label k="ad.ui.advanced_fold" /> |
+| بطاقة الترحيب | <Label k="ad.ui.welcome.toggle" /> و<Label k="ad.ui.welcome.outfit" /> و<Label k="ad.ui.welcome.quickstart" /> | الشيء نفسه، إضافةً إلى طريقة للبدء بالتحويل عندما يكون في الأفاتار شيء يستطيع AvatarDoc تحويله |
+| أي عنصر آخر | لوحته كاملة، مع ملاحظة عندما لا يستطيع الوضع Simple إضافة المزيد من نوعه | لوحته كاملة |
+
+قوائم النقر بالزر الأيمن هي نفسها في الوضعين.
+
+## التبديل بين الوضعين [#switch-modes]
+
+اضغط <Label k="ad.ui.mode.simple" /> أو <Label k="ad.ui.mode.advanced" /> في أعلى واجهة AvatarDoc في نافذة Inspector. وتحتوي نافذة AvatarDoc، الموجودة تحت **Tools > DocMe > AvatarDoc**، على المبدّل نفسه.
+
+هذا الاختيار خاص بك، لا بمكوّن واحد:
+
+- تتبعه كل مكوّنات AvatarDoc، في نافذة Inspector وفي نافذة AvatarDoc.
+- يتذكره Unity في المرة التالية التي تفتح فيها المشروع.
+- التبديل في مكان واحد يبدّل كل واجهات AvatarDoc ونوافذه المفتوحة دفعة واحدة.
+
+## لا يضيع شيء [#nothing-is-lost]
+
+التبديل يغيّر ما تعرضه الواجهة فقط. فهو لا يكتب شيئًا في المكوّن، ولا يعيد بناء أي شيء.
+
+لا يُخفي الوضع Simple أبدًا ما صنعته. تعرض الشجرة كل العناصر، ويبقى ظاهرًا كل جزء يحتوي على شيء. فمثلًا، مفتاح التبديل الذي يستخدم <Label k="ad.ui.materials" /> يظل يعرض قسم <Label k="ad.ui.materials" /> في الوضع Simple. ومرشّح الوسوم الذي تضبطه في الوضع Advanced يتوقف مؤقتًا في الوضع Simple، ويعمل من جديد عندما تعود.
+
+## التالي [#next]
+
+[الرسائل](../../reference/messages/): اعرف معنى التحذير وما عليك فعله.

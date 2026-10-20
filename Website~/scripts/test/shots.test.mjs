@@ -65,3 +65,13 @@ test('usedShots refuses a name that is not a plain string', () => {
   assert.throws(() => usedShots([{ file: 'a.mdx', source: '<Shot name={"x/y"} alt="A." />' }]), /a\.mdx.*name/);
   assert.throws(() => usedShots([{ file: 'a.mdx', source: '<Shot alt="A." />' }]), /a\.mdx.*name/);
 });
+
+test('altProblem wants "。" at the end of Japanese alt text and a full stop in English and Arabic', () => {
+  assert.equal(altProblem('新しい「Hat」トグルが選択されたインスペクター。', 'ja'), null);
+  assert.match(altProblem('新しい「Hat」トグルが選択されたインスペクター.', 'ja'), /must end with "。"/);
+  assert.match(altProblem('新しいトグル', 'ja-JP'), /must end with "。"/);
+  assert.equal(altProblem('واجهة AvatarDoc وفيها مفتاح Hat.', 'ar'), null);
+  assert.match(altProblem('واجهة AvatarDoc وفيها مفتاح Hat', 'ar'), /full stop/);
+  assert.match(altProblem('The toggle row。', 'en'), /full stop/);
+  assert.match(altProblem('あ'.repeat(150) + '。', 'ja'), /150/);
+});

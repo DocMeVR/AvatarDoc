@@ -17,7 +17,7 @@ export function loadStrings(tablePath) {
 export function labelText(strings, key) {
   if (!Object.prototype.hasOwnProperty.call(strings, key)) {
     throw new Error(
-      `Unknown UI label key "${key}". It is not in AvatarDoctor.en-US.json: fix the key, or remove the label from the page.`,
+      `Unknown UI label key "${key}". It is not in AvatarDoctor.en-US.po: fix the key, or remove the label from the page.`,
     );
   }
   const text = stripRichText(strings[key]);
@@ -25,6 +25,19 @@ export function labelText(strings, key) {
     throw new Error(`Label "${key}" has a placeholder; write the sentence in the page instead.`);
   }
   return text;
+}
+
+// How <Label> shows a key on a page in `lang`. English pages: the English text. A page whose language has a table with
+// a different text: that text, then the English one, because the pictures show English. Any other page: the English
+// text, kept left to right inside the page's own text. An unknown key fails in every language.
+export function labelParts(english, local, key, lang = 'en') {
+  const englishText = labelText(english, key);
+  if (lang.split('-')[0] === 'en') return { english: englishText };
+  if (local && Object.prototype.hasOwnProperty.call(local, key)) {
+    const text = labelText(local, key);
+    if (text !== englishText) return { local: text, english: englishText };
+  }
+  return { english: englishText, isolate: true };
 }
 
 export function usedLabelTags(source) {

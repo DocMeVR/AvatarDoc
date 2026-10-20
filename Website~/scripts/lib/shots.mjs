@@ -46,10 +46,13 @@ export function checkShots(used, manifest, { allowMissing = false, packageVersio
   };
 }
 
-export function altProblem(alt) {
+const FULL_STOPS = { ja: '。' };
+
+export function altProblem(alt, lang = 'en') {
   if (!alt || alt.trim() === '') return 'Every image needs alt text.';
   if (/^screenshot of/i.test(alt)) return 'Alt text must not start with "Screenshot of": say what the picture shows.';
   if (alt.length > 150) return `Alt text is ${alt.length} characters; the limit is 150.`;
-  if (!alt.endsWith('.')) return 'Alt text must end with a full stop.';
+  const stop = FULL_STOPS[lang.split('-')[0]] ?? '.';
+  if (!alt.endsWith(stop)) return stop === '.' ? 'Alt text must end with a full stop.' : `Alt text in this language must end with "${stop}".`;
   return null;
 }

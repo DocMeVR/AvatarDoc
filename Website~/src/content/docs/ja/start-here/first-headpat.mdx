@@ -1,0 +1,69 @@
+---
+title: はじめてのなでなで
+description: 手が頭のてっぺんに近づいたときに、アバターの頬を赤らめます。
+sidebar:
+  order: 4
+sourceHash: "9a434204ebb3b334186c0b64b7f65dd6005fb604d82054345de20db39111a08e"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+<Shot name="start-here/first-headpat-contact" alt="1にアンカーの「Head」ボーン、2にチェックの入った「Hand」と「Finger」のタグ、3にウェイト100の「Blush」の行がある「Headpat」トリガーのパネル。" />
+
+図の1は<Label k="ad.ui.touch.anchor" />で、タッチの範囲が追従するボーンです。2は<Label k="ad.ui.touch.tags" />で、タッチとして数える体の部位です。3は、トリガーがフェードインさせるブレンドシェイプです。
+
+このページを終えると、手が頭のてっぺんに近づいたときに、アバターの頬が赤くなります。
+
+## 始める前に [#before-you-start]
+
+- [はじめてのトグル](../first-toggle/)と同じように、アバターにAvatarDocコンポーネントがあること。
+- インスペクターが、初期設定の<Label k="ad.ui.mode.advanced" />モードになっていること。シンプルモードではトリガーを追加できません。モードについては[シンプルか詳細か？](../simple-or-advanced/)で説明しています。
+- AvatarDocが「Head」ボーンを見つけられるように、アバターのAnimatorがHumanoidに設定され、Avatarが割り当てられていること。
+- アバターの顔に、頬を赤らめるブレンドシェイプがあること。このページでは「Blush」という名前のものを使います。
+
+## 手順 [#steps]
+
+<Steps>
+
+1. ヒエラルキーで、AvatarDocコンポーネントが付いているオブジェクトを選択します。
+
+2. インスペクターのツールバーで<Label k="ad.ui.more" />を押し、次に<Label k="ad.ui.add.contact" />を押します。インスペクターの幅が広いときは、このボタンはツールバーに直接表示されています。
+
+   <Label k="ad.ui.add.contact_starts.headpat" />、<Label k="ad.ui.add.contact_starts.eye_touch" />、<Label k="ad.ui.add.contact_starts.nose_boop" />が表示されます。
+
+3. <Label k="ad.ui.add.contact_starts.headpat" />を選びます。
+
+   ツリーの<Label k="ad.ui.triggers" />の下に、「Headpat」という名前のトリガーが選択された状態で表示されます。そのパネルでは<Label k="ad.ui.touch.mode" />が<Label k="ad.ui.touch.follow" />になっているので、手が近づくほど効果が強くなります。<Label k="ad.ui.touch.anchor" />は「Head」ボーンで、<Label k="ad.ui.touch.tags" />では**Hand**と**Finger**にチェックが入っています。
+
+4. パネルの<Label k="ad.ui.blendshapes" />セクションで、行のシェイプボタンを押します。このボタンには、顔のメッシュの名前が表示されています。
+
+   ブレンドシェイプの一覧が、検索欄と一緒に表示されます。
+
+5. `Blush`と入力し、頬を赤らめるシェイプを選びます。
+
+   行にそのシェイプが表示され、<Label k="ad.ui.weight" />は100になっています。
+
+6. シーンビューで、アバターの頭のてっぺんを見ます。
+
+   そこにトリガーの球が表示され、動かしたり大きさを変えたりするためのハンドルが付いています。
+
+</Steps>
+
+## 試してみる [#test-it]
+
+Gesture Managerを使う場合：
+
+1. [はじめてのトグル](../first-toggle/#test-it)と同じように、Gesture Managerを使って再生モードにします。
+2. GestureManagerのインスペクターで、**Tools**タブを開きます。
+3. **Clickable Contacts**を展開し、**Enabled**にチェックを入れます。
+4. ゲームビューで、アバターの頭のてっぺんをクリックし、そのままマウスボタンを押し続けます。
+
+押している間、アバターの頬が赤くなります。ゲームビューにアバターが映らない場合は、同じタブで**Scene Camera**を展開し、そのボタンを押します。するとゲームビューが、シーンビューの視点に追従します。
+
+アバターをアップロードして、VRChatで頭をなでることもできます。<Label k="ad.ui.touch.self" />と<Label k="ad.ui.touch.others" />が両方オンなので、ほかのプレイヤーの手だけでなく、自分の手でも反応します。
+
+## 次へ [#next]
+
+[シンプルか詳細か？](../simple-or-advanced/)：インスペクターの各モードで何が表示されるかを確かめ、モードを切り替えます。

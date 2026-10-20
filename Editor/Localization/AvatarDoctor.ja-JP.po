@@ -1,0 +1,4528 @@
+msgid ""
+msgstr ""
+"Language: ja-JP\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#. en: AvatarDoc created the submenu \"{0}\" for the install path of {1}.
+msgid "ad.info.path_created"
+msgstr "{1}のインストールパス用に、AvatarDocがサブメニュー「{0}」を作成しました。"
+
+#. en: \"{0}\" joins the submenu of the same name that is already in the menu. ({1})
+msgid "ad.info.same_submenu_merged"
+msgstr "「{0}」は、メニューにすでにある同じ名前のサブメニューに統合されます。（{1}）"
+
+#. en: The submenu \"{0}\" has more controls than VRChat allows on one page; the extra controls were moved to a \"More\" page. Move some controls into their own submenu to avoid the extra page.
+msgid "ad.info.menu_split"
+msgstr "サブメニュー「{0}」には、VRChatが1ページに置ける数より多いコントロールがあるため、あふれた分を「More」ページに移しました。追加のページを避けるには、一部のコントロールを別のサブメニューに移してください。"
+
+#. en: The entry \"{0}\" pointed at a submenu that no longer exists, so it was placed at the top of its component instead. Move it into a submenu that exists, or leave it here. ({1})
+msgid "ad.warn.orphan_entry"
+msgstr "項目「{0}」の移動先のサブメニューが存在しないため、代わりにコンポーネントの最上位に配置しました。存在するサブメニューに移すか、このままにしてください。（{1}）"
+
+#. en: \"{0}\" has a missing target: an object, renderer, material slot or blend shape it pointed at is gone, so that row was skipped. Open \"{0}\" and fix or remove the empty target row. ({1})
+msgid "ad.warn.target_missing"
+msgstr "「{0}」のターゲットが見つかりません。指定していたオブジェクト、レンダラー、マテリアルスロット、またはブレンドシェイプがなくなったため、その行はスキップされました。「{0}」を開き、空のターゲット行を直すか削除してください。（{1}）"
+
+#. en: \"{0}\" targets an object that is not part of this avatar, so that target was skipped. Pick a target that is part of this avatar. ({1})
+msgid "ad.warn.target_outside_avatar"
+msgstr "「{0}」のターゲットがこのアバターの一部ではないため、そのターゲットはスキップされました。このアバター内のターゲットを選んでください。（{1}）"
+
+#. en: The entry \"{0}\" shares its internal id with another entry (usually a copied component). Both still work; the inspector will assign a new id. ({1})
+msgid "ad.warn.duplicate_entry_id"
+msgstr "項目「{0}」の内部IDが別の項目と重複しています（多くはコンポーネントのコピーが原因です）。どちらも動作します。インスペクターが新しいIDを割り当てます。（{1}）"
+
+#. en: \"{0}\" already exists on the avatar, so its own saved, synced and default settings apply. ({1})
+msgid "ad.info.parameter_reused"
+msgstr "「{0}」はアバターにすでに存在するため、そのパラメーター自身の保存、同期、初期値の設定が使われます。（{1}）"
+
+#. en: {0} is changed by more than one control ({1}); the one built later wins: later menu entries first, triggers after every menu control. ({2})
+msgid "ad.info.target_shared"
+msgstr "{0}は複数のコントロール（{1}）から変更されます。後からビルドされたものが優先されます。メニュー項目は後ろにあるものほど後に、トリガーはすべてのメニューコントロールの後にビルドされます。（{2}）"
+
+#. en: \"{0}\" is written by {1}; the override wins over every control, whatever the menu order. ({2})
+msgid "ad.info.target_shared_override"
+msgstr "「{0}」は{1}によって書き込まれます。オーバーライドはメニューの順番に関係なく、すべてのコントロールより優先されます。（{2}）"
+
+#. en: \"{0}\" has no targets, so nothing was generated for it. Add an object, blend shape or other target with \"+ Add\". ({1})
+msgid "ad.warn.no_effects"
+msgstr "「{0}」にはターゲットがないため、何も生成されませんでした。「+ 追加」でオブジェクトやブレンドシェイプなどのターゲットを追加してください。（{1}）"
+
+#. en: The exclusive group \"{0}\" has more than one toggle set as default; \"{1}\" is used because it comes first. Turn off \"Default on\" on the others. ({2})
+msgid "ad.warn.group_multiple_defaults"
+msgstr "排他グループ「{0}」に、初期状態でオンのトグルが複数あります。最初にある「{1}」が使われます。ほかのトグルの「初期状態オン」をオフにしてください。（{2}）"
+
+#. en: The exclusive group \"{0}\" has two toggles with the value {1}. Change one of the values, or select one of the toggles and press \"Give each member its own value\". ({2})
+msgid "ad.error.group_value_conflict"
+msgstr "排他グループ「{0}」に、値が{1}のトグルが2つあります。どちらかの値を変えるか、どちらかのトグルを選んで「各メンバーに別々の値を割り当てる」を押してください。（{2}）"
+
+#. en: The parameter \"{0}\" is already {1} here, but this control needs a {2} parameter. Pick a different name, or match the type. ({3})
+msgid "ad.error.parameter_type_conflict"
+msgstr "パラメーター「{0}」はここではすでに{1}型ですが、このコントロールには{2}型のパラメーターが必要です。別の名前を選ぶか、型を合わせてください。（{3}）"
+
+#. en: Synced parameters need {0} bits but VRChat allows {1}. AvatarDoc adds {2} of them. Turn off \"Synced\" on toggles that do not need to sync, or remove some.
+msgid "ad.error.bits_exceeded"
+msgstr "同期パラメーターに{0}ビット必要ですが、VRChatの上限は{1}ビットです。そのうち{2}ビットはAvatarDocが追加したものです。同期の必要がないトグルの「同期する」をオフにするか、いくつか削除してください。"
+
+#. en: Synced parameters need {0} bits but VRChat allows {1}. AvatarDoc adds {2} of them. VRCFury is installed and compresses parameters at upload until they fit, so the build goes on. To fit without VRCFury's help, turn off \"Synced\" on toggles that do not need to sync, or remove some.
+msgid "ad.warn.bits_exceeded_vrcfury"
+msgstr "同期パラメーターに{0}ビット必要ですが、VRChatの上限は{1}ビットです。そのうち{2}ビットはAvatarDocが追加したものです。VRCFuryが導入されていて、アップロード時に上限に収まるまでパラメーターを圧縮するため、ビルドは続行されます。VRCFuryに頼らずに収めるには、同期の必要がないトグルの「同期する」をオフにするか、いくつか削除してください。"
+
+#. en: The icon on \"{0}\" is {1}x{2} pixels or is not compressed, and VRChat's upload check rejects that. Re-import it at 256x256 pixels or smaller with compression turned on.
+msgid "ad.error.menu_icon_too_large"
+msgstr "「{0}」のアイコンが{1}x{2}ピクセルであるか、圧縮されていないため、VRChatのアップロードチェックで拒否されます。256x256ピクセル以下、圧縮ありで再インポートしてください。"
+
+#. en: Your avatar's own FX layers mix Write Defaults on and off: on in {0}, off in {1}. Make every layer use the same setting; AvatarDoc otherwise builds with Write Defaults on.
+msgid "ad.warn.write_defaults_mixed"
+msgstr "アバター自身のFXレイヤーで、Write Defaultsのオンとオフが混在しています（オン：{0}、オフ：{1}）。すべてのレイヤーを同じ設定にしてください。混在したままの場合、AvatarDocはWrite Defaultsオンでビルドします。"
+
+#. en: The avatar has no FX playable layer, so AvatarDoc has nowhere to add toggles. Add an FX controller under \"Playable Layers\" in the avatar's VRC Avatar Descriptor.
+msgid "ad.error.no_fx_layer"
+msgstr "アバターにFXのPlayable Layerがないため、AvatarDocはトグルを追加できません。アバターのVRC Avatar Descriptorの「Playable Layers」にFXコントローラーを追加してください。"
+
+#. en: The animation \"{0}\" also moves something \"{1}\" moves, so while that trigger is on, the trigger's own value shows there.
+msgid "ad.info.curve_overwritten"
+msgstr "アニメーション「{0}」は「{1}」が動かすものと同じものを動かしているため、そのトリガーがオンの間は、トリガー側の値が表示されます。"
+
+#. en: Clip \"{0}\" is one of VRChat's own proxy animations, so \"{1}\" left it alone and does not follow the shape while it plays. This is expected and needs no fix.
+msgid "ad.warn.marker_clip_skipped"
+msgstr "クリップ「{0}」はVRChat独自のプロキシアニメーションのため、「{1}」は変更を加えず、再生中はシェイプに追従しません。これは想定どおりの動作で、修正は不要です。"
+
+#. en: The trigger \"{0}\" refers to a toggle, parameter, or blend shape that no longer exists, so it was skipped. Pick a source under \"When\" for it. ({1})
+msgid "ad.warn.trigger_source_missing"
+msgstr "トリガー「{0}」が参照するトグル、パラメーター、またはブレンドシェイプが存在しないため、スキップされました。「発動条件」でソースを選んでください。（{1}）"
+
+#. en: The trigger \"{1}\" reads the parameter \"{0}\", but nothing on this avatar declares it, so it is treated as a Float. Declare \"{0}\" under Parameters with its real type if it should be a whole number or true/false.
+msgid "ad.warn.parameter_type_unknown"
+msgstr "トリガー「{1}」はパラメーター「{0}」を読み取りますが、このアバターのどこにも宣言されていないため、Floatとして扱われます。整数（Int）やtrue/false（Bool）にする場合は、「パラメーター」で「{0}」を正しい型で宣言してください。"
+
+#. en: \"{0}\" lists its own shape \"{1}\" as one of its effects, so that effect is ignored. Remove \"{1}\" from its effects list.
+msgid "ad.warn.link_effect_is_source"
+msgstr "「{0}」が自身のシェイプ「{1}」を効果に含めているため、その効果は無視されます。効果の一覧から「{1}」を削除してください。"
+
+#. en: \"{0}\" already exists in the avatar's animator, so this control drives it without adding a new parameter, but it will not sync to other players over the network. Declare \"{0}\" under Parameters if you need it to sync. ({1})
+msgid "ad.info.parameter_animator_only"
+msgstr "「{0}」はアバターのアニメーターにすでにあるため、このコントロールは新しいパラメーターを追加せずにそれを操作します。ただし、ネットワーク越しにほかのプレイヤーへは同期されません。同期が必要な場合は、「パラメーター」で「{0}」を宣言してください。（{1}）"
+
+#. en: \"{0}\" is set to Replace but has no effect it can build, so the shape's own curve in the clip \"{1}\" was kept. Add an effect to the trigger, or set its Mode to Add.
+msgid "ad.warn.replace_kept_source"
+msgstr "「{0}」は「置換」に設定されていますが、ビルドできる効果がないため、クリップ「{1}」にあるシェイプ自身のカーブはそのまま残しました。トリガーに効果を追加するか、モードを「加算」にしてください。"
+
+#. en: Override \"{0}\" holds \"{1}\" at its value in {2} animations.
+msgid "ad.info.override_applied"
+msgstr "オーバーライド「{0}」は、{2}個のアニメーションで「{1}」を指定の値に固定します。"
+
+#. en: Override \"{0}\" holds \"{1}\" at its value in {2} animation.
+msgid "ad.info.override_applied.one"
+msgstr "オーバーライド「{0}」は、{2}個のアニメーションで「{1}」を指定の値に固定します。"
+
+#. en: Override \"{0}\" found no animation that moves \"{1}\" on this avatar, so it only set the mesh's own value. Check that \"{1}\" and its renderer are the ones you meant, or remove this override if that is all you wanted. ({2})
+msgid "ad.warn.override_unused"
+msgstr "オーバーライド「{0}」は、このアバターで「{1}」を動かすアニメーションを見つけられなかったため、メッシュ自体の値だけを設定しました。「{1}」とそのレンダラーが意図したものか確認してください。それだけが目的なら、このオーバーライドは削除してかまいません。（{2}）"
+
+#. en: Overrides \"{0}\" and \"{1}\" both hold \"{2}\" at different values; \"{1}\" wins because it comes later. Remove one of them, or match their values. ({3})
+msgid "ad.warn.override_conflict"
+msgstr "オーバーライド「{0}」と「{1}」が、「{2}」をそれぞれ異なる値に固定しています。後にある「{1}」が優先されます。どちらかを削除するか、値をそろえてください。（{3}）"
+
+#. en: Override \"{0}\": its renderer no longer exists at build time, so the shape \"{1}\" was not pinned. Point it at a renderer that still exists on this avatar.
+msgid "ad.warn.override_target_gone"
+msgstr "オーバーライド「{0}」：ビルド時にレンダラーが存在しないため、シェイプ「{1}」は固定されませんでした。このアバターに存在するレンダラーを指定してください。"
+
+#. en: The change made to \"{0}\" would move its submenu into itself, so it was not applied. Pick a different \"Move to\" path for it. ({1})
+msgid "ad.error.edit_cycle"
+msgstr "「{0}」への変更はサブメニューをそれ自身の中に移動することになるため、適用されませんでした。「移動先」で別のパスを選んでください。（{1}）"
+
+#. en: The change made to \"{0}\" points at an AvatarDoc entry, so it was ignored. Edit \"{0}\" directly in its own panel instead. ({1})
+msgid "ad.warn.edit_own_entry"
+msgstr "「{0}」への変更はAvatarDocの項目を指しているため、無視されました。代わりに「{0}」自身のパネルで直接編集してください。（{1}）"
+
+#. en: The change saved for \"{0}\" cannot apply: that menu item was no longer found, so nothing changed. Use \"Remove\" to clear this edit.
+msgid "ad.warn.edit_source_missing"
+msgstr "「{0}」に保存された変更を適用できません。そのメニューアイテムが見つからないため、何も変更されていません。「削除」でこの編集を消してください。"
+
+#. en: Preset \"{0}\" sets nothing yet, so pressing it does nothing. Add a control or parameter with \"+ Add\".
+msgid "ad.warn.preset_empty"
+msgstr "プリセット「{0}」はまだ何も設定していないため、押しても何も起きません。「+ 追加」でコントロールかパラメーターを追加してください。"
+
+#. en: The preset \"{0}\" refers to a control that no longer exists, so that row was skipped. Remove that row from the preset. ({1})
+msgid "ad.warn.preset_target_missing"
+msgstr "プリセット「{0}」が参照するコントロールが存在しないため、その行はスキップされました。プリセットからその行を削除してください。（{1}）"
+
+#. en: A row of the preset \"{0}\" has no control yet, so it sets nothing. Pick a control with the row's button, or remove the row. ({1})
+msgid "ad.info.preset_pick_control"
+msgstr "プリセット「{0}」に、まだコントロールを選んでいない行があるため、その行は何も設定しません。行のボタンでコントロールを選ぶか、行を削除してください。（{1}）"
+
+#. en: The preset \"{0}\" turns on two members of the exclusive group \"{1}\" at once, but only one can be on; only the first listed is applied, and the upload stops until you fix it. Remove one of them from the preset. ({2})
+msgid "ad.error.preset_group_conflict"
+msgstr "プリセット「{0}」は排他グループ「{1}」のメンバーを2つ同時にオンにしますが、オンにできるのは1つだけです。先に並んでいるものだけが適用され、修正するまでアップロードは止まります。どちらかをプリセットから削除してください。（{2}）"
+
+#. en: The parameter \"{0}\" set by the preset \"{1}\" is not declared in the expression parameters or the FX controller, so it is written anyway. Declare \"{0}\" under Parameters if you want VRChat to recognise it. ({2})
+msgid "ad.warn.preset_parameter_unknown"
+msgstr "プリセット「{1}」が設定するパラメーター「{0}」は、Expression ParametersにもFXコントローラーにも宣言されていませんが、そのまま書き込まれます。VRChatに認識させたい場合は、「パラメーター」で「{0}」を宣言してください。（{2}）"
+
+#. en: \"{0}\": no material on \"{1}\" has the property \"{2}\", so that row was skipped. Pick a property that exists on \"{1}\"'s materials.
+msgid "ad.warn.property_missing"
+msgstr "「{0}」：「{1}」のどのマテリアルにもプロパティ「{2}」がないため、その行はスキップされました。「{1}」のマテリアルにあるプロパティを選んでください。"
+
+#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them; edit the materials first if you want a different one used.
+msgid "ad.warn.property_differs"
+msgstr "「{0}」：「{1}」のマテリアル同士で「{2}」の値がすでに異なっています。オフにすると、最初のマテリアルの値がすべてに書き込まれます。別の値を使いたい場合は、先にマテリアルを編集してください。"
+
+#. en: \"{0}\" is in an exclusive group, so its blend time is not used.
+msgid "ad.info.blend_ignored_in_group"
+msgstr "「{0}」は排他グループに入っているため、ブレンド時間は使われません。"
+
+#. en: \"{0}\": the clip \"{1}\" is one of VRChat's own proxy clips, so it was not merged. This is expected and needs no fix.
+msgid "ad.warn.animation_proxy"
+msgstr "「{0}」：クリップ「{1}」はVRChat独自のプロキシクリップのため、統合されませんでした。これは想定どおりの動作で、修正は不要です。"
+
+#. en: \"{0}\": {1} generated values replace the same curve in its custom animation.
+msgid "ad.info.animation_overridden"
+msgstr "「{0}」：生成された{1}個の値が、カスタムアニメーション内の同じカーブを置き換えます。"
+
+#. en: \"{0}\": {1} generated value replaces the same curve in its custom animation.
+msgid "ad.info.animation_overridden.one"
+msgstr "「{0}」：生成された{1}個の値が、カスタムアニメーション内の同じカーブを置き換えます。"
+
+#. en: \"{0}\": {1} values in its custom animation do not match anything on this avatar, so they were left out of the off state. Check that clip's object paths and properties are correct.
+msgid "ad.warn.animation_binding_missing"
+msgstr "「{0}」：カスタムアニメーション内の{1}個の値がこのアバターのどれにも一致しないため、オフ状態から除外しました。そのクリップのオブジェクトパスとプロパティが正しいか確認してください。"
+
+#. en: \"{0}\": {1} value in its custom animation does not match anything on this avatar, so it was left out of the off state. Check that clip's object paths and properties are correct.
+msgid "ad.warn.animation_binding_missing.one"
+msgstr "「{0}」：カスタムアニメーション内の{1}個の値がこのアバターのどれにも一致しないため、オフ状態から除外しました。そのクリップのオブジェクトパスとプロパティが正しいか確認してください。"
+
+#. en: The action \"{0}\" was not carried over.
+msgid "ad.import.note.unsupported_action"
+msgstr "アクション「{0}」は引き継がれませんでした。"
+
+#. en: The toggle's transition animation was not carried over.
+msgid "ad.import.note.transition"
+msgstr "トグルのトランジションアニメーションは引き継がれませんでした。"
+
+#. en: The toggle's security lock was not carried over.
+msgid "ad.import.note.security"
+msgstr "トグルのセキュリティロックは引き継がれませんでした。"
+
+#. en: The toggle's separate local state was not carried over.
+msgid "ad.import.note.separate_local"
+msgstr "トグルのローカル専用の状態は引き継がれませんでした。"
+
+#. en: The toggle's hold button behaviour was not carried over.
+msgid "ad.import.note.hold_button"
+msgstr "トグルのホールドボタン動作は引き継がれませんでした。"
+
+#. en: The toggle's inverted rest logic was not carried over.
+msgid "ad.import.note.invert_rest_logic"
+msgstr "トグルの待機状態の反転設定は引き継がれませんでした。"
+
+#. en: Only \"{1}\" became the exclusive group; the other tags ({0}) were dropped.
+msgid "ad.import.note.extra_tags"
+msgstr "排他グループになったのは「{1}」だけです。ほかのタグ（{0}）は引き継がれませんでした。"
+
+#. en: The clip's paths are used as they are. VRCFury may have rewritten them at build time, so check that they start at the avatar root.
+msgid "ad.import.note.clip_paths"
+msgstr "クリップのパスはそのまま使われます。VRCFuryがビルド時にパスを書き換えていた可能性があるため、パスがアバターのルートから始まっているか確認してください。"
+
+#. en: The blend shape \"{0}\" is deleted by Modular Avatar; deleting a shape cannot be carried over.
+msgid "ad.import.note.shape_changer_delete"
+msgstr "ブレンドシェイプ「{0}」はModular Avatarで削除されています。シェイプの削除は引き継げません。"
+
+#. en: Modular Avatar's Inverted option on \"{0}\" cannot be carried over; that reaction was skipped.
+msgid "ad.import.note.reactive_inverted"
+msgstr "「{0}」にあるModular Avatarの「条件を反転」（Inverted）は引き継げないため、その反応はスキップされました。"
+
+#. en: A material slot that does not exist on \"{0}\" was skipped.
+msgid "ad.import.note.slot_missing"
+msgstr "「{0}」に存在しないマテリアルスロットはスキップされました。"
+
+#. en: None of this item's actions could be carried over.
+msgid "ad.import.reason.no_supported_action"
+msgstr "このアイテムのアクションはどれも引き継げませんでした。"
+
+#. en: This item's effects come from an animator Modular Avatar merges from \"{0}\". AvatarDoc reads such a controller only when it is set and its layer type is FX. You can still rename, move, re-icon or hide the item.
+msgid "ad.import.reason.ma_merge_animator"
+msgstr "このアイテムの効果は、Modular Avatarが「{0}」から統合するアニメーターによるものです。AvatarDocがそのコントローラーを読み取るのは、コントローラーが設定されていて、レイヤー種別がFXの場合だけです。アイテムの名前変更、移動、アイコン変更、非表示は引き続きできます。"
+
+#. en: This item comes from a menu asset or a component that AvatarDoc cannot convert. You can still rename, move, re-icon or hide it.
+msgid "ad.import.reason.nothing_here"
+msgstr "このアイテムは、AvatarDocが変換できないメニューアセットまたはコンポーネントから来ています。名前変更、移動、アイコン変更、非表示は引き続きできます。"
+
+#. en: Nothing under this submenu can be converted.
+msgid "ad.import.reason.nothing_under"
+msgstr "このサブメニューの中には変換できるものがありません。"
+
+#. en: This Modular Avatar menu item is not a Toggle.
+msgid "ad.import.reason.not_a_toggle"
+msgstr "このModular Avatarのメニューアイテムはトグルではありません。"
+
+#. en: A locked component holds a menu edit for this item. Unlock it or remove the edit first.
+msgid "ad.import.reason.edit_locked"
+msgstr "ロックされたコンポーネントが、このアイテムのメニュー編集を持っています。先にロックを解除するか、編集を削除してください。"
+
+#. en: A curve's path does not resolve on this avatar; it was skipped.
+msgid "ad.import.note.fx_path_missing"
+msgstr "カーブのパスがこのアバター上で見つからないため、スキップされました。"
+
+#. en: The material property \"{0}\" is only partly animated, so it could not be carried over.
+msgid "ad.import.reason.property_partial"
+msgstr "マテリアルプロパティ「{0}」は一部しかアニメーションされていないため、引き継げませんでした。"
+
+#. en: This control's parameter does not drive any FX layer.
+msgid "ad.import.reason.fx_no_layer"
+msgstr "このコントロールのパラメーターは、どのFXレイヤーも操作していません。"
+
+#. en: The parameter \"{0}\" is used by more than one layer, or elsewhere as a blend tree, motion time or speed parameter.
+msgid "ad.import.reason.fx_parameter_shared"
+msgstr "パラメーター「{0}」は複数のレイヤーで使われているか、ほかの場所でブレンドツリー、Motion Time、またはSpeedのパラメーターとして使われています。"
+
+#. en: A transition into the on state also checks another parameter, so it could not be carried over.
+msgid "ad.import.reason.fx_other_condition"
+msgstr "オン状態へのトランジションがほかのパラメーターも確認しているため、引き継げませんでした。"
+
+#. en: The layer has no state reachable on this parameter.
+msgid "ad.import.reason.fx_no_on_state"
+msgstr "このレイヤーには、このパラメーターで到達できるステートがありません。"
+
+#. en: The on state's motion is a blend tree, which cannot be carried over.
+msgid "ad.import.reason.fx_blend_tree"
+msgstr "オン状態のモーションがブレンドツリーのため、引き継げません。"
+
+#. en: The on state has no motion.
+msgid "ad.import.reason.fx_no_motion"
+msgstr "オン状態にモーションがありません。"
+
+#. en: The curve \"{0}\" on {1} could not be carried over.
+msgid "ad.import.reason.fx_unsupported_curve"
+msgstr "{1}のカーブ「{0}」は引き継げませんでした。"
+
+#. en: The layer \"{0}\" was already removed or renamed in the FX controller, so there was nothing here to remove. If you renamed it, update the name under \"Layers left out of the build\". ({1})
+msgid "ad.warn.removed_layer_missing"
+msgstr "レイヤー「{0}」はFXコントローラーですでに削除または名前変更されているため、削除するものがありませんでした。名前を変えた場合は、「ビルドから除外するレイヤー」の名前を更新してください。（{1}）"
+
+#. en: The layer switches between several states on this parameter, so it cannot be converted one control at a time.
+msgid "ad.import.reason.shared_layer"
+msgstr "このレイヤーはこのパラメーターで複数のステートを切り替えるため、コントロールごとに変換できません。"
+
+#. en: Other menu controls use the same parameter.
+msgid "ad.import.reason.shared_parameter_controls"
+msgstr "ほかのメニューコントロールが同じパラメーターを使っています。"
+
+#. en: The layer has state behaviours that a converted toggle would lose.
+msgid "ad.import.reason.behaviours"
+msgstr "このレイヤーには、変換後のトグルでは失われるステートビヘイビアがあります。"
+
+#. en: The avatar uses animator layer control, which refers to layers by position, so layers cannot be removed safely.
+msgid "ad.import.reason.layer_control"
+msgstr "このアバターはAnimator Layer Controlを使っていて、レイヤーを位置で参照するため、レイヤーを安全に削除できません。"
+
+#. en: The layer has a mask or a weight of zero.
+msgid "ad.import.reason.layer_masked"
+msgstr "このレイヤーにはマスクがあるか、ウェイトが0です。"
+
+#. en: The layer plays a transition animation between off and on.
+msgid "ad.import.reason.transition_chain"
+msgstr "このレイヤーはオフとオンの間でトランジションアニメーションを再生します。"
+
+#. en: This layer was already converted.
+msgid "ad.import.reason.already_converted"
+msgstr "このレイヤーはすでに変換済みです。"
+
+#. en: Several layers share this name, so the old one cannot be left out safely.
+msgid "ad.import.reason.layer_name_not_unique"
+msgstr "同じ名前のレイヤーが複数あるため、古いレイヤーを安全に除外できません。"
+
+#. en: The old off state sets values that a toggle cannot reproduce.
+msgid "ad.import.reason.off_values_differ"
+msgstr "古いオフ状態が、トグルでは再現できない値を設定しています。"
+
+#. en: The layer rests in its on state but the parameter does not default to true, so what it should rest on could not be told.
+msgid "ad.import.reason.inverted_default_mismatch"
+msgstr "このレイヤーはオン状態で待機していますが、パラメーターの初期値がtrueではないため、どちらの状態で待機すべきか判断できませんでした。"
+
+#. en: This set replaces a Merge Animator, so its originals have to be removed with it.
+msgid "ad.import.reason.group_needs_removal"
+msgstr "このセットはMerge Animatorを置き換えるため、元のものも一緒に削除する必要があります。"
+
+#. en: Anything outside the avatar that set the old parameter, such as an OSC app, has to use the new one.
+msgid "ad.import.note.osc"
+msgstr "OSCアプリなど、アバターの外から古いパラメーターを設定していたものは、新しいパラメーターを使うように変更する必要があります。"
+
+#. en: The layer is not one blend tree of two constant clips at 0 and 1 on this parameter, so it could not be carried over.
+msgid "ad.import.reason.radial_shape"
+msgstr "このレイヤーは、このパラメーターの0と1に固定値のクリップを2つ置いた1つのブレンドツリーではないため、引き継げませんでした。"
+
+#. en: The two ends of the blend tree animate different things, so they could not be carried over.
+msgid "ad.import.reason.radial_bindings"
+msgstr "ブレンドツリーの両端が別々のものをアニメーションしているため、引き継げませんでした。"
+
+#. en: Another layer copies this one's states, so it cannot be left out of the build safely.
+msgid "ad.import.reason.synced_layer"
+msgstr "ほかのレイヤーがこのレイヤーのステートをコピー（Sync）しているため、安全にビルドから除外できません。"
+
+#. en: Modular Avatar renames the parameter \"{0}\" at build time, so the names inside the merged animator would no longer match what gets declared. Nothing of this set can be converted.
+msgid "ad.import.reason.ma_renamed_parameters"
+msgstr "Modular Avatarがビルド時にパラメーター「{0}」の名前を変更するため、統合されるアニメーター内の名前が、宣言される名前と一致しなくなります。このセットは何も変換できません。"
+
+#. en: The merged animator layer \"{0}\" became this entry's own effects.
+msgid "ad.import.note.merge_converted"
+msgstr "統合されたアニメーターのレイヤー「{0}」は、この項目自身の効果になりました。"
+
+#. en: This item keeps the parameter \"{0}\" and stays driven by the merged animator: {1}
+msgid "ad.import.note.merge_parameter_control"
+msgstr "このアイテムはパラメーター「{0}」をそのまま使い、統合されたアニメーターによって引き続き操作されます：{1}"
+
+#. en: A Button is momentary, which an entry cannot reproduce.
+msgid "ad.import.note.merge_button"
+msgstr "ボタンは押している間だけ有効になるため、項目では再現できません。"
+
+#. en: \"{0}\" was not removed because {1} layers share that same name, so removing by name would take all of them. Give the FX controller's layers unique names, then build again. ({2})
+msgid "ad.warn.removed_layer_ambiguous"
+msgstr "同じ名前のレイヤーが{1}個あり、名前で削除するとすべて消えてしまうため、「{0}」は削除しませんでした。FXコントローラーのレイヤーに重複しない名前を付けてから、もう一度ビルドしてください。（{2}）"
+
+#. en: Another layer drives this parameter; that keeps working.
+msgid "ad.import.note.driven_elsewhere"
+msgstr "ほかのレイヤーがこのパラメーターを操作しています。その操作は引き続き動作します。"
+
+#. en: These items share the parameter \"{0}\", so they convert together as one exclusive group where only one can be on.
+msgid "ad.import.note.ma_radio_set"
+msgstr "これらのアイテムはパラメーター「{0}」を共有しているため、1つだけオンにできる排他グループとしてまとめて変換されます。"
+
+#. en: Another layer of this animator writes the parameter \"{0}\", and that layer stays merged.
+msgid "ad.import.reason.driven_elsewhere"
+msgstr "このアニメーターのほかのレイヤーがパラメーター「{0}」に書き込んでいて、そのレイヤーは統合されたまま残ります。"
+
+#. en: The old off state sets values of its own; they were carried over as this toggle's off values.
+msgid "ad.import.note.off_values"
+msgstr "古いオフ状態は独自の値を設定しています。それらはこのトグルのオフ時の値として引き継がれました。"
+
+#. en: The layer \"{0}\" and its parameter were kept because another controller in the build switches FX layers by their position, and removing one would shift the rest. Remove that layer control behaviour first if you still want \"{0}\" gone, then build again.
+msgid "ad.warn.removed_layer_unsafe"
+msgstr "ビルド内のほかのコントローラーがFXレイヤーを位置で切り替えていて、1つ削除すると残りの位置がずれるため、レイヤー「{0}」とそのパラメーターは残しました。それでも「{0}」を削除したい場合は、先にそのLayer Controlビヘイビアを削除してから、もう一度ビルドしてください。"
+
+#. en: Layer \"{0}\" was not removed because the avatar uses animator layer control, and removing a layer would shift the ones after it by position. Remove that layer control first if you still want \"{0}\" gone, then build again. ({1})
+msgid "ad.warn.converted_layer_unsafe"
+msgstr "アバターがAnimator Layer Controlを使っていて、レイヤーを削除するとそれ以降のレイヤーの位置がずれるため、レイヤー「{0}」は削除しませんでした。それでも「{0}」を削除したい場合は、先にそのLayer Controlを削除してから、もう一度ビルドしてください。（{1}）"
+
+#. en: \"{0}\" left the expression parameters and freed {1} synced bits.
+msgid "ad.info.removed_parameter"
+msgstr "「{0}」をExpression Parametersから外し、同期ビットを{1}ビット空けました。"
+
+#. en: \"{0}\" left the expression parameters and freed {1} synced bit.
+msgid "ad.info.removed_parameter.one"
+msgstr "「{0}」をExpression Parametersから外し、同期ビットを{1}ビット空けました。"
+
+#. en: \"{0}\" stays in the expression parameters: {1}
+msgid "ad.info.removed_kept"
+msgstr "「{0}」はExpression Parametersに残ります：{1}"
+
+#. en: another menu control uses it
+msgid "ad.removal.kept.control"
+msgstr "ほかのメニューコントロールが使っています"
+
+#. en: an AvatarDoc entry uses it
+msgid "ad.removal.kept.entry"
+msgstr "AvatarDocの項目が使っています"
+
+#. en: an animator layer that stays reads it
+msgid "ad.removal.kept.layer"
+msgstr "残るアニメーターレイヤーが読み取っています"
+
+#. en: another animator of this avatar reads it
+msgid "ad.removal.kept.other_controller"
+msgstr "このアバターのほかのアニメーターが読み取っています"
+
+#. en: a parameter driver writes it
+msgid "ad.removal.kept.driver"
+msgstr "Parameter Driverが書き込んでいます"
+
+#. en: a contact receiver or a PhysBone writes it
+msgid "ad.removal.kept.contact"
+msgstr "Contact ReceiverまたはPhysBoneが書き込んでいます"
+
+#. en: another tool on the avatar uses it
+msgid "ad.removal.kept.other_tool"
+msgstr "アバター上のほかのツールが使っています"
+
+#. en: VRChat owns this parameter
+msgid "ad.removal.kept.builtin"
+msgstr "VRChatが管理するパラメーターです"
+
+#. en: The trigger \"{0}\" has no object set for \"Anchor\", so its contact has nowhere to attach. Pick an object for \"Anchor\". ({1})
+msgid "ad.error.contact_no_anchor"
+msgstr "トリガー「{0}」の「アンカー」にオブジェクトが設定されていないため、コンタクトを取り付ける場所がありません。「アンカー」にオブジェクトを選んでください。（{1}）"
+
+#. en: The trigger \"{0}\" has no tags ticked under \"Touched by\", so nothing can touch it. Tick at least one tag. ({1})
+msgid "ad.error.contact_no_tags"
+msgstr "トリガー「{0}」の「接触対象」でタグが1つもチェックされていないため、何も触れることができません。タグを1つ以上チェックしてください。（{1}）"
+
+#. en: The trigger \"{0}\" has both \"Self\" and \"Others\" off, so its contact can never fire. Turn on \"Self\", \"Others\", or both. ({1})
+msgid "ad.error.contact_nobody"
+msgstr "トリガー「{0}」は「自分」と「他プレイヤー」の両方がオフのため、コンタクトが反応することはありません。「自分」か「他プレイヤー」、または両方をオンにしてください。（{1}）"
+
+#. en: The trigger \"{0}\" has no PhysBone chosen, so it has nothing to watch. Pick a PhysBone in its \"PhysBone\" field. ({1})
+msgid "ad.error.physbone_missing"
+msgstr "トリガー「{0}」でPhysBoneが選ばれていないため、監視する対象がありません。「PhysBone」欄でPhysBoneを選んでください。（{1}）"
+
+#. en: The trigger \"{0}\" cannot flip its \"Toggle\": none is picked, or the one picked is not a toggle. Pick a toggle for it to flip. ({1})
+msgid "ad.error.flip_target"
+msgstr "トリガー「{0}」は「トグル」を切り替えられません。何も選ばれていないか、選ばれたものがトグルではありません。切り替えるトグルを選んでください。（{1}）"
+
+#. en: \"{0}\": the parameter \"{1}\" needs to be {2} here, but the avatar already has it as {3}. Rename the PhysBone's parameter, or match the type. ({4})
+msgid "ad.error.touch_parameter_type"
+msgstr "「{0}」：パラメーター「{1}」はここでは{2}型である必要がありますが、アバターではすでに{3}型です。PhysBoneのパラメーター名を変えるか、型を合わせてください。（{4}）"
+
+#. en: \"{0}\": its \"Anchor\" object or PhysBone belongs to another avatar. Pick one that is part of this avatar.
+msgid "ad.error.touch_outside_avatar"
+msgstr "「{0}」：「アンカー」のオブジェクトまたはPhysBoneが別のアバターに属しています。このアバター内のものを選んでください。"
+
+#. en: This avatar has no \"Head\" bone yet. Set its Animator to Humanoid and assign an Avatar, then try the start again.
+msgid "ad.error.contact_start_no_head"
+msgstr "このアバターにはまだ「Head」ボーンがありません。AnimatorをHumanoidに設定してAvatarを割り当ててから、もう一度定番コンタクトを追加してください。"
+
+#. en: Fade on \"{0}\" reads only the card its first contact is in: that contact drives the fade and the rest of that card are requirements. The conditions in its other cards are kept but not used; move what you need into the first card with + And, or remove the other cards. ({1})
+msgid "ad.warn.follow_distance_one_contact"
+msgstr "「{0}」のフェードは、最初のコンタクトがあるカードだけを読み取ります。そのコンタクトがフェードを動かし、同じカードの残りは必要条件になります。ほかのカードの条件は残りますが使われません。必要なものは「+ かつ」で最初のカードに移すか、ほかのカードを削除してください。（{1}）"
+
+#. en: \"{0}\": Follows cannot fade with distance and is not built in Follow distance. Switch to Hold to use it. ({1})
+msgid "ad.warn.follow_distance_no_follows"
+msgstr "「{0}」：追従は距離でフェードできないため、「フェード」モードではビルドされません。使うには「ホールド」に切り替えてください。（{1}）"
+
+#. en: {0} is left to \"{1}\", which already sets it to Animation. AvatarDoc's own pause layer was not built here.
+msgid "ad.warn.follow_distance_tracking_left_to"
+msgstr "{0}は、すでにAnimationに設定している「{1}」に任せます。AvatarDoc独自の一時停止レイヤーはここではビルドされませんでした。"
+
+#. en: \"{0}\" watches the PhysBone \"{1}\", but Modular Avatar renames its parameter at build, so the trigger would watch the old name. Give \"{1}\" a parameter that Modular Avatar does not rename. ({2})
+msgid "ad.warn.physbone_renamed"
+msgstr "「{0}」はPhysBone「{1}」を監視していますが、Modular Avatarがビルド時にそのパラメーター名を変更するため、トリガーは古い名前を監視することになります。「{1}」に、Modular Avatarが名前を変更しないパラメーターを付けてください。（{2}）"
+
+#. en: The default of group \"{0}\" is not built on this platform, so nothing in it is on by default here.
+msgid "ad.info.group_default_excluded"
+msgstr "グループ「{0}」の初期項目はこのプラットフォームではビルドされないため、ここでは初期状態でオンになるものはありません。"
+
+#. en: This merged animator has no \"Controller\" set, so nothing was merged from it. Pick a controller in its \"Controller\" field. ({0})
+msgid "ad.warn.merge_no_controller"
+msgstr "この統合アニメーターに「コントローラー」が設定されていないため、何も統合されませんでした。「コントローラー」欄でコントローラーを選んでください。（{0}）"
+
+#. en: The merged animator \"{0}\" is an Animator Override Controller whose own \"Controller\" field is empty, so it has nothing to merge and was left out. Set that field on \"{0}\", or pick a different animator. ({1})
+msgid "ad.warn.merge_override_no_controller"
+msgstr "統合アニメーター「{0}」はAnimator Override Controllerで、その「Controller」欄が空のため、統合するものがなく除外されました。「{0}」のその欄を設定するか、別のアニメーターを選んでください。（{1}）"
+
+#. en: \"{1}\" has no layer named \"{0}\" to leave out, so that entry under \"Layers\" does nothing. Remove it, or fix the spelling to match a real layer. ({2})
+msgid "ad.warn.merge_skip_missing"
+msgstr "「{1}」には除外するレイヤー「{0}」がないため、「レイヤー」にあるその項目は何もしません。削除するか、実在するレイヤーと一致するよう名前を直してください。（{2}）"
+
+#. en: The merged animator \"{0}\" has its \"Path root\" set to an object outside this avatar, so it was not merged. Point \"Path root\" at an object on this avatar, or leave it empty. ({1})
+msgid "ad.error.merge_outside_avatar"
+msgstr "統合アニメーター「{0}」の「パスのルート」がこのアバター外のオブジェクトに設定されているため、統合されませんでした。「パスのルート」をこのアバター内のオブジェクトにするか、空にしてください。（{1}）"
+
+#. en: The toggle \"{0}\" turns on \"Set a value when off\" for the blend shape \"{1}\", but that shape's effect is set to \"Pin\", which writes nothing while off. Turn off \"Set a value when off\", or change \"{1}\" away from \"Pin\". ({2})
+msgid "ad.error.explicit_off_pin"
+msgstr "トグル「{0}」はブレンドシェイプ「{1}」で「オフ時の値を指定」をオンにしていますが、そのシェイプの効果は「ピン留め」に設定されていて、オフの間は何も書き込みません。「オフ時の値を指定」をオフにするか、「{1}」を「ピン留め」以外に変更してください。（{2}）"
+
+#. en: The merged animator \"{0}\" needs the parameter \"{1}\" as {2}, but the avatar already has it as {3}. Match the type or rename one of them. ({4})
+msgid "ad.error.merge_parameter_type"
+msgstr "統合アニメーター「{0}」はパラメーター「{1}」を{2}型として必要としますが、アバターではすでに{3}型です。型を合わせるか、どちらかの名前を変更してください。（{4}）"
+
+#. en: Animator \"{0}\": the layer \"{1}\" is synced to \"{2}\", but \"{2}\" is left out of the merge. Include \"{2}\" too, or turn off the layer sync in the controller. ({3})
+msgid "ad.error.merge_synced_layer"
+msgstr "アニメーター「{0}」：レイヤー「{1}」は「{2}」に同期（Sync）していますが、「{2}」は統合から除外されています。「{2}」も含めるか、コントローラーでレイヤーの同期を解除してください。（{3}）"
+
+#. en: The merged animator \"{0}\" changes layer weights itself, so leaving layers out of it would point those changes at the wrong layer. Merge every layer, or remove the layer control. ({1})
+msgid "ad.error.merge_layer_control"
+msgstr "統合アニメーター「{0}」は自身でレイヤーのウェイトを変更するため、レイヤーを除外すると、その変更が違うレイヤーに向いてしまいます。すべてのレイヤーを統合するか、Layer Controlを削除してください。（{1}）"
+
+#. en: \"{0}\" drives the parameter \"{1}\", but nothing on this avatar reads it, so it has no effect yet. Remove it, or point it at a parameter a merged animator, VRCFury or Modular Avatar actually uses. ({2})
+msgid "ad.warn.parameter_control_unused"
+msgstr "「{0}」はパラメーター「{1}」を操作しますが、このアバターでそれを読み取るものがないため、まだ何の効果もありません。削除するか、統合アニメーター、VRCFury、Modular Avatarが実際に使うパラメーターを指定してください。（{2}）"
+
+#. en: \"{0}\": its toggle is not built on this platform, so the touch does nothing here.
+msgid "ad.info.flip_target_excluded"
+msgstr "「{0}」：トグルがこのプラットフォームではビルドされないため、ここではタッチしても何も起きません。"
+
+#. en: This avatar and \"{0}\" share a blueprint but their parameters differ at position {1}: \"{2}\" here, \"{3}\" there, so other platforms would see the wrong toggles. Rebuild both platforms from the same menu order to fix it.
+msgid "ad.warn.platform_parity"
+msgstr "このアバターと「{0}」はBlueprintを共有していますが、{1}番目のパラメーターが異なります（こちらは「{2}」、あちらは「{3}」）。このままでは、ほかのプラットフォームで違うトグルが表示されます。同じメニューの順番で、両方のプラットフォームをビルドし直してください。"
+
+#. en: The trigger \"{0}\" needs a toggle for \"Only while\", but the one picked is missing, a preset, or the toggle this trigger already flips. Pick a different toggle for \"Only while\". ({1})
+msgid "ad.error.gate_target"
+msgstr "トリガー「{0}」の「有効条件」にはトグルが必要ですが、選ばれたものが存在しないか、プリセットか、このトリガーが切り替えるトグルそのものです。「有効条件」に別のトグルを選んでください。（{1}）"
+
+#. en: \"{0}\" has no menu button, so nothing can turn it on unless something else drives it. Turn on \"Default on\", add it to a preset, or add a trigger that flips it. ({1})
+msgid "ad.info.hidden_toggle_unreachable"
+msgstr "「{0}」にはメニューボタンがないため、ほかから操作されない限りオンにできません。「初期状態オン」をオンにするか、プリセットに追加するか、これを切り替えるトリガーを追加してください。（{1}）"
+
+#. en: Menu
+msgid "ad.ui.menu"
+msgstr "メニュー"
+
+#. en: Install into
+msgid "ad.ui.install"
+msgstr "インストール先"
+
+#. en: Avatar root menu
+msgid "ad.ui.install.root"
+msgstr "アバターのルートメニュー"
+
+#. en: Pick a submenu
+msgid "ad.ui.install.pick"
+msgstr "サブメニューを選択"
+
+#. en: Install as
+msgid "ad.ui.install.mode"
+msgstr "インストール方法"
+
+#. en: Append items
+msgid "ad.ui.install.mode.append"
+msgstr "直接追加"
+
+#. en: As submenu
+msgid "ad.ui.install.mode.submenu"
+msgstr "サブメニューとして"
+
+#. en: Submenu name
+msgid "ad.ui.menu_name"
+msgstr "サブメニュー名"
+
+#. en: Submenu icon
+msgid "ad.ui.menu_icon"
+msgstr "メニューアイコン"
+
+#. en: Parameter prefix
+msgid "ad.ui.prefix"
+msgstr "接頭辞"
+
+#. en: Avatar {0} bit
+msgid "ad.ui.memory.avatar.one"
+msgstr "アバター {0} ビット"
+
+#. en: Avatar {0} bits
+msgid "ad.ui.memory.avatar"
+msgstr "アバター {0} ビット"
+
+#. en: AvatarDoc {0} bit
+msgid "ad.ui.memory.ad.one"
+msgstr "AvatarDoc {0} ビット"
+
+#. en: AvatarDoc {0} bits
+msgid "ad.ui.memory.ad"
+msgstr "AvatarDoc {0} ビット"
+
+#. en: {0} of {1} free
+msgid "ad.ui.memory.free"
+msgstr "空き {0} / {1}"
+
+#. en: {0} of {1} bits free
+msgid "ad.ui.memory.free_bits"
+msgstr "空き {0} / {1} ビット"
+
+#. en: {0} bits over the limit
+msgid "ad.ui.memory.over"
+msgstr "上限を {0} ビット超過"
+
+#. en: {0} bit over the limit
+msgid "ad.ui.memory.over.one"
+msgstr "上限を {0} ビット超過"
+
+#. en: This component is disabled and will not be installed.
+msgid "ad.ui.disabled"
+msgstr "このコンポーネントは無効になっているため、インストールされません。"
+
+#. en: Put this component under an avatar with a VRC Avatar Descriptor to see the merged menu.
+msgid "ad.ui.no_avatar"
+msgstr "統合されたメニューを表示するには、このコンポーネントをVRC Avatar Descriptorのあるアバターの中に置いてください。"
+
+#. en: {0} other component installs into this menu
+msgid "ad.ui.other_components.one"
+msgstr "このメニューには、ほかに{0}個のコンポーネントがインストールされます"
+
+#. en: {0} other components install into this menu
+msgid "ad.ui.other_components"
+msgstr "このメニューには、ほかに{0}個のコンポーネントがインストールされます"
+
+#. en: + Toggle
+msgid "ad.ui.add.toggle"
+msgstr "+ トグル"
+
+#. en: + Radial
+msgid "ad.ui.add.radial"
+msgstr "+ ラジアル"
+
+#. en: + Submenu
+msgid "ad.ui.add.submenu"
+msgstr "+ サブメニュー"
+
+#. en: Triggers
+msgid "ad.ui.triggers"
+msgstr "トリガー"
+
+#. en: {0} rule, no menu buttons
+msgid "ad.ui.triggers.note.one"
+msgstr "ルール{0}個・メニューボタンなし"
+
+#. en: {0} rules, no menu buttons
+msgid "ad.ui.triggers.note"
+msgstr "ルール{0}個・メニューボタンなし"
+
+#. en: existing
+msgid "ad.ui.existing"
+msgstr "既存"
+
+#. en: disabled
+msgid "ad.ui.disabled_chip"
+msgstr "無効"
+
+#. en: Drop objects from the Hierarchy here to make toggles
+msgid "ad.ui.drop.tree"
+msgstr "ヒエラルキーからオブジェクトをここにドロップしてトグルを作成"
+
+#. en: Toggle
+msgid "ad.ui.detail.toggle"
+msgstr "トグル"
+
+#. en: Radial
+msgid "ad.ui.detail.radial"
+msgstr "ラジアル"
+
+#. en: Submenu
+msgid "ad.ui.detail.submenu"
+msgstr "サブメニュー"
+
+#. en: Trigger
+msgid "ad.ui.detail.trigger"
+msgstr "トリガー"
+
+#. en: Select an entry in the menu above.
+msgid "ad.ui.detail.none"
+msgstr "上のメニューで項目を選択してください。"
+
+#. en: Name
+msgid "ad.ui.name"
+msgstr "名前"
+
+#. en: Icon
+msgid "ad.ui.icon"
+msgstr "アイコン"
+
+#. en: Default on
+msgid "ad.ui.default_on"
+msgstr "初期状態オン"
+
+#. en: Default
+msgid "ad.ui.default_value"
+msgstr "初期値"
+
+#. en: Saved
+msgid "ad.ui.saved"
+msgstr "保存する"
+
+#. en: Synced
+msgid "ad.ui.synced"
+msgstr "同期する"
+
+#. en: Exclusive group
+msgid "ad.ui.group"
+msgstr "排他グループ"
+
+#. en: None
+msgid "ad.ui.group.none"
+msgstr "なし"
+
+#. en: Group saved and synced
+msgid "ad.ui.group.settings"
+msgstr "保存・同期はグループの設定に従います"
+
+#. en: Value in group
+msgid "ad.ui.group.value"
+msgstr "グループ内の値"
+
+#. en: Give each member its own value
+msgid "ad.ui.group.number"
+msgstr "各メンバーに別々の値を割り当てる"
+
+#. en: Parameter
+msgid "ad.ui.parameter"
+msgstr "パラメーター"
+
+#. en: auto
+msgid "ad.ui.parameter.auto"
+msgstr "自動"
+
+#. en: custom
+msgid "ad.ui.parameter.custom"
+msgstr "カスタム"
+
+#. en: Custom name
+msgid "ad.ui.parameter.use_custom"
+msgstr "名前を指定"
+
+#. en: {0}, {1} bits
+msgid "ad.ui.parameter.bits"
+msgstr "{0}、{1}ビット"
+
+#. en: {0}, {1} bit
+msgid "ad.ui.parameter.bits.one"
+msgstr "{0}、{1}ビット"
+
+#. en: {0}, no new bits
+msgid "ad.ui.parameter.no_bits"
+msgstr "{0}、新しいビットなし"
+
+#. en: Value
+msgid "ad.ui.parameter.value"
+msgstr "値"
+
+#. en: Members use the group's parameter.
+msgid "ad.ui.parameter.group_note"
+msgstr "メンバーはグループのパラメーターを使います。"
+
+#. en: {0} of {1} used
+msgid "ad.ui.slots"
+msgstr "{0} / {1} 使用中"
+
+#. en: {0} of {1}
+msgid "ad.ui.slots.chip"
+msgstr "{0}/{1}"
+
+#. en: More (page {0})
+msgid "ad.ui.more_page"
+msgstr "More（{0}ページ目）"
+
+#. en: 0 bits
+msgid "ad.ui.synced.cost.none"
+msgstr "0ビット"
+
+#. en: +1 bit
+msgid "ad.ui.synced.cost.bit"
+msgstr "+1ビット"
+
+#. en: +8 bits
+msgid "ad.ui.synced.cost.bits"
+msgstr "+8ビット"
+
+#. en: Ready to upload ✓
+msgid "ad.ui.ready"
+msgstr "アップロード可能 ✓"
+
+#. en: {0} problem
+msgid "ad.ui.ready.problems.one"
+msgstr "{0}件の問題"
+
+#. en: {0} problems
+msgid "ad.ui.ready.problems"
+msgstr "{0}件の問題"
+
+#. en: {0} warning
+msgid "ad.ui.ready.warnings.one"
+msgstr "{0}件の警告"
+
+#. en: {0} warnings
+msgid "ad.ui.ready.warnings"
+msgstr "{0}件の警告"
+
+#. en: Show
+msgid "ad.ui.ready.show"
+msgstr "表示"
+
+#. en: Selects the next problem row and reveals it in the menu tree.
+msgid "ad.ui.ready.show.tip"
+msgstr "次の問題の行を選択し、メニューツリーで表示します。"
+
+#. en: Whether the avatar has any error or warning left to fix before upload.
+msgid "ad.ui.ready.tip"
+msgstr "アップロード前に直すべきエラーや警告が残っているかどうかを示します。"
+
+#. en: Opens or closes the list of every error and warning.
+msgid "ad.ui.problems.arrow.tip"
+msgstr "すべてのエラーと警告の一覧を開閉します。"
+
+#. en: Show {0} more
+msgid "ad.ui.problems.more"
+msgstr "さらに{0}件表示"
+
+#. en: {0} ×{1}
+msgid "ad.ui.problems.line_count"
+msgstr "{0} ×{1}"
+
+#. en: Learn more
+msgid "ad.ui.message.learn_more"
+msgstr "詳しく見る"
+
+#. en: Opens this message's entry in the online guide, with what it means and what to do.
+msgid "ad.ui.message.learn_more.tip"
+msgstr "このメッセージの意味と対処法を、オンラインガイドで開きます。"
+
+#. en: Open the full guide
+msgid "ad.ui.quickstart.full_guide"
+msgstr "ガイド全文を開く"
+
+#. en: Opens the step by step guide on the AvatarDoc website.
+msgid "ad.ui.quickstart.full_guide.tip"
+msgstr "AvatarDocのWebサイトで、手順付きのガイドを開きます。"
+
+#. en: Matches your avatar: Write Defaults {0}
+msgid "ad.ui.write_defaults"
+msgstr "アバターに合わせています：Write Defaults {0}"
+
+#. en: on
+msgid "ad.ui.write_defaults.on"
+msgstr "オン"
+
+#. en: off
+msgid "ad.ui.write_defaults.off"
+msgstr "オフ"
+
+#. en: The Write Defaults setting AvatarDoc's own layers will use, matched to the avatar's existing FX layers.
+msgid "ad.ui.write_defaults.tip"
+msgstr "AvatarDoc自身のレイヤーが使うWrite Defaultsの設定です。アバターの既存のFXレイヤーに合わせています。"
+
+#. en: Builds: {0}
+msgid "ad.ui.builds.line"
+msgstr "ビルド内容：{0}"
+
+#. en: {0} menu control
+msgid "ad.ui.builds.controls.one"
+msgstr "メニューコントロール{0}個"
+
+#. en: {0} menu controls
+msgid "ad.ui.builds.controls"
+msgstr "メニューコントロール{0}個"
+
+#. en: {0} synced bit
+msgid "ad.ui.builds.bits.one"
+msgstr "同期{0}ビット"
+
+#. en: {0} synced bits
+msgid "ad.ui.builds.bits"
+msgstr "同期{0}ビット"
+
+#. en: {0} FX layer
+msgid "ad.ui.builds.layers.one"
+msgstr "FXレイヤー{0}個"
+
+#. en: {0} FX layers
+msgid "ad.ui.builds.layers"
+msgstr "FXレイヤー{0}個"
+
+#. en: rewrites {0} clip
+msgid "ad.ui.builds.clips.one"
+msgstr "{0}個のクリップを書き換え"
+
+#. en: rewrites {0} clips
+msgid "ad.ui.builds.clips"
+msgstr "{0}個のクリップを書き換え"
+
+#. en: {0} contact
+msgid "ad.ui.builds.contacts.one"
+msgstr "コンタクト{0}個"
+
+#. en: {0} contacts
+msgid "ad.ui.builds.contacts"
+msgstr "コンタクト{0}個"
+
+#. en: {0} PhysBone
+msgid "ad.ui.builds.physbones.one"
+msgstr "PhysBone {0}個"
+
+#. en: {0} PhysBones
+msgid "ad.ui.builds.physbones"
+msgstr "PhysBone {0}個"
+
+#. en: {0} constraint
+msgid "ad.ui.builds.constraints.one"
+msgstr "コンストレイント{0}個"
+
+#. en: {0} constraints
+msgid "ad.ui.builds.constraints"
+msgstr "コンストレイント{0}個"
+
+#. en: fades with distance, fully on at {0}%
+msgid "ad.ui.builds.follow_distance"
+msgstr "距離でフェード、{0}%で最大"
+
+#. en: Blinking pauses while a hand is near and every requirement holds
+msgid "ad.ui.builds.pauses_blink"
+msgstr "手が近く、すべての必要条件を満たす間はまばたきを停止"
+
+#. en: Lip sync pauses while a hand is near and every requirement holds
+msgid "ad.ui.builds.pauses_lipsync"
+msgstr "手が近く、すべての必要条件を満たす間はリップシンクを停止"
+
+#. en: Blinking is left to {0}
+msgid "ad.ui.builds.blink_left_to"
+msgstr "まばたきは{0}に任せる"
+
+#. en: Lip sync is left to {0}
+msgid "ad.ui.builds.lipsync_left_to"
+msgstr "リップシンクは{0}に任せる"
+
+#. en: Blinking
+msgid "ad.ui.part.blinking"
+msgstr "まばたき"
+
+#. en: Lip sync
+msgid "ad.ui.part.lipsync"
+msgstr "リップシンク"
+
+#. en: Builds nothing: not built for {0}.
+msgid "ad.ui.builds.nothing.platform"
+msgstr "ビルド内容なし：{0}向けにはビルドしません。"
+
+#. en: Builds nothing yet: add a target above.
+msgid "ad.ui.builds.nothing.empty"
+msgstr "ビルド内容なし：上でターゲットを追加してください。"
+
+#. en: Builds nothing yet: no animation on this avatar uses this shape.
+msgid "ad.ui.builds.nothing.no_clips"
+msgstr "ビルド内容なし：このアバターには、このシェイプを使うアニメーションがまだありません。"
+
+#. en: Builds nothing: this component is disabled.
+msgid "ad.ui.builds.nothing.disabled"
+msgstr "ビルド内容なし：このコンポーネントは無効です。"
+
+#. en: What this entry adds to the avatar when it builds.
+msgid "ad.ui.builds.tip"
+msgstr "ビルド時にこの項目がアバターに追加するものです。"
+
+#. en: Objects
+msgid "ad.ui.objects"
+msgstr "オブジェクト"
+
+#. en: Blendshapes
+msgid "ad.ui.blendshapes"
+msgstr "ブレンドシェイプ"
+
+#. en: Materials
+msgid "ad.ui.materials"
+msgstr "マテリアル"
+
+#. en: + Add
+msgid "ad.ui.add"
+msgstr "+ 追加"
+
+#. en: Shown
+msgid "ad.ui.seg.shown"
+msgstr "表示"
+
+#. en: Hidden
+msgid "ad.ui.seg.hidden"
+msgstr "非表示"
+
+#. en: Drop GameObjects here
+msgid "ad.ui.drop.objects"
+msgstr "ここにゲームオブジェクトをドロップ"
+
+#. en: Weight
+msgid "ad.ui.weight"
+msgstr "ウェイト"
+
+#. en: Min
+msgid "ad.ui.min"
+msgstr "最小"
+
+#. en: Max
+msgid "ad.ui.max"
+msgstr "最大"
+
+#. en: Slot
+msgid "ad.ui.slot"
+msgstr "スロット"
+
+#. en: This entry belongs to the AvatarDoc on \"{0}\".
+msgid "ad.ui.other_component"
+msgstr "この項目は「{0}」のAvatarDocに属しています。"
+
+#. en: Select that component
+msgid "ad.ui.select_component"
+msgstr "そのコンポーネントを選択"
+
+#. en: \"{0}\" comes from the avatar's own expressions menu. AvatarDoc leaves it as it is; you can install submenus into it by path.
+msgid "ad.ui.existing_note"
+msgstr "「{0}」はアバター自身のExpressions Menuにあるものです。AvatarDocはそのままにします。パスを指定すれば、その中にサブメニューをインストールできます。"
+
+#. en: Triggers fire their effects when a toggle, a parameter, or an animated blend shape says so. They cost no synced bits.
+msgid "ad.ui.trigger_note"
+msgstr "トリガーは、トグル、パラメーター、またはアニメーションされたブレンドシェイプに応じて効果を発動します。同期ビットは消費しません。"
+
+#. en: Rename
+msgid "ad.ui.menu.rename"
+msgstr "名前を変更"
+
+#. en: Duplicate
+msgid "ad.ui.menu.duplicate"
+msgstr "複製"
+
+#. en: Delete
+msgid "ad.ui.menu.delete"
+msgstr "削除"
+
+#. en: Move to
+msgid "ad.ui.menu.move"
+msgstr "移動先"
+
+#. en: Root
+msgid "ad.ui.menu.move.root"
+msgstr "ルート"
+
+#. en: Pick a blendshape
+msgid "ad.ui.pick.shape"
+msgstr "ブレンドシェイプを選択"
+
+#. en: Pick a renderer first
+msgid "ad.ui.pick.renderer"
+msgstr "先にレンダラーを選択してください"
+
+#. en: + Trigger
+msgid "ad.ui.add.trigger"
+msgstr "+ トリガー"
+
+#. en: + Override
+msgid "ad.ui.add.override"
+msgstr "+ オーバーライド"
+
+#. en: Overrides
+msgid "ad.ui.overrides"
+msgstr "オーバーライド"
+
+#. en: {0} rule, applied to every animation
+msgid "ad.ui.overrides.note.one"
+msgstr "ルール{0}個・すべてのアニメーションに適用"
+
+#. en: {0} rules, applied to every animation
+msgid "ad.ui.overrides.note"
+msgstr "ルール{0}個・すべてのアニメーションに適用"
+
+#. en: Override
+msgid "ad.ui.detail.override"
+msgstr "オーバーライド"
+
+#. en: Overrides hold a blend shape at a value in every animation that uses it. They cost no synced bits and add no menu buttons.
+msgid "ad.ui.override_note"
+msgstr "オーバーライドは、ブレンドシェイプを使うすべてのアニメーションで、そのシェイプを一定の値に固定します。同期ビットは消費せず、メニューボタンも追加しません。"
+
+#. en: When
+msgid "ad.ui.trigger.when"
+msgstr "発動条件"
+
+#. en: Another toggle
+msgid "ad.ui.trigger.source.toggle"
+msgstr "ほかのトグル"
+
+#. en: A parameter
+msgid "ad.ui.trigger.source.parameter"
+msgstr "パラメーター"
+
+#. en: A blendshape is animated
+msgid "ad.ui.trigger.source.blendshape"
+msgstr "ブレンドシェイプが動く"
+
+#. en: Toggle
+msgid "ad.ui.trigger.toggle"
+msgstr "トグル"
+
+#. en: No toggles in this component
+msgid "ad.ui.trigger.no_toggles"
+msgstr "このコンポーネントにトグルがありません"
+
+#. en: is on
+msgid "ad.ui.trigger.toggle.on"
+msgstr "オン"
+
+#. en: is off
+msgid "ad.ui.trigger.toggle.off"
+msgstr "オフ"
+
+#. en: Parameter
+msgid "ad.ui.trigger.parameter"
+msgstr "パラメーター"
+
+#. en: Condition
+msgid "ad.ui.trigger.condition"
+msgstr "比較"
+
+#. en: Is on
+msgid "ad.ui.trigger.condition.is_true"
+msgstr "オン"
+
+#. en: Is off
+msgid "ad.ui.trigger.condition.is_false"
+msgstr "オフ"
+
+#. en: Equals
+msgid "ad.ui.trigger.condition.equals"
+msgstr "値と同じ"
+
+#. en: Is not
+msgid "ad.ui.trigger.condition.not_equals"
+msgstr "値以外"
+
+#. en: Is above
+msgid "ad.ui.trigger.condition.greater"
+msgstr "値より上"
+
+#. en: Is below
+msgid "ad.ui.trigger.condition.less"
+msgstr "値より下"
+
+#. en: Value
+msgid "ad.ui.trigger.value"
+msgstr "値"
+
+#. en: Shape
+msgid "ad.ui.trigger.shape"
+msgstr "シェイプ"
+
+#. en: Mode
+msgid "ad.ui.trigger.mode"
+msgstr "モード"
+
+#. en: AvatarDoc copies the shape's weight into a hidden value in every FX animation that moves it, and this trigger follows that copy. It costs no synced bits. A shape VRChat moves itself, for blinking or lip sync, cannot be followed.
+msgid "ad.ui.trigger.link_note"
+msgstr "AvatarDocは、シェイプを動かすすべてのFXアニメーションに、そのシェイプのウェイトを隠し値としてコピーします。このトリガーはそのコピーに追従します。同期ビットは消費しません。まばたきやリップシンクのためにVRChat自身が動かすシェイプには追従できません。"
+
+#. en: Parameters declared by the avatar, its components, and VRChat.
+msgid "ad.ui.trigger.parameter_note"
+msgstr "アバター、そのコンポーネント、VRChatが宣言しているパラメーターです。"
+
+#. en: Fixed weight
+msgid "ad.ui.effect.fixed"
+msgstr "一定のウェイト"
+
+#. en: Follow source
+msgid "ad.ui.effect.follow"
+msgstr "ソースに追従"
+
+#. en: Fixed
+msgid "ad.ui.seg.fixed"
+msgstr "一定"
+
+#. en: Pin
+msgid "ad.ui.seg.pin"
+msgstr "ピン留め"
+
+#. en: Multiplier
+msgid "ad.ui.effect.multiplier"
+msgstr "倍率"
+
+#. en: Pinned value
+msgid "ad.ui.override.value"
+msgstr "固定する値"
+
+#. en: Animated in {0} clips
+msgid "ad.ui.override.usage"
+msgstr "{0}個のクリップでアニメーション"
+
+#. en: Animated in {0} clip
+msgid "ad.ui.override.usage.one"
+msgstr "{0}個のクリップでアニメーション"
+
+#. en: Nothing on this avatar animates this shape yet. The value still applies to the mesh.
+msgid "ad.ui.override.unused"
+msgstr "このアバターでは、まだこのシェイプをアニメーションするものがありません。値はメッシュにそのまま適用されます。"
+
+#. en: {0} clips
+msgid "ad.ui.usage.chip"
+msgstr "クリップ{0}個"
+
+#. en: {0} clip
+msgid "ad.ui.usage.chip.one"
+msgstr "クリップ{0}個"
+
+#. en: Applied in the preview whenever it is on.
+msgid "ad.ui.preview.always"
+msgstr "オンの間は常にプレビューに適用されます。"
+
+#. en: Avatar
+msgid "ad.ui.pick.parameter.avatar"
+msgstr "アバター"
+
+#. en: AvatarDoc
+msgid "ad.ui.pick.parameter.doctor"
+msgstr "AvatarDoc"
+
+#. en: VRChat
+msgid "ad.ui.pick.parameter.vrchat"
+msgstr "VRChat"
+
+#. en: Scene preview
+msgid "ad.ui.preview"
+msgstr "シーンプレビュー"
+
+#. en: Default
+msgid "ad.ui.preview.default"
+msgstr "デフォルト"
+
+#. en: On
+msgid "ad.ui.preview.on"
+msgstr "オン"
+
+#. en: Off
+msgid "ad.ui.preview.off"
+msgstr "オフ"
+
+#. en: Follows {0}/{1} in the scene.
+msgid "ad.ui.preview.follows"
+msgstr "シーン上で{0}/{1}に追従します。"
+
+#. en: Scene preview is off. Switch it on under Tools > NDM Framework > Enable Previews, then turn on the AvatarDoc entry under Tools > NDM Framework > Configure Previews, to see entries applied to the avatar.
+msgid "ad.ui.preview.off_note"
+msgstr "シーンプレビューがオフです。Tools > NDM Framework > Enable Previews でオンにしてから、Tools > NDM Framework > Configure Previews でAvatarDocの項目をオンにすると、項目がアバターに適用された状態を確認できます。"
+
+#. en: Reset preview
+msgid "ad.ui.preview.reset"
+msgstr "プレビューをリセット"
+
+#. en: Wheel
+msgid "ad.ui.wheel"
+msgstr "ホイール"
+
+#. en: {0} of {1}
+msgid "ad.ui.wheel.count"
+msgstr "{0} / {1}"
+
+#. en: Select
+msgid "ad.ui.wheel.select"
+msgstr "選択"
+
+#. en: Test
+msgid "ad.ui.wheel.test"
+msgstr "テスト"
+
+#. en: Reset
+msgid "ad.ui.wheel.reset"
+msgstr "リセット"
+
+#. en: Copy
+msgid "ad.ui.copy"
+msgstr "コピー"
+
+#. en: Avatar menu
+msgid "ad.ui.root_menu"
+msgstr "アバターメニュー"
+
+#. en: Select an avatar or an object with an AvatarDoc component to edit its menu here.
+msgid "ad.ui.window.none"
+msgstr "ここでメニューを編集するには、アバターか、AvatarDocコンポーネントのあるオブジェクトを選択してください。"
+
+#. en: {0} off
+msgid "ad.ui.chip.trigger_off"
+msgstr "{0} オフ"
+
+#. en: That toggle is on a disabled component. The build skips it, so this trigger will not fire.
+msgid "ad.ui.trigger.source_disabled"
+msgstr "そのトグルは無効なコンポーネントにあります。ビルドでスキップされるため、このトリガーは発動しません。"
+
+#. en: B
+msgid "ad.ui.style.bold"
+msgstr "B"
+
+#. en: I
+msgid "ad.ui.style.italic"
+msgstr "I"
+
+#. en: Rich text tags
+msgid "ad.ui.style.raw_label"
+msgstr "リッチテキスト"
+
+#. en: Custom tags: edit the raw text.
+msgid "ad.ui.style.custom"
+msgstr "カスタムタグ：テキストを直接編集してください。"
+
+#. en: Style
+msgid "ad.ui.style"
+msgstr "スタイル"
+
+#. en: In game
+msgid "ad.ui.style.preview"
+msgstr "ゲーム内表示"
+
+#. en: Capture icon
+msgid "ad.ui.capture"
+msgstr "アイコン撮影"
+
+#. en: Capture icon
+msgid "ad.ui.capture.title"
+msgstr "アイコン撮影"
+
+#. en: Fit
+msgid "ad.ui.capture.fit"
+msgstr "カメラを合わせる"
+
+#. en: Background
+msgid "ad.ui.capture.background"
+msgstr "背景"
+
+#. en: Transparent
+msgid "ad.ui.capture.transparent"
+msgstr "透明"
+
+#. en: Solid colour
+msgid "ad.ui.capture.solid"
+msgstr "単色"
+
+#. en: Save icon
+msgid "ad.ui.capture.save"
+msgstr "アイコンを保存"
+
+#. en: This entry has no pieces to show. Add an object, blend shape or material target first.
+msgid "ad.ui.capture.none"
+msgstr "この項目には表示するパーツがありません。先にオブジェクト、ブレンドシェイプ、またはマテリアルのターゲットを追加してください。"
+
+#. en: Saved {0} and assigned it as the icon.
+msgid "ad.ui.capture.saved"
+msgstr "{0}を保存し、アイコンとして設定しました。"
+
+#. en: Fill
+msgid "ad.ui.capture.fill"
+msgstr "拡大表示"
+
+#. en: Zooms in on what is actually drawn, so the piece fills the icon.
+msgid "ad.ui.capture.fill.tip"
+msgstr "実際に描画されている部分に寄せて、パーツがアイコンいっぱいに映るようにします。"
+
+#. en: Modular Avatar
+msgid "ad.ui.chip.modular_avatar"
+msgstr "Modular Avatar"
+
+#. en: VRCFury
+msgid "ad.ui.chip.vrcfury"
+msgstr "VRCFury"
+
+#. en: Existing item
+msgid "ad.ui.existing.title"
+msgstr "既存アイテム"
+
+#. en: Move to
+msgid "ad.ui.existing.move"
+msgstr "移動先"
+
+#. en: (stay where it is)
+msgid "ad.ui.existing.stay"
+msgstr "（そのまま）"
+
+#. en: Reset
+msgid "ad.ui.existing.reset"
+msgstr "リセット"
+
+#. en: Remove
+msgid "ad.ui.edit.remove"
+msgstr "削除"
+
+#. en: Applied at build, after {0} has added this item.
+msgid "ad.ui.existing.late_note"
+msgstr "{0}がこのアイテムを追加した後、ビルド時に適用されます。"
+
+#. en: Original: {0}
+msgid "ad.ui.existing.original"
+msgstr "元の名前：{0}"
+
+#. en: Hide
+msgid "ad.ui.existing.hide"
+msgstr "隠す"
+
+#. en: Show
+msgid "ad.ui.existing.show"
+msgstr "表示"
+
+#. en: An item cannot move into itself.
+msgid "ad.ui.existing.move_refused"
+msgstr "アイテムをそれ自身の中に移動することはできません。"
+
+#. en: edited
+msgid "ad.ui.chip.edited"
+msgstr "編集済み"
+
+#. en: Remove from avatar
+msgid "ad.ui.existing.remove"
+msgstr "アバターから削除"
+
+#. en: Leaves the control out of the built avatar, with the parameter and the FX layers nothing else needs. The avatar's own assets are never changed.
+msgid "ad.ui.existing.remove.tip"
+msgstr "ビルドされたアバターからこのコントロールを除外し、ほかで不要なパラメーターとFXレイヤーも一緒に除外します。アバター自身のアセットは一切変更しません。"
+
+#. en: Frees {0} and {1}
+msgid "ad.ui.existing.remove_frees"
+msgstr "{0}と{1}を解放"
+
+#. en: {0} bits
+msgid "ad.ui.existing.remove_frees.bits"
+msgstr "{0}ビット"
+
+#. en: {0} bit
+msgid "ad.ui.existing.remove_frees.bits.one"
+msgstr "{0}ビット"
+
+#. en: {0} layers
+msgid "ad.ui.existing.remove_frees.layers"
+msgstr "{0}レイヤー"
+
+#. en: {0} layer
+msgid "ad.ui.existing.remove_frees.layers.one"
+msgstr "{0}レイヤー"
+
+#. en: Keeps \"{0}\": {1}
+msgid "ad.ui.existing.remove_keeps"
+msgstr "「{0}」を残す：{1}"
+
+#. en: hidden
+msgid "ad.ui.chip.hidden"
+msgstr "非表示"
+
+#. en: removed
+msgid "ad.ui.chip.removed"
+msgstr "削除済み"
+
+#. en: + Preset
+msgid "ad.ui.add.preset"
+msgstr "+ プリセット"
+
+#. en: Preset
+msgid "ad.ui.detail.preset"
+msgstr "プリセット"
+
+#. en: Sets
+msgid "ad.ui.preset.sets"
+msgstr "設定内容"
+
+#. en: + Add
+msgid "ad.ui.preset.add"
+msgstr "+ 追加"
+
+#. en: From preview
+msgid "ad.ui.preset.from_preview"
+msgstr "プレビューから"
+
+#. en: Adds every control that currently has a scene preview override, with the value it is previewing.
+msgid "ad.ui.preset.from_preview.tip"
+msgstr "現在シーンプレビューで上書きしているすべてのコントロールを、プレビュー中の値で追加します。"
+
+#. en: On
+msgid "ad.ui.preset.on"
+msgstr "オン"
+
+#. en: Off
+msgid "ad.ui.preset.off"
+msgstr "オフ"
+
+#. en: Other parameters
+msgid "ad.ui.preset.parameters"
+msgstr "その他のパラメーター"
+
+#. en: Sets a parameter AvatarDoc does not own, such as one from VRCFury or Modular Avatar.
+msgid "ad.ui.preset.parameters.tip"
+msgstr "VRCFuryやModular Avatarのものなど、AvatarDocが管理していないパラメーターを設定します。"
+
+#. en: This preset sets nothing yet.
+msgid "ad.ui.preset.none"
+msgstr "このプリセットはまだ何も設定していません。"
+
+#. en: (missing control)
+msgid "ad.ui.preset.missing"
+msgstr "（見つからないコントロール）"
+
+#. en: Pick a control
+msgid "ad.ui.preset.pick"
+msgstr "コントロールを選択"
+
+#. en: Properties
+msgid "ad.ui.targets.properties"
+msgstr "プロパティ"
+
+#. en: Animations
+msgid "ad.ui.targets.animations"
+msgstr "アニメーション"
+
+#. en: Pick property
+msgid "ad.ui.property.pick"
+msgstr "プロパティを選択"
+
+#. en: Other...
+msgid "ad.ui.property.other"
+msgstr "その他..."
+
+#. en: Float
+msgid "ad.ui.property.type.float"
+msgstr "Float"
+
+#. en: Colour
+msgid "ad.ui.property.type.color"
+msgstr "Color"
+
+#. en: Vector
+msgid "ad.ui.property.type.vector"
+msgstr "Vector"
+
+#. en: Path root
+msgid "ad.ui.animation.path_root"
+msgstr "パスのルート"
+
+#. en: Leave empty when the clip's paths start at the avatar root. Set it to the prefab's root when the clip was made inside a prefab.
+msgid "ad.ui.animation.path_root.tip"
+msgstr "クリップのパスがアバターのルートから始まる場合は空にします。プレハブの中で作ったクリップの場合は、プレハブのルートを設定します。"
+
+#. en: Custom animations are not shown by the scene preview.
+msgid "ad.ui.animations.no_preview"
+msgstr "カスタムアニメーションはシーンプレビューに表示されません。"
+
+#. en: Blend time
+msgid "ad.ui.blend"
+msgstr "ブレンド時間"
+
+#. en: Seconds the toggle takes to fade between off and on. Pieces stay visible during the fade.
+msgid "ad.ui.blend.tip"
+msgstr "トグルがオフとオンの間で切り替わるのにかかる秒数です。切り替え中もパーツは表示されたままです。"
+
+#. en: Blend time is not used while the toggle is in an exclusive group.
+msgid "ad.ui.blend.group_note"
+msgstr "ブレンド時間は、トグルが排他グループに入っている間は使われません。"
+
+#. en: Convert
+msgid "ad.ui.import"
+msgstr "変換"
+
+#. en: Convert toggles from VRCFury, Modular Avatar or hand made layers
+msgid "ad.ui.import.tooltip"
+msgstr "VRCFury、Modular Avatar、または手作りのレイヤーからトグルを変換します"
+
+#. en: Converts toggles made with other tools into AvatarDoc entries. Tick what you want, then convert.
+msgid "ad.ui.import.intro"
+msgstr "ほかのツールで作ったトグルをAvatarDocの項目に変換します。変換したいものにチェックを入れてから、変換してください。"
+
+#. en: All
+msgid "ad.ui.import.select_all"
+msgstr "すべて"
+
+#. en: None
+msgid "ad.ui.import.select_none"
+msgstr "なし"
+
+#. en: Nothing here to convert.
+msgid "ad.ui.import.none"
+msgstr "変換できるものはありません。"
+
+#. en: Remove originals
+msgid "ad.ui.import.remove"
+msgstr "元を削除"
+
+#. en: Removes the converted VRCFury, Modular Avatar or hand made layer originals once the conversion finishes. A set that replaces a Merge Animator can only be converted with this switch on.
+msgid "ad.ui.import.remove.tip"
+msgstr "変換が終わったら、変換元のVRCFury、Modular Avatar、または手作りのレイヤーを削除します。Merge Animatorを置き換えるセットは、このスイッチをオンにした場合のみ変換できます。"
+
+#. en: Convert {0} items
+msgid "ad.ui.import.button"
+msgstr "{0}件を変換"
+
+#. en: Convert 1 item
+msgid "ad.ui.import.button.one"
+msgstr "1件を変換"
+
+#. en: Converted {0}. Undo brings everything back.
+msgid "ad.ui.import.done"
+msgstr "{0}件を変換しました。元に戻す（Undo）ですべて元どおりになります。"
+
+#. en: Layers left out of the build
+msgid "ad.ui.import.layers"
+msgstr "ビルドから除外するレイヤー"
+
+#. en: Restore
+msgid "ad.ui.import.restore"
+msgstr "復元"
+
+#. en: Animator layers
+msgid "ad.ui.import.group.fx"
+msgstr "アニメーターレイヤー"
+
+#. en: Merged animators
+msgid "ad.ui.import.group.animator"
+msgstr "統合アニメーター"
+
+#. en: Animator
+msgid "ad.ui.import.kind.animator"
+msgstr "アニメーター"
+
+#. en: {0} layers stay merged
+msgid "ad.ui.import.summary.merged_layers"
+msgstr "{0}レイヤーは統合のまま"
+
+#. en: {0} layer stays merged
+msgid "ad.ui.import.summary.merged_layers.one"
+msgstr "{0}レイヤーは統合のまま"
+
+#. en: {0} objects
+msgid "ad.ui.import.summary.objects"
+msgstr "オブジェクト{0}個"
+
+#. en: {0} object
+msgid "ad.ui.import.summary.objects.one"
+msgstr "オブジェクト{0}個"
+
+#. en: {0} blend shapes
+msgid "ad.ui.import.summary.blendshapes"
+msgstr "ブレンドシェイプ{0}個"
+
+#. en: {0} blend shape
+msgid "ad.ui.import.summary.blendshapes.one"
+msgstr "ブレンドシェイプ{0}個"
+
+#. en: {0} materials
+msgid "ad.ui.import.summary.materials"
+msgstr "マテリアル{0}個"
+
+#. en: {0} material
+msgid "ad.ui.import.summary.materials.one"
+msgstr "マテリアル{0}個"
+
+#. en: {0} properties
+msgid "ad.ui.import.summary.properties"
+msgstr "プロパティ{0}個"
+
+#. en: {0} property
+msgid "ad.ui.import.summary.properties.one"
+msgstr "プロパティ{0}個"
+
+#. en: {0} animations
+msgid "ad.ui.import.summary.animations"
+msgstr "アニメーション{0}個"
+
+#. en: {0} animation
+msgid "ad.ui.import.summary.animations.one"
+msgstr "アニメーション{0}個"
+
+#. en: Convert to AvatarDoc
+msgid "ad.ui.convert"
+msgstr "AvatarDocに変換"
+
+#. en: OK
+msgid "ad.ui.ok"
+msgstr "OK"
+
+#. en: The scene changed, so the list was refreshed. Check it and convert again.
+msgid "ad.ui.import.rescanned"
+msgstr "シーンが変更されたため、一覧を更新しました。確認してから、もう一度変換してください。"
+
+#. en: Contact
+msgid "ad.ui.trigger.source.contact"
+msgstr "コンタクト"
+
+#. en: PhysBone
+msgid "ad.ui.trigger.source.physbone"
+msgstr "PhysBone"
+
+#. en: Anchor
+msgid "ad.ui.touch.anchor"
+msgstr "アンカー"
+
+#. en: Radius
+msgid "ad.ui.touch.radius"
+msgstr "半径"
+
+#. en: Offset
+msgid "ad.ui.touch.offset"
+msgstr "オフセット"
+
+#. en: Touched by
+msgid "ad.ui.touch.tags"
+msgstr "接触対象"
+
+#. en: More tags
+msgid "ad.ui.touch.more_tags"
+msgstr "その他のタグ"
+
+#. en: Custom tag
+msgid "ad.ui.touch.custom_tag"
+msgstr "カスタムタグ"
+
+#. en: Who
+msgid "ad.ui.touch.who"
+msgstr "触れる人"
+
+#. en: Self
+msgid "ad.ui.touch.self"
+msgstr "自分"
+
+#. en: Others
+msgid "ad.ui.touch.others"
+msgstr "他プレイヤー"
+
+#. en: Distance
+msgid "ad.ui.touch.distance"
+msgstr "距離"
+
+#. en: Touch
+msgid "ad.ui.touch.touch"
+msgstr "接触"
+
+#. en: Closer than
+msgid "ad.ui.touch.closer"
+msgstr "近接"
+
+#. en: PhysBone
+msgid "ad.ui.touch.physbone"
+msgstr "PhysBone"
+
+#. en: Event
+msgid "ad.ui.touch.event"
+msgstr "イベント"
+
+#. en: Grabbed
+msgid "ad.ui.touch.event.grabbed"
+msgstr "掴まれた"
+
+#. en: Posed
+msgid "ad.ui.touch.event.posed"
+msgstr "ポーズ"
+
+#. en: Bent past
+msgid "ad.ui.touch.event.angle"
+msgstr "一定以上曲がる"
+
+#. en: Stretched past
+msgid "ad.ui.touch.event.stretch"
+msgstr "一定以上伸びる"
+
+#. en: Squished past
+msgid "ad.ui.touch.event.squish"
+msgstr "一定以上潰れる"
+
+#. en: Amount
+msgid "ad.ui.touch.threshold"
+msgstr "しきい値"
+
+#. en: Mode
+msgid "ad.ui.touch.mode"
+msgstr "モード"
+
+#. en: Hold
+msgid "ad.ui.touch.hold"
+msgstr "ホールド"
+
+#. en: Flip
+msgid "ad.ui.touch.flip"
+msgstr "切り替え"
+
+#. en: Fade
+msgid "ad.ui.touch.follow"
+msgstr "フェード"
+
+#. en: Toggle
+msgid "ad.ui.touch.flip_target"
+msgstr "トグル"
+
+#. en: Simulate touch
+msgid "ad.ui.touch.simulate"
+msgstr "疑似タッチ"
+
+#. en: Drag the handles in the Scene view to place the contact.
+msgid "ad.ui.touch.scene_hint"
+msgstr "シーンビューでハンドルをドラッグして、コンタクトを配置します。"
+
+#. en: Fully on at
+msgid "ad.ui.touch.fullat"
+msgstr "最大点"
+
+#. en: Effects start at the edge of the radius and are fully on at this closeness.
+msgid "ad.ui.touch.fullat_note"
+msgstr "効果は半径の端から始まり、この近さで最大になります。"
+
+#. en: Everything off
+msgid "ad.outfit.everything_off"
+msgstr "すべてオフ"
+
+#. en: None
+msgid "ad.outfit.none"
+msgstr "なし"
+
+#. en: Outfits
+msgid "ad.outfit.default_name"
+msgstr "衣装"
+
+#. en: + Outfit set
+msgid "ad.ui.add.outfit"
+msgstr "+ 衣装セット"
+
+#. en: Outfit set
+msgid "ad.ui.outfit.title"
+msgstr "衣装セット"
+
+#. en: Builds a submenu of outfits from pieces of your avatar. Everything it makes is ordinary and can be edited afterwards.
+msgid "ad.ui.outfit.intro"
+msgstr "アバターのパーツから衣装のサブメニューを作ります。作られるものはすべて通常の項目なので、あとから編集できます。"
+
+#. en: Set name
+msgid "ad.ui.outfit.name"
+msgstr "セット名"
+
+#. en: Mode
+msgid "ad.ui.outfit.mode"
+msgstr "モード"
+
+#. en: One at a time
+msgid "ad.ui.outfit.mode.one"
+msgstr "1つずつ"
+
+#. en: Mix freely
+msgid "ad.ui.outfit.mode.mix"
+msgstr "自由に組み合わせ"
+
+#. en: Add a None option
+msgid "ad.ui.outfit.none_option"
+msgstr "「なし」を追加"
+
+#. en: + Outfit
+msgid "ad.ui.outfit.add"
+msgstr "+ 衣装"
+
+#. en: Default
+msgid "ad.ui.outfit.default"
+msgstr "デフォルト"
+
+#. en: Drop pieces from the Hierarchy here
+msgid "ad.ui.outfit.drop"
+msgstr "ヒエラルキーからパーツをここにドロップ"
+
+#. en: Hidden while any outfit is on
+msgid "ad.ui.outfit.hidden"
+msgstr "衣装の着用中は非表示"
+
+#. en: Shrink shapes found by name
+msgid "ad.ui.outfit.shrinks"
+msgstr "名前で見つけた縮小シェイプ"
+
+#. en: Show all ({0})
+msgid "ad.ui.outfit.show_all"
+msgstr "すべて表示（{0}）"
+
+#. en: Capture icons
+msgid "ad.ui.outfit.capture"
+msgstr "アイコンを撮影"
+
+#. en: Create outfit set
+msgid "ad.ui.outfit.create"
+msgstr "衣装セットを作成"
+
+#. en: Add at least one outfit with a piece.
+msgid "ad.ui.outfit.empty"
+msgstr "パーツのある衣装を1つ以上追加してください。"
+
+#. en: One outfit per object
+msgid "ad.ui.outfit.split.each"
+msgstr "オブジェクトごとに1つの衣装"
+
+#. en: One outfit with all of them
+msgid "ad.ui.outfit.split.all"
+msgstr "すべてで1つの衣装"
+
+#. en: That object is not part of this avatar.
+msgid "ad.ui.outfit.outside"
+msgstr "そのオブジェクトはこのアバターの一部ではありません。"
+
+#. en: Created the set \"{0}\".
+msgid "ad.ui.outfit.created"
+msgstr "セット「{0}」を作成しました。"
+
+#. en: + Add piece
+msgid "ad.ui.outfit.add_piece"
+msgstr "+ パーツを追加"
+
+#. en: Capture missing icons
+msgid "ad.ui.capture_missing"
+msgstr "不足アイコンを撮影"
+
+#. en: Captured {0} icons.
+msgid "ad.ui.capture_missing.done"
+msgstr "{0}個のアイコンを撮影しました。"
+
+#. en: Captured {0} icon.
+msgid "ad.ui.capture_missing.done.one"
+msgstr "{0}個のアイコンを撮影しました。"
+
+#. en: Platform
+msgid "ad.ui.platform"
+msgstr "プラットフォーム"
+
+#. en: Inherit
+msgid "ad.ui.platform.inherit"
+msgstr "継承"
+
+#. en: Both
+msgid "ad.ui.platform.both"
+msgstr "両方"
+
+#. en: PC only
+msgid "ad.ui.platform.pc"
+msgstr "PCのみ"
+
+#. en: Quest only
+msgid "ad.ui.platform.quest"
+msgstr "Questのみ"
+
+#. en: Building for {0}
+msgid "ad.ui.platform.current"
+msgstr "{0}向けにビルド中"
+
+#. en: PC
+msgid "ad.ui.platform.name.pc"
+msgstr "PC"
+
+#. en: Quest
+msgid "ad.ui.platform.name.quest"
+msgstr "Quest"
+
+#. en: PC only
+msgid "ad.ui.chip.pc_only"
+msgstr "PCのみ"
+
+#. en: Quest only
+msgid "ad.ui.chip.quest_only"
+msgstr "Questのみ"
+
+#. en: Summary
+msgid "ad.ui.summary"
+msgstr "概要"
+
+#. en: Plain
+msgid "ad.ui.summary.plain"
+msgstr "テキスト"
+
+#. en: Markdown
+msgid "ad.ui.summary.markdown"
+msgstr "Markdown"
+
+#. en: Copy
+msgid "ad.ui.summary.copy"
+msgstr "コピー"
+
+#. en: Copied.
+msgid "ad.ui.summary.copied"
+msgstr "コピーしました。"
+
+#. en: Lock
+msgid "ad.ui.lock"
+msgstr "ロック"
+
+#. en: Makes this component read only for whoever uses the prefab. Install path, prefix and platform stay editable.
+msgid "ad.ui.lock.tip"
+msgstr "プレハブを使う人に対して、このコンポーネントを読み取り専用にします。インストールパス、接頭辞、プラットフォームは編集できます。"
+
+#. en: Note for users
+msgid "ad.ui.lock.note"
+msgstr "利用者へのメモ"
+
+#. en: Locked by its maker. Install path, prefix and platform can still be changed.
+msgid "ad.ui.locked"
+msgstr "作者によってロックされています。インストールパス、接頭辞、プラットフォームは変更できます。"
+
+#. en: This component is locked. Unlock it to make changes.
+msgid "ad.ui.locked.refused"
+msgstr "このコンポーネントはロックされています。変更するにはロックを解除してください。"
+
+#. en: Unlock
+msgid "ad.ui.unlock"
+msgstr "ロック解除"
+
+#. en: local
+msgid "ad.summary.local"
+msgstr "ローカル"
+
+#. en: {0} {1}
+msgid "ad.summary.bits"
+msgstr "{0}{1}"
+
+#. en: Adds {0} synced bits.
+msgid "ad.summary.bits.adds"
+msgstr "同期ビットを{0}ビット追加します。"
+
+#. en: Adds {0} synced bit.
+msgid "ad.summary.bits.adds.one"
+msgstr "同期ビットを{0}ビット追加します。"
+
+#. en: AvatarDoc uses {0} synced bits on this avatar in total.
+msgid "ad.summary.bits.total"
+msgstr "このアバターでAvatarDocが使う同期ビットは合計{0}ビットです。"
+
+#. en: AvatarDoc uses {0} synced bit on this avatar in total.
+msgid "ad.summary.bits.total.one"
+msgstr "このアバターでAvatarDocが使う同期ビットは合計{0}ビットです。"
+
+#. en: Platform: {0}.
+msgid "ad.summary.platform"
+msgstr "プラットフォーム：{0}。"
+
+#. en: Parameters
+msgid "ad.summary.parameters"
+msgstr "パラメーター"
+
+#. en: Animator only parameters
+msgid "ad.summary.parameters.animator_only"
+msgstr "アニメーター専用のパラメーター"
+
+#. en: synced
+msgid "ad.summary.parameters.synced"
+msgstr "同期"
+
+#. en: saved
+msgid "ad.summary.parameters.saved"
+msgstr "保存"
+
+#. en: Default
+msgid "ad.summary.parameters.default"
+msgstr "初期値"
+
+#. en: default {0}
+msgid "ad.summary.parameters.default_value"
+msgstr "初期値 {0}"
+
+#. en: uses existing
+msgid "ad.summary.parameters.uses_existing"
+msgstr "既存を使用"
+
+#. en: shared group
+msgid "ad.summary.parameters.shared_group"
+msgstr "共有グループ"
+
+#. en: Yes
+msgid "ad.summary.yes"
+msgstr "はい"
+
+#. en: No
+msgid "ad.summary.no"
+msgstr "いいえ"
+
+#. en: Menu
+msgid "ad.summary.menu"
+msgstr "メニュー"
+
+#. en: Installs at: {0}
+msgid "ad.summary.menu.install_path"
+msgstr "インストール先：{0}"
+
+#. en: Installs at the avatar's root menu.
+msgid "ad.summary.menu.install_root"
+msgstr "アバターのルートメニューにインストールします。"
+
+#. en: No menu controls.
+msgid "ad.summary.menu.none"
+msgstr "メニューコントロールはありません。"
+
+#. en: {0}/{1} slots on {2}
+msgid "ad.summary.menu.slots"
+msgstr "{2}で{0}/{1}枠"
+
+#. en: Needs
+msgid "ad.summary.needs"
+msgstr "必要なもの"
+
+#. en: NDMF
+msgid "ad.summary.needs.ndmf"
+msgstr "NDMF"
+
+#. en: VRChat SDK
+msgid "ad.summary.needs.vrcsdk"
+msgstr "VRChat SDK"
+
+#. en: Modular Avatar
+msgid "ad.summary.needs.modular_avatar"
+msgstr "Modular Avatar"
+
+#. en: VRCFury
+msgid "ad.summary.needs.vrcfury"
+msgstr "VRCFury"
+
+#. en: Touch
+msgid "ad.summary.touch"
+msgstr "タッチ"
+
+#. en: {0} contact receivers
+msgid "ad.summary.touch.contacts"
+msgstr "Contact Receiver {0}個"
+
+#. en: {0} contact receiver
+msgid "ad.summary.touch.contacts.one"
+msgstr "Contact Receiver {0}個"
+
+#. en: {0} PhysBones
+msgid "ad.summary.touch.physbones"
+msgstr "PhysBone {0}個"
+
+#. en: {0} PhysBone
+msgid "ad.summary.touch.physbones.one"
+msgstr "PhysBone {0}個"
+
+#. en: Messages
+msgid "ad.summary.messages"
+msgstr "メッセージ"
+
+#. en: Info
+msgid "ad.summary.messages.info"
+msgstr "情報"
+
+#. en: Warning
+msgid "ad.summary.messages.warning"
+msgstr "警告"
+
+#. en: Error
+msgid "ad.summary.messages.error"
+msgstr "エラー"
+
+#. en: Merged animators
+msgid "ad.summary.animators"
+msgstr "統合アニメーター"
+
+#. en: {0}: {1} layers
+msgid "ad.summary.animators.layers"
+msgstr "{0}：{1}レイヤー"
+
+#. en: {0}: {1} layer
+msgid "ad.summary.animators.layers.one"
+msgstr "{0}：{1}レイヤー"
+
+#. en: Made with AvatarDoc
+msgid "ad.summary.footer"
+msgstr "AvatarDocで作成"
+
+#. en: Animators
+msgid "ad.ui.animators"
+msgstr "アニメーター"
+
+#. en: {0} merged
+msgid "ad.ui.animators.note"
+msgstr "{0}個を統合"
+
+#. en: Merged animators join a controller's layers to the avatar's FX controller. They cost no synced bits of their own; a toggle or radial with a custom parameter and no targets can still drive one of their parameters.
+msgid "ad.ui.animator_note"
+msgstr "統合アニメーターは、コントローラーのレイヤーをアバターのFXコントローラーに統合します。それ自体は同期ビットを消費しません。カスタムパラメーターを持ちターゲットのないトグルやラジアルで、そのパラメーターを操作することもできます。"
+
+#. en: (no controller)
+msgid "ad.ui.animator.unnamed"
+msgstr "（コントローラーなし）"
+
+#. en: Animator
+msgid "ad.ui.detail.animator"
+msgstr "アニメーター"
+
+#. en: + Animator
+msgid "ad.ui.add.animator"
+msgstr "+ アニメーター"
+
+#. en: Controller
+msgid "ad.ui.animator.controller"
+msgstr "コントローラー"
+
+#. en: Match write defaults
+msgid "ad.ui.animator.match_write_defaults"
+msgstr "WDを合わせる"
+
+#. en: Layers
+msgid "ad.ui.animator.layers"
+msgstr "レイヤー"
+
+#. en: Parameters
+msgid "ad.ui.animator.parameters"
+msgstr "パラメーター"
+
+#. en: Merged animators are not shown by the scene preview.
+msgid "ad.ui.animator.no_preview"
+msgstr "統合アニメーターはシーンプレビューに表示されません。"
+
+#. en: existing on the avatar
+msgid "ad.ui.animator.existing"
+msgstr "アバターに既存"
+
+#. en: not synced
+msgid "ad.ui.animator.not_synced"
+msgstr "同期なし"
+
+#. en: declared, synced
+msgid "ad.ui.animator.declared_synced"
+msgstr "宣言済み、同期あり"
+
+#. en: declared, not synced
+msgid "ad.ui.animator.declared_local"
+msgstr "宣言済み、同期なし"
+
+#. en: Add control
+msgid "ad.ui.animator.add_control"
+msgstr "コントロールを追加"
+
+#. en: Drives a parameter only.
+msgid "ad.ui.parameter_control_note"
+msgstr "パラメーターを操作するだけです。"
+
+#. en: Set a value when off
+msgid "ad.ui.target.explicit_off"
+msgstr "オフ時の値を指定"
+
+#. en: When off, the toggle writes this value instead of returning to what the scene has.
+msgid "ad.ui.target.explicit_off.tip"
+msgstr "オフのとき、シーンの値に戻す代わりにこの値を書き込みます。"
+
+#. en: On value
+msgid "ad.ui.target.on_value"
+msgstr "オン時の値"
+
+#. en: Off value
+msgid "ad.ui.target.off_value"
+msgstr "オフ時の値"
+
+#. en: Only while
+msgid "ad.ui.trigger.gate"
+msgstr "有効条件"
+
+#. en: (always)
+msgid "ad.ui.trigger.gate.always"
+msgstr "（常に）"
+
+#. en: Add a menu switch
+msgid "ad.ui.trigger.gate.add"
+msgstr "メニュースイッチを追加"
+
+#. en: In menu
+msgid "ad.ui.in_menu"
+msgstr "メニューに表示"
+
+#. en: no menu
+msgid "ad.ui.chip.no_menu"
+msgstr "メニューなし"
+
+#. en: problem
+msgid "ad.ui.chip.problem"
+msgstr "問題"
+
+#. en: Not in the menu
+msgid "ad.ui.wheel.not_in_menu"
+msgstr "メニューにないもの"
+
+#. en: Not in the menu
+msgid "ad.summary.hidden"
+msgstr "メニューにないもの"
+
+#. en: Gated triggers
+msgid "ad.summary.gated_triggers"
+msgstr "有効条件付きのトリガー"
+
+#. en: \"{0}\": only while \"{1}\" {2}
+msgid "ad.summary.gated_triggers.line"
+msgstr "「{0}」：「{1}」が{2}の間のみ"
+
+#. en: \"{0}\" has too many conditions for VRChat to build: {1} groups create {2} ways to turn it back off. Use at most 4 groups of 4 conditions each, and keep the group sizes multiplied together at 64 or less.
+msgid "ad.error.trigger_too_complex"
+msgstr "「{0}」は条件が多すぎて、VRChat向けにビルドできません。{1}個のグループから、オフに戻る経路が{2}通りできてしまいます。グループは最大4つ、各グループの条件は最大4つにし、各グループの条件数を掛け合わせた数を64以下にしてください。"
+
+#. en: \"{0}\" has too many conditions for VRChat to build: {1} group creates {2} ways to turn it back off. Use at most 4 groups of 4 conditions each, and keep the group sizes multiplied together at 64 or less.
+msgid "ad.error.trigger_too_complex.one"
+msgstr "「{0}」は条件が多すぎて、VRChat向けにビルドできません。{1}個のグループから、オフに戻る経路が{2}通りできてしまいます。グループは最大4つ、各グループの条件は最大4つにし、各グループの条件数を掛け合わせた数を64以下にしてください。"
+
+#. en: \"{0}\" has no condition under \"When\", so it never fires. Add at least one condition there.
+msgid "ad.warn.trigger_no_condition"
+msgstr "「{0}」の「発動条件」に条件がないため、発動しません。条件を1つ以上追加してください。"
+
+#. en: \"{0}\" has a group with no conditions in it, so that group was left out. Add a condition to it with \"+ And\", or remove the empty group.
+msgid "ad.warn.condition_group_empty"
+msgstr "「{0}」に条件のないグループがあるため、そのグループは除外されました。「+ かつ」で条件を追加するか、空のグループを削除してください。"
+
+#. en: Fires
+msgid "ad.ui.fires"
+msgstr "発動"
+
+#. en: The rule in words, put together from every condition below.
+msgid "ad.ui.fires.tip"
+msgstr "下のすべての条件から組み立てた、ルールの文章です。"
+
+#. en: Any of these
+msgid "ad.ui.when.any_of"
+msgstr "いずれか"
+
+#. en: All of
+msgid "ad.ui.when.all_of"
+msgstr "すべて"
+
+#. en: + And
+msgid "ad.ui.when.add_and"
+msgstr "+ かつ"
+
+#. en: + Or
+msgid "ad.ui.when.add_or"
+msgstr "+ または"
+
+#. en: Remove this condition
+msgid "ad.ui.when.remove"
+msgstr "この条件を削除"
+
+#. en: Remove this group
+msgid "ad.ui.when.remove_group"
+msgstr "このグループを削除"
+
+#. en: Toggle
+msgid "ad.ui.when.kind.toggle"
+msgstr "トグル"
+
+#. en: Parameter
+msgid "ad.ui.when.kind.parameter"
+msgstr "パラメーター"
+
+#. en: Contact
+msgid "ad.ui.when.kind.contact"
+msgstr "コンタクト"
+
+#. en: PhysBone
+msgid "ad.ui.when.kind.physbone"
+msgstr "PhysBone"
+
+#. en: The trigger is on while any group is met, and a group is met while all of its conditions are.
+msgid "ad.ui.when.note"
+msgstr "いずれかのグループが満たされている間、トリガーはオンになります。グループは、その中のすべての条件が満たされている間、満たされます。"
+
+#. en: (no toggle)
+msgid "ad.ui.when.pick_toggle"
+msgstr "（トグルなし）"
+
+#. en: When {0}
+msgid "ad.ui.when.sentence"
+msgstr "{0}のとき"
+
+#. en: and
+msgid "ad.ui.when.and"
+msgstr "、かつ"
+
+#. en: or
+msgid "ad.ui.when.or"
+msgstr "、または"
+
+#. en: This trigger has no condition, so it never fires.
+msgid "ad.ui.when.nothing"
+msgstr "このトリガーには条件がないため、発動しません。"
+
+#. en: (nothing)
+msgid "ad.ui.when.missing"
+msgstr "（なし）"
+
+#. en: (group {0}, condition {1})
+msgid "ad.ui.when.position"
+msgstr "（グループ{0}、条件{1}）"
+
+#. en: {0}, and only while {1}
+msgid "ad.ui.when.with_gate"
+msgstr "{0}（ただし{1}の間のみ）"
+
+#. en: \"{0}\" is on
+msgid "ad.ui.when.toggle_on"
+msgstr "「{0}」がオン"
+
+#. en: \"{0}\" is off
+msgid "ad.ui.when.toggle_off"
+msgstr "「{0}」がオフ"
+
+#. en: {0} is on
+msgid "ad.ui.when.is_true"
+msgstr "{0}がオン"
+
+#. en: {0} is off
+msgid "ad.ui.when.is_false"
+msgstr "{0}がオフ"
+
+#. en: {0} equals {1}
+msgid "ad.ui.when.equals"
+msgstr "{0}が{1}"
+
+#. en: {0} is not {1}
+msgid "ad.ui.when.not_equals"
+msgstr "{0}が{1}以外"
+
+#. en: {0} is above {1}
+msgid "ad.ui.when.greater"
+msgstr "{0}が{1}より上"
+
+#. en: {0} is below {1}
+msgid "ad.ui.when.less"
+msgstr "{0}が{1}より下"
+
+#. en: \"{0}\" is touched
+msgid "ad.ui.when.contact"
+msgstr "「{0}」に接触中"
+
+#. en: something is closer than {1} to \"{0}\"
+msgid "ad.ui.when.contact_near"
+msgstr "何かが「{0}」に接近中（{1}より近い）"
+
+#. en: \"{0}\" is grabbed
+msgid "ad.ui.when.pb_grabbed"
+msgstr "「{0}」が掴まれた状態"
+
+#. en: \"{0}\" is posed
+msgid "ad.ui.when.pb_posed"
+msgstr "「{0}」がポーズ状態"
+
+#. en: \"{0}\" is bent past {1}
+msgid "ad.ui.when.pb_angle"
+msgstr "「{0}」が{1}を超えて曲がった状態"
+
+#. en: \"{0}\" is stretched past {1}
+msgid "ad.ui.when.pb_stretch"
+msgstr "「{0}」が{1}を超えて伸びた状態"
+
+#. en: \"{0}\" is squished past {1}
+msgid "ad.ui.when.pb_squish"
+msgstr "「{0}」が{1}を超えて潰れた状態"
+
+#. en: Trigger conditions
+msgid "ad.summary.conditions"
+msgstr "トリガーの条件"
+
+#. en: \"{0}\": {1}
+msgid "ad.summary.conditions.line"
+msgstr "「{0}」：{1}"
+
+#. en: Settings
+msgid "ad.ui.when.settings"
+msgstr "設定"
+
+#. en: {0} +{1}
+msgid "ad.ui.when.chip_more"
+msgstr "{0} +{1}"
+
+#. en: Bones
+msgid "ad.ui.pick.bones"
+msgstr "ボーン"
+
+#. en: (inactive)
+msgid "ad.ui.pick.inactive"
+msgstr "（非アクティブ）"
+
+#. en: No objects found.
+msgid "ad.ui.pick.none"
+msgstr "オブジェクトが見つかりません。"
+
+#. en: This menu asset install has no \"Menu asset\" chosen, so nothing was installed. Pick a menu asset for it. ({0})
+msgid "ad.warn.menu_asset_missing"
+msgstr "このメニューアセットのインストールで「メニューアセット」が選ばれていないため、何もインストールされませんでした。メニューアセットを選んでください。（{0}）"
+
+#. en: The parameter \"{0}\" is declared under Parameters, but an entry already plans one with this name, so the entry's own settings win. Remove this declaration, or give it a different name. ({1})
+msgid "ad.warn.parameter_declared_twice"
+msgstr "パラメーター「{0}」は「パラメーター」で宣言されていますが、同じ名前のパラメーターを項目がすでに使う予定のため、項目自身の設定が優先されます。この宣言を削除するか、別の名前にしてください。（{1}）"
+
+#. en: The declared parameter \"{0}\" is a {1} here, but the avatar already has it as {2}. Match the type or rename one of them. ({3})
+msgid "ad.error.parameter_declared_type"
+msgstr "宣言されたパラメーター「{0}」はここでは{1}型ですが、アバターではすでに{2}型です。型を合わせるか、どちらかの名前を変更してください。（{3}）"
+
+#. en: Nothing declares the parameter \"{0}\" that the installed control \"{1}\" drives, so VRChat ignores that control. Add a declaration for \"{0}\" under Parameters. ({2})
+msgid "ad.warn.parameter_undeclared"
+msgstr "インストールされたコントロール「{1}」が操作するパラメーター「{0}」がどこにも宣言されていないため、VRChatはそのコントロールを無視します。「パラメーター」で「{0}」の宣言を追加してください。（{2}）"
+
+#. en: The menu asset, its parameter declarations and the merged animator come over unchanged.
+msgid "ad.import.note.takeover"
+msgstr "メニューアセット、そのパラメーター宣言、統合アニメーターは、変更されずに引き継がれます。"
+
+#. en: Menu assets
+msgid "ad.ui.menu_assets"
+msgstr "メニューアセット"
+
+#. en: {0} installed
+msgid "ad.ui.menu_assets.note"
+msgstr "{0}個インストール済み"
+
+#. en: A finished expressions menu asset is installed into the merged menu. The asset itself is never changed: its controls are written as copies, they count toward the page limit, and menu edits can rename, re-icon, hide or move them.
+msgid "ad.ui.menu_assets.tip"
+msgstr "完成したExpressions Menuアセットを、統合されたメニューにインストールします。アセット自体は変更されません。コントロールはコピーとして書き込まれ、ページの上限に数えられます。メニュー編集で名前変更、アイコン変更、非表示、移動ができます。"
+
+#. en: + Menu asset
+msgid "ad.ui.add.menu_asset"
+msgstr "+ メニューアセット"
+
+#. en: Menu asset
+msgid "ad.ui.detail.menu_asset"
+msgstr "メニューアセット"
+
+#. en: (no menu asset)
+msgid "ad.ui.menu_asset.unnamed"
+msgstr "（メニューアセットなし）"
+
+#. en: Menu asset
+msgid "ad.ui.menu_asset.asset"
+msgstr "メニューアセット"
+
+#. en: Install path
+msgid "ad.ui.menu_asset.path"
+msgstr "インストールパス"
+
+#. en: Submenu path from the avatar's root menu, such as Outfits/Summer. Empty installs where this component installs, and a single slash installs into the avatar's root menu.
+msgid "ad.ui.menu_asset.path.tip"
+msgstr "アバターのルートメニューからのサブメニューのパスです（例：Outfits/Summer）。空にするとこのコンポーネントと同じ場所に、スラッシュ1つだけにするとアバターのルートメニューにインストールします。"
+
+#. en: Place
+msgid "ad.ui.menu_asset.place"
+msgstr "配置"
+
+#. en: As submenu
+msgid "ad.ui.menu_asset.place.submenu"
+msgstr "サブメニューとして"
+
+#. en: Append items
+msgid "ad.ui.menu_asset.place.append"
+msgstr "直接追加"
+
+#. en: Parameters
+msgid "ad.ui.menu_asset.parameters"
+msgstr "パラメーター"
+
+#. en: The asset is read like the avatar's own menu and written as copies, so nothing is ever saved back into it.
+msgid "ad.ui.menu_asset.note"
+msgstr "アセットはアバター自身のメニューと同じように読み取られ、コピーとして書き込まれるため、アセットに何かが保存されることはありません。"
+
+#. en: Add declaration
+msgid "ad.ui.menu_asset.declare"
+msgstr "宣言を追加"
+
+#. en: declared here
+msgid "ad.ui.menu_asset.declared"
+msgstr "ここで宣言"
+
+#. en: nobody declares it
+msgid "ad.ui.menu_asset.undeclared"
+msgstr "未宣言"
+
+#. en: asset
+msgid "ad.ui.chip.asset"
+msgstr "アセット"
+
+#. en: Parameters
+msgid "ad.ui.parameters"
+msgstr "パラメーター"
+
+#. en: {0} declared
+msgid "ad.ui.parameters.note"
+msgstr "{0}個を宣言"
+
+#. en: Parameters this component declares itself, for merged animators and installed menu assets that no entry gives a parameter. They are planned after the entries, in this order, and identically on PC and Quest.
+msgid "ad.ui.parameters.tip"
+msgstr "このコンポーネント自身が宣言するパラメーターです。どの項目もパラメーターを用意しない統合アニメーターや、インストールしたメニューアセットのために使います。項目の後に、この順番で、PCとQuestで同じように割り当てられます。"
+
+#. en: Nothing declared yet.
+msgid "ad.ui.parameters.none"
+msgstr "まだ何も宣言されていません。"
+
+#. en: Total {0} bits
+msgid "ad.ui.parameters.total"
+msgstr "合計{0}ビット"
+
+#. en: Total {0} bit
+msgid "ad.ui.parameters.total.one"
+msgstr "合計{0}ビット"
+
+#. en: {0} bits
+msgid "ad.ui.parameters.bits"
+msgstr "{0}ビット"
+
+#. en: {0} bit
+msgid "ad.ui.parameters.bits.one"
+msgstr "{0}ビット"
+
+#. en: + Parameter
+msgid "ad.ui.parameters.add"
+msgstr "+ パラメーター"
+
+#. en: New parameter
+msgid "ad.ui.parameters.new"
+msgstr "新しいパラメーター"
+
+#. en: Menu assets
+msgid "ad.ui.import.group.menu_asset"
+msgstr "メニューアセット"
+
+#. en: Menu asset
+msgid "ad.ui.import.kind.menu_asset"
+msgstr "メニューアセット"
+
+#. en: {0} parameters
+msgid "ad.ui.import.summary.parameters"
+msgstr "パラメーター{0}個"
+
+#. en: {0} parameter
+msgid "ad.ui.import.summary.parameters.one"
+msgstr "パラメーター{0}個"
+
+#. en: {0} declarations
+msgid "ad.ui.import.summary.declarations"
+msgstr "宣言{0}個"
+
+#. en: {0} declaration
+msgid "ad.ui.import.summary.declarations.one"
+msgstr "宣言{0}個"
+
+#. en: Keep as it is
+msgid "ad.ui.import.keep"
+msgstr "そのまま引き継ぐ"
+
+#. en: Takes the menu asset, the parameter declarations and the merged animator over unchanged: no layer becomes a real entry, and the controller keeps every one of them.
+msgid "ad.ui.import.keep.tip"
+msgstr "メニューアセット、パラメーター宣言、統合アニメーターを変更せずに引き継ぎます。どのレイヤーも通常の項目にはならず、コントローラーはすべてのレイヤーを保持します。"
+
+#. en: Menu assets
+msgid "ad.summary.menu_assets"
+msgstr "メニューアセット"
+
+#. en: {0}: {1} controls
+msgid "ad.summary.menu_assets.line"
+msgstr "{0}：コントロール{1}個"
+
+#. en: {0}: {1} control
+msgid "ad.summary.menu_assets.line.one"
+msgstr "{0}：コントロール{1}個"
+
+#. en: Declared parameters
+msgid "ad.summary.declared"
+msgstr "宣言されたパラメーター"
+
+#. en: {0} ({1}, {2} bits)
+msgid "ad.summary.declared.line"
+msgstr "{0}（{1}、{2}ビット）"
+
+#. en: {0} ({1}, {2} bit)
+msgid "ad.summary.declared.line.one"
+msgstr "{0}（{1}、{2}ビット）"
+
+#. en: Removes from the avatar
+msgid "ad.summary.removed"
+msgstr "アバターから削除するもの"
+
+#. en: {0} is freed ({1} synced bits)
+msgid "ad.summary.removed.freed"
+msgstr "{0}を解放（同期{1}ビット）"
+
+#. en: {0} is freed ({1} synced bit)
+msgid "ad.summary.removed.freed.one"
+msgstr "{0}を解放（同期{1}ビット）"
+
+#. en: {0} stays: {1}
+msgid "ad.summary.removed.kept"
+msgstr "{0}は残ります：{1}"
+
+#. en: Its menu installer targets a menu that could not be found on this avatar.
+msgid "ad.import.reason.install_target_unknown"
+msgstr "メニューインストーラーのインストール先のメニューが、このアバターで見つかりませんでした。"
+
+#. en: The animation \"{0}\" already writes \"{1}\" on the piece \"{2}\", so it keeps its own values.
+msgid "ad.info.shapes_follow_kept_own"
+msgstr "アニメーション「{0}」はパーツ「{2}」の「{1}」をすでに書き込んでいるため、独自の値を保ちます。"
+
+#. en: Nothing turns this object on, so its shapes are never applied.
+msgid "ad.info.shapes_never_on"
+msgstr "このオブジェクトをオンにするものがないため、シェイプは適用されません。"
+
+#. en: \"{0}\" is always on, so its shape values are simply applied to the avatar. ({1})
+msgid "ad.info.shapes_always_on"
+msgstr "「{0}」は常にオンのため、シェイプの値はそのままアバターに適用されます。（{1}）"
+
+#. en: The animation \"{0}\" fades \"{1}\" in and out rather than switching it at a fixed point, so AvatarDoc left it alone and did not add this piece's shape rules to it. Change it to a plain on/off switch if you want those rules to apply there too. ({2})
+msgid "ad.warn.shapes_active_not_constant"
+msgstr "アニメーション「{0}」は「{1}」を一定の時点で切り替えるのではなく、フェードさせています。そのためAvatarDocは変更を加えず、このパーツのシェイプのルールを追加しませんでした。そこにもルールを適用したい場合は、単純なオン/オフの切り替えに変更してください。（{2}）"
+
+#. en: The animation \"{0}\" already writes the shape \"{1}\" itself, so it keeps its own values instead of the ones \"{2}\" asks for. Remove \"{1}\" from that animation if you want \"{2}\"'s rule to apply there instead. ({3})
+msgid "ad.warn.shapes_clip_owns_shape"
+msgstr "アニメーション「{0}」はシェイプ「{1}」を自分で書き込んでいるため、「{2}」が指定する値ではなく、独自の値を保ちます。そこで「{2}」のルールを適用したい場合は、そのアニメーションから「{1}」を削除してください。（{3}）"
+
+#. en: \"{0}\" and \"{1}\" both hold the shape \"{2}\", but different layers switch them, and the later layer wins: \"{1}\" decides the shape, and switching it off puts the shape back even while \"{0}\" is on. Put both pieces on one toggle, or put them in one exclusive group. ({3})
+msgid "ad.warn.shapes_conflict"
+msgstr "「{0}」と「{1}」はどちらもシェイプ「{2}」を保持しますが、別々のレイヤーで切り替わるため、後のレイヤーが優先されます。シェイプは「{1}」で決まり、「{1}」をオフにすると、「{0}」がオンでもシェイプは元に戻ります。両方のパーツを1つのトグルに入れるか、1つの排他グループに入れてください。（{3}）"
+
+#. en: \"{0}\" and \"{1}\" hold the shape \"{2}\" at different values, and one animation turns both on or both stay on, so the larger value, {3}, holds while both are on. ({4})
+msgid "ad.info.shapes_larger_wins"
+msgstr "「{0}」と「{1}」はシェイプ「{2}」を異なる値で保持し、1つのアニメーションで両方がオンになるか、両方とも常にオンのため、両方がオンの間は大きい方の値{3}になります。（{4}）"
+
+#. en: AvatarDoc Shapes on \"{0}\": \"{1}\" has no shape called \"{2}\", so that row was skipped. Pick a shape that exists on \"{1}\", or remove the row. ({3})
+msgid "ad.warn.shapes_missing_shape"
+msgstr "「{0}」のAvatarDoc Shapes：「{1}」に「{2}」という名前のシェイプがないため、その行はスキップされました。「{1}」にあるシェイプを選ぶか、行を削除してください。（{3}）"
+
+#. en: AvatarDoc Shapes on \"{0}\": the mesh for \"{1}\" is missing or not part of this avatar, so that row was skipped. Point it at a mesh that is part of this avatar. ({2})
+msgid "ad.error.shapes_outside_avatar"
+msgstr "「{0}」のAvatarDoc Shapes：「{1}」のメッシュが見つからないか、このアバターの一部ではないため、その行はスキップされました。このアバター内のメッシュを指定してください。（{2}）"
+
+#. en: AvatarDoc Shapes on \"{0}\" has follow rows, but the object carries no skinned mesh of its own. Put the component on the piece's mesh or remove those rows. ({1})
+msgid "ad.error.shapes_no_mesh"
+msgstr "「{0}」のAvatarDoc Shapesに追従の行がありますが、このオブジェクト自体にSkinned Meshがありません。コンポーネントをパーツのメッシュに付けるか、それらの行を削除してください。（{1}）"
+
+#. en: This Shape Changer deletes the shape \"{0}\". AvatarDoc Shapes can set a value, not delete a shape.
+msgid "ad.import.reason.shapes_delete"
+msgstr "このShape Changerはシェイプ「{0}」を削除します。AvatarDoc Shapesは値を設定できますが、シェイプを削除することはできません。"
+
+#. en: Blend shape rules that travel with this piece. They cost no parameter and no layer: the values go into the animations that already switch the piece.
+msgid "ad.ui.shapes.note"
+msgstr "このパーツと一緒に動くブレンドシェイプのルールです。パラメーターもレイヤーも消費しません。値は、このパーツを切り替える既存のアニメーションに書き込まれます。"
+
+#. en: Follows
+msgid "ad.ui.shapes.follows"
+msgstr "追従"
+
+#. en: This piece's own shapes copy a shape of another mesh, wherever that mesh is animated.
+msgid "ad.ui.shapes.follows.note"
+msgstr "このパーツのシェイプが、別のメッシュのシェイプの動きをコピーします。そのメッシュがアニメーションされる場所すべてで有効です。"
+
+#. en: While this object is on
+msgid "ad.ui.shapes.while_on"
+msgstr "このオブジェクトがオンの間"
+
+#. en: While this object is on, these shapes hold their value; while it is off, they are back where they were.
+msgid "ad.ui.shapes.while_on.note"
+msgstr "このオブジェクトがオンの間、これらのシェイプは値を保ちます。オフの間は元に戻ります。"
+
+#. en: Source mesh
+msgid "ad.ui.shapes.source_mesh"
+msgstr "元メッシュ"
+
+#. en: Source shape
+msgid "ad.ui.shapes.source_shape"
+msgstr "元シェイプ"
+
+#. en: On this piece
+msgid "ad.ui.shapes.local_shape"
+msgstr "このパーツ側"
+
+#. en: Same name
+msgid "ad.ui.shapes.same_name"
+msgstr "同じ名前"
+
+#. en: Mesh
+msgid "ad.ui.shapes.mesh"
+msgstr "メッシュ"
+
+#. en: Shape
+msgid "ad.ui.shapes.shape"
+msgstr "シェイプ"
+
+#. en: Value
+msgid "ad.ui.shapes.value"
+msgstr "値"
+
+#. en: Add
+msgid "ad.ui.shapes.add"
+msgstr "追加"
+
+#. en: Add matching shapes
+msgid "ad.ui.shapes.add_matching"
+msgstr "一致するシェイプを追加"
+
+#. en: Adds a row for every shape name this piece and the chosen mesh both have, skipping the rows that are already here.
+msgid "ad.ui.shapes.add_matching.tip"
+msgstr "このパーツと選んだメッシュの両方にあるシェイプ名ごとに、行を追加します。すでにある行はスキップします。"
+
+#. en: No rows yet.
+msgid "ad.ui.shapes.none"
+msgstr "まだ行がありません。"
+
+#. en: Shapes on a piece
+msgid "ad.ui.import.group.shapes"
+msgstr "パーツのシェイプ"
+
+#. en: Shapes
+msgid "ad.ui.import.kind.shapes"
+msgstr "シェイプ"
+
+#. en: {0} follows
+msgid "ad.ui.shapes.count.follows"
+msgstr "追従{0}"
+
+#. en: {0} follow
+msgid "ad.ui.shapes.count.follows.one"
+msgstr "追従{0}"
+
+#. en: {0} while on
+msgid "ad.ui.shapes.count.while_on"
+msgstr "オン中{0}"
+
+#. en: Shapes on outfit pieces
+msgid "ad.summary.shapes"
+msgstr "衣装パーツのシェイプ"
+
+#. en: Every shape of \"{0}\" is at 0, so nothing was captured.
+msgid "ad.info.capture_nothing_above_zero"
+msgstr "「{0}」のシェイプはすべて0のため、何も取り込まれませんでした。"
+
+#. en: Holds up to {0} other shapes at 0 while this is on.
+msgid "ad.info.shape_set_count"
+msgstr "これがオンの間、ほかの最大{0}個のシェイプを0に保持します。"
+
+#. en: Holds up to {0} other shape at 0 while this is on.
+msgid "ad.info.shape_set_count.one"
+msgstr "これがオンの間、ほかの最大{0}個のシェイプを0に保持します。"
+
+#. en: Holds up to {0} other shapes at their default while this is on.
+msgid "ad.info.shape_set_count.default"
+msgstr "これがオンの間、ほかの最大{0}個のシェイプを初期値に保持します。"
+
+#. en: Holds up to {0} other shape at its default while this is on.
+msgid "ad.info.shape_set_count.default.one"
+msgstr "これがオンの間、ほかの最大{0}個のシェイプを初期値に保持します。"
+
+#. en: \"{0}\" holds {1} of {2} shapes on \"{3}\"; the others never move, so they stay as they are.
+msgid "ad.info.shape_set_pruned"
+msgstr "「{0}」は「{3}」の{2}個のシェイプのうち{1}個を保持します。ほかのシェイプは動かないため、そのままになります。"
+
+#. en: \"{0}\" holds {1} of {2} shape on \"{3}\"; it never moves, so it stays as it is.
+msgid "ad.info.shape_set_pruned.one"
+msgstr "「{0}」は「{3}」の{2}個のシェイプのうち{1}個を保持します。このシェイプは動かないため、そのままになります。"
+
+#. en: \"{0}\": the mesh of a \"Hold the rest\" rule is missing or not part of this avatar, so that rule was skipped. Point it at a mesh that is part of this avatar. ({1})
+msgid "ad.error.shape_set_outside_avatar"
+msgstr "「{0}」：「残りを保持」ルールのメッシュが見つからないか、このアバターの一部ではないため、そのルールはスキップされました。このアバター内のメッシュを指定してください。（{1}）"
+
+#. en: \"{0}\" has a \"Hold the rest\" rule, but only a toggle or a trigger with effects of its own can hold one. Move the rule to one of those, or remove it. ({1})
+msgid "ad.error.shape_set_not_a_toggle"
+msgstr "「{0}」に「残りを保持」ルールがありますが、これを持てるのはトグルか、自身の効果を持つトリガーだけです。ルールをどちらかに移すか、削除してください。（{1}）"
+
+#. en: Capture
+msgid "ad.ui.shape_set.capture"
+msgstr "取り込み"
+
+#. en: Hold the rest
+msgid "ad.ui.shape_set.hold"
+msgstr "残りを保持"
+
+#. en: Everything else on {0}
+msgid "ad.ui.shape_set.zero_others"
+msgstr "{0}のほかのシェイプすべて"
+
+#. en: Hold at
+msgid "ad.ui.shape_set.hold_at"
+msgstr "保持する値"
+
+#. en: Default
+msgid "ad.ui.shape_set.value.default"
+msgstr "初期値"
+
+#. en: 0
+msgid "ad.ui.shape_set.value.zero"
+msgstr "0"
+
+#. en: Hold blink
+msgid "ad.ui.shape_set.hold_blink"
+msgstr "まばたきを保持"
+
+#. en: Hold visemes
+msgid "ad.ui.shape_set.hold_visemes"
+msgstr "口パクを保持"
+
+#. en: Held shapes
+msgid "ad.summary.shape_sets"
+msgstr "保持されるシェイプ"
+
+#. en: {0}: \"{1}\", up to {2} other shapes held at 0
+msgid "ad.summary.shape_sets.line"
+msgstr "{0}：「{1}」、ほかの最大{2}個のシェイプを0に保持"
+
+#. en: {0}: \"{1}\", up to {2} other shape held at 0
+msgid "ad.summary.shape_sets.line.one"
+msgstr "{0}：「{1}」、ほかの最大{2}個のシェイプを0に保持"
+
+#. en: {0}: \"{1}\", up to {2} other shapes held at their default
+msgid "ad.summary.shape_sets.line.default"
+msgstr "{0}：「{1}」、ほかの最大{2}個のシェイプを初期値に保持"
+
+#. en: {0}: \"{1}\", up to {2} other shape held at its default
+msgid "ad.summary.shape_sets.line.default.one"
+msgstr "{0}：「{1}」、ほかの最大{2}個のシェイプを初期値に保持"
+
+#. en: \"{0}\" cannot follow anything: only a toggle or a trigger has an on and off state to drive a Follow row. Move this row to a toggle or a trigger, or remove it. ({1})
+msgid "ad.error.follow_not_on_off"
+msgstr "「{0}」は何にも追従できません。追従の行を動かすオンとオフの状態があるのは、トグルとトリガーだけです。この行をトグルかトリガーに移すか、削除してください。（{1}）"
+
+#. en: \"{0}\" cannot follow: the object and the target it should follow are the same one. Pick a different target to follow. ({1})
+msgid "ad.error.follow_self"
+msgstr "「{0}」は追従できません。オブジェクトと追従先が同じものです。別の追従先を選んでください。（{1}）"
+
+#. en: \"{0}\": the object or the transform it should follow is not part of this avatar, so this Follow row was skipped. Pick an object and a target that are both part of this avatar. ({1})
+msgid "ad.error.follow_outside_avatar"
+msgstr "「{0}」：オブジェクトまたは追従先のトランスフォームがこのアバターの一部ではないため、この追従の行はスキップされました。どちらもこのアバター内のものを選んでください。（{1}）"
+
+#. en: \"{0}\": \"{1}\" already carries a constraint of its own, so AvatarDoc left it alone. Remove that constraint first if you want AvatarDoc to drive \"{1}\", or pick a different object. ({2})
+msgid "ad.error.follow_existing_constraint"
+msgstr "「{0}」：「{1}」にはすでに独自のコンストレイントがあるため、AvatarDocは変更を加えませんでした。AvatarDocで「{1}」を動かしたい場合は、先にそのコンストレイントを削除するか、別のオブジェクトを選んでください。（{2}）"
+
+#. en: \"{0}\" cannot follow: the avatar's root object has no parent of its own to rest under when the control is off. Put the avatar under an empty parent object, then build again. ({1})
+msgid "ad.error.follow_no_rest_parent"
+msgstr "「{0}」は追従できません。コントロールがオフのときに戻る場所として、アバターのルートオブジェクトに親がありません。アバターを空の親オブジェクトの下に置いてから、もう一度ビルドしてください。（{1}）"
+
+#. en: \"{0}\" has {1} follow rows, more than the {2} VRChat allows on one object. Remove or combine some of these rows: {3}.
+msgid "ad.error.follow_too_many_sources"
+msgstr "「{0}」には追従の行が{1}個あり、VRChatが1つのオブジェクトに許可する{2}個を超えています。次の行の一部を削除するか、まとめてください：{3}。"
+
+#. en: \"{0}\" cannot follow \"{1}\": its trigger condition could not be resolved, so it will never follow. Fix that trigger's \"When\" condition first. ({2})
+msgid "ad.warn.follow_claim_unresolved"
+msgstr "「{0}」は「{1}」に追従できません。トリガーの条件を解決できなかったため、追従することはありません。先にそのトリガーの「発動条件」を直してください。（{2}）"
+
+#. en: \"{0}\" needs an object to grab before it can build anything. Pick an object for its \"Object\" field. ({1})
+msgid "ad.error.grab_no_object"
+msgstr "「{0}」は、ビルドする前に掴むオブジェクトが必要です。「オブジェクト」欄でオブジェクトを選んでください。（{1}）"
+
+#. en: \"{0}\": the object it grabs is not part of this avatar, so it cannot build. Pick an object that is part of this avatar. ({1})
+msgid "ad.error.grab_outside_avatar"
+msgstr "「{0}」：掴むオブジェクトがこのアバターの一部ではないため、ビルドできません。このアバター内のオブジェクトを選んでください。（{1}）"
+
+#. en: \"{0}\" cannot grab: the avatar has no humanoid rig, or is missing a hand bone that its \"Hands\" setting needs. Set the avatar's rig to Humanoid with both hands mapped. ({1})
+msgid "ad.error.grab_no_hand"
+msgstr "「{0}」は掴めません。アバターにHumanoidのリグがないか、「手」の設定に必要な手のボーンがありません。アバターのリグをHumanoidにして、両手を割り当ててください。（{1}）"
+
+#. en: \"{0}\": its object already sits inside \"{1}\"'s own PhysBone chain, so a second PhysBone cannot be added there. Pick a different object, or move it out of that chain. ({2})
+msgid "ad.error.grab_inside_physbone"
+msgstr "「{0}」：オブジェクトがすでに「{1}」のPhysBoneチェーンの中にあるため、2つ目のPhysBoneを追加できません。別のオブジェクトを選ぶか、そのチェーンの外に移してください。（{2}）"
+
+#. en: \"{0}\" reuses the PhysBone already on its object instead of adding a second one.
+msgid "ad.info.grab_uses_existing_physbone"
+msgstr "「{0}」は、2つ目を追加する代わりに、オブジェクトにすでにあるPhysBoneを再利用します。"
+
+#. en: \"{0}\" reuses a PhysBone that does not allow grabbing, or whose root is a different object. Turn on grabbing on that PhysBone, and set its root to this object.
+msgid "ad.warn.grab_existing_physbone_unsuitable"
+msgstr "「{0}」が再利用するPhysBoneは、掴むことが許可されていないか、ルートが別のオブジェクトです。そのPhysBoneで掴むことを許可し、ルートをこのオブジェクトに設定してください。"
+
+#. en: Follows
+msgid "ad.ui.targets.follows"
+msgstr "追従"
+
+#. en: Keep offset
+msgid "ad.ui.target.keep_offset"
+msgstr "オフセットを維持"
+
+#. en: Follows
+msgid "ad.summary.follows"
+msgstr "追従"
+
+#. en: {0}: \"{1}\" follows \"{2}\"
+msgid "ad.summary.follows.line"
+msgstr "{0}：「{1}」が「{2}」に追従"
+
+#. en: Grabbables
+msgid "ad.summary.grabbables"
+msgstr "掴めるオブジェクト"
+
+#. en: {0}: \"{1}\" is held by {2}
+msgid "ad.summary.grabbables.line"
+msgstr "{0}：「{1}」を{2}で持つ"
+
+#. en: + Grabbable
+msgid "ad.ui.add.grabbable"
+msgstr "+ 掴めるオブジェクト"
+
+#. en: Grabbable
+msgid "ad.ui.detail.grabbable"
+msgstr "掴めるオブジェクト"
+
+#. en: Object
+msgid "ad.ui.grab.object"
+msgstr "オブジェクト"
+
+#. en: Hands
+msgid "ad.ui.grab.hands"
+msgstr "手"
+
+#. en: Both
+msgid "ad.ui.grab.hands.both"
+msgstr "両手"
+
+#. en: Left
+msgid "ad.ui.grab.hands.left"
+msgstr "左手"
+
+#. en: Right
+msgid "ad.ui.grab.hands.right"
+msgstr "右手"
+
+#. en: Builds a PhysBone, one contact per hand, and a follow that snaps the object into the hand that holds it.
+msgid "ad.ui.grab.summary"
+msgstr "PhysBone、手ごとに1つのコンタクト、そして持っている手にオブジェクトを吸着させる追従をビルドします。"
+
+#. en: Anyone may grab
+msgid "ad.ui.grab.anyone"
+msgstr "誰でも掴める"
+
+#. en: Return time
+msgid "ad.ui.grab.return_seconds"
+msgstr "戻る時間"
+
+#. en: Menu toggle
+msgid "ad.ui.grab.menu_toggle"
+msgstr "メニュートグル"
+
+#. en: Reach
+msgid "ad.ui.grab.reach"
+msgstr "届く範囲"
+
+#. en: More options
+msgid "ad.ui.grab.fold"
+msgstr "その他の設定"
+
+#. en: Jumps to the AvatarDoc component that actually owns this entry so you can edit it there.
+msgid "ad.ui.select_component.tip"
+msgstr "この項目を実際に持っているAvatarDocコンポーネントに移動し、そこで編集できるようにします。"
+
+#. en: The picture VRChat shows for this control in its menu.
+msgid "ad.ui.icon.tip"
+msgstr "VRChatのメニューで、このコントロールに表示される画像です。"
+
+#. en: Opens a window that renders only this entry's own pieces and saves the result as its icon.
+msgid "ad.ui.capture.tip"
+msgstr "この項目自身のパーツだけを描画するウィンドウを開き、その結果をアイコンとして保存します。"
+
+#. en: Chooses which build actually creates this entry; its parameter still keeps its place on every platform.
+msgid "ad.ui.platform.tip"
+msgstr "どのビルドでこの項目を実際に作るかを選びます。パラメーターはすべてのプラットフォームで同じ位置を保ちます。"
+
+#. en: Starts this toggle on when the avatar loads.
+msgid "ad.ui.default_on.tip"
+msgstr "アバターを読み込んだときに、このトグルをオンにします。"
+
+#. en: Remembers this control's state between avatar loads.
+msgid "ad.ui.saved.tip"
+msgstr "アバターを読み込み直しても、このコントロールの状態を保持します。"
+
+#. en: Costs a synced bit and lets other players see this control's state.
+msgid "ad.ui.synced.tip"
+msgstr "同期ビットを消費して、ほかのプレイヤーにもこのコントロールの状態が見えるようにします。"
+
+#. en: Off removes this control's button from the menu but keeps its parameter and effects working.
+msgid "ad.ui.in_menu.tip"
+msgstr "オフにすると、このコントロールのボタンをメニューから外しますが、パラメーターと効果は動作し続けます。"
+
+#. en: Only one toggle sharing this same group name can be on at a time.
+msgid "ad.ui.group.tip"
+msgstr "同じグループ名を持つトグルは、一度に1つだけオンにできます。"
+
+#. en: The number the group's parameter takes while this toggle is on. 0 lets AvatarDoc pick one.
+msgid "ad.ui.group.value.tip"
+msgstr "このトグルがオンの間、グループのパラメーターが取る数値です。0にすると自動で決まります。"
+
+#. en: Numbers the members of this group 1, 2, 3 and so on in menu order, so no two share a value.
+msgid "ad.ui.group.number.tip"
+msgstr "このグループのメンバーに、メニューの順で1、2、3…と値を割り当てて、重複をなくします。"
+
+#. en: The synced value VRChat uses for this control, named automatically unless you give it your own.
+msgid "ad.ui.parameter.tip"
+msgstr "VRChatがこのコントロールに使う同期値です。自分で名前を付けない限り、自動で名前が付きます。"
+
+#. en: Names the parameter yourself so it can reuse or drive one that already exists on the avatar.
+msgid "ad.ui.parameter.use_custom.tip"
+msgstr "パラメーター名を自分で付けます。アバターにすでにあるパラメーターを再利用したり、操作したりできます。"
+
+#. en: The value this toggle writes to its parameter while it is on.
+msgid "ad.ui.parameter.value.tip"
+msgstr "このトグルがオンの間、パラメーターに書き込む値です。"
+
+#. en: Shows this control's targets on the avatar in the Scene without changing anything in the build.
+msgid "ad.ui.preview.tip"
+msgstr "ビルドには何も影響させずに、このコントロールのターゲットをシーンのアバター上で表示します。"
+
+#. en: Clears the preview override and falls back to this control's own default state.
+msgid "ad.ui.preview.default.tip"
+msgstr "プレビューの上書きを解除し、このコントロール自身の初期状態に戻します。"
+
+#. en: Flips the target toggle's own preview once, the same as a real touch would.
+msgid "ad.ui.touch.simulate.tip"
+msgstr "本物のタッチと同じように、対象トグルのプレビューを1回切り替えます。"
+
+#. en: This control has no button in the built menu, though its parameter and effects still work.
+msgid "ad.ui.chip.no_menu.tip"
+msgstr "このコントロールはビルドされたメニューにボタンがありませんが、パラメーターと効果は動作します。"
+
+#. en: Picks what starts this trigger: another toggle, a parameter, a blend shape, a touch or a PhysBone.
+msgid "ad.ui.trigger.when.tip"
+msgstr "このトリガーを発動させるものを選びます：ほかのトグル、パラメーター、ブレンドシェイプ、タッチ、PhysBone。"
+
+#. en: The toggle whose state starts this trigger.
+msgid "ad.ui.trigger.toggle.tip"
+msgstr "状態に応じてこのトリガーを発動させるトグルです。"
+
+#. en: Whether the toggle has to be on or off for the trigger to fire.
+msgid "ad.ui.trigger.toggle_state.tip"
+msgstr "トリガーが発動するために、トグルがオンとオフのどちらである必要があるかを選びます。"
+
+#. en: The parameter this trigger watches; pick one from the list or type a name by hand.
+msgid "ad.ui.trigger.parameter.tip"
+msgstr "このトリガーが監視するパラメーターです。一覧から選ぶか、名前を直接入力します。"
+
+#. en: How the parameter's value must compare before the trigger fires.
+msgid "ad.ui.trigger.condition.tip"
+msgstr "トリガーが発動する前に、パラメーターの値をどう比較するかを選びます。"
+
+#. en: The value the condition compares the parameter against.
+msgid "ad.ui.trigger.value.tip"
+msgstr "条件でパラメーターと比較する値です。"
+
+#. en: The blend shape whose weight drives this trigger's effects.
+msgid "ad.ui.trigger.shape.tip"
+msgstr "そのウェイトでこのトリガーの効果を動かすブレンドシェイプです。"
+
+#. en: Add keeps the shape moving as its animations say with the effects on top; Replace takes the shape's own animation out so only the effects show.
+msgid "ad.ui.trigger.mode.tip"
+msgstr "「加算」はシェイプをアニメーションどおりに動かしたまま効果を重ねます。「置換」はシェイプ自身のアニメーションを取り除き、効果だけが見えるようにします。"
+
+#. en: Limits this trigger to firing only while the chosen toggle is on or off.
+msgid "ad.ui.trigger.gate.tip"
+msgstr "選んだトグルがオンまたはオフの間だけ発動するように、このトリガーを制限します。"
+
+#. en: Whether the gate toggle must be on or off for this trigger to be allowed to fire.
+msgid "ad.ui.trigger.gate_state.tip"
+msgstr "このトリガーの発動が許可されるために、有効条件のトグルがオンとオフのどちらである必要があるかを選びます。"
+
+#. en: Creates a plain menu toggle and sets it as this trigger's gate in one step.
+msgid "ad.ui.trigger.gate.add.tip"
+msgstr "普通のメニュートグルを作成し、ワンステップでこのトリガーの有効条件に設定します。"
+
+#. en: The text this control shows; style it below with colour, bold or italic.
+msgid "ad.ui.name.tip"
+msgstr "このコントロールに表示されるテキストです。下で色、太字、斜体を付けられます。"
+
+#. en: Colours and styles the whole name at once; switch to Tags to hand edit part of it.
+msgid "ad.ui.style.tip"
+msgstr "名前全体にまとめて色やスタイルを付けます。一部だけを手で編集するには「タグ」に切り替えます。"
+
+#. en: Sets the name's colour; the x beside it clears it back to none.
+msgid "ad.ui.style.color.tip"
+msgstr "名前の色を設定します。横の×で色を解除できます。"
+
+#. en: Clears the name's colour.
+msgid "ad.ui.style.clear_color.tip"
+msgstr "名前の色を解除します。"
+
+#. en: Makes the whole name bold.
+msgid "ad.ui.style.bold.tip"
+msgstr "名前全体を太字にします。"
+
+#. en: Makes the whole name italic.
+msgid "ad.ui.style.italic.tip"
+msgstr "名前全体を斜体にします。"
+
+#. en: Shows the name's raw text with its colour and style tags written out, to style part of it by hand.
+msgid "ad.ui.style.raw.tip"
+msgstr "色とスタイルのタグを書き出した状態で名前の元のテキストを表示し、一部を手でスタイル付けできるようにします。"
+
+#. en: How VRChat will actually render this name, tags included.
+msgid "ad.ui.style.preview.tip"
+msgstr "VRChatで実際にこの名前がどう表示されるかを、タグを反映して示します。"
+
+#. en: Moves this item into another submenu without touching the tool that created it.
+msgid "ad.ui.existing.move.tip"
+msgstr "作成したツールには触れずに、このアイテムを別のサブメニューに移動します。"
+
+#. en: Clears every change here and puts the item back exactly as the avatar or the tool built it.
+msgid "ad.ui.existing.reset.tip"
+msgstr "ここでの変更をすべて消し、アバターまたはツールが作ったとおりの状態に戻します。"
+
+#. en: The controller whose layers merge into the build; the asset itself is never changed.
+msgid "ad.ui.animator.controller.tip"
+msgstr "レイヤーをビルドに統合するコントローラーです。アセット自体は変更されません。"
+
+#. en: Makes the merged layers follow the avatar's own Write Defaults choice instead of the controller's own.
+msgid "ad.ui.animator.match_write_defaults.tip"
+msgstr "統合されるレイヤーが、コントローラー自身の設定ではなく、アバターのWrite Defaultsの設定に従うようにします。"
+
+#. en: Unticking a layer leaves it out of the merge entirely.
+msgid "ad.ui.animator.layers.tip"
+msgstr "レイヤーのチェックを外すと、そのレイヤーは統合から完全に除外されます。"
+
+#. en: Lists every parameter the controller uses and who is already responsible for it.
+msgid "ad.ui.animator.parameters.tip"
+msgstr "コントローラーが使うすべてのパラメーターと、それぞれをすでに誰が担当しているかを一覧表示します。"
+
+#. en: Gives this parameter a menu control here, without adding another layer for it.
+msgid "ad.ui.animator.add_control.tip"
+msgstr "レイヤーを増やさずに、このパラメーターにここでメニューコントロールを付けます。"
+
+#. en: The finished menu this component installs; it is never changed, only copied into the build.
+msgid "ad.ui.menu_asset.asset.tip"
+msgstr "このコンポーネントがインストールする完成済みのメニューです。変更されることはなく、ビルドにコピーされるだけです。"
+
+#. en: As submenu wraps the asset in one new submenu; Append items puts its controls directly into the menu.
+msgid "ad.ui.menu_asset.place.tip"
+msgstr "「サブメニューとして」はアセットを1つの新しいサブメニューにまとめます。「直接追加」はコントロールをそのままメニューに入れます。"
+
+#. en: The submenu's own name; only used while it installs As submenu.
+msgid "ad.ui.menu_asset.name.tip"
+msgstr "サブメニュー自身の名前です。「サブメニューとして」インストールする場合だけ使われます。"
+
+#. en: Every parameter this asset's controls need, and who already provides it.
+msgid "ad.ui.menu_asset.parameters.tip"
+msgstr "このアセットのコントロールが必要とするすべてのパラメーターと、それをすでに誰が用意しているかです。"
+
+#. en: Declares this parameter here so VRChat does not ignore the control that needs it.
+msgid "ad.ui.menu_asset.declare.tip"
+msgstr "ここでこのパラメーターを宣言し、それを必要とするコントロールをVRChatが無視しないようにします。"
+
+#. en: Declares a parameter of your own, for a menu asset or a merged animator that needs one.
+msgid "ad.ui.parameters.add.tip"
+msgstr "メニューアセットや統合アニメーターが必要とするパラメーターを、自分で宣言します。"
+
+#. en: The name this declared parameter uses; match an existing avatar parameter to reuse it.
+msgid "ad.ui.parameters.row_name.tip"
+msgstr "この宣言したパラメーターの名前です。アバターの既存のパラメーターと同じ名前にすると再利用されます。"
+
+#. en: Bool, Int or Float: the kind of value this parameter holds.
+msgid "ad.ui.parameters.type.tip"
+msgstr "Bool、Int、Float：このパラメーターが持つ値の種類です。"
+
+#. en: The value this parameter starts with when the avatar loads.
+msgid "ad.ui.parameters.default.tip"
+msgstr "アバターを読み込んだときに、このパラメーターが持つ値です。"
+
+#. en: Every control this preset puts into a state when it is pressed.
+msgid "ad.ui.preset.sets.tip"
+msgstr "このプリセットを押したときに、状態を設定するすべてのコントロールです。"
+
+#. en: Adds another control for this preset to set.
+msgid "ad.ui.preset.add.tip"
+msgstr "このプリセットで設定するコントロールを、もう1つ追加します。"
+
+#. en: Adds another parameter this preset writes, such as one from VRCFury or Modular Avatar.
+msgid "ad.ui.preset.parameters.add.tip"
+msgstr "VRCFuryやModular Avatarのものなど、このプリセットが書き込むパラメーターをもう1つ追加します。"
+
+#. en: The control this row sets; click to pick a different one from the menu.
+msgid "ad.ui.preset.control.tip"
+msgstr "この行が設定するコントロールです。クリックすると、メニューから別のものを選べます。"
+
+#. en: How far this radial is set when the preset is applied.
+msgid "ad.ui.preset.value.tip"
+msgstr "プリセットを適用したときに、このラジアルをどこまで設定するかです。"
+
+#. en: Whether this control is switched on or off when the preset is applied.
+msgid "ad.ui.preset.on.tip"
+msgstr "プリセットを適用したときに、このコントロールをオンにするかオフにするかです。"
+
+#. en: The parameter this row writes; pick one from the list or type a name by hand.
+msgid "ad.ui.preset.param_name.tip"
+msgstr "この行が書き込むパラメーターです。一覧から選ぶか、名前を直接入力します。"
+
+#. en: The value written to that parameter when the preset is applied.
+msgid "ad.ui.preset.param_value.tip"
+msgstr "プリセットを適用したときに、そのパラメーターに書き込む値です。"
+
+#. en: The object the contact sphere follows, usually a bone.
+msgid "ad.ui.touch.anchor.tip"
+msgstr "コンタクトの球が追従するオブジェクトです。通常はボーンです。"
+
+#. en: How big the contact sphere is, from 0.005 to 1.
+msgid "ad.ui.touch.radius.tip"
+msgstr "コンタクトの球の大きさです。0.005から1まで指定できます。"
+
+#. en: How far the sphere sits from the anchor.
+msgid "ad.ui.touch.offset.tip"
+msgstr "球をアンカーからどれだけ離すかです。"
+
+#. en: Whether your own colliders, other players' colliders, or both, can touch this contact.
+msgid "ad.ui.touch.who.tip"
+msgstr "自分のコライダー、ほかのプレイヤーのコライダー、またはその両方のうち、どれがこのコンタクトに触れられるかを選びます。"
+
+#. en: Lets your own colliders touch this contact.
+msgid "ad.ui.touch.self.tip"
+msgstr "自分のコライダーがこのコンタクトに触れられるようにします。"
+
+#. en: Lets other players' colliders touch this contact.
+msgid "ad.ui.touch.others.tip"
+msgstr "ほかのプレイヤーのコライダーがこのコンタクトに触れられるようにします。"
+
+#. en: Which VRChat contact tags can reach this contact; none ticked means it touches nobody.
+msgid "ad.ui.touch.tags.tip"
+msgstr "どのVRChatコンタクトタグがこのコンタクトに届くかです。何もチェックしないと、誰も触れられません。"
+
+#. en: Shows the rest of VRChat's own contact tags.
+msgid "ad.ui.touch.more_tags.tip"
+msgstr "VRChat独自のコンタクトタグの残りを表示します。"
+
+#. en: Removes this tag from the list.
+msgid "ad.ui.touch.custom_tag_chip.tip"
+msgstr "このタグを一覧から削除します。"
+
+#. en: Adds any other contact tag this contact should also react to.
+msgid "ad.ui.touch.custom_tag.tip"
+msgstr "このコンタクトが反応すべき、ほかのコンタクトタグを追加します。"
+
+#. en: Touch fires only on contact; Closer than fires once something is near, using a fraction of the radius.
+msgid "ad.ui.touch.distance.tip"
+msgstr "「接触」は触れたときだけ発動します。「近接」は半径に対する割合を使い、何かが近づいた時点で発動します。"
+
+#. en: How close something must get before Closer than counts as met.
+msgid "ad.ui.touch.proximity.tip"
+msgstr "「近接」が満たされたとみなすまでに、どれだけ近づく必要があるかです。"
+
+#. en: The PhysBone this trigger watches.
+msgid "ad.ui.touch.physbone.tip"
+msgstr "このトリガーが監視するPhysBoneです。"
+
+#. en: Which PhysBone state starts this trigger: grabbed, posed, or past a bend, stretch or squish amount.
+msgid "ad.ui.touch.event.tip"
+msgstr "このトリガーを発動させるPhysBoneの状態です：掴まれた、ポーズ、または曲がり、伸び、潰れが一定量を超えた状態。"
+
+#. en: How far the PhysBone has to bend, stretch or squish before this trigger fires.
+msgid "ad.ui.touch.threshold.tip"
+msgstr "このトリガーが発動するまでに、PhysBoneがどれだけ曲がる、伸びる、または潰れる必要があるかです。"
+
+#. en: Hold applies while the touch is active, Flip flips a toggle's own parameter on each touch, and Fade blends the effects in as the hand gets closer.
+msgid "ad.ui.touch.mode.tip"
+msgstr "「ホールド」はタッチ中に適用され、「切り替え」はタッチのたびにトグル自身のパラメーターを切り替え、「フェード」は手が近づくにつれて効果を混ぜていきます。"
+
+#. en: Applies the trigger's own targets while the touch is active, and stops the moment it is not.
+msgid "ad.ui.touch.hold.tip"
+msgstr "タッチ中はトリガー自身のターゲットを適用し、タッチが終わった瞬間に止めます。"
+
+#. en: Flips a toggle's own parameter on each touch, through a local parameter driver.
+msgid "ad.ui.touch.flip.tip"
+msgstr "ローカルのParameter Driverを通して、タッチのたびにトグル自身のパラメーターを切り替えます。"
+
+#. en: Effects fade in as a hand comes closer, fully on at the Fully on at value.
+msgid "ad.ui.touch.follow.tip"
+msgstr "手が近づくにつれて効果がフェードインし、「最大点」の値で最大になります。"
+
+#. en: The toggle this trigger flips on each touch; other players can flip it too when Others is on.
+msgid "ad.ui.touch.flip_target.tip"
+msgstr "タッチのたびにこのトリガーが切り替えるトグルです。「他プレイヤー」がオンなら、ほかのプレイヤーも切り替えられます。"
+
+#. en: How close the hand must get, as a fraction of the radius, before the effects are fully on.
+msgid "ad.ui.touch.fullat.tip"
+msgstr "効果が最大になるまでに、手がどれだけ近づく必要があるかを、半径に対する割合で指定します。"
+
+#. en: How big the contact sphere is, and where the effects start fading in, from 0.005 to 1.
+msgid "ad.ui.touch.radius_follow.tip"
+msgstr "コンタクトの球の大きさで、効果がフェードインし始める位置でもあります。0.005から1まで指定できます。"
+
+#. en: Adds another condition that must also be true in this group.
+msgid "ad.ui.when.add_and.tip"
+msgstr "このグループで同時に満たす必要がある条件を、もう1つ追加します。"
+
+#. en: A group holds at most {0} conditions: use + Or to start another group.
+msgid "ad.ui.when.add_and.limit.tip"
+msgstr "1つのグループに入れられる条件は最大{0}個です。「+ または」で別のグループを始めてください。"
+
+#. en: Adds a new group; the trigger fires while any group is fully met.
+msgid "ad.ui.when.add_or.tip"
+msgstr "新しいグループを追加します。いずれかのグループがすべて満たされている間、トリガーが発動します。"
+
+#. en: Every condition in this group must be true together.
+msgid "ad.ui.when.all_of.tip"
+msgstr "このグループのすべての条件が、同時に満たされる必要があります。"
+
+#. en: What this condition reads: a toggle, a parameter, a contact or a PhysBone.
+msgid "ad.ui.when.kind.tip"
+msgstr "この条件が読み取るものです：トグル、パラメーター、コンタクト、PhysBone。"
+
+#. en: Opens this condition's contact or PhysBone settings and its Scene view handle.
+msgid "ad.ui.when.settings.tip"
+msgstr "この条件のコンタクトまたはPhysBoneの設定と、シーンビューのハンドルを開きます。"
+
+#. en: The trigger fires while any one of these groups is fully met.
+msgid "ad.ui.when.any_of.tip"
+msgstr "これらのグループのいずれか1つがすべて満たされている間、トリガーが発動します。"
+
+#. en: GameObjects this control switches on or off.
+msgid "ad.ui.objects.tip"
+msgstr "このコントロールがオン/オフを切り替えるゲームオブジェクトです。"
+
+#. en: Blend shape weights this control drives on a skinned mesh.
+msgid "ad.ui.blendshapes.tip"
+msgstr "このコントロールがSkinned Meshで動かす、ブレンドシェイプのウェイトです。"
+
+#. en: Material slots this control swaps while it is on.
+msgid "ad.ui.materials.tip"
+msgstr "このコントロールがオンの間に差し替えるマテリアルスロットです。"
+
+#. en: Shader properties this control drives on a renderer's materials.
+msgid "ad.ui.targets.properties.tip"
+msgstr "このコントロールがレンダラーのマテリアルで動かす、シェーダープロパティです。"
+
+#. en: Your own animation clips merged into this control's generated one.
+msgid "ad.ui.targets.animations.tip"
+msgstr "このコントロールの生成アニメーションに統合する、自作のアニメーションクリップです。"
+
+#. en: Adds an empty object row, or drag GameObjects from the Hierarchy onto the list instead.
+msgid "ad.ui.objects.add.tip"
+msgstr "空のオブジェクト行を追加します。代わりに、ヒエラルキーからゲームオブジェクトを一覧にドラッグすることもできます。"
+
+#. en: Opens the shape picker to add another blend shape row.
+msgid "ad.ui.blendshapes.add.tip"
+msgstr "シェイプの選択画面を開き、ブレンドシェイプの行をもう1つ追加します。"
+
+#. en: Adds a new material slot row to fill in.
+msgid "ad.ui.materials.add.tip"
+msgstr "入力用の新しいマテリアルスロット行を追加します。"
+
+#. en: Adds a new shader property row to drive.
+msgid "ad.ui.targets.properties.add.tip"
+msgstr "動かすシェーダープロパティの行を、新しく追加します。"
+
+#. en: Adds a row for your own animation clip to merge in.
+msgid "ad.ui.targets.animations.add.tip"
+msgstr "統合する自作アニメーションクリップの行を追加します。"
+
+#. en: Captures every blend shape of the chosen mesh that is above 0 right now; on a toggle it also holds the rest of that mesh at 0.
+msgid "ad.ui.shape_set.capture.tip"
+msgstr "選んだメッシュのうち、今0より大きいすべてのブレンドシェイプを取り込みます。トグルでは、そのメッシュの残りも0に保持します。"
+
+#. en: The GameObject this row switches; drag one from the Hierarchy or pick it here.
+msgid "ad.ui.target.object.tip"
+msgstr "この行が切り替えるゲームオブジェクトです。ヒエラルキーからドラッグするか、ここで選びます。"
+
+#. en: Shown when on shows this object while the control is on; Hidden when on does the opposite.
+msgid "ad.ui.target.mode.tip"
+msgstr "「オンで表示」はコントロールがオンの間このオブジェクトを表示し、「オンで非表示」はその逆です。"
+
+#. en: The blend shape this row drives; click to pick a different one.
+msgid "ad.ui.target.shape.tip"
+msgstr "この行が動かすブレンドシェイプです。クリックすると、別のものを選べます。"
+
+#. en: The shape's weight when the radial is at its lowest.
+msgid "ad.ui.min.tip"
+msgstr "ラジアルが最小のときの、シェイプのウェイトです。"
+
+#. en: The shape's weight when the radial is at its highest.
+msgid "ad.ui.max.tip"
+msgstr "ラジアルが最大のときの、シェイプのウェイトです。"
+
+#. en: Fixed weight goes from rest to its weight as the trigger comes on; Follow source copies the source shape times the multiplier.
+msgid "ad.ui.effect.link_mode.tip"
+msgstr "「一定のウェイト」はトリガーがオンになるにつれて、待機状態から指定のウェイトまで動きます。「ソースに追従」はソースのシェイプに倍率を掛けた値をコピーします。"
+
+#. en: How far this blend shape moves while the control is on.
+msgid "ad.ui.weight.tip"
+msgstr "コントロールがオンの間、このブレンドシェイプをどれだけ動かすかです。"
+
+#. en: Scales the source shape's own curve, clamped to the 0 to 100 range.
+msgid "ad.ui.effect.multiplier.tip"
+msgstr "ソースのシェイプのカーブを拡大縮小します。結果は0から100の範囲に収められます。"
+
+#. en: The weight this override holds the shape at; 0 switches it off.
+msgid "ad.ui.override.value.tip"
+msgstr "このオーバーライドがシェイプを固定するウェイトです。0にするとオフになります。"
+
+#. en: Fixed also captures the shape's off value; Pin writes nothing while off, so other animations can move the shape.
+msgid "ad.ui.seg.fixed_pin.tip"
+msgstr "「一定」はシェイプのオフ時の値も記録します。「ピン留め」はオフの間何も書き込まないため、ほかのアニメーションがシェイプを動かせます。"
+
+#. en: The value written while the control is off instead of the scene's own value.
+msgid "ad.ui.target.off_value.tip"
+msgstr "コントロールがオフの間、シーンの値の代わりに書き込まれる値です。"
+
+#. en: The renderer whose material slot this row swaps.
+msgid "ad.ui.target.renderer.tip"
+msgstr "この行がマテリアルスロットを差し替えるレンダラーです。"
+
+#. en: Which material slot of that renderer this row swaps, counted from 0.
+msgid "ad.ui.slot.tip"
+msgstr "この行が差し替える、そのレンダラーのマテリアルスロットの番号です（0から数えます）。"
+
+#. en: The material placed in that slot while the control is on.
+msgid "ad.ui.target.material.tip"
+msgstr "コントロールがオンの間、そのスロットに入れるマテリアルです。"
+
+#. en: The renderer whose materials this row's shader property comes from.
+msgid "ad.ui.property.renderer.tip"
+msgstr "この行のシェーダープロパティを取得する、マテリアルを持つレンダラーです。"
+
+#. en: The shader property this row drives; click to pick a different one.
+msgid "ad.ui.property.pick_button.tip"
+msgstr "この行が動かすシェーダープロパティです。クリックすると、別のものを選べます。"
+
+#. en: Your own animation clip, merged into this control's generated one.
+msgid "ad.ui.target.clip.tip"
+msgstr "このコントロールの生成アニメーションに統合する、自作のアニメーションクリップです。"
+
+#. en: This shape is already animated elsewhere on the avatar; the clips are listed here.
+msgid "ad.ui.usage.chip.tip"
+msgstr "このシェイプはアバターのほかの場所ですでにアニメーションされています。そのクリップをここに一覧表示します。"
+
+#. en: Float, Colour or Vector: the kind of value this shader property holds.
+msgid "ad.ui.property.value_type.tip"
+msgstr "Float、Color、Vector：このシェーダープロパティが持つ値の種類です。"
+
+#. en: The property's value when the radial is at its lowest.
+msgid "ad.ui.property.min.tip"
+msgstr "ラジアルが最小のときの、プロパティの値です。"
+
+#. en: The property's value when the radial is at its highest.
+msgid "ad.ui.property.max.tip"
+msgstr "ラジアルが最大のときの、プロパティの値です。"
+
+#. en: The value written to the property while the control is on.
+msgid "ad.ui.property.value.tip"
+msgstr "コントロールがオンの間、プロパティに書き込む値です。"
+
+#. en: Holds every other shape of \"{0}\" while this is on; switched off, the rule stays but holds nothing.
+msgid "ad.ui.shape_set.zero_others.tip"
+msgstr "これがオンの間、「{0}」のほかのシェイプをすべて保持します。オフにするとルールは残りますが、何も保持しません。"
+
+#. en: Picks a mesh whose other shapes this holds at their default while it is on.
+msgid "ad.ui.shape_set.hold.tip"
+msgstr "これがオンの間、ほかのシェイプを初期値に保持するメッシュを選びます。"
+
+#. en: What the other shapes are held at: their weight in the scene when you upload, or 0.
+msgid "ad.ui.shape_set.value.tip"
+msgstr "ほかのシェイプを保持する値です：アップロード時のシーンでのウェイト、または0。"
+
+#. en: Holds each other shape at the weight the scene shows when you upload.
+msgid "ad.ui.shape_set.value.default.tip"
+msgstr "ほかの各シェイプを、アップロード時にシーンで表示されているウェイトに保持します。"
+
+#. en: Holds each other shape at 0.
+msgid "ad.ui.shape_set.value.zero.tip"
+msgstr "ほかの各シェイプを0に保持します。"
+
+#. en: Holds the shapes VRChat blinks with too, pausing blinking while this is on; off leaves blinking free.
+msgid "ad.ui.shape_set.hold_blink.tip"
+msgstr "VRChatがまばたきに使うシェイプも保持し、これがオンの間はまばたきを止めます。オフにすると、まばたきは自由に動きます。"
+
+#. en: Holds the shapes VRChat speaks with too, pausing lip sync while this is on; off leaves lip sync free.
+msgid "ad.ui.shape_set.hold_visemes.tip"
+msgstr "VRChatが発話に使うシェイプも保持し、これがオンの間はリップシンクを止めます。オフにすると、リップシンクは自由に動きます。"
+
+#. en: Removes this rule; the rows it captured stay.
+msgid "ad.ui.shape_set.remove.tip"
+msgstr "このルールを削除します。取り込んだ行は残ります。"
+
+#. en: Plain suits a store page; Markdown adds a parameter table for a place that renders it.
+msgid "ad.ui.summary.format.tip"
+msgstr "「テキスト」はストアページ向けです。「Markdown」は、表示できる場所向けにパラメーターの表を追加します。"
+
+#. en: The full summary text in the format chosen above; select and copy it directly if you prefer.
+msgid "ad.ui.summary.text.tip"
+msgstr "上で選んだ形式の概要テキスト全体です。直接選択してコピーすることもできます。"
+
+#. en: Copies the summary text to the clipboard.
+msgid "ad.ui.summary.copy.tip"
+msgstr "概要テキストをクリップボードにコピーします。"
+
+#. en: Shown in the locked banner for whoever uses this prefab.
+msgid "ad.ui.lock.note.tip"
+msgstr "このプレハブを使う人に、ロック中の表示で見せるメモです。"
+
+#. en: Opens a copyable summary of this component, for a store page or documentation.
+msgid "ad.ui.summary.toggle.tip"
+msgstr "ストアページやドキュメント向けに、このコンポーネントのコピーできる概要を開きます。"
+
+#. en: Submenu path this component's entries land in; empty means the avatar's root menu.
+msgid "ad.ui.install.tip"
+msgstr "このコンポーネントの項目が入るサブメニューのパスです。空ならアバターのルートメニューです。"
+
+#. en: Append items puts entries directly at the install path; As submenu wraps them in one new submenu there.
+msgid "ad.ui.install.mode.tip"
+msgstr "「直接追加」は項目をインストールパスにそのまま入れます。「サブメニューとして」はそこに新しいサブメニューを1つ作ってまとめます。"
+
+#. en: The submenu's own name, used only while Install as is As submenu.
+msgid "ad.ui.menu_name.tip"
+msgstr "サブメニュー自身の名前です。「インストール方法」が「サブメニューとして」の場合だけ使われます。"
+
+#. en: The icon on the submenu control this component installs.
+msgid "ad.ui.menu_icon.tip"
+msgstr "このコンポーネントがインストールするサブメニューのコントロールに付くアイコンです。"
+
+#. en: Automatic parameter names are prefix/name; changing it renames every automatic parameter at once.
+msgid "ad.ui.prefix.tip"
+msgstr "自動で付くパラメーター名は「接頭辞/名前」になります。変更すると、自動のパラメーター名がすべて一度に変わります。"
+
+#. en: Sets what every entry under this component builds on, unless an entry says otherwise.
+msgid "ad.ui.platform.component.tip"
+msgstr "項目側で別の指定がない限り、このコンポーネントのすべての項目をどのプラットフォームでビルドするかを設定します。"
+
+#. en: Clears every scene preview you set, on every avatar in the editor, in one press.
+msgid "ad.ui.preview.reset.tip"
+msgstr "エディター内のすべてのアバターで、設定したシーンプレビューを1回ですべて解除します。"
+
+#. en: Removes this menu edit whose target is already gone.
+msgid "ad.ui.edit.remove.tip"
+msgstr "対象がすでになくなった、このメニュー編集を削除します。"
+
+#. en: Shows the avatar's own synced bits, AvatarDoc's added share, and how many of VRChat's 256 bits are still free.
+msgid "ad.ui.memory.bar.tip"
+msgstr "アバター自身の同期ビット、AvatarDocが追加する分、そしてVRChatの256ビットのうち残りの空きを表示します。"
+
+#. en: Select clicks a wedge to choose it; Test clicks a wedge to preview it on the avatar instead.
+msgid "ad.ui.wheel.mode.tip"
+msgstr "「選択」は区画をクリックして選びます。「テスト」は区画をクリックすると、代わりにアバター上でプレビューします。"
+
+#. en: Click a wedge to select or open it; in Test mode a click previews it on the avatar instead.
+msgid "ad.ui.wheel.ring.tip"
+msgstr "区画をクリックすると、選択するか開きます。テストモードでは、代わりにアバター上でプレビューします。"
+
+#. en: Drags this radial's own preview value; the ring's accent arc follows it live.
+msgid "ad.ui.wheel.radial_slider.tip"
+msgstr "このラジアルのプレビュー値をドラッグで変えます。リングのアクセントの弧がリアルタイムで追従します。"
+
+#. en: Presses simulate a parameter, contact or PhysBone trigger without waiting for its real condition.
+msgid "ad.ui.wheel.triggers_strip.tip"
+msgstr "押すと、実際の条件を待たずに、パラメーター、コンタクト、PhysBoneのトリガーを再現します。"
+
+#. en: Toggles hidden from the menu still show here in Test mode, so you can try them.
+msgid "ad.ui.wheel.not_in_menu.tip"
+msgstr "メニューから隠したトグルもテストモードではここに表示されるので、試すことができます。"
+
+#. en: Presses this trigger once; press again to release it.
+msgid "ad.ui.wheel.trigger_button.tip"
+msgstr "このトリガーを1回押します。もう一度押すと解除します。"
+
+#. en: Flips this hidden toggle's own preview, the same as its panel would.
+msgid "ad.ui.wheel.hidden_button.tip"
+msgstr "パネルと同じように、この非表示トグルのプレビューを切り替えます。"
+
+#. en: Steps back to that submenu in the wheel.
+msgid "ad.ui.wheel.crumb.tip"
+msgstr "ホイールで、そのサブメニューに戻ります。"
+
+#. en: Adds a toggle that switches its own targets on or off.
+msgid "ad.ui.add.toggle.tip"
+msgstr "自身のターゲットをオン/オフするトグルを追加します。"
+
+#. en: Adds a control that blends its targets between two ends as its value moves from 0 to 1.
+msgid "ad.ui.add.radial.tip"
+msgstr "値が0から1に動くにつれて、ターゲットを2つの端の間でブレンドするコントロールを追加します。"
+
+#. en: Adds a new submenu that other controls can be placed inside.
+msgid "ad.ui.add.submenu.tip"
+msgstr "ほかのコントロールを入れられる、新しいサブメニューを追加します。"
+
+#. en: Adds a rule that fires its effects on its own, with no button in the menu and no synced bits.
+msgid "ad.ui.add.trigger.tip"
+msgstr "メニューボタンも同期ビットも使わずに、自動で効果を発動するルールを追加します。"
+
+#. en: Adds a rule that holds a blend shape at one value in every animation that already uses it.
+msgid "ad.ui.add.override.tip"
+msgstr "ブレンドシェイプを、すでにそれを使っているすべてのアニメーションで1つの値に固定するルールを追加します。"
+
+#. en: Adds a button that puts several other controls into one state at once.
+msgid "ad.ui.add.preset.tip"
+msgstr "ほかの複数のコントロールを、一度に1つの状態にするボタンを追加します。"
+
+#. en: Adds an existing animator controller's layers to the build, the way a Modular Avatar Merge Animator does.
+msgid "ad.ui.add.animator.tip"
+msgstr "Modular AvatarのMerge Animatorと同じように、既存のアニメーターコントローラーのレイヤーをビルドに追加します。"
+
+#. en: Installs a whole finished expressions menu into this menu.
+msgid "ad.ui.add.menu_asset.tip"
+msgstr "完成済みのExpressions Menuを、まるごとこのメニューにインストールします。"
+
+#. en: Opens a wizard that builds a whole outfit selector from GameObjects at once.
+msgid "ad.ui.add.outfit.tip"
+msgstr "ゲームオブジェクトから衣装の切り替えメニューを一度に作る、ウィザードを開きます。"
+
+#. en: Shows the selected submenu as VRChat's own radial menu would draw it.
+msgid "ad.ui.wheel.toggle.tip"
+msgstr "選択中のサブメニューを、VRChat自身のラジアルメニューと同じように表示します。"
+
+#. en: Filters the tree to rows whose name matches what you type; a submenu stays open while something inside it matches.
+msgid "ad.ui.search.tip"
+msgstr "入力した文字に名前が一致する行だけに、ツリーを絞り込みます。中に一致するものがあるサブメニューは開いたままになります。"
+
+#. en: Search
+msgid "ad.ui.search.placeholder"
+msgstr "検索"
+
+#. en: AvatarDoc on '{0}' took {1} ms to refresh: plan {2} ms, header {3} ms, menu tree {4} ms, entry panel {5} ms, other {6} ms; the plan was dropped by: {7}. Please send this line to the developer if it keeps happening.
+msgid "ad.log.slow_refresh"
+msgstr "「{0}」のAvatarDocの更新に{1} msかかりました：プラン{2} ms、ヘッダー{3} ms、メニューツリー{4} ms、項目パネル{5} ms、その他{6} ms。プランを破棄した原因：{7}。何度も起きる場合は、この行を開発者に送ってください。"
+
+#. en: An AvatarDoc menu closed by itself: {0}. The plan was last dropped by: {1}. Please send this line to the developer if it keeps happening.
+msgid "ad.log.menu_closed"
+msgstr "AvatarDocのメニューが勝手に閉じました：{0}。最後にプランを破棄した原因：{1}。何度も起きる場合は、この行を開発者に送ってください。"
+
+#. en: the panel it belongs to was rebuilt or closed
+msgid "ad.log.menu_closed.view_gone"
+msgstr "所属するパネルが再構築されたか、閉じられた"
+
+#. en: its window took it away
+msgid "ad.log.menu_closed.removed"
+msgstr "ウィンドウによって取り除かれた"
+
+#. en: the window changed size
+msgid "ad.log.menu_closed.resized"
+msgstr "ウィンドウのサイズが変わった"
+
+#. en: an undo or redo changed the data under it
+msgid "ad.log.menu_closed.undo"
+msgstr "元に戻す、またはやり直しで、下にあるデータが変わった"
+
+#. en: the window lost the focus to {0}
+msgid "ad.log.menu_closed.window_focus"
+msgstr "ウィンドウのフォーカスが{0}に移った"
+
+#. en: the focus kept moving to {0}
+msgid "ad.log.menu_closed.focus_taken"
+msgstr "フォーカスが{0}に移り続けた"
+
+#. en: another application
+msgid "ad.log.menu_closed.other_app"
+msgstr "ほかのアプリケーション"
+
+#. en: nothing
+msgid "ad.log.menu_closed.nothing"
+msgstr "なし"
+
+#. en: nothing, the plan was reused
+msgid "ad.log.plan_reused"
+msgstr "なし（プランは再利用されました）"
+
+#. en: AvatarDoc on '{0}' used item ids that another AvatarDoc on this avatar already has, which happens when a component is copied. The repeated ids were given new ones, which is why the scene shows as changed.
+msgid "ad.log.ids_repaired"
+msgstr "「{0}」のAvatarDocが、このアバターの別のAvatarDocがすでに持つ項目IDを使っていました。これはコンポーネントをコピーしたときに起こります。重複したIDには新しいIDを割り当てたため、シーンが変更済みとして表示されています。"
+
+#. en: This piece's own shapes copy a shape of another mesh, wherever that mesh is animated.
+msgid "ad.ui.shapes.follows.tip"
+msgstr "このパーツのシェイプが、別のメッシュのシェイプの動きをコピーします。そのメッシュがアニメーションされる場所すべてで有効です。"
+
+#. en: Adds a row that copies a shape from another mesh onto this piece.
+msgid "ad.ui.shapes.add_follow.tip"
+msgstr "別のメッシュのシェイプをこのパーツにコピーする行を追加します。"
+
+#. en: Holds a shape on any mesh at a value while this piece is switched on.
+msgid "ad.ui.shapes.while_on.tip"
+msgstr "このパーツがオンの間、任意のメッシュのシェイプを一定の値に保持します。"
+
+#. en: Adds a row that holds a mesh's shape at a value while this piece is on.
+msgid "ad.ui.shapes.add_while_on.tip"
+msgstr "このパーツがオンの間、メッシュのシェイプを一定の値に保持する行を追加します。"
+
+#. en: A piece left out on this platform writes none of these shape values there.
+msgid "ad.ui.shapes.platform.tip"
+msgstr "このプラットフォームで除外されたパーツは、そこではこれらのシェイプの値を何も書き込みません。"
+
+#. en: The mesh to read the source shape from, usually the body.
+msgid "ad.ui.shapes.source_mesh.tip"
+msgstr "元のシェイプを読み取るメッシュです。通常は体です。"
+
+#. en: The mesh to change while this object is on, usually the body.
+msgid "ad.ui.shapes.mesh.tip"
+msgstr "このオブジェクトがオンの間に変更するメッシュです。通常は体です。"
+
+#. en: How much this shape is held at while the object is on.
+msgid "ad.ui.shapes.value.tip"
+msgstr "オブジェクトがオンの間、このシェイプをどの値に保持するかです。"
+
+#. en: The shape on the source mesh to copy.
+msgid "ad.ui.shapes.source_shape.tip"
+msgstr "コピーする、元メッシュのシェイプです。"
+
+#. en: The shape on this piece that copies the source; Same name uses the source's own name.
+msgid "ad.ui.shapes.local_shape.tip"
+msgstr "元のシェイプをコピーする、このパーツのシェイプです。「同じ名前」は元と同じ名前を使います。"
+
+#. en: The shape on that mesh to hold at a value while this object is on.
+msgid "ad.ui.shapes.shape.tip"
+msgstr "このオブジェクトがオンの間、一定の値に保持する、そのメッシュのシェイプです。"
+
+#. en: Ticks every candidate that can be converted.
+msgid "ad.ui.import.select_all.tip"
+msgstr "変換できる候補をすべてチェックします。"
+
+#. en: Unticks every candidate.
+msgid "ad.ui.import.select_none.tip"
+msgstr "すべての候補のチェックを外します。"
+
+#. en: Creates AvatarDoc entries for every ticked candidate; Remove originals also takes away the old components.
+msgid "ad.ui.import.button.tip"
+msgstr "チェックしたすべての候補について、AvatarDocの項目を作成します。「元を削除」がオンなら、古いコンポーネントも取り除きます。"
+
+#. en: Brings this layer's old control and layer back together, undoing its conversion.
+msgid "ad.ui.import.restore.tip"
+msgstr "このレイヤーの古いコントロールとレイヤーを一緒に戻し、変換を取り消します。"
+
+#. en: Tick to include this item in the conversion.
+msgid "ad.ui.import.candidate.tip"
+msgstr "チェックすると、このアイテムを変換に含めます。"
+
+#. en: Names the submenu and exclusive group this wizard builds.
+msgid "ad.ui.outfit.name.tip"
+msgstr "このウィザードが作る、サブメニューと排他グループの名前です。"
+
+#. en: One at a time makes one exclusive toggle per outfit; Mix freely lets several pieces be worn together.
+msgid "ad.ui.outfit.mode.tip"
+msgstr "「1つずつ」は衣装ごとに排他のトグルを1つ作ります。「自由に組み合わせ」は複数のパーツを同時に着られるようにします。"
+
+#. en: Adds a None choice that leaves every outfit off and shows the pieces hidden while any outfit is on.
+msgid "ad.ui.outfit.none_option.tip"
+msgstr "どの衣装もオンにせず、衣装の着用中は非表示になるパーツを表示する「なし」の選択肢を追加します。"
+
+#. en: Adds a new, empty outfit card to drop pieces onto.
+msgid "ad.ui.outfit.add.tip"
+msgstr "パーツをドロップするための、空の衣装カードを新しく追加します。"
+
+#. en: Pieces here are turned off by every outfit's own toggle, so they disappear once any outfit is worn.
+msgid "ad.ui.outfit.hidden.tip"
+msgstr "ここにあるパーツは、どの衣装のトグルでもオフになるため、いずれかの衣装を着ると消えます。"
+
+#. en: Captures an icon automatically for every entry the wizard creates that has pieces.
+msgid "ad.ui.outfit.capture.tip"
+msgstr "ウィザードが作る項目のうち、パーツを持つものすべてのアイコンを自動で撮影します。"
+
+#. en: Builds the submenu, groups or presets and shrink shapes, all in one Undo step.
+msgid "ad.ui.outfit.create.tip"
+msgstr "サブメニュー、グループまたはプリセット、縮小シェイプをまとめて作成します。元に戻す操作1回ですべて取り消せます。"
+
+#. en: Makes one outfit for every object you dropped.
+msgid "ad.ui.outfit.split.each.tip"
+msgstr "ドロップしたオブジェクトごとに、衣装を1つ作ります。"
+
+#. en: Makes one outfit holding every object you dropped together.
+msgid "ad.ui.outfit.split.all.tip"
+msgstr "ドロップしたオブジェクトをすべてまとめた衣装を、1つ作ります。"
+
+#. en: This outfit's own name, shown as its toggle or preset label.
+msgid "ad.ui.outfit.card_name.tip"
+msgstr "この衣装の名前です。トグルまたはプリセットのラベルとして表示されます。"
+
+#. en: Click to make this the outfit that starts on.
+msgid "ad.ui.outfit.default.tip"
+msgstr "クリックすると、この衣装が最初からオンになります。"
+
+#. en: Tick a suggestion to add it as a blend shape target on the toggle that shows this piece.
+msgid "ad.ui.outfit.shrinks.tip"
+msgstr "候補をチェックすると、このパーツを表示するトグルに、ブレンドシェイプのターゲットとして追加します。"
+
+#. en: Adds this shape as a blend shape target on the toggle that shows this piece; only tick a real match.
+msgid "ad.ui.outfit.shrink_toggle.tip"
+msgstr "このシェイプを、このパーツを表示するトグルのブレンドシェイプのターゲットとして追加します。本当に一致するものだけをチェックしてください。"
+
+#. en: Shows every shrink suggestion for this piece, not just the first eight.
+msgid "ad.ui.outfit.show_all.tip"
+msgstr "最初の8つだけでなく、このパーツの縮小シェイプの候補をすべて表示します。"
+
+#. en: Opens the avatar picker to add a piece, as an alternative to dragging from the Hierarchy.
+msgid "ad.ui.outfit.add_piece.tip"
+msgstr "ヒエラルキーからドラッグする代わりに、アバターの選択画面を開いてパーツを追加します。"
+
+#. en: Transparent clears to nothing; Solid colour fills behind the pieces with the colour beside it.
+msgid "ad.ui.capture.background.tip"
+msgstr "「透明」は何もない背景にします。「単色」はパーツの後ろを、横の色で塗りつぶします。"
+
+#. en: The colour drawn behind the pieces when the background is Solid colour.
+msgid "ad.ui.capture.color.tip"
+msgstr "背景が「単色」のときに、パーツの後ろに描く色です。"
+
+#. en: Points the camera at this entry's own pieces and freezes the framing until you press it again.
+msgid "ad.ui.capture.fit.tip"
+msgstr "カメラをこの項目のパーツに向け、もう一度押すまでその構図を固定します。"
+
+#. en: Writes the preview as this entry's icon; capturing again under the same name overwrites the same file.
+msgid "ad.ui.capture.save.tip"
+msgstr "プレビューをこの項目のアイコンとして書き込みます。同じ名前で撮影し直すと、同じファイルを上書きします。"
+
+#. en: This control was installed from a finished menu asset rather than built here directly.
+msgid "ad.ui.chip.asset.tip"
+msgstr "このコントロールは、ここで直接作られたのではなく、完成済みのメニューアセットからインストールされたものです。"
+
+#. en: Allows editing this component again.
+msgid "ad.ui.unlock.tip"
+msgstr "このコンポーネントを、再び編集できるようにします。"
+
+#. en: Where the radial sits when the avatar loads.
+msgid "ad.ui.default_value.tip"
+msgstr "アバターを読み込んだときの、ラジアルの位置です。"
+
+#. en: While this control is on, or this trigger is met, each object here follows its target instead of hanging where it belongs.
+msgid "ad.ui.targets.follows.tip"
+msgstr "このコントロールがオンの間、またはこのトリガーの条件を満たしている間、ここにある各オブジェクトは本来の場所ではなく、ターゲットに追従します。"
+
+#. en: Adds an object that follows another transform while this control is on or this trigger is met.
+msgid "ad.ui.targets.follows.add.tip"
+msgstr "このコントロールがオンの間、またはこのトリガーの条件を満たしている間、別のトランスフォームに追従するオブジェクトを追加します。"
+
+#. en: The object that moves. It must already be part of this avatar.
+msgid "ad.ui.target.follow_object.tip"
+msgstr "動くオブジェクトです。このアバターの一部である必要があります。"
+
+#. en: The transform the object follows while this control is on or this trigger is met.
+msgid "ad.ui.target.follow_target.tip"
+msgstr "このコントロールがオンの間、またはこのトリガーの条件を満たしている間、オブジェクトが追従するトランスフォームです。"
+
+#. en: On: keeps the pose the object has relative to the target right now, as you posed it in the scene. Off: it snaps exactly onto the target's own origin.
+msgid "ad.ui.target.keep_offset.tip"
+msgstr "オン：シーンで配置した、ターゲットに対する今の位置関係を保ちます。オフ：ターゲットの原点にぴったり吸着します。"
+
+#. en: Adds a grabbable: pick an object and AvatarDoc builds the PhysBone, the contacts and the follow that let a hand hold it.
+msgid "ad.ui.add.grabbable.tip"
+msgstr "掴めるオブジェクトを追加します。オブジェクトを選ぶと、手で持てるようにするPhysBone、コンタクト、追従をAvatarDocがビルドします。"
+
+#. en: The object a hand can pick up. It must already be part of this avatar.
+msgid "ad.ui.grab.object.tip"
+msgstr "手で拾えるオブジェクトです。このアバターの一部である必要があります。"
+
+#. en: Which hand or hands may hold this object.
+msgid "ad.ui.grab.hands.tip"
+msgstr "どちらの手、または両手でこのオブジェクトを持てるかです。"
+
+#. en: On: other players may grab it too. Off: only its own wearer can.
+msgid "ad.ui.grab.anyone.tip"
+msgstr "オン：ほかのプレイヤーも掴めます。オフ：着ている本人だけが掴めます。"
+
+#. en: Seconds the object takes to blend back to its rest place once released.
+msgid "ad.ui.grab.return_seconds.tip"
+msgstr "離した後、オブジェクトが元の場所に戻るまでの秒数です。"
+
+#. en: On: adds a normal menu toggle that turns grabbing on and off. Off: grabbing is always available and the entry has no menu control of its own.
+msgid "ad.ui.grab.menu_toggle.tip"
+msgstr "オン：掴めるかどうかを切り替える、通常のメニュートグルを追加します。オフ：常に掴めて、この項目自体のメニューコントロールはありません。"
+
+#. en: How close the hand has to be to grab it, as a multiplier on the size AvatarDoc already computes.
+msgid "ad.ui.grab.reach.tip"
+msgstr "掴むために手がどれだけ近づく必要があるかを、AvatarDocがすでに計算した大きさに対する倍率で指定します。"
+
+#. en: Shows who may grab it, how long it takes to return, its reach, and its menu toggle.
+msgid "ad.ui.grab.fold.tip"
+msgstr "誰が掴めるか、戻るまでの時間、届く範囲、メニュートグルを表示します。"
+
+#. en: Clear the search to move rows.
+msgid "ad.info.drag_needs_no_search"
+msgstr "行を移動するには、検索をクリアしてください。"
+
+#. en: Can't move it there: {0}
+msgid "ad.info.drop_refused"
+msgstr "そこには移動できません：{0}"
+
+#. en: this component is locked
+msgid "ad.info.drop_refused.locked"
+msgstr "このコンポーネントはロックされています"
+
+#. en: a submenu can't move into its own descendant
+msgid "ad.info.drop_refused.own_descendant"
+msgstr "サブメニューは、自分の中にあるサブメニューへは移動できません"
+
+#. en: that row can't hold other rows
+msgid "ad.info.drop_refused.not_a_container"
+msgstr "その行には、ほかの行を入れられません"
+
+#. en: Into \"{0}\"
+msgid "ad.ui.drag_target.into"
+msgstr "「{0}」の中へ"
+
+#. en: To the root menu
+msgid "ad.ui.drag_target.root"
+msgstr "ルートメニューへ"
+
+#. en: Select a row to edit it. New here? Drag an object from the Hierarchy onto the menu to make a toggle.
+msgid "ad.ui.detail.select_hint"
+msgstr "行を選択すると編集できます。初めての方は、ヒエラルキーからオブジェクトをメニューにドラッグして、トグルを作ってみてください。"
+
+#. en: Component settings
+msgid "ad.ui.settings_fold"
+msgstr "コンポーネント設定"
+
+#. en: Shows Install into, Install as, Parameter prefix and Platform for this component.
+msgid "ad.ui.settings_fold.tip"
+msgstr "このコンポーネントの「インストール先」「インストール方法」「接頭辞」「プラットフォーム」を表示します。"
+
+#. en: A setting inside is not at its default value.
+msgid "ad.ui.settings_fold.dot.tip"
+msgstr "中の設定のどれかが初期値から変更されています。"
+
+#. en: Convert
+msgid "ad.ui.toolbar.convert"
+msgstr "変換"
+
+#. en: + More
+msgid "ad.ui.more"
+msgstr "+ その他"
+
+#. en: Opens the rest of the add actions, each with a one line description.
+msgid "ad.ui.more.tip"
+msgstr "残りの追加操作を、それぞれ1行の説明付きで開きます。"
+
+#. en: Contact starts
+msgid "ad.ui.add.contact_starts"
+msgstr "定番コンタクト"
+
+#. en: Headpat
+msgid "ad.ui.add.contact_starts.headpat"
+msgstr "なでなで"
+
+#. en: Closes the eyes slowly as a hand pats the head.
+msgid "ad.ui.add.contact_starts.headpat.tip"
+msgstr "手で頭をなでると、ゆっくり目を閉じます。"
+
+#. en: Eye touch
+msgid "ad.ui.add.contact_starts.eye_touch"
+msgstr "目タッチ"
+
+#. en: Closes an eye slowly as a finger comes near it.
+msgid "ad.ui.add.contact_starts.eye_touch.tip"
+msgstr "指が近づくと、ゆっくり片目を閉じます。"
+
+#. en: Nose boop
+msgid "ad.ui.add.contact_starts.nose_boop"
+msgstr "鼻ツン"
+
+#. en: Opens the mouth slowly as a finger nears the nose.
+msgid "ad.ui.add.contact_starts.nose_boop.tip"
+msgstr "指が鼻に近づくと、ゆっくり口を開けます。"
+
+#. en: Let's get your first item onto the menu.
+msgid "ad.ui.welcome.title"
+msgstr "最初の項目をメニューに追加しましょう。"
+
+#. en: Make a toggle
+msgid "ad.ui.welcome.toggle"
+msgstr "トグルを作る"
+
+#. en: Opens the avatar object picker. The chosen object becomes a toggle, the same as dropping it.
+msgid "ad.ui.welcome.toggle.desc"
+msgstr "アバターのオブジェクト選択画面を開きます。選んだオブジェクトは、ドロップしたときと同じようにトグルになります。"
+
+#. en: Picks an object on the avatar and turns it into a toggle.
+msgid "ad.ui.welcome.toggle.tip"
+msgstr "アバターのオブジェクトを選んで、トグルにします。"
+
+#. en: Convert from VRCFury or Modular Avatar
+msgid "ad.ui.welcome.convert.title"
+msgstr "VRCFuryまたはModular Avatarから変換"
+
+#. en: Convert {0} items from {1}
+msgid "ad.ui.welcome.convert"
+msgstr "{1}から{0}件を変換"
+
+#. en: Convert {0} item from {1}
+msgid "ad.ui.welcome.convert.one"
+msgstr "{1}から{0}件を変換"
+
+#. en: It opens the Convert window.
+msgid "ad.ui.welcome.convert.desc"
+msgstr "変換ウィンドウを開きます。"
+
+#. en: VRCFury or Modular Avatar
+msgid "ad.ui.welcome.convert.mixed_source"
+msgstr "VRCFuryまたはModular Avatar"
+
+#. en: Opens the window that converts what another tool would install here.
+msgid "ad.ui.welcome.convert.tip"
+msgstr "ほかのツールがここにインストールするものを変換する、ウィンドウを開きます。"
+
+#. en: Start an outfit set
+msgid "ad.ui.welcome.outfit"
+msgstr "衣装セットを始める"
+
+#. en: The existing outfit wizard.
+msgid "ad.ui.welcome.outfit.desc"
+msgstr "従来の衣装ウィザードです。"
+
+#. en: Opens the wizard that builds a whole outfit selector from objects at once.
+msgid "ad.ui.welcome.outfit.tip"
+msgstr "オブジェクトから衣装の切り替えメニューを一度に作る、ウィザードを開きます。"
+
+#. en: Quick start
+msgid "ad.ui.welcome.quickstart"
+msgstr "クイックスタート"
+
+#. en: Opens the package's own quick start guide.
+msgid "ad.ui.welcome.quickstart.tip"
+msgstr "パッケージのクイックスタートガイドを開きます。"
+
+#. en: Moves this row into another submenu or the root menu.
+msgid "ad.ui.row.move.tip"
+msgstr "この行を、別のサブメニューかルートメニューに移動します。"
+
+#. en: Adds a copy of this row right after it.
+msgid "ad.ui.row.duplicate.tip"
+msgstr "この行のコピーを、すぐ後ろに追加します。"
+
+#. en: Removes this row and its own targets.
+msgid "ad.ui.row.delete.tip"
+msgstr "この行と、そのターゲットを削除します。"
+
+#. en: Brings this item into this component so it can be edited here.
+msgid "ad.ui.row.convert.tip"
+msgstr "このアイテムをこのコンポーネントに取り込み、ここで編集できるようにします。"
+
+#. en: Puts the focus on this row's own name field.
+msgid "ad.ui.row.rename.tip"
+msgstr "この行の名前欄にフォーカスを移します。"
+
+#. en: Del
+msgid "ad.ui.shortcut.delete"
+msgstr "Del"
+
+#. en: Back
+msgid "ad.ui.menu.back"
+msgstr "戻る"
+
+#. en: + Contact
+msgid "ad.ui.add.contact"
+msgstr "+ コンタクト"
+
+#. en: Adds a ready made contact start: Headpat, Eye touch or Nose boop.
+msgid "ad.ui.add.contact.tip"
+msgstr "用意された定番コンタクトを追加します：なでなで、目タッチ、鼻ツン。"
+
+#. en: Capture icons
+msgid "ad.ui.toolbar.capture"
+msgstr "アイコン撮影"
+
+#. en: Renders an icon for every entry of this component that has none yet.
+msgid "ad.ui.capture_missing.tip"
+msgstr "このコンポーネントの項目のうち、アイコンがまだないものすべてにアイコンを描画します。"
+
+#. en: Filter
+msgid "ad.ui.tagfilter"
+msgstr "フィルター"
+
+#. en: Filter ({0})
+msgid "ad.ui.tagfilter.count"
+msgstr "フィルター（{0}）"
+
+#. en: Narrows the tree to rows that match the ticked tags.
+msgid "ad.ui.tagfilter.tip"
+msgstr "チェックしたタグに一致する行だけに、ツリーを絞り込みます。"
+
+#. en: Clear
+msgid "ad.ui.tagfilter.clear"
+msgstr "クリア"
+
+#. en: Removes every ticked tag.
+msgid "ad.ui.tagfilter.clear.tip"
+msgstr "チェックしたタグをすべて外します。"
+
+#. en: Removes this one tag from the filter.
+msgid "ad.ui.tagfilter.chip.remove.tip"
+msgstr "このタグをフィルターから外します。"
+
+#. en: Kind
+msgid "ad.ui.tagfilter.group.kind"
+msgstr "種類"
+
+#. en: From
+msgid "ad.ui.tagfilter.group.from"
+msgstr "作成元"
+
+#. en: State
+msgid "ad.ui.tagfilter.group.state"
+msgstr "状態"
+
+#. en: Platform
+msgid "ad.ui.tagfilter.group.platform"
+msgstr "プラットフォーム"
+
+#. en: AvatarDoc
+msgid "ad.ui.tagfilter.from.avatardoc"
+msgstr "AvatarDoc"
+
+#. en: Avatar menu
+msgid "ad.ui.tagfilter.from.avatar_menu"
+msgstr "アバターメニュー"
+
+#. en: has problems
+msgid "ad.ui.tagfilter.state.has_problems"
+msgstr "問題あり"
+
+#. en: Advanced
+msgid "ad.ui.advanced_fold"
+msgstr "詳細設定"
+
+#. en: Shows the platform, parameter, Saved, Synced and blend time settings this panel tucks away by default.
+msgid "ad.ui.advanced_fold.tip"
+msgstr "このパネルで普段は隠している、プラットフォーム、パラメーター、保存、同期、ブレンド時間の設定を表示します。"
+
+#. en: One of the settings this fold hides is not at its default.
+msgid "ad.ui.advanced_fold.dot.tip"
+msgstr "この中に隠れている設定のどれかが、初期値から変更されています。"
+
+#. en: + Add effect
+msgid "ad.ui.add_effect"
+msgstr "+ 効果を追加"
+
+#. en: Adds a section for another kind of effect this control can have.
+msgid "ad.ui.add_effect.tip"
+msgstr "このコントロールに持たせる、別の種類の効果のセクションを追加します。"
+
+#. en: turn objects on or off
+msgid "ad.ui.add_effect.objects"
+msgstr "オブジェクトのオン/オフ"
+
+#. en: set shape weights
+msgid "ad.ui.add_effect.blendshapes"
+msgstr "シェイプのウェイトを設定"
+
+#. en: swap a material
+msgid "ad.ui.add_effect.materials"
+msgstr "マテリアルを差し替え"
+
+#. en: change a material value
+msgid "ad.ui.add_effect.properties"
+msgstr "マテリアルの値を変更"
+
+#. en: play your own clip
+msgid "ad.ui.add_effect.animations"
+msgstr "自作のクリップを再生"
+
+#. en: make an object follow another
+msgid "ad.ui.add_effect.follows"
+msgstr "オブジェクトを別のものに追従"
+
+#. en: First-use tips
+msgid "ad.ui.tips_switch_label"
+msgstr "初回のヒント"
+
+#. en: Show again
+msgid "ad.ui.tips_switch"
+msgstr "再表示"
+
+#. en: Turns every dismissed first-use tip back on.
+msgid "ad.ui.tips_switch.tip"
+msgstr "閉じた初回のヒントを、すべて再び表示します。"
+
+#. en: Dismisses this tip for good.
+msgid "ad.ui.tip.dismiss.tip"
+msgstr "このヒントを今後表示しません。"
+
+#. en: Opens this row's own actions.
+msgid "ad.ui.row.more.tip"
+msgstr "この行の操作を開きます。"
+
+#. en: Clear the search and the tag filters to move rows.
+msgid "ad.info.drag_needs_no_search_or_tags"
+msgstr "行を移動するには、検索とタグフィルターをクリアしてください。"
+
+#. en: Clear the tag filters to move rows.
+msgid "ad.info.drag_needs_no_tags"
+msgstr "行を移動するには、タグフィルターをクリアしてください。"
+
+#. en: A toggle switches its targets on or off from the menu. Drag an object onto the tree, or add an effect below, to give it something to switch.
+msgid "ad.tip.toggle"
+msgstr "トグルは、メニューからターゲットのオン/オフを切り替えます。オブジェクトをツリーにドラッグするか、下で効果を追加して、切り替えるものを設定しましょう。"
+
+#. en: A radial blends its targets between two ends as its slider moves, instead of switching them on or off. Add a blend shape below and set what its low and high ends look like.
+msgid "ad.tip.radial"
+msgstr "ラジアルは、スライダーの動きに合わせて、ターゲットを2つの端の間でブレンドします。オン/オフの切り替えではありません。下でブレンドシェイプを追加し、低い端と高い端の見た目を設定しましょう。"
+
+#. en: A submenu groups other entries under one menu button. Drag entries into it, or add new ones while it is selected, to fill it.
+msgid "ad.tip.submenu"
+msgstr "サブメニューは、ほかの項目を1つのメニューボタンにまとめます。項目をドラッグして入れるか、選択中に新しい項目を追加して、中身を作りましょう。"
+
+#. en: A trigger fires its effects on its own, from a toggle, a parameter, a touch or a blend shape, without taking a menu slot of its own. Pick what starts it below.
+msgid "ad.tip.trigger"
+msgstr "トリガーは、トグル、パラメーター、タッチ、ブレンドシェイプをきっかけに自動で効果を発動し、メニューの枠を使いません。下で発動させるものを選びましょう。"
+
+#. en: An override holds a blend shape at one value in every animation that already uses it, so nothing else can fight it. Add the shape it should hold below.
+msgid "ad.tip.override"
+msgstr "オーバーライドは、ブレンドシェイプをすでに使っているすべてのアニメーションで、そのシェイプを1つの値に固定するので、ほかのものと競合しません。下で固定するシェイプを追加しましょう。"
+
+#. en: A preset puts several other controls into one state with a single button. Add the states it should set below.
+msgid "ad.tip.preset"
+msgstr "プリセットは、1つのボタンでほかの複数のコントロールを1つの状態にします。下で設定する状態を追加しましょう。"
+
+#. en: A grabbable lets a creator pick up and hold an object in a hand. Pick the object and which hand or hands below.
+msgid "ad.tip.grabbable"
+msgstr "掴めるオブジェクトは、オブジェクトを手で拾って持てるようにします。下でオブジェクトと、どちらの手で持つかを選びましょう。"
+
+#. en: A merged animator brings an existing controller's layers straight into the build, unchanged. Pick the controller below.
+msgid "ad.tip.animator"
+msgstr "統合アニメーターは、既存のコントローラーのレイヤーを、そのままビルドに取り込みます。下でコントローラーを選びましょう。"
+
+#. en: An installed menu asset brings a finished menu asset into the build as it already is. Pick the asset above.
+msgid "ad.tip.menu_asset"
+msgstr "インストールしたメニューアセットは、完成済みのメニューアセットを、そのままビルドに取り込みます。上でアセットを選びましょう。"
+
+#. en: This header holds the component's own install settings and the avatar's shared memory bar. Add your first entry in the tree below to get started.
+msgid "ad.tip.header"
+msgstr "このヘッダーには、コンポーネントのインストール設定と、アバター共通のメモリーバーがあります。下のツリーで最初の項目を追加して、始めましょう。"
+
+#. en: This header shows whether the avatar is ready to upload and how much of VRChat's memory the menu uses. Add your first entry in the tree below to get started.
+msgid "ad.tip.header.simple"
+msgstr "このヘッダーには、アバターがアップロードできる状態か、メニューがVRChatのメモリーをどれだけ使っているかが表示されます。下のツリーで最初の項目を追加して、始めましょう。"
+
+#. en: Simple
+msgid "ad.ui.mode.simple"
+msgstr "シンプル"
+
+#. en: Advanced
+msgid "ad.ui.mode.advanced"
+msgstr "詳細"
+
+#. en: Simple shows only what most avatars need; Advanced shows every tool. Nothing you made is hidden.
+msgid "ad.ui.mode.tip"
+msgstr "「シンプル」はほとんどのアバターに必要なものだけを、「詳細」はすべてのツールを表示します。作ったものが隠れることはありません。"
+
+#. en: This is an advanced item; switch to Advanced to add more like it.
+msgid "ad.ui.advanced_item.note"
+msgstr "これは詳細モード向けの項目です。同じ種類の項目を追加するには、「詳細」に切り替えてください。"
+
+#. en: \"{0}\" follows {1}, but that shape also moves in {2}, outside the FX layer, where the trigger cannot see it. Move that animation into the FX layer if the trigger should react to it there.
+msgid "ad.warn.link_clips_outside_fx"
+msgstr "「{0}」は{1}に追従していますが、そのシェイプはFXレイヤーの外にある{2}でも動いていて、トリガーからは見えません。そこでもトリガーを反応させたい場合は、そのアニメーションをFXレイヤーに移してください。"
+
+#. en: \"{0}\" follows {1}, which VRChat moves itself for blinking or lip sync outside every animation, so the trigger never sees it move. Pick a shape your own animations move instead. ({2})
+msgid "ad.warn.link_source_tracked"
+msgstr "「{0}」が追従する{1}は、まばたきやリップシンクのために、VRChatがアニメーションの外で動かすシェイプです。そのため、トリガーは動きを検知できません。自分のアニメーションで動かすシェイプを選んでください。（{2}）"
+
+#. en: \"{0}\" starts at {1} but is fully on at {2}, which is not above it, so it is fully on just above Starts at instead. Set Fully on at higher than Starts at. ({3})
+msgid "ad.warn.smooth_range"
+msgstr "「{0}」は{1}で始まりますが、最大になるのが{2}で、開始より大きくありません。そのため、「開始点」をわずかに超えた時点で最大になります。「最大点」を「開始点」より大きくしてください。（{3}）"
+
+#. en: \"{0}\" reads only the card its shape is in, so the conditions in its other cards are kept but not used. Move what you need into the first card with + And, or remove the other cards. ({1})
+msgid "ad.warn.requirements_one_card"
+msgstr "「{0}」はシェイプがあるカードだけを読み取るため、ほかのカードの条件は残りますが使われません。必要なものは「+ かつ」で最初のカードに移すか、ほかのカードを削除してください。（{1}）"
+
+#. en: Style
+msgid "ad.ui.trigger.style"
+msgstr "スタイル"
+
+#. en: Smooth blends the effects in as the shape moves; Switch turns them fully on at one weight.
+msgid "ad.ui.trigger.style.tip"
+msgstr "「スムーズ」はシェイプの動きに合わせて効果を混ぜます。「スイッチ」は1つのウェイトで効果を完全にオンにします。"
+
+#. en: Smooth
+msgid "ad.ui.trigger.style.smooth"
+msgstr "スムーズ"
+
+#. en: The effects blend in from Starts at to Fully on at as the shape moves.
+msgid "ad.ui.trigger.style.smooth.tip"
+msgstr "シェイプの動きに合わせて、「開始点」から「最大点」まで効果がブレンドされます。"
+
+#. en: Switch
+msgid "ad.ui.trigger.style.switch"
+msgstr "スイッチ"
+
+#. en: The effects switch fully on once the shape reaches Switch at.
+msgid "ad.ui.trigger.style.switch.tip"
+msgstr "シェイプが「切替点」に達すると、効果が完全にオンになります。"
+
+#. en: Starts at
+msgid "ad.ui.trigger.smooth_start"
+msgstr "開始点"
+
+#. en: The shape weight at which the effects start to come in.
+msgid "ad.ui.trigger.smooth_start.tip"
+msgstr "効果が出始める、シェイプのウェイトです。"
+
+#. en: Fully on at
+msgid "ad.ui.trigger.smooth_full"
+msgstr "最大点"
+
+#. en: The shape weight at which the effects are fully on.
+msgid "ad.ui.trigger.smooth_full.tip"
+msgstr "効果が最大になる、シェイプのウェイトです。"
+
+#. en: Switch at
+msgid "ad.ui.trigger.switch_at"
+msgstr "切替点"
+
+#. en: The shape weight at which the whole trigger switches on.
+msgid "ad.ui.trigger.switch_at.tip"
+msgstr "トリガー全体がオンに切り替わる、シェイプのウェイトです。"
+
+#. en: Swaps at
+msgid "ad.ui.trigger.swap_at"
+msgstr "入替点"
+
+#. en: The shape weight at which objects switch and materials swap, since those cannot blend.
+msgid "ad.ui.trigger.swap_at.tip"
+msgstr "オブジェクトとマテリアルはブレンドできないため、それらが切り替わるシェイプのウェイトです。"
+
+#. en: Add
+msgid "ad.ui.trigger.mode.add"
+msgstr "加算"
+
+#. en: Replace
+msgid "ad.ui.trigger.mode.replace"
+msgstr "置換"
+
+#. en: \"{0}\" moves
+msgid "ad.ui.when.shape_moves"
+msgstr "「{0}」が動作中"
+
+#. en: a hand comes near \"{0}\"
+msgid "ad.ui.when.hand_near"
+msgstr "手が「{0}」に接近中"
+
+#. en: Adds a requirement: while any requirement fails, the effects rest.
+msgid "ad.ui.when.add_requirement.tip"
+msgstr "必要条件を追加します。いずれかの必要条件が満たされない間、効果は待機状態になります。"
+
+#. en: This card holds at most {0} rows, its first row included.
+msgid "ad.ui.when.add_and.limit_driver.tip"
+msgstr "このカードに入れられる行は、最初の行を含めて最大{0}個です。"
+
+#. en: Each + And adds a requirement. While any requirement fails, the effects rest; while all hold, the first row moves them.
+msgid "ad.ui.when.requirements_note"
+msgstr "「+ かつ」を押すたびに必要条件が1つ増えます。いずれかの必要条件が満たされない間は効果が待機状態になり、すべて満たされている間は最初の行が効果を動かします。"
+
+#. en: The preview cannot check a parameter, contact or PhysBone requirement, so it counts those as met.
+msgid "ad.ui.preview.unchecked"
+msgstr "プレビューでは、パラメーター、コンタクト、PhysBoneの必要条件を確認できないため、それらは満たされているものとして扱います。"
+
+#. en: blends from {0} to {1}
+msgid "ad.ui.builds.smooth"
+msgstr "{0}から{1}にかけてブレンド"
+
+#. en: switches at {0}
+msgid "ad.ui.builds.switch"
+msgstr "{0}で切り替え"
+
+#. en: a hidden copy of the shape's weight, no synced bits
+msgid "ad.ui.builds.mirror"
+msgstr "シェイプのウェイトの隠しコピー、同期ビットなし"
+
+#. en: a hidden copy of a blend shape's weight, never synced
+msgid "ad.summary.parameters.mirror"
+msgstr "ブレンドシェイプのウェイトの隠しコピー（同期なし）"
+
+#. en: No animation in the FX layer moves {1}, so \"{0}\" cannot follow that shape and its effects stay where the shape rests. Animate {1} in an FX animation, or pick a shape one already moves.
+msgid "ad.warn.link_no_fx_clip"
+msgstr "FXレイヤーのどのアニメーションも{1}を動かさないため、「{0}」はそのシェイプに追従できず、効果はシェイプの待機位置のままです。FXアニメーションで{1}を動かすか、すでに動いているシェイプを選んでください。"
+
+#. en: Kept but not used
+msgid "ad.ui.when.ignored"
+msgstr "残していますが、使われません"
+
+#. en: A blend shape trigger reads only its first card, so this card is kept for you to move or remove what it holds.
+msgid "ad.ui.when.ignored.tip"
+msgstr "ブレンドシェイプのトリガーは最初のカードだけを読み取ります。このカードは、中身を移動したり削除したりできるように残しています。"
+
+#. en: Blinking pauses while the effects are on
+msgid "ad.ui.builds.pauses_blink_shape"
+msgstr "効果がオンの間はまばたきを停止"
+
+#. en: Lip sync pauses while the effects are on
+msgid "ad.ui.builds.pauses_lipsync_shape"
+msgstr "効果がオンの間はリップシンクを停止"
+
+#. en: The language AvatarDoc is shown in, shared with Modular Avatar and NDMF.
+msgid "ad.ui.language.tip"
+msgstr "AvatarDocの表示言語です。Modular AvatarやNDMFと共通の設定です。"
+
+#. en: ,
+msgid "ad.ui.list.separator"
+msgstr "、"
+
+#. en: {0} ({1})
+msgid "ad.ui.aside"
+msgstr "{0}（{1}）"
+
+#. en: ({0})
+msgid "ad.ui.brackets"
+msgstr "（{0}）"
+
+#. en: \"{0}\"
+msgid "ad.ui.quoted"
+msgstr "「{0}」"
+
+#. en: {0}: {1}
+msgid "ad.ui.labelled"
+msgstr "{0}：{1}"
+
+#. en: Name
+msgid "ad.summary.parameters.name"
+msgstr "名前"
+
+#. en: Type
+msgid "ad.summary.parameters.type"
+msgstr "型"
+
+#. en: Notes
+msgid "ad.summary.parameters.notes"
+msgstr "備考"
+
+#. en: s
+msgid "ad.ui.blend.unit"
+msgstr "秒"
+
+#. en: Type to filter the list. Up and Down move through the results, Enter picks the highlighted one, Escape clears the search.
+msgid "ad.ui.pick.search.tip"
+msgstr "入力すると一覧を絞り込みます。上下キーで結果を移動し、Enter でハイライト中の項目を選び、Esc で検索をクリアします。"
+
+#. en: Nothing matches \"{0}\".
+msgid "ad.ui.pick.no_match"
+msgstr "「{0}」に一致する項目はありません。"
+
+#. en: {0} more. Type more letters to narrow the list.
+msgid "ad.ui.pick.more"
+msgstr "ほかに {0} 件あります。文字を追加して絞り込んでください。"
+
+#. en: {0} more. Type more letters to narrow the list.
+msgid "ad.ui.pick.more.one"
+msgstr "ほかに {0} 件あります。文字を追加して絞り込んでください。"

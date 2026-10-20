@@ -1,7 +1,5 @@
 #if DOCME_NDMF && DOCME_VRCSDK3A
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -41,23 +39,20 @@ namespace DocMe.AvatarDoctor.Editor
 
         public static System.Collections.Generic.Dictionary<string, string> Real(string language, params string[] keys)
         {
-            var text = File.ReadAllText(Path.GetFullPath(L.TablePath(language)));
+            var table = LocalizationFileTests.ShippedTexts(language);
             var texts = new System.Collections.Generic.Dictionary<string, string>();
             foreach (var key in keys)
             {
-                var match = Regex.Match(text, "\"" + Regex.Escape(key) + "\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-                Assert.That(match.Success, Is.True, key + " is in the " + language + " table");
-                texts[key] = Regex.Unescape(match.Groups[1].Value);
+                Assert.That(table.TryGetValue(key, out var text), Is.True, key + " is in the " + language + " file");
+                texts[key] = text;
             }
             return texts;
         }
 
         static string English(string key)
         {
-            var text = File.ReadAllText(Path.GetFullPath(L.TablePath("en-US")));
-            var match = Regex.Match(text, "\"" + Regex.Escape(key) + "\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-            Assert.That(match.Success, Is.True, key + " is in the English table");
-            return Regex.Unescape(match.Groups[1].Value);
+            Assert.That(LocalizationFileTests.ShippedTexts("en-US").TryGetValue(key, out var text), Is.True, key + " is in the English file");
+            return text;
         }
 
         [Test]
@@ -296,11 +291,9 @@ namespace DocMe.AvatarDoctor.Editor
         {
             foreach (var (code, wanted, unwanted) in new[] { ("en-US", "different layers", "different toggles"), ("ja-JP", "別々のレイヤー", "別々のトグル"), ("zh-Hans", "不同的层", "不同的开关") })
             {
-                var text = File.ReadAllText(Path.GetFullPath(L.TablePath(code)));
-                var match = Regex.Match(text, "\"ad.warn.shapes_conflict\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-                Assert.That(match.Success, Is.True, code);
-                Assert.That(match.Groups[1].Value, Does.Contain(wanted), code);
-                Assert.That(match.Groups[1].Value, Does.Not.Contain(unwanted), code);
+                Assert.That(LocalizationFileTests.ShippedTexts(code).TryGetValue("ad.warn.shapes_conflict", out var text), Is.True, code);
+                Assert.That(text, Does.Contain(wanted), code);
+                Assert.That(text, Does.Not.Contain(unwanted), code);
             }
         }
     }

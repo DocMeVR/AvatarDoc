@@ -1,0 +1,71 @@
+---
+title: はじめての衣装切り替え
+description: 一度に1つの衣装だけを着るサブメニューを、いくつかのオブジェクトから1つのウィンドウで作ります。
+sidebar:
+  order: 3
+sourceHash: "567860bb472c44a086b3183f9dea48a4d06fa5ba7bbf2d37f3cce0c139b8767a"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+<Shot name="start-here/first-outfit-done" alt="新しい「Outfits」サブメニューが選択されて開き、「Jacket」「Hoodie」「Shoes」のトグルが入っているAvatarDocのメニューツリー。" />
+
+このページを終えると、アバターメニューに「Outfits」サブメニューができます。その中の衣装を押すと、その衣装が表示され、ほかの衣装は隠れます。
+
+## 始める前に [#before-you-start]
+
+- [はじめてのトグル](../first-toggle/)と同じように、アバターにAvatarDocコンポーネントがあること。
+- インスペクターが、初期設定の<Label k="ad.ui.mode.advanced" />モードになっていること。モードについては[シンプルか詳細か？](../simple-or-advanced/)で説明しています。
+- アバターに衣装のオブジェクトが2つ以上あること。このページでは「Jacket」「Hoodie」「Shoes」を使います。
+
+## 手順 [#steps]
+
+<Steps>
+
+1. ヒエラルキーで、AvatarDocコンポーネントが付いているオブジェクトを選択します。
+
+2. インスペクターのツールバーで<Label k="ad.ui.more" />を押し、次に<Label k="ad.ui.add.outfit" />を押します。インスペクターの幅が広いときは、このボタンはツールバーに直接表示されています。
+
+   <Label k="ad.ui.outfit.title" />ウィンドウが表示されます。
+
+3. ウィンドウの<Label k="ad.ui.outfit.name" />に`Outfits`と入力します。これがサブメニューの名前になります。
+
+4. ヒエラルキーで「Jacket」「Hoodie」「Shoes」を選択します。複数選ぶには、Ctrl（MacではCmd）を押しながらクリックします。
+
+5. 3つのオブジェクトを、ウィンドウにある<Label k="ad.ui.outfit.drop" />の欄にドラッグします。
+
+   <Label k="ad.ui.outfit.split.each" />と<Label k="ad.ui.outfit.split.all" />の2つのボタンが表示されます。
+
+6. <Label k="ad.ui.outfit.split.each" />を押します。
+
+   「Jacket」「Hoodie」「Shoes」の3枚の衣装カードが表示され、それぞれに対応するオブジェクトが1つずつ入っています。最初のカードでは<Label k="ad.ui.outfit.default" />チップが強調表示されています。これは、アバターを読み込んだときにその衣装がオンになるという意味です。カードに<Label k="ad.ui.outfit.shrinks" />が表示されている場合は、今はチェックを入れないでおきます。
+
+   <Shot name="start-here/first-outfit-window" alt="1にセット名「Outfits」、2に「Jacket」「Hoodie」「Shoes」の衣装カード、3に「Create outfit set」ボタンがある「Outfit set」ウィンドウ。" />
+
+   図の1はセット名、2は3枚の衣装カード、3は<Label k="ad.ui.outfit.create" />です。
+
+7. <Label k="ad.ui.outfit.create" />を押します。
+
+   ウィンドウが閉じます。<Label k="ad.ui.outfit.capture" />がオンのときは、AvatarDocが新しい項目ごとにメニューアイコンも作ります。
+
+8. ヒエラルキーで、AvatarDocコンポーネントが付いているオブジェクトをもう一度選択します。
+
+   新しい「Outfits」サブメニューが、ツリーで選択されています。
+
+9. ツリーで「Outfits」の横にある矢印を押します。
+
+   その中に「Jacket」「Hoodie」「Shoes」のトグルが表示されます。
+
+</Steps>
+
+## 試してみる [#test-it]
+
+[はじめてのトグル](../first-toggle/#test-it)と同じようにGesture Managerを使って再生モードにし、**Expressions**、**Outfits**の順に開いて、**Hoodie**を押します。「Hoodie」が表示され、「Jacket」が隠れます。「Jacket」はデフォルトの衣装なので、最初はオンになっています。
+
+Gesture Managerを使わない場合は、アバターをアップロードし、VRChatのExpressions Menuで「Outfits」サブメニューを使います。
+
+## 次へ [#next]
+
+[はじめてのなでなで](../first-headpat/)：手で頭をなでられたときに、アバターの頬を赤らめます。

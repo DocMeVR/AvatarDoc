@@ -60,6 +60,8 @@ Everything else is on the docs site, [docmevr.github.io/AvatarDoc](https://docme
 - [How it works](https://docmevr.github.io/AvatarDoc/how-it-works/layers-and-pins/): what AvatarDoc builds, and how it fits with other tools.
 - [Help](https://docmevr.github.io/AvatarDoc/help/troubleshooting/): troubleshooting, the FAQ, how to report a bug and the changelog.
 
+Start here is also in [日本語](https://docmevr.github.io/AvatarDoc/ja/start-here/install/) and [العربية](https://docmevr.github.io/AvatarDoc/ar/start-here/install/).
+
 ## How this was made
 
 The code in this repository was written by AI (Claude, by Anthropic). The idea, the design, every feature, the

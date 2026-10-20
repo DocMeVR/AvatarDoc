@@ -22,20 +22,7 @@ namespace DocMe.AvatarDoctor.Editor
             "gate", "claim", "binding", "occurrence", "pin layer", "explicit off", "skiplayers", "parameter control",
         };
 
-        static Dictionary<string, string> ReadLocalizationEntries()
-        {
-            var path = L.TablePath("en-US");
-            Assert.That(path, Is.Not.Null, "the English localization file must exist");
-            var text = File.ReadAllText(Path.GetFullPath(path));
-            var result = new Dictionary<string, string>();
-            foreach (Match m in Regex.Matches(text, "\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\""))
-            {
-                var key = Regex.Unescape(m.Groups[1].Value);
-                var value = Regex.Unescape(m.Groups[2].Value);
-                result[key] = value;
-            }
-            return result;
-        }
+        static Dictionary<string, string> ReadLocalizationEntries() => LocalizationFileTests.ShippedTexts("en-US");
 
         static IEnumerable<KeyValuePair<string, string>> InScope(Dictionary<string, string> entries, params string[] prefixes)
             => entries.Where(e => prefixes.Any(p => e.Key.StartsWith(p, StringComparison.Ordinal)));
