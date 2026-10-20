@@ -1,0 +1,45 @@
+---
+title: تثبيت AvatarDoc
+description: أضف AvatarDoc إلى مشروع أفاتار في VRChat باستخدام VRChat Creator Companion.
+sidebar:
+  order: 1
+sourceHash: "3503f620ddba6d5454489b21e73be7c170b5b38c58c91210971bfa77f37c0cff"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import site from '../../../../data/site.json';
+
+## المتطلبات [#requirements]
+
+- Unity 2022.3
+- VRChat SDK 3.10 أو أحدث
+- NDMF 1.14.1 أو أحدث
+
+تأتي NDMF من مستودعها الخاص الذي ينشره مؤلفها <bdi>bd_</bdi>. أضِفه مرة واحدة إلى جانب مستودع DocMe، وسيثبّت VCC أداة NDMF مع AvatarDoc.
+
+## التثبيت باستخدام VCC [#install-with-vcc]
+
+<Steps>
+
+1. أضف مستودع DocMe إلى VCC. اختر <a href={site.vccAddUrl}><strong>أضف إلى VCC</strong></a>، أو أضف <code>{site.listingUrl}</code> بوصفه مستودعًا في VCC. وتجد الرابط نفسه في <a href={site.listingPage}>صفحة المستودع</a>.
+
+2. أضف مستودع NDMF بالطريقة نفسها. اختر <a href={site.ndmfVccAddUrl}><strong>أضف إلى VCC</strong></a>، أو أضف <code>{site.ndmfListingUrl}</code>. وفي صفحة مستودع DocMe زر ثانٍ لذلك. وإن كنت تستخدم Modular Avatar، فهذا المستودع موجود في VCC بالفعل.
+
+3. افتح مشروع الأفاتار، واختر **Manage Project**.
+
+4. ابحث عن **DocMe AvatarDoc** في القائمة وأضِفه. سيضيف VCC أداة NDMF معه.
+
+</Steps>
+
+## من دون VCC [#without-vcc]
+
+<details>
+<summary>التثبيت من ملف</summary>
+
+ثبّت NDMF أولًا. ثم نزّل ملف zip الخاص بالإصدار من <a href={site.releasesUrl}>صفحة الإصدارات</a>، وفُكّ ضغطه في `Packages/dev.docme.avatar-doctor` داخل مشروعك. ويمكنك أيضًا استيراد ملف unitypackage من الصفحة نفسها.
+
+</details>
+
+## التالي [#next]
+
+[أول مفتاح تبديل لك](../first-toggle/): أظهِر قبعة أو أخفِها من قائمة الأفاتار.

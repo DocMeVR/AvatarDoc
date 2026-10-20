@@ -1,0 +1,71 @@
+---
+title: أول منتقي أزياء لك
+description: ابنِ قائمة فرعية يُلبَس فيها زيّ واحد في كل مرة، من بضعة كائنات في نافذة واحدة.
+sidebar:
+  order: 3
+sourceHash: "567860bb472c44a086b3183f9dea48a4d06fa5ba7bbf2d37f3cce0c139b8767a"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../../components/Label.astro';
+import Shot from '../../../../components/Shot.astro';
+
+<Shot name="start-here/first-outfit-done" alt="شجرة قائمة AvatarDoc وفيها القائمة الفرعية الجديدة Outfits محددة ومفتوحة، وتضم مفاتيح Jacket وHoodie وShoes." />
+
+في نهاية هذه الصفحة سيكون في قائمة الأفاتار قائمة فرعية باسم Outfits. الضغط على زيّ فيها يُظهر ذلك الزيّ ويخفي الأزياء الأخرى.
+
+## قبل أن تبدأ [#before-you-start]
+
+- مكوّن AvatarDoc على الأفاتار، كما في [أول مفتاح تبديل لك](../first-toggle/).
+- الواجهة في وضع <Label k="ad.ui.mode.advanced" />، وهو الوضع الافتراضي. تشرح صفحة [Simple أم Advanced؟](../simple-or-advanced/) الوضعين.
+- كائنان أو أكثر للأزياء في الأفاتار. تستخدم هذه الصفحة Jacket وHoodie وShoes.
+
+## الخطوات [#steps]
+
+<Steps>
+
+1. في نافذة Hierarchy، حدّد الكائن الذي يحمل مكوّن AvatarDoc.
+
+2. في شريط أدوات الواجهة، اضغط <Label k="ad.ui.more" />، ثم <Label k="ad.ui.add.outfit" />. وإذا كانت نافذة Inspector عريضة، فستجده على شريط الأدوات نفسه.
+
+   يُفترض أن ترى الآن نافذة <Label k="ad.ui.outfit.title" />.
+
+3. في النافذة، اكتب `Outfits` في <Label k="ad.ui.outfit.name" />. سيصبح هذا اسم القائمة الفرعية.
+
+4. في نافذة Hierarchy، حدّد Jacket وHoodie وShoes. اضغط باستمرار على Ctrl (أو Cmd على Mac) أثناء النقر لتحديد أكثر من كائن.
+
+5. اسحب الكائنات الثلاثة وأفلتها على <Label k="ad.ui.outfit.drop" /> في النافذة.
+
+   يُفترض أن ترى الآن زرّين: <Label k="ad.ui.outfit.split.each" /> و<Label k="ad.ui.outfit.split.all" />.
+
+6. اضغط <Label k="ad.ui.outfit.split.each" />.
+
+   يُفترض أن ترى الآن ثلاث بطاقات أزياء، Jacket وHoodie وShoes، تحمل كلٌّ منها كائنها الخاص. وفي البطاقة الأولى تكون شارة <Label k="ad.ui.outfit.default" /> مميَّزة: أي أن هذا الزيّ يكون مفعّلًا عند تحميل الأفاتار. وإذا عرضت إحدى البطاقات <Label k="ad.ui.outfit.shrinks" />، فلا تحدد خانات هذه الأشكال الآن.
+
+   <Shot name="start-here/first-outfit-window" alt="نافذة Outfit set وفيها 1 اسم المجموعة Outfits، و2 بطاقات الأزياء Jacket وHoodie وShoes، و3 زر Create outfit set." />
+
+   في الصورة، 1 هو اسم المجموعة، و2 بطاقات الأزياء الثلاث، و3 <Label k="ad.ui.outfit.create" />.
+
+7. اضغط <Label k="ad.ui.outfit.create" />.
+
+   يُفترض أن ترى الآن النافذة تُغلَق. وعندما يكون <Label k="ad.ui.outfit.capture" /> مفعّلًا، ينشئ AvatarDoc أيضًا أيقونة قائمة لكل عنصر جديد.
+
+8. في نافذة Hierarchy، حدّد مرة أخرى الكائن الذي يحمل مكوّن AvatarDoc.
+
+   يُفترض أن ترى الآن القائمة الفرعية الجديدة Outfits محددة في الشجرة.
+
+9. في الشجرة، اضغط السهم بجانب Outfits.
+
+   يُفترض أن ترى الآن مفاتيح Jacket وHoodie وShoes داخلها.
+
+</Steps>
+
+## جرّبه [#test-it]
+
+باستخدام Gesture Manager في وضع Play، كما في [أول مفتاح تبديل لك](../first-toggle/#test-it)، افتح **Expressions** ثم **Outfits**، واضغط **Hoodie**. يظهر Hoodie ويختفي Jacket. ويكون Jacket مفعّلًا في البداية، لأنه الزيّ الافتراضي.
+
+من دون Gesture Manager، ارفع الأفاتار واستخدم القائمة الفرعية Outfits في قائمة Expressions في VRChat.
+
+## التالي [#next]
+
+[أول تربيتة على الرأس](../first-headpat/): اجعل الأفاتار يحمرّ خجلًا عندما تربّت يدٌ على رأسه.

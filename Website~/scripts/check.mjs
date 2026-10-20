@@ -5,12 +5,14 @@ import { loadStrings, usedLabels, stripBom } from './lib/strings.mjs';
 import { stripCode } from './lib/code.mjs';
 import { usedShots, checkShots, minorOf } from './lib/shots.mjs';
 import { coverage, toolLinkProblems, oversizeShots, brokenLinks, listFiles } from './lib/checks.mjs';
+import { checkTranslations } from './lib/translations.mjs';
 
 const site = fileURLToPath(new URL('..', import.meta.url));
 const pkg = path.resolve(site, '..');
 const docs = path.join(site, 'src', 'content', 'docs');
 const shotsDir = path.join(site, 'src', 'assets', 'shots');
 const siteData = JSON.parse(stripBom(fs.readFileSync(path.join(site, 'src', 'data', 'site.json'), 'utf8')));
+const locales = JSON.parse(stripBom(fs.readFileSync(path.join(site, 'src', 'data', 'locales.json'), 'utf8')));
 const allowMissing = process.env.DOCS_ALLOW_MISSING_SHOTS === '1';
 
 function readJson(file, fallback) {
@@ -48,6 +50,17 @@ const used = new Set(pages.flatMap((p) => usedLabels(stripCode(p.source))));
 const uncovered = coverage(strings, used);
 console.log(`\nUI labels no page mentions yet (${uncovered.length})` + (uncovered.length ? ':' : ''));
 uncovered.forEach((key) => console.log(`  ${key}  ${strings[key]}`));
+
+const translations = checkTranslations(pages, Object.keys(locales));
+errors.push(...translations.problems);
+const behind = translations.translations.filter((t) => t.stale);
+console.log(`\nTranslations whose English page changed after they were made (${behind.length})` + (behind.length ? ':' : ''));
+behind.forEach((t) => console.log(`  ${t.file}  (English: ${t.english})`));
+if (behind.length > 0) console.log('  Bring each one up to date, then run: npm run source-hash -- <file>');
+const missing = translations.untranslated;
+console.log(`\nStart here pages with no translation (${missing.length})` + (missing.length ? ':' : ''));
+missing.forEach((t) => console.log(`  ${t.file}  (English: ${t.english})`));
+if (missing.length > 0) console.log('  Translate each one, then run: npm run source-hash -- <file>');
 
 errors.push(...toolLinkProblems(path.join(site, 'dist'), readJson(path.join(site, 'src', 'data', 'tool-links.json'), { pages: [], anchors: [] })));
 errors.push(...brokenLinks(path.join(site, 'dist'), siteData.base).map((p) => 'Broken link: ' + p));

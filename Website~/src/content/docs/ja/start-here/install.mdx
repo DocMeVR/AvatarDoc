@@ -1,0 +1,45 @@
+---
+title: AvatarDocをインストールする
+description: VRChat Creator Companionで、VRChatアバターのプロジェクトにAvatarDocを追加します。
+sidebar:
+  order: 1
+sourceHash: "3503f620ddba6d5454489b21e73be7c170b5b38c58c91210971bfa77f37c0cff"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import site from '../../../../data/site.json';
+
+## 必要なもの [#requirements]
+
+- Unity 2022.3
+- VRChat SDK 3.10以降
+- NDMF 1.14.1以降
+
+NDMFは、作者のbd_さんによる専用のリスティングで配布されています。DocMeのリスティングと一緒に一度追加しておけば、VCCがAvatarDocと一緒にNDMFもインストールします。
+
+## VCCでインストールする [#install-with-vcc]
+
+<Steps>
+
+1. DocMeのリスティングをVCCに追加します。<a href={site.vccAddUrl}><strong>VCCに追加</strong></a>を選ぶか、VCCで<code>{site.listingUrl}</code>をリポジトリとして追加します。<a href={site.listingPage}>リスティングのページ</a>にも同じリンクがあります。
+
+2. 同じ方法でNDMFのリスティングを追加します。<a href={site.ndmfVccAddUrl}><strong>VCCに追加</strong></a>を選ぶか、<code>{site.ndmfListingUrl}</code>を追加します。DocMeのリスティングのページには、そのための2つ目のボタンがあります。Modular Avatarを使っている場合、このリスティングはすでにVCCに入っています。
+
+3. アバターのプロジェクトを開き、**Manage Project**を選びます。
+
+4. 一覧から**DocMe AvatarDoc**を探して追加します。VCCがNDMFも一緒に追加します。
+
+</Steps>
+
+## VCCを使わない場合 [#without-vcc]
+
+<details>
+<summary>ファイルからインストールする</summary>
+
+先にNDMFをインストールします。次に、<a href={site.releasesUrl}>リリースのページ</a>からリリースのzipをダウンロードし、プロジェクトの`Packages/dev.docme.avatar-doctor`に展開します。同じページにあるunitypackageをインポートすることもできます。
+
+</details>
+
+## 次へ [#next]
+
+[はじめてのトグル](../first-toggle/)：アバターメニューから帽子を表示・非表示にします。

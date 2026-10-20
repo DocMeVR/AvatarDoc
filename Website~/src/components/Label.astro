@@ -1,8 +1,19 @@
 ---
-import strings from '../data/strings.en-US.json';
-import { labelText } from '../../scripts/lib/strings.mjs';
+import english from '../data/strings.en-US.json';
+import locales from '../data/locales.json';
+import { labelParts } from '../../scripts/lib/strings.mjs';
 interface Props { k: string }
 const { k } = Astro.props;
-const text = labelText(strings, k);
+const lang = Astro.locals.starlightRoute?.entryMeta.lang ?? 'en';
+const tables = import.meta.glob<Record<string, string>>('../data/strings.*.json', { eager: true, import: 'default' });
+const table = Object.values(locales as Record<string, { lang: string; table?: string }>).find((l) => l.lang === lang)?.table;
+const local = table ? tables[`../data/strings.${table}.json`] : undefined;
+const label = labelParts(english, local, k, lang);
 ---
-<strong class="ui-label">{text}</strong>
+{label.local ? (
+  <Fragment><strong class="ui-label">{label.local}</strong>（<span lang="en">{label.english}</span>）</Fragment>
+) : label.isolate ? (
+  <strong class="ui-label"><bdi lang="en" dir="ltr">{label.english}</bdi></strong>
+) : (
+  <strong class="ui-label">{label.english}</strong>
+)}

@@ -8,7 +8,7 @@ The rule: any change that adds, renames or removes a control, a setting or a mes
 
 Most facts are written once.
 
-- **UI labels** come from `Editor/Localization/AvatarDoctor.en-US.po`, which `Website~/scripts/lib/po.mjs` reads. A page writes a label as `<Label k="ad.ui.add.toggle" />` and the build prints the current text. If you rename a button in the tool, every page changes with it. If you remove a key that a page uses, the build fails and names the page and the key.
+- **UI labels** come from `Editor/Localization/AvatarDoctor.en-US.po`, which `Website~/scripts/lib/po.mjs` reads. A page writes a label as `<Label k="ad.ui.add.toggle" />` and the build prints the current text. If you rename a button in the tool, every page changes with it. If you remove a key that a page uses, the build fails and names the page and the key. Japanese pages also read `AvatarDoctor.ja-JP.po`: see [Translated pages](#translated-pages).
 - **Generated pages** are never edited by hand: Messages (from the English table and `Website~/src/data/message-notes.yml`), Changelog (from `CHANGELOG.md`), Glossary (from `Docs~/glossary.md`) and Help translate (from `Docs~/translating.md`). Each one starts with a comment that names its source, and its Edit page link points at that source on GitHub.
 - **Addresses and the version** come from `Website~/src/data/site.json`. The version is read from `package.json` and printed on every page as "Docs for AvatarDoc x.y.z" in the footer, so it follows each release by itself.
 - **Links from the tool** into the site are listed in `Website~/src/data/tool-links.json`. The build checks that each page and anchor exists.
@@ -70,12 +70,26 @@ Astro and Starlight are pinned to exact versions in `Website~/package.json`, wit
 2. Run `npm run build` and `npm test`.
 3. Commit it alone, as one `chore(site)` commit. The CI build and the links validator are the check.
 
-## Add Japanese or Chinese pages later
+## Translated pages
 
-1. Add the language to `locales` in `Website~/astro.config.mjs`.
-2. Put the pages in a folder named for the language: `ja/` or `zh-cn/`, with the same page names.
-3. Add a strings file for the language beside `strings.en-US.json`, made from the tool's own `AvatarDoctor.<code>.po` with `loadPoStrings` (`Website~/scripts/lib/po.mjs`), so `<Label>` prints the translated text.
-4. Re-shoot the pictures with the tool set to that language, and name them so they do not replace the English ones.
+The home page and the five Start here pages are also in Japanese (`ja/`) and Arabic (`ar/`). Every other page shows its English text under `/ja/` and `/ar/`, with Starlight's note that it is not translated yet. Every language uses the English pictures.
+
+- **Where.** A translation sits in `Website~/src/content/docs/<language>/` under the same name as its English page: `ja/start-here/install.mdx` translates `start-here/install.mdx`. Links stay relative (`../first-toggle/`), so they land on the translated page where there is one and on the English text elsewhere. Give each heading the id of the English heading, as in `## 試してみる [#test-it]`, so a link to a heading works in every language. English Start here headings carry an explicit `[#id]`. Keep the id when you change the heading text, so links into the translations keep working.
+- **Links from an English page to a translation.** Write them with the site's base, as in ``<a href={`${site.base}/ja/start-here/install/`}>Japanese</a>``, never relative: the untranslated copies under `/ja/` and `/ar/` reuse the English text, so a relative `../../ja/...` would point at `/ar/ja/...`. The link check names such a link.
+- **Labels.** `<Label k="..." />` follows the page's language. On a Japanese page it prints the text from `Editor/Localization/AvatarDoctor.ja-JP.po`, then the English label in brackets, because the pictures show English: **トグルを作る**（Make a toggle）. AvatarDoc has no Arabic, so an Arabic page prints the English label, kept left to right inside the Arabic text. A key the language file lacks prints the English label, as the tool does. An unknown key fails the build in every language. A heading marker `[#id k=key]` on a Japanese page must match the Japanese text; on an Arabic page, the English text.
+- **Pictures.** Use the same `<Shot name="..." />` as the English page and translate the alt text. The rules stay: one sentence of 150 characters or less. Japanese alt text ends with "。", Arabic alt text with a full stop.
+- **Banner.** Every translated page shows a banner in its language: the page was translated with AI and has not been checked by a native speaker yet, and the English page, linked, is the reference. The texts are in `Website~/src/content/i18n/<lang>.json`. `Website~/src/components/Banner.astro` shows them.
+- **Staying current.** Each translated page records in its front matter the `sourceHash` of the English page it was translated from: the sha256 of the English file's text with LF line endings. When the English page changes, the build lists the translation under "Translations whose English page changed after they were made", without failing, and the banner of that page gets a second line saying the English page changed. A translated page without a `sourceHash`, or without an English page of the same name, fails the build. The build also lists, under "Start here pages with no translation", each English Start here page that a language has no page for, without failing.
+- **Update a translation.** Change the translated page to match the English page, then record that it is up to date: `npm run source-hash -- src/content/docs/ja/start-here/install.mdx` (name several pages at once if you like). A change to an English page that has translations updates them in the same change.
+
+### Add a language
+
+1. Add it to `Website~/src/data/locales.json`: the folder name as the key, the `label` the language picker shows, the `lang` tag, `"dir": "rtl"` for a language written right to left, and `"table"` with the code of the tool's language file (`AvatarDoctor.<table>.po`) when AvatarDoc speaks the language. The build then writes `strings.<table>.json`, and `<Label>` prints that text with the English in brackets.
+2. Add `Website~/src/content/i18n/<lang>.json` with the two banner texts: `avatardoc.translation.notice`, with the words that link to the English page in [square brackets], and `avatardoc.translation.outdated`.
+3. Add the language to the `translations` of each sidebar group in `Website~/astro.config.mjs`, keyed by its `lang` tag (for example `zh-CN`), not by its folder name.
+4. Translate the pages into `Website~/src/content/docs/<folder>/`, then run `npm run source-hash -- <page>` for each one.
+5. If sentences in the language end with something other than a full stop, add it to `FULL_STOPS` in `Website~/scripts/lib/shots.mjs`. If AvatarDoc speaks the language, add its `.po` file to the `paths` of `.github/workflows/docs.yml`, so the site rebuilds when a label changes.
+6. Run `npm run build` and `npm test`.
 
 ## Line endings
 

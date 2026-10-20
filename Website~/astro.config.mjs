@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 import starlightImageZoom from 'starlight-image-zoom';
 import starlightLinksValidator from 'starlight-links-validator';
 import site from './src/data/site.json' with { type: 'json' };
+import locales from './src/data/locales.json' with { type: 'json' };
 import { unified } from '@astrojs/markdown-remark';
 import { headingIds } from './src/plugins/heading-ids.mjs';
 
@@ -21,15 +22,16 @@ export default defineConfig({
       editLink: { baseUrl: site.githubRepo + '/edit/main/Website~/' },
       lastUpdated: true,
       defaultLocale: 'root',
-      locales: { root: { label: 'English', lang: 'en' } },
-      components: { Footer: './src/components/Footer.astro' },
+      locales: Object.fromEntries(Object.entries(locales).map(([key, { label, lang, dir }]) => [key, dir ? { label, lang, dir } : { label, lang }])),
+      components: { Banner: './src/components/Banner.astro', Footer: './src/components/Footer.astro' },
       customCss: ['./src/styles/custom.css'],
       plugins: [starlightImageZoom(), starlightLinksValidator({ errorOnRelativeLinks: false })],
       sidebar: [
-        { label: 'Start here', items: [{ autogenerate: { directory: 'start-here' } }] },
-        { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },
+        { label: 'Start here', translations: { ja: 'はじめに', ar: 'ابدأ هنا' }, items: [{ autogenerate: { directory: 'start-here' } }] },
+        { label: 'Guides', translations: { ja: 'ガイド', ar: 'الأدلة' }, items: [{ autogenerate: { directory: 'guides' } }] },
         {
           label: 'Reference',
+          translations: { ja: 'リファレンス', ar: 'المرجع' },
           items: [
             'reference/inspector',
             'reference/toggle',
@@ -61,8 +63,8 @@ export default defineConfig({
             'reference/messages',
           ],
         },
-        { label: 'How it works', items: [{ autogenerate: { directory: 'how-it-works' } }] },
-        { label: 'Help', items: [{ autogenerate: { directory: 'help' } }] },
+        { label: 'How it works', translations: { ja: 'しくみ', ar: 'كيف يعمل' }, items: [{ autogenerate: { directory: 'how-it-works' } }] },
+        { label: 'Help', translations: { ja: 'ヘルプ', ar: 'المساعدة' }, items: [{ autogenerate: { directory: 'help' } }] },
       ],
     }),
   ],
