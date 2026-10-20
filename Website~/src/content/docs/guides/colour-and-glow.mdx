@@ -13,7 +13,7 @@ import Shot from '../../../components/Shot.astro';
 
 Use a material property when one value of the material should change: a tint, an emission colour that makes a part glow, or a dissolve amount. The material itself stays the same.
 
-To put a different material on the mesh, see [Swap materials](../swap-materials/). To move the value smoothly with a dial instead of switching it, see [Add a slider](../sliders/).
+To put a different material on the mesh, see [Swap materials](../swap-materials/). To move the value smoothly with a dial instead of switching it, see [Add a slider](../sliders/). When you already set the colour in the material's inspector, [Add a shape or a colour from where you set it](../add-from-where-you-set-it/) turns that value into a toggle from there.
 
 ## Steps
 
@@ -58,6 +58,7 @@ The change applies to every material on that mesh that has the property. While t
 Poiyomi locks every material when you upload, and a locked material keeps every property at its value unless the property is marked as animated. AvatarDoc reads the marks of the Poiyomi materials on the mesh, and of the materials your AvatarDoc toggles swap onto it:
 
 - When a material does not mark the property, a warning in the toggle's panel says so. Press <Label k="ad.ui.poiyomi.mark_animated" /> under the warning. AvatarDoc marks the property **Animated (when locked)** on those materials, in one Undo step. You can also do it in the material: right-click the property and choose **Animated (when locked)**.
+- The [Add to AvatarDoc window](../../reference/add-window/#poiyomi) marks it for you: when you add the property from the material's header menu or the mesh's component menu, <Label k="ad.ui.add_from.mark" /> is ticked, and <Label k="ad.ui.add_from.add" /> marks the property together with the new toggle.
 - A property marked **Renamed (when locked)** gets a new name when Poiyomi locks the material: its own name, an underscore, and the material's name without spaces (other signs and letters outside English become codes), or the locked property suffix set in the material. AvatarDoc writes the value under both names, so the change shows in Play mode and in the game. While the toggle is off, each such material keeps its own value under its new name in the game, so AvatarDoc does not warn that the materials hold different values.
 - A material that is already locked keeps the values it was locked with, and the names: a locked material you renamed or copied keeps the name it was locked with. A warning names a locked material that fixed the property: unlock the material, mark the property, then lock it again or let Poiyomi lock it at upload.
 - A material variant is locked through the material it is made from, with that material's name and marks. The warning names that material, and <Label k="ad.ui.poiyomi.mark_animated" /> marks it there.

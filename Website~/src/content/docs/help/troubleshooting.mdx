@@ -294,9 +294,31 @@ A material swapped in outside AvatarDoc's own material rows, by your own animati
 1. Select the toggle, radial or trigger and read its messages. A warning that a Poiyomi material does not mark the property as animated names the materials. Press <Label k="ad.ui.poiyomi.mark_animated" /> under it. See [the message](../../reference/messages/#ad-warn-poiyomi-not-animated).
 2. A warning that a Poiyomi material is locked with the property fixed has no button. Select the material, press **Unlock Shader** at the top of its inspector, right-click the property and choose **Animated (when locked)**. Then lock it again, or leave it: Poiyomi locks it at upload. See [the message](../../reference/messages/#ad-warn-poiyomi-baked).
 3. For a material swapped in outside AvatarDoc's material rows, and for another shader that locks its materials, mark the property as animated in the material's own inspector, then lock the material again.
-4. Upload again and test in VRChat. Play mode shows the change only while the material is unlocked: a material locked at an earlier upload behaves there as it does in VRChat.
+4. When you add a property with the [Add to AvatarDoc window](../../reference/add-window/#poiyomi), leave <Label k="ad.ui.add_from.mark" /> ticked: it marks the property as you add it.
+5. Upload again and test in VRChat. Play mode shows the change only while the material is unlocked: a material locked at an earlier upload behaves there as it does in VRChat.
 
 More about the marks: [On a Poiyomi material](../../guides/colour-and-glow/#poiyomi).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## Add to AvatarDoc is not in the right-click menu [#add-item-missing]
+
+### Likely cause
+
+- You right-clicked a material property. Unity offers that right click only to its Animation window, so it never shows the AvatarDoc item, with any shader.
+- The blend shape was never set since the mesh was imported. Unity draws such a slider without the property the item needs.
+- The item is there but greyed out: the mesh is not part of an avatar in the scene. The material's header item is also greyed out when no selected mesh under an avatar uses the material, such as a material selected in the Project window.
+
+### Fix
+
+1. For a material property, select the mesh in the Hierarchy, press the three dots at the right end of the material's header under it, and choose **Add to AvatarDoc...**. It works with every shader, Poiyomi included. Pick the property in the window.
+2. Or use the mesh's component menu: press the three dots at the right end of the Skinned Mesh Renderer or Mesh Renderer header, or right-click the header, and choose **Add to AvatarDoc...**. Pick the shape, or the material and the property, in the window.
+3. For a blend shape, move its slider once, then right-click it again.
+4. For a greyed out item, move the mesh under the avatar, the object that holds the VRChat Avatar Descriptor, and select the mesh, not the material in the Project window.
+
+More about the window: [Add to AvatarDoc window](../../reference/add-window/).
 
 ### Still stuck
 

@@ -1,0 +1,143 @@
+---
+title: Add to AvatarDoc window
+description: Every control of the Add to AvatarDoc window, which turns a blend shape or a material property you set in Unity's inspector into a toggle or a radial.
+---
+
+import Label from '../../../components/Label.astro';
+import Shot from '../../../components/Shot.astro';
+
+<Shot name="reference-add-window/overview" alt="The Add to AvatarDoc window with 1 Shape, 2 the New toggle choice, 3 Name, 4 Submenu, 5 On value, 6 Off value, 7 the put back box and 8 Add." />
+
+1. <Label k="ad.ui.add_from.shape" />.
+2. <Label k="ad.ui.add_from.make.toggle" />, <Label k="ad.ui.add_from.make.radial" /> or <Label k="ad.ui.add_from.make.add_to" />.
+3. <Label k="ad.ui.name" />.
+4. <Label k="ad.ui.add_from.submenu" />.
+5. <Label k="ad.ui.target.on_value" />.
+6. <Label k="ad.ui.target.off_value" />.
+7. <Label k="ad.ui.add_from.after" />: <Label k="ad.ui.add_from.put_back" />.
+8. <Label k="ad.ui.add_from.add" />.
+
+## When to use it
+
+You have set a blend shape slider, or a colour or a number of a material, to the look you want in Unity's own inspector. This window turns that value into a new toggle or radial, or adds it to one you already have, without picking the shape or the property again in AvatarDoc. [Add a shape or a colour from where you set it](../../guides/add-from-where-you-set-it/) walks you through it.
+
+There are three ways to open it, all on a mesh that is part of an avatar in the scene:
+
+- **A blend shape slider.** Right-click a slider in the **BlendShapes** list of a Skinned Mesh Renderer and choose **AvatarDoc > Add "Smile"...**, with the shape's own name.
+- **The mesh's component menu.** Press the three dots at the right end of the Skinned Mesh Renderer or Mesh Renderer header, or right-click the header, and choose **Add to AvatarDoc...**. The window then asks which blend shape, or which material and property.
+- **The material's header menu.** Select the mesh in the Hierarchy. Under its components, the inspector shows each of its materials with a header of its own. Press the three dots at the right end of a material's header, or right-click the header, and choose **Add to AvatarDoc...**. The window opens with that material picked and asks which property. Unity draws this header whatever the shader's own inspector is, so it works for Poiyomi and every other shader.
+
+A right click on a material property shows no AvatarDoc item: Unity offers it only to its Animation window. Use the material's header menu instead.
+
+On a mesh that is not part of an avatar, the items are greyed out. The blend shape item says why: the mesh is not part of an avatar in the scene. The material's header item is greyed out too when no selected mesh under an avatar uses the material, such as a material selected in the Project window.
+
+The window is called <Label k="ad.ui.add_from.title" /> and opens at 360 pixels wide. It starts with a short note: <Label k="ad.ui.add_from.intro" /> Nothing changes until you press <Label k="ad.ui.add_from.add" />, and the window never changes what is selected in the Hierarchy.
+
+## Settings
+
+The controls in the order the window shows them.
+
+### Mesh [#mesh k=ad.ui.add_from.mesh]
+
+The mesh the window was opened from. It stays the same while the window is open.
+
+### Change [#change k=ad.ui.add_from.kind]
+
+**Default:** <Label k="ad.ui.add_from.kind.shape" />, or <Label k="ad.ui.add_from.kind.property" /> when opened from a material's header · **Choices:** <Label k="ad.ui.add_from.kind.shape" />, <Label k="ad.ui.add_from.kind.property" />
+
+Shown for a Skinned Mesh Renderer that has blend shapes and materials. It decides whether the next rows pick a blend shape or a material property.
+
+### Shape [#shape k=ad.ui.add_from.shape]
+
+The blend shape. Press it to pick another shape of this mesh, from a list of its own shapes that has a search field when it is long. Before a shape is picked, it reads <Label k="ad.ui.pick.shape" />.
+
+### Material [#material k=ad.ui.add_from.material]
+
+The material slot the value is read from, with its number. Opened from a material's header, it starts at that material's slot. Press it to pick another slot. A slot without a material shows <Label k="ad.ui.add_from.material.none" /> and cannot be picked. The toggle or radial changes the property on every material of the mesh that has it, as every [material property](../material-properties/) row does.
+
+### Property [#property k=ad.ui.add_from.property]
+
+The property, with the name the shader gives it. Press it for the shader's colours, numbers and vectors, grouped by their first letter, with a search field that finds a property by either of its names. Textures are not in the list. A locked Poiyomi material lists the names its locked shader has. Before a property is picked, it reads <Label k="ad.ui.property.pick" />.
+
+### Now [#now k=ad.ui.add_from.now]
+
+The value the blend shape or the property has in the scene right now. A colour shows in a greyed out colour field.
+
+### New toggle, New radial or Add to [#make]
+
+**Default:** <Label k="ad.ui.add_from.make.toggle" /> · **Choices:** <Label k="ad.ui.add_from.make.toggle" />, <Label k="ad.ui.add_from.make.radial" />, <Label k="ad.ui.add_from.make.add_to" />
+
+- <Label k="ad.ui.add_from.make.toggle" />: a new [toggle](../toggle/) that sets the value while it is on.
+- <Label k="ad.ui.add_from.make.radial" />: a new [radial](../radial/) that moves the value from <Label k="ad.ui.min" /> to <Label k="ad.ui.max" /> as its dial turns.
+- <Label k="ad.ui.add_from.make.add_to" />: one more row on a toggle or radial you already have. When it already has a row for the same blend shape, or the same property of this mesh, that row keeps its place and takes the new values.
+
+When the avatar has no AvatarDoc component yet, the window says so and shows <Label k="ad.ui.add_from.add_component" />, which adds one to the avatar's root object. Undo takes it away again.
+
+### Name [#name k=ad.ui.name]
+
+For a new toggle or radial. It starts with the blend shape's name, or the name the shader gives the property. Left empty, the entry gets that name.
+
+### Component [#component k=ad.ui.add_from.component]
+
+Shown only when the avatar has more than one AvatarDoc component. It starts at the first one that is not locked. The list marks a locked one <Label k="ad.ui.add_from.component.locked" />.
+
+### Submenu [#submenu k=ad.ui.add_from.submenu]
+
+**Default:** <Label k="ad.ui.menu.move.root" />
+
+Where in the component's menu the new toggle or radial goes: the top, or one of the component's submenus.
+
+### Entry [#entry k=ad.ui.add_from.entry]
+
+For <Label k="ad.ui.add_from.make.add_to" />. The list holds every toggle and radial of the avatar's AvatarDoc components, with the submenus each one is in. Before one is picked, it reads <Label k="ad.ui.add_from.entry.pick" />. When the avatar has none, the window says <Label k="ad.ui.add_from.entry.none" />
+
+### On value [#on-value k=ad.ui.target.on_value]
+
+For a toggle: the value while it is on. It starts at the value the blend shape or the property has now. A blend shape and a range show a slider, a number shows a number box, a colour a colour field and a vector four numbers.
+
+### Off value [#off-value k=ad.ui.target.off_value]
+
+For a toggle: the value while it is off. It starts at 0 for a blend shape, and at the shader's own default for a property, not at the material's value.
+
+While the toggle is off, its row goes back to what the scene holds, as every row does. When that would not be the Off value, because the value is not put back or another material of the mesh is read first, the row gets <Label k="ad.ui.target.explicit_off" /> with the Off value.
+
+### Min [#min k=ad.ui.min]
+
+For a radial: the value at its lowest. It starts at 0 for a blend shape and at the shader's own default for a property.
+
+### Max [#max k=ad.ui.max]
+
+For a radial: the value at its highest. It starts at the value the blend shape or the property has now.
+
+### After adding [#after-adding k=ad.ui.add_from.after]
+
+**Default:** On · **Choices:** On, Off
+
+<Label k="ad.ui.add_from.put_back" /> (for a radial, <Label k="ad.ui.add_from.put_back.radial" />): once the entry is made, the blend shape on the mesh, or the property on the slot's material, is set to the Off value or a radial's Min. The scene then shows the avatar at rest, as it loads, and the [scene preview](../scene-preview/) shows the new entry. Off: the scene keeps the value you set.
+
+### Poiyomi [#poiyomi k=ad.ui.add_from.poiyomi]
+
+**Default:** On · **Choices:** On, Off
+
+Shown for a property of a Poiyomi material that is not locked and does not mark the property as animated yet. <Label k="ad.ui.add_from.mark" /> marks it **Animated (when locked)** on those Poiyomi materials of the mesh when you press <Label k="ad.ui.add_from.add" />, so the change still works after Poiyomi locks the materials at upload. It marks the same materials the [Mark as animated button](../material-properties/#what-avatardoc-builds) of the entry's panel would.
+
+- A material that already marks the property **Renamed (when locked)** keeps its mark. A note names the property and the name Poiyomi animates it under once it locks the material, and AvatarDoc writes both names.
+- A locked material that fixed the property at its value shows a warning instead: unlock the material, mark the property, then lock it again or let Poiyomi lock it at upload.
+
+More about the marks: [On a Poiyomi material](../../guides/colour-and-glow/#poiyomi).
+
+### Add [#add k=ad.ui.add_from.add]
+
+Makes the toggle or radial, or adds the row, together with the mark and the put back, in one Undo step. It is greyed out until a blend shape or a property is picked, the avatar has a component, and, for <Label k="ad.ui.add_from.make.add_to" />, an entry is picked. A locked component refuses: <Label k="ad.ui.locked.refused" />
+
+The line under the button then says what was made, such as **Made the toggle "Smile". Undo takes it back.** An open AvatarDoc inspector or window shows the new entry. The window stays open and switches to <Label k="ad.ui.add_from.make.add_to" /> with the new entry picked, so pressing <Label k="ad.ui.add_from.add" /> again only updates that entry's row and never makes a second one. An undo that takes the new entry away brings back <Label k="ad.ui.add_from.make.toggle" /> or <Label k="ad.ui.add_from.make.radial" />.
+
+## What AvatarDoc builds
+
+The window builds nothing of its own. It makes an ordinary toggle or radial, or an ordinary row, which builds as described on [Toggle](../toggle/), [Radial](../radial/), [Blend shapes](../blend-shapes/) and [Material properties](../material-properties/).
+
+## Related
+
+- [Add a shape or a colour from where you set it](../../guides/add-from-where-you-set-it/)
+- [Change a colour or glow](../../guides/colour-and-glow/)
+- [Add to AvatarDoc is not in the right-click menu](../../help/troubleshooting/#add-item-missing)

@@ -23,6 +23,7 @@
     "guides/toggle-clothing-objects": { "version": "0.4.0", "taken": "2026-10-11" },
     "guides/with-vrcfury-and-modular-avatar-rows": { "version": "0.4.0", "taken": "2026-10-11" },
     "home/hero": { "version": "0.4.0", "taken": "2026-10-11" },
+    "reference-add-window/overview": { "version": "0.5.0", "taken": "2026-10-20" },
     "reference-avatardoc-shapes/overview": { "version": "0.4.0", "taken": "2026-10-11" },
     "reference-blend-shape-triggers/overview": { "version": "0.4.0", "taken": "2026-10-11" },
     "reference-blend-shapes/overview": { "version": "0.4.0", "taken": "2026-10-11" },
