@@ -14,10 +14,10 @@ using Object = UnityEngine.Object;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// The pictures of the last fourteen Reference pages: overrides, merged animators, menu assets and declared
+    /// The pictures of the last fifteen Reference pages: overrides, merged animators, menu assets and declared
     /// parameters, presets, outfit sets, AvatarDoc Shapes, the Convert window, the rows Convert reads, the icon
-    /// capture window, the AvatarDoc window and the wheel, the scene preview, the summary and the lock, the language
-    /// list and the limits. A window is shot at its own width; the inspector at DocsShot.InspectorWidth.
+    /// capture window, the Add to AvatarDoc window, the AvatarDoc window and the wheel, the scene preview, the summary
+    /// and the lock, the language list and the limits. A window is shot at its own width; the inspector at DocsShot.InspectorWidth.
     /// DocsShotSetupTests runs every setup without the screen read.
     /// </summary>
     [Explicit, Category("DocsShots")]
@@ -42,6 +42,7 @@ namespace DocMe.AvatarDoctor.Editor
         [Test] public void ConvertWindowOverview() { using (var avatar = DocsAvatar.Create()) ConvertWindowOverview(avatar).Take(); }
         [Test] public void ImportRows() { using (var avatar = DocsAvatar.Create()) ImportRows(avatar).Take(); }
         [Test] public void IconCaptureOverview() { using (var avatar = DocsAvatar.Create()) IconCaptureOverview(avatar).Take(); }
+        [Test] public void AddWindowOverview() { using (var avatar = DocsAvatar.Create()) AddWindowOverview(avatar).Take(); }
         [Test] public void WindowOverview() { using (var avatar = DocsAvatar.Create()) WindowOverview(avatar).Take(); }
         [Test] public void WheelTestMode() { using (var avatar = DocsAvatar.Create()) WheelTestMode(avatar).Take(); }
         [Test] public void ScenePreviewOverview() { using (var avatar = DocsAvatar.Create()) ScenePreviewOverview(avatar).Take(); }
@@ -346,6 +347,43 @@ namespace DocMe.AvatarDoctor.Editor
             }, "rows", markers.ToArray());
             spec.Page = "reference-import-window";
             return spec;
+        }
+
+        /// <summary>
+        /// The Add to AvatarDoc window at the width it opens at, as a right click on the Face's Smile slider opens it with
+        /// the slider at 100, the Face submenu chosen: 1 Shape, 2 New toggle, New radial and Add to, 3 Name, 4 Submenu,
+        /// 5 On value, 6 Off value, 7 putting the value back, 8 Add.
+        /// </summary>
+        internal static DocsShotSpec AddWindowOverview(DocsAvatar avatar)
+        {
+            var menu = avatar.AddMenu();
+            var face = menu.AddEntry(EntryKind.Submenu, "Face");
+            avatar.Face.SetBlendShapeWeight(avatar.Face.sharedMesh.GetBlendShapeIndex("Smile"), 100f);
+            var draft = AddToAvatarDoc.ForShape(avatar.Face, "Smile");
+            draft.parentId = face.id;
+            var window = ScriptableObject.CreateInstance<AddToAvatarDocWindow>();
+            try
+            {
+                window.Init(draft);
+            }
+            catch
+            {
+                Object.DestroyImmediate(window);
+                throw;
+            }
+            return new DocsShotSpec
+            {
+                Page = "reference-add-window",
+                Name = "overview",
+                View = window.rootVisualElement,
+                Width = AddToAvatarDocWindow.OpeningWidth,
+                Markers = new[]
+                {
+                    ("ad-add-shape", 1), ("ad-add-make", 2), ("ad-add-name", 3), ("ad-add-submenu", 4),
+                    ("ad-add-on", 5), ("ad-add-off", 6), ("ad-add-put-back", 7), ("ad-add-run", 8),
+                },
+                Release = () => Object.DestroyImmediate(window),
+            };
         }
 
         /// <summary>

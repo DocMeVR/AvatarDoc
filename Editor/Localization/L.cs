@@ -365,6 +365,23 @@ namespace DocMe.AvatarDoctor.Editor
 
             // The search field at the top of every picker.
             "ad.ui.pick.search.tip", "ad.ui.pick.no_match", "ad.ui.pick.more", "ad.ui.pick.more.one",
+
+            // Add to AvatarDoc: the right click items and the window they open.
+            "ad.ui.add_from.item", "ad.ui.add_from.item.outside", "ad.ui.add_from.title", "ad.ui.add_from.intro", "ad.ui.add_from.outside",
+            "ad.ui.add_from.gone", "ad.ui.add_from.mesh", "ad.ui.add_from.mesh.tip", "ad.ui.add_from.kind", "ad.ui.add_from.kind.tip",
+            "ad.ui.add_from.kind.shape", "ad.ui.add_from.kind.shape.tip", "ad.ui.add_from.kind.property", "ad.ui.add_from.kind.property.tip",
+            "ad.ui.add_from.shape", "ad.ui.add_from.shape.tip", "ad.ui.add_from.material", "ad.ui.add_from.material.tip", "ad.ui.add_from.material.none",
+            "ad.ui.add_from.property",
+            "ad.ui.add_from.property.tip", "ad.ui.add_from.now", "ad.ui.add_from.now.tip", "ad.ui.add_from.make.tip", "ad.ui.add_from.make.toggle",
+            "ad.ui.add_from.make.toggle.tip", "ad.ui.add_from.make.radial", "ad.ui.add_from.make.radial.tip", "ad.ui.add_from.make.add_to",
+            "ad.ui.add_from.make.add_to.tip", "ad.ui.add_from.no_component", "ad.ui.add_from.add_component", "ad.ui.add_from.add_component.tip",
+            "ad.ui.add_from.entry", "ad.ui.add_from.entry.tip", "ad.ui.add_from.entry.pick", "ad.ui.add_from.entry.none", "ad.ui.add_from.name.tip",
+            "ad.ui.add_from.component", "ad.ui.add_from.component.tip", "ad.ui.add_from.component.locked", "ad.ui.add_from.submenu",
+            "ad.ui.add_from.submenu.tip", "ad.ui.add_from.on.tip", "ad.ui.add_from.off.tip", "ad.ui.add_from.max.tip", "ad.ui.add_from.min.tip",
+            "ad.ui.add_from.after", "ad.ui.add_from.put_back", "ad.ui.add_from.put_back.radial", "ad.ui.add_from.put_back.tip",
+            "ad.ui.add_from.poiyomi", "ad.ui.add_from.mark", "ad.ui.add_from.mark.tip", "ad.ui.add_from.renamed", "ad.ui.add_from.baked",
+            "ad.ui.add_from.baked.one", "ad.ui.add_from.add", "ad.ui.add_from.add.tip", "ad.ui.add_from.done.toggle", "ad.ui.add_from.done.radial",
+            "ad.ui.add_from.done.added",
         };
 
         static Localizer localizer;

@@ -95,6 +95,73 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
+        /// Gives a toggle or a radial its blend shape row for this shape: the row it already has keeps its place and
+        /// takes the values, else a new row is added. A toggle's row writes on while on; while off it goes back to the
+        /// scene's weight when offIsRest, else it writes off. A pinned row stays pinned and only takes on. A radial's
+        /// row runs from off at its lowest to on at its highest. Refused, changing nothing, on a locked component or
+        /// an entry that is neither a toggle nor a radial. One Undo step.
+        /// </summary>
+        public static BlendShapeTarget PutShape(AvatarDoc menu, MenuEntry entry, SkinnedMeshRenderer renderer, string shape, float on, float off, bool offIsRest)
+        {
+            if (Refuses(menu) || entry == null || renderer == null || string.IsNullOrEmpty(shape)) return null;
+            if (entry.kind != EntryKind.Toggle && entry.kind != EntryKind.Radial) return null;
+            Undo.RecordObject(menu, "Add blend shape");
+            var row = entry.blendShapes.FirstOrDefault(t => t != null && t.renderer == renderer && t.shape == shape);
+            if (row == null)
+            {
+                row = new BlendShapeTarget { renderer = renderer, shape = shape, mode = ShapeEffectMode.Fixed };
+                entry.blendShapes.Add(row);
+            }
+            if (entry.kind == EntryKind.Radial)
+            {
+                row.minWeight = off;
+                row.maxWeight = on;
+            }
+            else
+            {
+                row.weight = on;
+                bool pinned = row.mode == ShapeEffectMode.Pin;
+                row.explicitOff = !pinned && !offIsRest;
+                if (row.explicitOff) row.minWeight = off;
+            }
+            MarkChanged(menu);
+            return row;
+        }
+
+        /// <summary>
+        /// Gives a toggle or a radial its material property row for this property on the renderer, the same way
+        /// PutShape does for a blend shape: a toggle writes on while on and, unless offIsRest, off while off; a
+        /// radial runs from off to on. on and off are packed: a number in x, a colour in rgba, a vector in xyzw.
+        /// Refused, changing nothing, on a locked component. One Undo step.
+        /// </summary>
+        public static MaterialPropertyTarget PutProperty(AvatarDoc menu, MenuEntry entry, Renderer renderer, string property, PropertyValueType type, Vector4 on, Vector4 off, bool offIsRest)
+        {
+            if (Refuses(menu) || entry == null || renderer == null || string.IsNullOrEmpty(property)) return null;
+            if (entry.kind != EntryKind.Toggle && entry.kind != EntryKind.Radial) return null;
+            Undo.RecordObject(menu, "Add material property");
+            var row = entry.properties.FirstOrDefault(t => t != null && t.renderer == renderer && t.property == property);
+            if (row == null)
+            {
+                row = new MaterialPropertyTarget { renderer = renderer, property = property };
+                entry.properties.Add(row);
+            }
+            row.type = type;
+            bool radial = entry.kind == EntryKind.Radial;
+            row.explicitOff = !radial && !offIsRest;
+            row.value = on.x;
+            row.color = on;
+            row.vector = on;
+            if (radial || row.explicitOff)
+            {
+                row.minValue = off.x;
+                row.minColor = off;
+                row.minVector = off;
+            }
+            MarkChanged(menu);
+            return row;
+        }
+
+        /// <summary>
         /// Creates a grabbable entry: both hands, snapped into the hand (keep offset off), anyone may grab it, a
         /// quick return, no menu control until the creator turns one on. The object is left for the creator to
         /// pick. One Undo step.

@@ -1,4 +1,5 @@
 #if DOCME_NDMF && DOCME_VRCSDK3A
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,9 +51,52 @@ namespace DocMe.AvatarDoctor.Editor
             }
             var shaders = ShaderKey(renderer);
             if (cache.TryGetValue(renderer, out var cached) && cached.shaders == shaders) return cached.choices;
-            var built = Walk(renderer);
+            var built = Walk(renderer.sharedMaterials);
             cache[renderer] = (shaders, built);
             return built;
+        }
+
+        /// <summary>The choices of one material's shader, filtered and sorted the same way. A locked Poiyomi material lists the names its locked shader has.</summary>
+        public static List<Choice> Choices(Material material) => material == null ? new List<Choice>() : Walk(new[] { material });
+
+        /// <summary>
+        /// The property dropdown's items: "Other..." first when other is given, for a property typed by hand, then every
+        /// choice grouped into submenus by its first letter, or by a chunk of the alphabet when there are more than 40.
+        /// Each choice shows its shader name beside its display name when the two differ, and a search finds it by either.
+        /// </summary>
+        public static List<AdMenu.Item> MenuItems(IReadOnlyList<Choice> choices, Action<Choice> pick, Action other = null)
+        {
+            var items = new List<AdMenu.Item>();
+            if (other != null) items.Add(new AdMenu.Item { Text = L.Text("ad.ui.property.other"), Action = other });
+            bool manyChoices = choices.Count > 40;
+            var groups = new List<AdMenu.Item>();
+            foreach (var choice in choices)
+            {
+                string group = AlphabetGroup(choice.DisplayName, manyChoices);
+                var branch = groups.Find(g => g.Text == group);
+                if (branch == null) groups.Add(branch = new AdMenu.Item { Text = group, Children = new List<AdMenu.Item>() });
+                var picked = choice;
+                branch.Children.Add(new AdMenu.Item
+                {
+                    Text = choice.DisplayName,
+                    SearchText = choice.PropertyName,
+                    Note = choice.DisplayName == choice.PropertyName ? "" : choice.PropertyName,
+                    Action = () => pick(picked),
+                });
+            }
+            items.AddRange(groups);
+            return items;
+        }
+
+        static string AlphabetGroup(string displayName, bool wideChunks)
+        {
+            char first = string.IsNullOrEmpty(displayName) ? '#' : char.ToUpperInvariant(displayName[0]);
+            if (first < 'A' || first > 'Z') return "#";
+            if (!wideChunks) return first.ToString();
+            int index = first - 'A';
+            char start = (char)('A' + index / 5 * 5);
+            char end = (char)Mathf.Min('Z', start + 4);
+            return start + "-" + end;
         }
 
         /// <summary>The renderer's shared materials' shaders by instance id, in slot order: what the choices were read from.</summary>
@@ -67,11 +111,11 @@ namespace DocMe.AvatarDoctor.Editor
             return key.ToString();
         }
 
-        static List<Choice> Walk(Renderer renderer)
+        static List<Choice> Walk(IEnumerable<Material> materials)
         {
             var result = new List<Choice>();
             var seen = new HashSet<string>();
-            foreach (var material in renderer.sharedMaterials)
+            foreach (var material in materials)
             {
                 var shader = material != null ? material.shader : null;
                 if (shader == null) continue;

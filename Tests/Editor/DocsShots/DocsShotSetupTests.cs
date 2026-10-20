@@ -1579,6 +1579,38 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheReferenceAddWindowShotMakesASmileToggleInTheFaceSubmenu()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference2.AddWindowOverview(avatar);
+                try
+                {
+                    Assert.That(spec.Width, Is.EqualTo(AddToAvatarDocWindow.OpeningWidth), "the picture shows the window at the width it opens at");
+                    Assert.That(MenuOf(avatar).entries.Select(e => e.name), Is.EqualTo(new[] { "Face" }), "nothing is made until Add");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<Label>("ad-add-mesh-name").text, Is.EqualTo("Face"));
+                        Assert.That(view.Q<Button>("ad-add-shape").text, Is.EqualTo("Smile"));
+                        Assert.That(view.Q<Label>("ad-add-now-value").text, Is.EqualTo("100"));
+                        Assert.That(view.Q<SegmentedChoice>("ad-add-make").Index, Is.EqualTo(0), "New toggle");
+                        Assert.That(view.Q<TextField>("ad-add-name").value, Is.EqualTo("Smile"));
+                        Assert.That(view.Q<Button>("ad-add-submenu").text, Is.EqualTo("Face"));
+                        Assert.That(view.Q<Slider>("ad-add-on").value, Is.EqualTo(100f));
+                        Assert.That(view.Q<Slider>("ad-add-off").value, Is.EqualTo(0f));
+                        Assert.That(view.Q<Toggle>("ad-add-put-back").value, Is.True);
+                        Assert.That(view.Q<Button>("ad-add-run").enabledSelf, Is.True);
+                        Assert.That(view.Q<Toggle>("ad-add-mark"), Is.Null, "a blend shape has no Poiyomi mark");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
         public void TheReferenceWindowShotShowsTheTreeTheWheelAndThePanelSideBySide()
         {
             using (var avatar = DocsAvatar.Create())

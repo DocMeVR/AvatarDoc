@@ -4550,3 +4550,251 @@ msgstr "还有 {0} 项。继续输入以缩小范围。"
 #. en: {0} more. Type more letters to narrow the list.
 msgid "ad.ui.pick.more.one"
 msgstr "还有 {0} 项。继续输入以缩小范围。"
+
+#. en: Add {0}...
+msgid "ad.ui.add_from.item"
+msgstr "添加{0}..."
+
+#. en: Add {0}: the mesh is not part of an avatar in the scene
+msgid "ad.ui.add_from.item.outside"
+msgstr "添加{0}：该网格不属于场景中的 Avatar"
+
+#. en: Add to AvatarDoc
+msgid "ad.ui.add_from.title"
+msgstr "添加到 AvatarDoc"
+
+#. en: Turns the value this mesh has now into a toggle or a radial, or adds it to one you already have.
+msgid "ad.ui.add_from.intro"
+msgstr "将此网格当前的值做成开关或转盘，或添加到已有的开关或转盘。"
+
+#. en: \"{0}\" is not part of an avatar in the scene, so nothing can be added from it. Use a mesh under an avatar.
+msgid "ad.ui.add_from.outside"
+msgstr "“{0}”不属于场景中的 Avatar，无法从这里添加。请使用 Avatar 下的网格。"
+
+#. en: The mesh, its blend shape or its property is gone. Open this window again from the mesh.
+msgid "ad.ui.add_from.gone"
+msgstr "找不到该网格、形态键或属性。请从网格重新打开此窗口。"
+
+#. en: Mesh
+msgid "ad.ui.add_from.mesh"
+msgstr "网格"
+
+#. en: The mesh whose blend shape or material the new effect changes.
+msgid "ad.ui.add_from.mesh.tip"
+msgstr "新效果所改变的形态键或材质所在的网格。"
+
+#. en: Change
+msgid "ad.ui.add_from.kind"
+msgstr "改变"
+
+#. en: Whether the effect moves one of the mesh's blend shapes or changes one of its material properties.
+msgid "ad.ui.add_from.kind.tip"
+msgstr "选择效果是移动网格的形态键，还是改变其材质属性。"
+
+#. en: Blend shape
+msgid "ad.ui.add_from.kind.shape"
+msgstr "形态键"
+
+#. en: Picks one of the mesh's blend shapes.
+msgid "ad.ui.add_from.kind.shape.tip"
+msgstr "从网格的形态键中选择。"
+
+#. en: Property
+msgid "ad.ui.add_from.kind.property"
+msgstr "属性"
+
+#. en: Picks a colour, a number or a vector of one of the mesh's materials.
+msgid "ad.ui.add_from.kind.property.tip"
+msgstr "从网格材质的颜色、数值或向量中选择。"
+
+#. en: Shape
+msgid "ad.ui.add_from.shape"
+msgstr "形态键"
+
+#. en: The blend shape the effect moves; press to pick another one of this mesh.
+msgid "ad.ui.add_from.shape.tip"
+msgstr "效果所移动的形态键；点击可从此网格中选择其他形态键。"
+
+#. en: Material
+msgid "ad.ui.add_from.material"
+msgstr "材质"
+
+#. en: The material the value is read from; the effect changes the property on every material of this mesh that has it.
+msgid "ad.ui.add_from.material.tip"
+msgstr "读取数值的材质；效果会改变此网格上所有带有该属性的材质。"
+
+#. en: No material
+msgid "ad.ui.add_from.material.none"
+msgstr "无材质"
+
+#. en: Property
+msgid "ad.ui.add_from.property"
+msgstr "属性"
+
+#. en: The material property the effect changes; press to pick another one of this material's shader.
+msgid "ad.ui.add_from.property.tip"
+msgstr "效果所改变的材质属性；点击可从此材质的着色器中选择其他属性。"
+
+#. en: Now
+msgid "ad.ui.add_from.now"
+msgstr "当前值"
+
+#. en: The value the blend shape or the property has in the scene right now.
+msgid "ad.ui.add_from.now.tip"
+msgstr "形态键或属性此刻在场景中的值。"
+
+#. en: What Add makes: a new toggle, a new radial, or one more effect of a toggle or a radial you already have.
+msgid "ad.ui.add_from.make.tip"
+msgstr "添加时要做的：新建开关、新建转盘，或为已有的开关或转盘再加一个效果。"
+
+#. en: New toggle
+msgid "ad.ui.add_from.make.toggle"
+msgstr "新建开关"
+
+#. en: Makes a new toggle that sets this value while it is on.
+msgid "ad.ui.add_from.make.toggle.tip"
+msgstr "新建一个开启时设为此值的开关。"
+
+#. en: New radial
+msgid "ad.ui.add_from.make.radial"
+msgstr "新建转盘"
+
+#. en: Makes a new radial that moves from Min to Max as its dial turns.
+msgid "ad.ui.add_from.make.radial.tip"
+msgstr "新建一个随转盘转动从最小变到最大的转盘。"
+
+#. en: Add to
+msgid "ad.ui.add_from.make.add_to"
+msgstr "添加到已有"
+
+#. en: Adds this value to a toggle or a radial you already have.
+msgid "ad.ui.add_from.make.add_to.tip"
+msgstr "将此值添加到已有的开关或转盘。"
+
+#. en: \"{0}\" has no AvatarDoc component yet.
+msgid "ad.ui.add_from.no_component"
+msgstr "“{0}”还没有 AvatarDoc 组件。"
+
+#. en: Add AvatarDoc
+msgid "ad.ui.add_from.add_component"
+msgstr "添加 AvatarDoc"
+
+#. en: Adds an AvatarDoc component to the avatar's root object, so the new entry has a place to go.
+msgid "ad.ui.add_from.add_component.tip"
+msgstr "在 Avatar 的根对象上添加一个 AvatarDoc 组件，供新条目放置。"
+
+#. en: Entry
+msgid "ad.ui.add_from.entry"
+msgstr "条目"
+
+#. en: The toggle or radial that gets this value as one more effect.
+msgid "ad.ui.add_from.entry.tip"
+msgstr "将此值作为又一个效果接收的开关或转盘。"
+
+#. en: Pick a toggle or radial
+msgid "ad.ui.add_from.entry.pick"
+msgstr "选择开关或转盘"
+
+#. en: This avatar has no toggle or radial yet. Make a new one instead.
+msgid "ad.ui.add_from.entry.none"
+msgstr "此 Avatar 还没有开关或转盘。请改为新建一个。"
+
+#. en: The name of the new toggle or radial in the menu.
+msgid "ad.ui.add_from.name.tip"
+msgstr "新开关或转盘在菜单中的名称。"
+
+#. en: Component
+msgid "ad.ui.add_from.component"
+msgstr "组件"
+
+#. en: The AvatarDoc component the new entry goes into.
+msgid "ad.ui.add_from.component.tip"
+msgstr "新条目所放入的 AvatarDoc 组件。"
+
+#. en: locked
+msgid "ad.ui.add_from.component.locked"
+msgstr "已锁定"
+
+#. en: Submenu
+msgid "ad.ui.add_from.submenu"
+msgstr "子菜单"
+
+#. en: Where in the component's menu the new entry goes.
+msgid "ad.ui.add_from.submenu.tip"
+msgstr "新条目在组件菜单中的位置。"
+
+#. en: The value while the toggle is on: the value it has now, unless you change it.
+msgid "ad.ui.add_from.on.tip"
+msgstr "开关开启时的值：除非你修改，否则为当前值。"
+
+#. en: The value while the toggle is off: 0 for a blend shape, the shader's default for a property.
+msgid "ad.ui.add_from.off.tip"
+msgstr "开关关闭时的值：形态键为 0，属性为着色器的默认值。"
+
+#. en: The value at the radial's highest: the value it has now, unless you change it.
+msgid "ad.ui.add_from.max.tip"
+msgstr "转盘在最大时的值：除非你修改，否则为当前值。"
+
+#. en: The value at the radial's lowest: 0 for a blend shape, the shader's default for a property.
+msgid "ad.ui.add_from.min.tip"
+msgstr "转盘在最小时的值：形态键为 0，属性为着色器的默认值。"
+
+#. en: After adding
+msgid "ad.ui.add_from.after"
+msgstr "添加后"
+
+#. en: Put the value back to Off
+msgid "ad.ui.add_from.put_back"
+msgstr "将值恢复为关闭值"
+
+#. en: Put the value back to Min
+msgid "ad.ui.add_from.put_back.radial"
+msgstr "将值恢复为最小值"
+
+#. en: After adding, sets the blend shape or the property to the Off value, or a radial's Min, so the scene shows the avatar at rest and the preview shows the new entry.
+msgid "ad.ui.add_from.put_back.tip"
+msgstr "添加后将形态键或属性设为关闭值（转盘为最小值），使场景显示 Avatar 的平常状态，预览显示新条目。"
+
+#. en: Poiyomi
+msgid "ad.ui.add_from.poiyomi"
+msgstr "Poiyomi"
+
+#. en: Mark as animated for Poiyomi's lock
+msgid "ad.ui.add_from.mark"
+msgstr "为 Poiyomi 的锁定标记为动画"
+
+#. en: Marks the property Animated (when locked) on this mesh's Poiyomi materials that do not mark it yet, so it still changes in game after Poiyomi locks them at upload.
+msgid "ad.ui.add_from.mark.tip"
+msgstr "在此网格尚未标记的 Poiyomi 材质上将该属性设为 Animated (when locked)，使其在上传时被锁定后仍能在游戏中变化。"
+
+#. en: Marked Renamed: once Poiyomi locks the material, it animates \"{0}\" as \"{1}\". AvatarDoc writes both names.
+msgid "ad.ui.add_from.renamed"
+msgstr "已标记为 Renamed：Poiyomi 锁定材质后，“{0}”将以“{1}”的名称被动画。AvatarDoc 会同时写入两个名称。"
+
+#. en: {1} Poiyomi materials of this mesh ({2}) are locked with \"{0}\" fixed at its value, so a change does nothing in game. Unlock them, mark the property Animated (when locked), then lock them again or let Poiyomi lock them at upload.
+msgid "ad.ui.add_from.baked"
+msgstr "此网格的 {1} 个 Poiyomi 材质（{2}）已锁定，“{0}”被固定在当前值，因此在游戏中不会变化。请解锁它们，将该属性标记为 Animated (when locked)，然后重新锁定，或在上传时交给 Poiyomi 锁定。"
+
+#. en: The Poiyomi material \"{2}\" is locked with \"{0}\" fixed at its value, so a change does nothing in game. Unlock it, mark the property Animated (when locked), then lock it again or let Poiyomi lock it at upload.
+msgid "ad.ui.add_from.baked.one"
+msgstr "Poiyomi 材质“{2}”已锁定，“{0}”被固定在当前值，因此在游戏中不会变化。请解锁该材质，将该属性标记为 Animated (when locked)，然后重新锁定，或在上传时交给 Poiyomi 锁定。"
+
+#. en: Add
+msgid "ad.ui.add_from.add"
+msgstr "添加"
+
+#. en: Makes the entry or adds the effect in one Undo step, and leaves the selection as it is.
+msgid "ad.ui.add_from.add.tip"
+msgstr "新建条目或添加效果，一次撤销即可还原，选择保持不变。"
+
+#. en: Made the toggle \"{0}\". Undo takes it back.
+msgid "ad.ui.add_from.done.toggle"
+msgstr "已新建开关“{0}”。撤销即可还原。"
+
+#. en: Made the radial \"{0}\". Undo takes it back.
+msgid "ad.ui.add_from.done.radial"
+msgstr "已新建转盘“{0}”。撤销即可还原。"
+
+#. en: Added to \"{0}\". Undo takes it back.
+msgid "ad.ui.add_from.done.added"
+msgstr "已添加到“{0}”。撤销即可还原。"

@@ -52,18 +52,26 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     var mesh = renderer.sharedMesh;
                     if (mesh == null || mesh.blendShapeCount == 0) continue;
-                    var shapes = new List<AdMenu.Item>(mesh.blendShapeCount);
                     var owner = renderer;
-                    for (int i = 0; i < mesh.blendShapeCount; i++)
-                    {
-                        var shape = mesh.GetBlendShapeName(i);
-                        shapes.Add(new AdMenu.Item { Text = shape, Action = () => onPick(owner, shape) });
-                    }
-                    groups.Add(new AdMenu.Item { Text = renderer.name, Children = shapes });
+                    groups.Add(new AdMenu.Item { Text = renderer.name, Children = ItemsOf(renderer, shape => onPick(owner, shape)) });
                 }
             }
             if (groups.Count == 0) return new List<AdMenu.Item> { new AdMenu.Item { Text = L.Text("ad.ui.pick.renderer"), Disabled = true } };
             return groups.Count == 1 ? groups[0].Children : groups;
+        }
+
+        /// <summary>One skinned mesh's own shapes, in mesh order, and none of the meshes under it.</summary>
+        public static List<AdMenu.Item> ItemsOf(SkinnedMeshRenderer renderer, Action<string> onPick)
+        {
+            var mesh = renderer != null ? renderer.sharedMesh : null;
+            var shapes = new List<AdMenu.Item>(mesh != null ? mesh.blendShapeCount : 0);
+            if (mesh == null) return shapes;
+            for (int i = 0; i < mesh.blendShapeCount; i++)
+            {
+                var shape = mesh.GetBlendShapeName(i);
+                shapes.Add(new AdMenu.Item { Text = shape, Action = () => onPick(shape) });
+            }
+            return shapes;
         }
     }
 }

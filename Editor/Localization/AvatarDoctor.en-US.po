@@ -3413,3 +3413,189 @@ msgstr "{0} more. Type more letters to narrow the list."
 
 msgid "ad.ui.pick.more.one"
 msgstr "{0} more. Type more letters to narrow the list."
+
+msgid "ad.ui.add_from.item"
+msgstr "Add {0}..."
+
+msgid "ad.ui.add_from.item.outside"
+msgstr "Add {0}: the mesh is not part of an avatar in the scene"
+
+msgid "ad.ui.add_from.title"
+msgstr "Add to AvatarDoc"
+
+msgid "ad.ui.add_from.intro"
+msgstr "Turns the value this mesh has now into a toggle or a radial, or adds it to one you already have."
+
+msgid "ad.ui.add_from.outside"
+msgstr "\"{0}\" is not part of an avatar in the scene, so nothing can be added from it. Use a mesh under an avatar."
+
+msgid "ad.ui.add_from.gone"
+msgstr "The mesh, its blend shape or its property is gone. Open this window again from the mesh."
+
+msgid "ad.ui.add_from.mesh"
+msgstr "Mesh"
+
+msgid "ad.ui.add_from.mesh.tip"
+msgstr "The mesh whose blend shape or material the new effect changes."
+
+msgid "ad.ui.add_from.kind"
+msgstr "Change"
+
+msgid "ad.ui.add_from.kind.tip"
+msgstr "Whether the effect moves one of the mesh's blend shapes or changes one of its material properties."
+
+msgid "ad.ui.add_from.kind.shape"
+msgstr "Blend shape"
+
+msgid "ad.ui.add_from.kind.shape.tip"
+msgstr "Picks one of the mesh's blend shapes."
+
+msgid "ad.ui.add_from.kind.property"
+msgstr "Property"
+
+msgid "ad.ui.add_from.kind.property.tip"
+msgstr "Picks a colour, a number or a vector of one of the mesh's materials."
+
+msgid "ad.ui.add_from.shape"
+msgstr "Shape"
+
+msgid "ad.ui.add_from.shape.tip"
+msgstr "The blend shape the effect moves; press to pick another one of this mesh."
+
+msgid "ad.ui.add_from.material"
+msgstr "Material"
+
+msgid "ad.ui.add_from.material.tip"
+msgstr "The material the value is read from; the effect changes the property on every material of this mesh that has it."
+
+msgid "ad.ui.add_from.material.none"
+msgstr "No material"
+
+msgid "ad.ui.add_from.property"
+msgstr "Property"
+
+msgid "ad.ui.add_from.property.tip"
+msgstr "The material property the effect changes; press to pick another one of this material's shader."
+
+msgid "ad.ui.add_from.now"
+msgstr "Now"
+
+msgid "ad.ui.add_from.now.tip"
+msgstr "The value the blend shape or the property has in the scene right now."
+
+msgid "ad.ui.add_from.make.tip"
+msgstr "What Add makes: a new toggle, a new radial, or one more effect of a toggle or a radial you already have."
+
+msgid "ad.ui.add_from.make.toggle"
+msgstr "New toggle"
+
+msgid "ad.ui.add_from.make.toggle.tip"
+msgstr "Makes a new toggle that sets this value while it is on."
+
+msgid "ad.ui.add_from.make.radial"
+msgstr "New radial"
+
+msgid "ad.ui.add_from.make.radial.tip"
+msgstr "Makes a new radial that moves from Min to Max as its dial turns."
+
+msgid "ad.ui.add_from.make.add_to"
+msgstr "Add to"
+
+msgid "ad.ui.add_from.make.add_to.tip"
+msgstr "Adds this value to a toggle or a radial you already have."
+
+msgid "ad.ui.add_from.no_component"
+msgstr "\"{0}\" has no AvatarDoc component yet."
+
+msgid "ad.ui.add_from.add_component"
+msgstr "Add AvatarDoc"
+
+msgid "ad.ui.add_from.add_component.tip"
+msgstr "Adds an AvatarDoc component to the avatar's root object, so the new entry has a place to go."
+
+msgid "ad.ui.add_from.entry"
+msgstr "Entry"
+
+msgid "ad.ui.add_from.entry.tip"
+msgstr "The toggle or radial that gets this value as one more effect."
+
+msgid "ad.ui.add_from.entry.pick"
+msgstr "Pick a toggle or radial"
+
+msgid "ad.ui.add_from.entry.none"
+msgstr "This avatar has no toggle or radial yet. Make a new one instead."
+
+msgid "ad.ui.add_from.name.tip"
+msgstr "The name of the new toggle or radial in the menu."
+
+msgid "ad.ui.add_from.component"
+msgstr "Component"
+
+msgid "ad.ui.add_from.component.tip"
+msgstr "The AvatarDoc component the new entry goes into."
+
+msgid "ad.ui.add_from.component.locked"
+msgstr "locked"
+
+msgid "ad.ui.add_from.submenu"
+msgstr "Submenu"
+
+msgid "ad.ui.add_from.submenu.tip"
+msgstr "Where in the component's menu the new entry goes."
+
+msgid "ad.ui.add_from.on.tip"
+msgstr "The value while the toggle is on: the value it has now, unless you change it."
+
+msgid "ad.ui.add_from.off.tip"
+msgstr "The value while the toggle is off: 0 for a blend shape, the shader's default for a property."
+
+msgid "ad.ui.add_from.max.tip"
+msgstr "The value at the radial's highest: the value it has now, unless you change it."
+
+msgid "ad.ui.add_from.min.tip"
+msgstr "The value at the radial's lowest: 0 for a blend shape, the shader's default for a property."
+
+msgid "ad.ui.add_from.after"
+msgstr "After adding"
+
+msgid "ad.ui.add_from.put_back"
+msgstr "Put the value back to Off"
+
+msgid "ad.ui.add_from.put_back.radial"
+msgstr "Put the value back to Min"
+
+msgid "ad.ui.add_from.put_back.tip"
+msgstr "After adding, sets the blend shape or the property to the Off value, or a radial's Min, so the scene shows the avatar at rest and the preview shows the new entry."
+
+msgid "ad.ui.add_from.poiyomi"
+msgstr "Poiyomi"
+
+msgid "ad.ui.add_from.mark"
+msgstr "Mark as animated for Poiyomi's lock"
+
+msgid "ad.ui.add_from.mark.tip"
+msgstr "Marks the property Animated (when locked) on this mesh's Poiyomi materials that do not mark it yet, so it still changes in game after Poiyomi locks them at upload."
+
+msgid "ad.ui.add_from.renamed"
+msgstr "Marked Renamed: once Poiyomi locks the material, it animates \"{0}\" as \"{1}\". AvatarDoc writes both names."
+
+msgid "ad.ui.add_from.baked"
+msgstr "{1} Poiyomi materials of this mesh ({2}) are locked with \"{0}\" fixed at its value, so a change does nothing in game. Unlock them, mark the property Animated (when locked), then lock them again or let Poiyomi lock them at upload."
+
+msgid "ad.ui.add_from.baked.one"
+msgstr "The Poiyomi material \"{2}\" is locked with \"{0}\" fixed at its value, so a change does nothing in game. Unlock it, mark the property Animated (when locked), then lock it again or let Poiyomi lock it at upload."
+
+msgid "ad.ui.add_from.add"
+msgstr "Add"
+
+msgid "ad.ui.add_from.add.tip"
+msgstr "Makes the entry or adds the effect in one Undo step, and leaves the selection as it is."
+
+msgid "ad.ui.add_from.done.toggle"
+msgstr "Made the toggle \"{0}\". Undo takes it back."
+
+msgid "ad.ui.add_from.done.radial"
+msgstr "Made the radial \"{0}\". Undo takes it back."
+
+msgid "ad.ui.add_from.done.added"
+msgstr "Added to \"{0}\". Undo takes it back."
