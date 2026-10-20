@@ -795,12 +795,32 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>The way out of a message that has one, shown in a row under its box.</summary>
         VisualElement MessageAction(ModelMessage message)
         {
+            if (message.Says("ad.warn.poiyomi_not_animated")) return Row != null && Row.Mine ? MarkAnimatedAction(message) : null;
             if (!message.Says("ad.error.group_value_conflict") || message.Args == null || message.Args.Length == 0) return null;
             string group = message.Args[0] as string;
             var row = new VisualElement();
             row.AddToClassList("ad-message-actions");
             row.Add(new Button(() => NumberGroupMembers(group)) { text = L.Text("ad.ui.group.number"), name = "ad-group-number", tooltip = L.Text("ad.ui.group.number.tip") });
             return row;
+        }
+
+        /// <summary>The Mark as animated button under a Poiyomi warning. The message names the property (Args[1]) and the renderer (Args[2]).</summary>
+        VisualElement MarkAnimatedAction(ModelMessage message)
+        {
+            if (message.Args == null || message.Args.Length < 3 || !(message.Args[1] is string property) || !(message.Args[2] is Renderer renderer)) return null;
+            var row = new VisualElement();
+            row.AddToClassList("ad-message-actions");
+            row.Add(new Button(() => MarkAnimated(renderer, property)) { text = L.Text("ad.ui.poiyomi.mark_animated"), name = "ad-poiyomi-mark", tooltip = L.Text("ad.ui.poiyomi.mark_animated.tip") });
+            return row;
+        }
+
+        void MarkAnimated(Renderer renderer, string property)
+        {
+            if (owner.Plan?.Tree == null || Row?.Entry == null || !Row.Mine) return;
+            var holder = Row.Owner != null ? Row.Owner : owner.Menu;
+            if (!EntryEditing.MarkAnimatedForPoiyomi(holder, Row.Entry, renderer, property, owner.Plan.Tree.SwappedOnto(renderer))) return;
+            AvatarPlanCache.InvalidateMenu(owner.Plan.AvatarRoot);
+            owner.Refresh();
         }
 
         void NumberGroupMembers(string group)

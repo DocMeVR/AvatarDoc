@@ -124,7 +124,19 @@ msgid "ad.warn.property_missing"
 msgstr "\"{0}\": no material on \"{1}\" has the property \"{2}\", so that row was skipped. Pick a property that exists on \"{1}\"'s materials."
 
 msgid "ad.warn.property_differs"
-msgstr "\"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them; edit the materials first if you want a different one used."
+msgstr "\"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them, except Poiyomi materials that rename it, which keep their own in game; edit the materials first if you want a different one used."
+
+msgid "ad.warn.poiyomi_not_animated"
+msgstr "\"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) do not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks them at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in each material and choose Animated (when locked)."
+
+msgid "ad.warn.poiyomi_not_animated.one"
+msgstr "\"{0}\": the Poiyomi material \"{4}\" on \"{2}\" does not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks the material at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in the material and choose Animated (when locked)."
+
+msgid "ad.warn.poiyomi_baked"
+msgstr "\"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) are locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock them, right-click the property in each and choose Animated (when locked), then lock them again or let Poiyomi lock them at upload."
+
+msgid "ad.warn.poiyomi_baked.one"
+msgstr "\"{0}\": the Poiyomi material \"{4}\" on \"{2}\" is locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock the material, right-click the property and choose Animated (when locked), then lock it again or let Poiyomi lock it at upload."
 
 msgid "ad.info.blend_ignored_in_group"
 msgstr "\"{0}\" is in an exclusive group, so its blend time is not used."
@@ -554,6 +566,9 @@ msgstr "Value in group"
 
 msgid "ad.ui.group.number"
 msgstr "Give each member its own value"
+
+msgid "ad.ui.poiyomi.mark_animated"
+msgstr "Mark as animated"
 
 msgid "ad.ui.parameter"
 msgstr "Parameter"
@@ -2318,6 +2333,9 @@ msgstr "The number the group's parameter takes while this toggle is on. 0 lets A
 
 msgid "ad.ui.group.number.tip"
 msgstr "Numbers the members of this group 1, 2, 3 and so on in menu order, so no two share a value."
+
+msgid "ad.ui.poiyomi.mark_animated.tip"
+msgstr "Marks the property Animated (when locked) on the Poiyomi materials this warning names, in one Undo step, so it still changes in game after Poiyomi locks them at upload."
 
 msgid "ad.ui.parameter.tip"
 msgstr "The synced value VRChat uses for this control, named automatically unless you give it your own."

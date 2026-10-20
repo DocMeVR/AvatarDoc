@@ -672,6 +672,34 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(AvatarPlanCache.LastInvalidationReason, Does.Contain("Material 'A'"));
         }
 
+        /// <summary>Poiyomi locks a variant through its root, so the plan reads the root's marks: a change made in the root's own inspector names only the root.</summary>
+        [Test]
+        public void TheRootOfAVariantATargetReadsDropsItsAvatarsPlan()
+        {
+            var root = new Material(avatar.MaterialA) { name = "Root" };
+            var variant = new Material(avatar.MaterialA) { name = "Variant" };
+            try
+            {
+                variant.parent = root;
+                avatar.Body.sharedMaterials = new[] { variant };
+                var menu = avatar.AddMenu();
+                var shine = menu.AddEntry(EntryKind.Toggle, "Shine");
+                shine.properties.Add(new MaterialPropertyTarget { renderer = avatar.Body, property = "_Glossiness", type = PropertyValueType.Float, value = 1f });
+                AvatarPlanCache.Invalidate();
+                var plan = AvatarPlanCache.GetFor(menu);
+
+                Publish(AssetProperties(root));
+
+                Assert.That(AvatarPlanCache.GetFor(menu), Is.Not.SameAs(plan), "the root changed, so the marks the plan read may have");
+                Assert.That(AvatarPlanCache.LastInvalidationReason, Does.Contain("Material 'Root'"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(variant);
+                Object.DestroyImmediate(root);
+            }
+        }
+
         /// <summary>
         /// A guard, not proof of a fix: AssetsReadBy already read the materials of every entry's property rows,
         /// triggers included, before triggers built them. It keeps that read set from being narrowed to toggles and

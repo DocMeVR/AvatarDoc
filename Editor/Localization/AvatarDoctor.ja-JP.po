@@ -163,9 +163,25 @@ msgstr "プリセット「{1}」が設定するパラメーター「{0}」は、
 msgid "ad.warn.property_missing"
 msgstr "「{0}」：「{1}」のどのマテリアルにもプロパティ「{2}」がないため、その行はスキップされました。「{1}」のマテリアルにあるプロパティを選んでください。"
 
-#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them; edit the materials first if you want a different one used.
+#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them, except Poiyomi materials that rename it, which keep their own in game; edit the materials first if you want a different one used.
 msgid "ad.warn.property_differs"
-msgstr "「{0}」：「{1}」のマテリアル同士で「{2}」の値がすでに異なっています。オフにすると、最初のマテリアルの値がすべてに書き込まれます。別の値を使いたい場合は、先にマテリアルを編集してください。"
+msgstr "「{0}」：「{1}」のマテリアル同士で「{2}」の値がすでに異なっています。オフにすると、最初のマテリアルの値がすべてに書き込まれます（このプロパティをRenamedにしたPoiyomiマテリアルは、ゲーム内では自分の値を保ちます）。別の値を使いたい場合は、先にマテリアルを編集してください。"
+
+#. en: \"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) do not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks them at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in each material and choose Animated (when locked).
+msgid "ad.warn.poiyomi_not_animated"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル{3}個（{4}）が「{1}」をアニメーション用にマークしていないため、アップロード時にPoiyomiがマテリアルをロックすると値が固定され、ゲーム内では変化しません。「{0}」を選んで「アニメーション用にマーク」を押すか、各マテリアルでプロパティを右クリックしてAnimated (when locked)を選んでください。"
+
+#. en: \"{0}\": the Poiyomi material \"{4}\" on \"{2}\" does not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks the material at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in the material and choose Animated (when locked).
+msgid "ad.warn.poiyomi_not_animated.one"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル「{4}」が「{1}」をアニメーション用にマークしていないため、アップロード時にPoiyomiがマテリアルをロックすると値が固定され、ゲーム内では変化しません。「{0}」を選んで「アニメーション用にマーク」を押すか、マテリアルでプロパティを右クリックしてAnimated (when locked)を選んでください。"
+
+#. en: \"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) are locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock them, right-click the property in each and choose Animated (when locked), then lock them again or let Poiyomi lock them at upload.
+msgid "ad.warn.poiyomi_baked"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル{3}個（{4}）はロック済みで「{1}」の値が固定されているため、ゲーム内では変化しません。ロックを解除し、各マテリアルでプロパティを右クリックしてAnimated (when locked)を選んでから、もう一度ロックするか、アップロード時のPoiyomiのロックに任せてください。"
+
+#. en: \"{0}\": the Poiyomi material \"{4}\" on \"{2}\" is locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock the material, right-click the property and choose Animated (when locked), then lock it again or let Poiyomi lock it at upload.
+msgid "ad.warn.poiyomi_baked.one"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル「{4}」はロック済みで「{1}」の値が固定されているため、ゲーム内では変化しません。マテリアルのロックを解除し、プロパティを右クリックしてAnimated (when locked)を選んでから、もう一度ロックするか、アップロード時のPoiyomiのロックに任せてください。"
 
 #. en: \"{0}\" is in an exclusive group, so its blend time is not used.
 msgid "ad.info.blend_ignored_in_group"
@@ -738,6 +754,10 @@ msgstr "グループ内の値"
 #. en: Give each member its own value
 msgid "ad.ui.group.number"
 msgstr "各メンバーに別々の値を割り当てる"
+
+#. en: Mark as animated
+msgid "ad.ui.poiyomi.mark_animated"
+msgstr "アニメーション用にマーク"
 
 #. en: Parameter
 msgid "ad.ui.parameter"
@@ -3090,6 +3110,10 @@ msgstr "このトグルがオンの間、グループのパラメーターが取
 #. en: Numbers the members of this group 1, 2, 3 and so on in menu order, so no two share a value.
 msgid "ad.ui.group.number.tip"
 msgstr "このグループのメンバーに、メニューの順で1、2、3…と値を割り当てて、重複をなくします。"
+
+#. en: Marks the property Animated (when locked) on the Poiyomi materials this warning names, in one Undo step, so it still changes in game after Poiyomi locks them at upload.
+msgid "ad.ui.poiyomi.mark_animated.tip"
+msgstr "この警告に挙げられたPoiyomiマテリアルでプロパティをAnimated (when locked)にし、アップロード時にロックされてもゲーム内で変化するようにします。元に戻す操作1回で取り消せます。"
 
 #. en: The synced value VRChat uses for this control, named automatically unless you give it your own.
 msgid "ad.ui.parameter.tip"

@@ -489,13 +489,20 @@ namespace DocMe.AvatarDoctor.Editor
             structureVersion++;
         }
 
-        /// <summary>The materials a plan's property targets read and the meshes its shape targets read, by instance id.</summary>
+        /// <summary>The materials a plan's property targets read, with the root of each variant (Poiyomi's lock reads the root's marks), and the meshes its shape targets read, by instance id.</summary>
         static HashSet<int> AssetsReadBy(MenuTree tree, VRCAvatarDescriptor descriptor)
         {
             var ids = new HashSet<int>();
             void AddMesh(SkinnedMeshRenderer renderer)
             {
                 if (renderer != null && renderer.sharedMesh != null) ids.Add(renderer.sharedMesh.GetInstanceID());
+            }
+            void AddMaterial(Material material)
+            {
+                if (material == null) return;
+                ids.Add(material.GetInstanceID());
+                var root = PoiyomiLock.Root(material);
+                if (root != null) ids.Add(root.GetInstanceID());
             }
             foreach (var component in tree.Components)
             {
@@ -509,11 +516,10 @@ namespace DocMe.AvatarDoctor.Editor
                     foreach (var target in entry.properties)
                     {
                         if (target == null || target.renderer == null) continue;
-                        foreach (var material in target.renderer.sharedMaterials)
-                            if (material != null) ids.Add(material.GetInstanceID());
+                        foreach (var material in target.renderer.sharedMaterials) AddMaterial(material);
                     }
                     foreach (var target in entry.materials)
-                        if (target != null && target.material != null) ids.Add(target.material.GetInstanceID());
+                        if (target != null) AddMaterial(target.material);
                 }
             }
             if (descriptor != null)

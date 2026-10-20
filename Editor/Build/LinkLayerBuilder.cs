@@ -149,7 +149,8 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var row in effects.Properties)
                 {
                     var baseValue = baseState.PropertyOf(row.renderer, row.property, row.type);
-                    content.SetProperty(row.renderer, row.property, row.type, Vector4.Lerp(EffectMath.PropertyValue(row, false, baseValue), EffectMath.PropertyValue(row, true, baseValue), fraction));
+                    content.SetProperty(row.renderer, row.property, row.type, Vector4.Lerp(EffectMath.PropertyValue(row, false, baseValue), EffectMath.PropertyValue(row, true, baseValue), fraction), entry, baseState,
+                        own => Vector4.Lerp(EffectMath.PropertyValue(row, false, own), EffectMath.PropertyValue(row, true, own), fraction));
                 }
                 return content;
             }
@@ -206,7 +207,7 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var row in effects.Properties)
             {
                 var restValue = EffectMath.PropertyValue(row, false, baseState.PropertyOf(row.renderer, row.property, row.type));
-                restContent.SetProperty(row.renderer, row.property, row.type, restValue);
+                restContent.SetProperty(row.renderer, row.property, row.type, restValue, entry, baseState, own => EffectMath.PropertyValue(row, false, own));
             }
             if (pinState != null)
             {

@@ -18,9 +18,11 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>The tree's shape set context, so every layer of one build reads the avatar's tracked and piece driven shapes once. Null for a base state made without a tree.</summary>
         public ShapeSetModel.HeldContext HeldContext { get; private set; }
 
+        MenuTree tree;
+
         public static BaseState Capture(MenuTree tree)
         {
-            var state = new BaseState { HeldContext = tree.HeldContext };
+            var state = new BaseState { HeldContext = tree.HeldContext, tree = tree };
             // An entry left out on this platform writes nothing here, so its targets are not part of the Off state.
             foreach (var control in tree.Controls)
                 if (!control.Excluded) state.CaptureEntry(control.Entry, tree.AvatarRoot);
@@ -90,6 +92,21 @@ namespace DocMe.AvatarDoctor.Editor
             if (weights.TryGetValue((renderer, shape), out var value)) return value;
             int index = renderer.sharedMesh.GetBlendShapeIndex(shape);
             return index >= 0 ? renderer.GetBlendShapeWeight(index) : 0f;
+        }
+
+        /// <summary>
+        /// The materials a renderer shows at some point of this build besides the ones it holds now: every material the
+        /// entries swap onto it (MenuTree.SwappedOnto), and the material each swapped slot held before the defaults. A
+        /// swap that is on by default puts its material on the renderer before any clip is written, and its Off state
+        /// puts the old one back, so the old one counts too.
+        /// </summary>
+        public IReadOnlyList<Material> SwappedOnto(Renderer renderer)
+        {
+            var swapped = new List<Material>();
+            if (tree != null) swapped.AddRange(tree.SwappedOnto(renderer));
+            foreach (var pair in materials)
+                if (pair.Key.Item1 == renderer && pair.Value != null && !swapped.Contains(pair.Value)) swapped.Add(pair.Value);
+            return swapped;
         }
 
         public Material MaterialOf(Renderer renderer, int slot)

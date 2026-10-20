@@ -1139,6 +1139,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             foreach (var choice in PropertyPicker.Choices(renderer))
                 if (choice.PropertyName == property) return choice.Type;
+            property = PoiyomiLock.NameOn(material, property) ?? property;
             if (material.HasColor(property)) return PropertyValueType.Color;
             if (material.HasVector(property)) return PropertyValueType.Vector;
             if (material.HasFloat(property)) return PropertyValueType.Float;

@@ -163,9 +163,25 @@ msgstr "预设“{1}”设置的参数“{0}”未在 Expression Parameters 或 
 msgid "ad.warn.property_missing"
 msgstr "“{0}”：“{1}”上没有任何材质具有属性“{2}”，因此已跳过该行。请选择“{1}”的材质上存在的属性。"
 
-#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them; edit the materials first if you want a different one used.
+#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them, except Poiyomi materials that rename it, which keep their own in game; edit the materials first if you want a different one used.
 msgid "ad.warn.property_differs"
-msgstr "“{0}”：“{1}”上各材质的“{2}”值本就不一致。关闭时会把第一个材质的值写入所有材质；如果想使用其他值，请先编辑这些材质。"
+msgstr "“{0}”：“{1}”上各材质的“{2}”值本就不一致。关闭时会把第一个材质的值写入所有材质（把该属性设为 Renamed 的 Poiyomi 材质在游戏中会保留自己的值）；如果想使用其他值，请先编辑这些材质。"
+
+#. en: \"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) do not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks them at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in each material and choose Animated (when locked).
+msgid "ad.warn.poiyomi_not_animated"
+msgstr "“{0}”：“{2}”上的 {3} 个 Poiyomi 材质（{4}）没有把“{1}”标记为动画，因此 Poiyomi 在上传时锁定这些材质时会把它固定为当前值，游戏中不会有任何变化。请选中“{0}”并点击“标记为动画”，或在每个材质中右键点击该属性并选择 Animated (when locked)。"
+
+#. en: \"{0}\": the Poiyomi material \"{4}\" on \"{2}\" does not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks the material at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in the material and choose Animated (when locked).
+msgid "ad.warn.poiyomi_not_animated.one"
+msgstr "“{0}”：“{2}”上的 Poiyomi 材质“{4}”没有把“{1}”标记为动画，因此 Poiyomi 在上传时锁定该材质时会把它固定为当前值，游戏中不会有任何变化。请选中“{0}”并点击“标记为动画”，或在该材质中右键点击该属性并选择 Animated (when locked)。"
+
+#. en: \"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) are locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock them, right-click the property in each and choose Animated (when locked), then lock them again or let Poiyomi lock them at upload.
+msgid "ad.warn.poiyomi_baked"
+msgstr "“{0}”：“{2}”上的 {3} 个 Poiyomi 材质（{4}）已锁定，“{1}”被固定为当前值，因此游戏中不会有任何变化。请解锁这些材质，在每个材质中右键点击该属性并选择 Animated (when locked)，然后重新锁定，或交给 Poiyomi 在上传时锁定。"
+
+#. en: \"{0}\": the Poiyomi material \"{4}\" on \"{2}\" is locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock the material, right-click the property and choose Animated (when locked), then lock it again or let Poiyomi lock it at upload.
+msgid "ad.warn.poiyomi_baked.one"
+msgstr "“{0}”：“{2}”上的 Poiyomi 材质“{4}”已锁定，“{1}”被固定为当前值，因此游戏中不会有任何变化。请解锁该材质，右键点击该属性并选择 Animated (when locked)，然后重新锁定，或交给 Poiyomi 在上传时锁定。"
 
 #. en: \"{0}\" is in an exclusive group, so its blend time is not used.
 msgid "ad.info.blend_ignored_in_group"
@@ -738,6 +754,10 @@ msgstr "组内的值"
 #. en: Give each member its own value
 msgid "ad.ui.group.number"
 msgstr "为每个成员分配不同的值"
+
+#. en: Mark as animated
+msgid "ad.ui.poiyomi.mark_animated"
+msgstr "标记为动画"
 
 #. en: Parameter
 msgid "ad.ui.parameter"
@@ -3090,6 +3110,10 @@ msgstr "此开关开启时，组的参数所取的数值。填 0 则自动分配
 #. en: Numbers the members of this group 1, 2, 3 and so on in menu order, so no two share a value.
 msgid "ad.ui.group.number.tip"
 msgstr "按菜单顺序把这个组的成员依次设为 1、2、3……，使任何两个成员都不共用同一个值。"
+
+#. en: Marks the property Animated (when locked) on the Poiyomi materials this warning names, in one Undo step, so it still changes in game after Poiyomi locks them at upload.
+msgid "ad.ui.poiyomi.mark_animated.tip"
+msgstr "在此警告列出的 Poiyomi 材质上把该属性设为 Animated (when locked)，使 Poiyomi 在上传时锁定后它仍能在游戏中变化，可一步撤销。"
 
 #. en: The synced value VRChat uses for this control, named automatically unless you give it your own.
 msgid "ad.ui.parameter.tip"

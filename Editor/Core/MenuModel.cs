@@ -187,6 +187,35 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>What the shape set rules of this tree read from its avatar, read once per tree.</summary>
         public ShapeSetModel.HeldContext HeldContext => heldContext ?? (heldContext = ShapeSetModel.ContextFor(AvatarRoot));
 
+        Dictionary<Renderer, List<Material>> swaps;
+
+        /// <summary>
+        /// The materials the controls and triggers this platform builds swap onto a renderer, read once per tree, after
+        /// the tree is complete. Poiyomi locks a material a swap names at upload too, so a property curve on the renderer
+        /// has to reach it. Only swaps the build makes count: a flip trigger builds none of its rows, and a row on a slot
+        /// that does not exist or a renderer outside the avatar is skipped.
+        /// </summary>
+        public IReadOnlyList<Material> SwappedOnto(Renderer renderer)
+        {
+            if (swaps == null)
+            {
+                swaps = new Dictionary<Renderer, List<Material>>();
+                void Add(MenuEntry entry)
+                {
+                    if (entry.IsFlipTrigger) return;
+                    foreach (var target in entry.materials)
+                    {
+                        if (target == null || target.material == null || !MenuModel.SlotExists(target) || MenuModel.IsOutsideAvatar(AvatarRoot, target.renderer.transform)) continue;
+                        if (!swaps.TryGetValue(target.renderer, out var list)) swaps[target.renderer] = list = new List<Material>();
+                        if (!list.Contains(target.material)) list.Add(target.material);
+                    }
+                }
+                foreach (var control in Controls) if (!control.Excluded) Add(control.Entry);
+                foreach (var trigger in Triggers) if (!trigger.Excluded) Add(trigger.Entry);
+            }
+            return renderer != null && swaps.TryGetValue(renderer, out var found) ? found : (IReadOnlyList<Material>)Array.Empty<Material>();
+        }
+
         public bool HasErrors => Messages.Any(m => m.Severity == MessageSeverity.Error);
 
         /// <summary>The control with this entry id, or null when there is none or when several entries share the id.</summary>
@@ -1176,7 +1205,11 @@ namespace DocMe.AvatarDoctor.Editor
                     if (target.renderer == null) tree.Messages.Add(ModelMessage.Warning("ad.warn.target_missing", entry.PlainName, component).For(entry.id));
                     else if (IsOutsideAvatar(tree.AvatarRoot, target.renderer.transform)) tree.Messages.Add(ModelMessage.Warning("ad.warn.target_outside_avatar", entry.PlainName, component).For(entry.id));
                     else if (!PropertyExists(target, entry)) tree.Messages.Add(ModelMessage.Warning("ad.warn.property_missing", entry.PlainName, target.renderer.name, target.property).For(entry.id));
-                    else if (MaterialsDisagree(target)) tree.Messages.Add(ModelMessage.Warning("ad.warn.property_differs", entry.PlainName, target.renderer.name, target.property).For(entry.id));
+                    else
+                    {
+                        if (MaterialsDisagree(target)) tree.Messages.Add(ModelMessage.Warning("ad.warn.property_differs", entry.PlainName, target.renderer.name, target.property).For(entry.id));
+                        ValidatePoiyomiLock(tree, entry, target);
+                    }
                 }
             // Triggers, overrides and presets ignore custom animation clips; only a toggle or a radial ever merges them.
             if (entry.kind == EntryKind.Toggle || entry.kind == EntryKind.Radial)
@@ -1188,6 +1221,24 @@ namespace DocMe.AvatarDoctor.Editor
                 }
             if (entry.kind == EntryKind.Toggle && entry.blendSeconds > 0f && !string.IsNullOrWhiteSpace(entry.exclusiveGroup))
                 tree.Messages.Add(ModelMessage.Info("ad.info.blend_ignored_in_group", entry.PlainName).For(entry.id));
+        }
+
+        /// <summary>
+        /// Poiyomi locks its materials at upload and fixes every property they do not mark as animated at its value, so
+        /// a curve on such a property does nothing in game. That covers the renderer's own materials and every material
+        /// a control or trigger swaps onto it; a variant is named by its root, the material Poiyomi locks. An unlocked
+        /// material can still be marked (the warning's Mark as animated button); a locked one has to be unlocked
+        /// first. Args: entry, property, renderer, the count of materials, their names.
+        /// </summary>
+        static void ValidatePoiyomiLock(MenuTree tree, MenuEntry entry, MaterialPropertyTarget target)
+        {
+            var swapped = tree.SwappedOnto(target.renderer).Concat(entry.materials.Where(m => m != null && m.renderer == target.renderer).Select(m => m.material));
+            var unmarked = PoiyomiLock.Unmarked(target.renderer, target.property, swapped);
+            if (unmarked.Count > 0)
+                tree.Messages.Add(ModelMessage.Warning(UiText.CountKey(unmarked.Count, "ad.warn.poiyomi_not_animated"), entry.PlainName, target.property, target.renderer, unmarked.Count, L.JoinList(unmarked.Select(m => m.name))).For(entry.id));
+            var baked = PoiyomiLock.Baked(target.renderer, target.property, swapped);
+            if (baked.Count > 0)
+                tree.Messages.Add(ModelMessage.Warning(UiText.CountKey(baked.Count, "ad.warn.poiyomi_baked"), entry.PlainName, target.property, target.renderer, baked.Count, L.JoinList(baked.Select(m => m.name))).For(entry.id));
         }
 
         /// <summary>
@@ -1332,6 +1383,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var byTarget = new Dictionary<string, List<(MenuEntry entry, AvatarDoc component)>>();
             var labels = new Dictionary<string, string>();
+            var reportedProperties = new HashSet<string>();
             foreach (var unit in units)
             {
                 bool skipSourceShape = unit.entry.kind == EntryKind.Trigger && unit.entry.source == TriggerSource.BlendShape;
@@ -1347,6 +1399,12 @@ namespace DocMe.AvatarDoctor.Editor
                 var count = pair.Value.Select(u => string.IsNullOrWhiteSpace(u.entry.exclusiveGroup) ? u.entry.id : "group:" + u.entry.exclusiveGroup.Trim()).Distinct().Count();
                 if (count < 2) continue;
                 if (pair.Value.All(u => u.entry.kind == EntryKind.Override)) continue;
+                // A property row has one key per curve name it writes, so rows that share several names are named once.
+                if (pair.Key.StartsWith("prop:", StringComparison.Ordinal))
+                {
+                    var together = pair.Key.Substring(0, pair.Key.LastIndexOf(':')) + "|" + string.Join(",", pair.Value.Select(u => u.entry.id).OrderBy(id => id, StringComparer.Ordinal));
+                    if (!reportedProperties.Add(together)) continue;
+                }
                 bool overridden = pair.Value.Any(u => u.entry.kind == EntryKind.Override);
                 var names = L.JoinList(pair.Value.Select(u => u.entry.PlainName));
                 tree.Messages.Add(ModelMessage.Info(overridden ? "ad.info.target_shared_override" : "ad.info.target_shared", labels[pair.Key], names, pair.Value[pair.Value.Count - 1].component)
@@ -1421,7 +1479,13 @@ namespace DocMe.AvatarDoctor.Editor
             if (entry.BuildsProperties)
                 foreach (var t in entry.properties)
                     if (PropertyExists(t, entry) && !IsOutsideAvatar(tree.AvatarRoot, t.renderer.transform))
-                        yield return ("prop:" + t.renderer.GetInstanceID() + ":" + t.property, t.renderer.name + " material." + t.property);
+                    {
+                        // Keyed by every curve name the row writes: rows picked under two renamed names of two materials
+                        // move two properties, a row on the original name moves both.
+                        var swapped = tree.SwappedOnto(t.renderer).Concat(entry.materials.Where(m => m != null && m.renderer == t.renderer).Select(m => m.material));
+                        foreach (var name in PoiyomiLock.CurveNames(t.renderer, t.property, swapped))
+                            yield return ("prop:" + t.renderer.GetInstanceID() + ":" + name, t.renderer.name + " material." + t.property);
+                    }
         }
 
         public static bool SlotExists(MaterialTarget target)
@@ -1434,12 +1498,12 @@ namespace DocMe.AvatarDoctor.Editor
             return renderer != null && renderer.sharedMesh != null && !string.IsNullOrEmpty(shape) && renderer.sharedMesh.GetBlendShapeIndex(shape) >= 0;
         }
 
-        /// <summary>The first shared material of the renderer that has this shader property, or null when none does.</summary>
+        /// <summary>The first shared material of the renderer that has this shader property, or null when none does. A locked Poiyomi material that renamed the property has it under its renamed name (PoiyomiLock.NameOn).</summary>
         public static Material MaterialWithProperty(Renderer renderer, string property)
         {
             if (renderer == null || string.IsNullOrEmpty(property)) return null;
             foreach (var material in renderer.sharedMaterials)
-                if (material != null && material.HasProperty(property)) return material;
+                if (PoiyomiLock.NameOn(material, property) != null) return material;
             return null;
         }
 
@@ -1453,7 +1517,7 @@ namespace DocMe.AvatarDoctor.Editor
             var found = MaterialWithProperty(renderer, property);
             if (found != null || entry == null || renderer == null || string.IsNullOrEmpty(property)) return found;
             foreach (var target in entry.materials)
-                if (target.renderer == renderer && target.material != null && target.material.HasProperty(property)) return target.material;
+                if (target.renderer == renderer && PoiyomiLock.NameOn(target.material, property) != null) return target.material;
             return null;
         }
 
@@ -1462,7 +1526,7 @@ namespace DocMe.AvatarDoctor.Editor
             return target != null && MaterialWithProperty(target.renderer, target.property, entry) != null;
         }
 
-        /// <summary>True when more than one shared material of the renderer carries this property and they do not all hold the same value: the Off state writes the first one to every slot.</summary>
+        /// <summary>True when more than one shared material of the renderer carries this property and they do not all hold the same value: the Off state writes the first one to every slot. A Poiyomi material that renames the property does not count: in game it keeps its own value.</summary>
         public static bool MaterialsDisagree(MaterialPropertyTarget target)
         {
             if (target == null || target.renderer == null || string.IsNullOrEmpty(target.property)) return false;
@@ -1470,18 +1534,20 @@ namespace DocMe.AvatarDoctor.Editor
             var first = Vector4.zero;
             foreach (var material in target.renderer.sharedMaterials)
             {
-                if (material == null || !material.HasProperty(target.property)) continue;
+                if (PoiyomiLock.NameOn(material, target.property) == null) continue;
                 var value = ReadProperty(material, target.property, target.type);
                 if (!any) { first = value; any = true; continue; }
-                if ((first - value).sqrMagnitude > 1e-8f) return true;
+                // A Poiyomi material that renames the property keeps its own value in game: only its renamed name reaches it.
+                if ((first - value).sqrMagnitude > 1e-8f && PoiyomiLock.RenamedName(material, target.property) == null) return true;
             }
             return false;
         }
 
-        /// <summary>A material's current value of a property, packed into a Vector4 the way EffectMath packs it (float in x, colour in rgba, vector in xyzw), or zero when the material is null. The one reader BaseState and PreviewModel both read the scene through.</summary>
+        /// <summary>A material's current value of a property, packed into a Vector4 the way EffectMath packs it (float in x, colour in rgba, vector in xyzw), or zero when the material is null. Read under the name the material has it (PoiyomiLock.NameOn). The one reader BaseState and PreviewModel both read the scene through.</summary>
         public static Vector4 ReadProperty(Material material, string property, PropertyValueType type)
         {
             if (material == null) return Vector4.zero;
+            property = PoiyomiLock.NameOn(material, property) ?? property;
             switch (type)
             {
                 case PropertyValueType.Color: return material.GetColor(property);

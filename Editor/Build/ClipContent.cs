@@ -129,28 +129,48 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Enables or disables a component, such as a grabbable's PhysBone under its own menu toggle. The same "m_Enabled" property every Behaviour exposes for animation, the component-level counterpart of SetActive.</summary>
         public void SetEnabled(Component component, bool enabled) => Set(component, "m_Enabled", enabled ? 1f : 0f);
 
-        /// <summary>Writes a shader property for the whole renderer. A float uses value.x; a colour writes its r/g/b/a; a vector writes its x/y/z/w.</summary>
-        public void SetProperty(Renderer renderer, string property, PropertyValueType type, Vector4 value)
+        /// <summary>
+        /// Writes a shader property for the whole renderer. A float uses value.x; a colour writes its r/g/b/a; a vector
+        /// writes its x/y/z/w. Each is written under every name the materials animate it by (PoiyomiLock.CurveTargets):
+        /// the renderer's own, the ones the entry swaps onto it and the ones the rest of the build does (baseState). A
+        /// Poiyomi material that renames the property once locked gets that name too. fromOwnBase gives the value
+        /// from a material's own scene value: a renamed name, which only its own material reads, rests at that
+        /// material's value instead of the first material's.
+        /// </summary>
+        public void SetProperty(Renderer renderer, string property, PropertyValueType type, Vector4 value, MenuEntry entry = null, BaseState baseState = null, Func<Vector4, Vector4> fromOwnBase = null)
+        {
+            foreach (var (name, source) in PoiyomiLock.CurveTargets(renderer, property, Swapped(renderer, entry, baseState)))
+            {
+                var written = fromOwnBase != null && source != null ? fromOwnBase(MenuModel.ReadProperty(source, name, type)) : value;
+                foreach (var (channel, component) in Channels(type))
+                    Set(renderer, "material." + name + channel, written[component]);
+            }
+        }
+
+        /// <summary>The materials besides the renderer's own that a property curve on it reaches: the ones this entry swaps onto it, and the ones every entry of the build does.</summary>
+        static IEnumerable<Material> Swapped(Renderer renderer, MenuEntry entry, BaseState baseState)
+        {
+            if (entry != null)
+                foreach (var target in entry.materials)
+                    if (target != null && target.renderer == renderer && target.material != null) yield return target.material;
+            if (baseState != null)
+                foreach (var material in baseState.SwappedOnto(renderer)) yield return material;
+        }
+
+        /// <summary>The curve name endings of a property type and the Vector4 component each one carries.</summary>
+        internal static (string channel, int component)[] Channels(PropertyValueType type)
         {
             switch (type)
             {
-                case PropertyValueType.Color:
-                    Set(renderer, "material." + property + ".r", value.x);
-                    Set(renderer, "material." + property + ".g", value.y);
-                    Set(renderer, "material." + property + ".b", value.z);
-                    Set(renderer, "material." + property + ".a", value.w);
-                    break;
-                case PropertyValueType.Vector:
-                    Set(renderer, "material." + property + ".x", value.x);
-                    Set(renderer, "material." + property + ".y", value.y);
-                    Set(renderer, "material." + property + ".z", value.z);
-                    Set(renderer, "material." + property + ".w", value.w);
-                    break;
-                default:
-                    Set(renderer, "material." + property, value.x);
-                    break;
+                case PropertyValueType.Color: return ColorChannels;
+                case PropertyValueType.Vector: return VectorChannels;
+                default: return FloatChannel;
             }
         }
+
+        static readonly (string, int)[] ColorChannels = { (".r", 0), (".g", 1), (".b", 2), (".a", 3) };
+        static readonly (string, int)[] VectorChannels = { (".x", 0), (".y", 1), (".z", 2), (".w", 3) };
+        static readonly (string, int)[] FloatChannel = { ("", 0) };
 
         void Set(UnityEngine.Object target, string property, object value)
         {
@@ -197,7 +217,8 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var target in entry.properties)
                     if (MenuModel.PropertyExists(target, entry) && !Outside(target.renderer.transform))
                         SetProperty(target.renderer, target.property, target.type,
-                            EffectMath.PropertyValue(target, on, baseState.PropertyOf(target.renderer, target.property, target.type)));
+                            EffectMath.PropertyValue(target, on, baseState.PropertyOf(target.renderer, target.property, target.type)), entry, baseState,
+                            on ? (Func<Vector4, Vector4>)null : own => EffectMath.PropertyValue(target, false, own));
         }
 
         /// <summary>
@@ -236,7 +257,8 @@ namespace DocMe.AvatarDoctor.Editor
                     SetMaterial(target.renderer, target.slot, EffectMath.ToggleMaterial(target, false, baseState.MaterialOf(target.renderer, target.slot)));
             foreach (var target in entry.properties)
                 if (MenuModel.PropertyExists(target, entry) && !Outside(target.renderer.transform))
-                    SetProperty(target.renderer, target.property, target.type, EffectMath.PropertyValue(target, false, baseState.PropertyOf(target.renderer, target.property, target.type)));
+                    SetProperty(target.renderer, target.property, target.type, EffectMath.PropertyValue(target, false, baseState.PropertyOf(target.renderer, target.property, target.type)), entry, baseState,
+                        own => EffectMath.PropertyValue(target, false, own));
         }
 
         /// <summary>Writes an override's pinned values.</summary>
@@ -247,19 +269,19 @@ namespace DocMe.AvatarDoctor.Editor
                     SetShape(target.renderer, target.shape, target.weight);
         }
 
-        /// <summary>Writes a radial's shapes at position t (0..1) between their min and max weights.</summary>
-        public void WriteRadial(MenuEntry entry, float t)
+        /// <summary>Writes a radial's shapes at position t (0..1) between their min and max weights. baseState names the materials the rest of the build swaps in.</summary>
+        public void WriteRadial(MenuEntry entry, float t, BaseState baseState = null)
         {
             foreach (var target in entry.blendShapes)
                 if (MenuModel.ShapeExists(target.renderer, target.shape) && !Outside(target.renderer.transform))
                     SetShape(target.renderer, target.shape, EffectMath.RadialShapeWeight(target, t));
             foreach (var target in entry.properties)
                 if (MenuModel.PropertyExists(target, entry) && !Outside(target.renderer.transform))
-                    SetProperty(target.renderer, target.property, target.type, EffectMath.RadialPropertyValue(target, t));
+                    SetProperty(target.renderer, target.property, target.type, EffectMath.RadialPropertyValue(target, t), entry, baseState);
         }
 
         /// <summary>Writes a radial's blend shape and property values as linear ramps from their min to max across [0, length], for a radial whose custom clips replace the blend tree with one motion-time clip.</summary>
-        public void WriteRadialRamp(MenuEntry entry, float length)
+        public void WriteRadialRamp(MenuEntry entry, float length, BaseState baseState = null)
         {
             rampLength = length;
             noLoop = true;
@@ -268,33 +290,18 @@ namespace DocMe.AvatarDoctor.Editor
                     SetRamp(target.renderer, "blendShape." + target.shape, EffectMath.RadialShapeWeight(target, 0f), EffectMath.RadialShapeWeight(target, 1f));
             foreach (var target in entry.properties)
                 if (MenuModel.PropertyExists(target, entry) && !Outside(target.renderer.transform))
-                    AddPropertyRamp(target);
+                    AddPropertyRamp(target, entry, baseState);
         }
 
         void SetRamp(UnityEngine.Object target, string property, float from, float to) => ramps.Add((new Key { Target = target, Property = property }, from, to));
 
-        void AddPropertyRamp(MaterialPropertyTarget target)
+        void AddPropertyRamp(MaterialPropertyTarget target, MenuEntry entry, BaseState baseState)
         {
             var from = EffectMath.RadialPropertyValue(target, 0f);
             var to = EffectMath.RadialPropertyValue(target, 1f);
-            switch (target.type)
-            {
-                case PropertyValueType.Color:
-                    SetRamp(target.renderer, "material." + target.property + ".r", from.x, to.x);
-                    SetRamp(target.renderer, "material." + target.property + ".g", from.y, to.y);
-                    SetRamp(target.renderer, "material." + target.property + ".b", from.z, to.z);
-                    SetRamp(target.renderer, "material." + target.property + ".a", from.w, to.w);
-                    break;
-                case PropertyValueType.Vector:
-                    SetRamp(target.renderer, "material." + target.property + ".x", from.x, to.x);
-                    SetRamp(target.renderer, "material." + target.property + ".y", from.y, to.y);
-                    SetRamp(target.renderer, "material." + target.property + ".z", from.z, to.z);
-                    SetRamp(target.renderer, "material." + target.property + ".w", from.w, to.w);
-                    break;
-                default:
-                    SetRamp(target.renderer, "material." + target.property, from.x, to.x);
-                    break;
-            }
+            foreach (var name in PoiyomiLock.CurveNames(target.renderer, target.property, Swapped(target.renderer, entry, baseState)))
+                foreach (var (channel, component) in Channels(target.type))
+                    SetRamp(target.renderer, "material." + name + channel, from[component], to[component]);
         }
 
         /// <summary>Merges an entry's collected custom clip bindings on top of the values already written here. A binding this content already writes (compared by avatar-root-relative path, type and property) keeps the generated value; the entry gets one ad.info.animation_overridden with the count of bindings that lost.</summary>

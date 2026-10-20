@@ -71,6 +71,20 @@ namespace DocMe.AvatarDoctor.Editor
             return true;
         }
 
+        /// <summary>
+        /// Marks the property "Animated (when locked)" on every unlocked Poiyomi material that does not mark it yet, in
+        /// one Undo step, so Poiyomi keeps it animated when it locks them at upload: the renderer's own, the ones the
+        /// entry swaps onto it and the ones given in swapped (the rest of the avatar's swaps). A variant's mark goes on
+        /// its root. Refused, changing nothing, while the component that holds the entry is locked.
+        /// </summary>
+        public static bool MarkAnimatedForPoiyomi(AvatarDoc menu, MenuEntry entry, Renderer renderer, string property, IEnumerable<Material> swapped = null)
+        {
+            if (Refuses(menu) || entry == null) return false;
+            var reached = entry.materials.Where(m => m != null && m.renderer == renderer).Select(m => m.material);
+            if (swapped != null) reached = reached.Concat(swapped);
+            return PoiyomiLock.MarkAnimated(PoiyomiLock.Unmarked(renderer, property, reached), property);
+        }
+
         public static MenuEntry Add(AvatarDoc menu, EntryKind kind, string name, string parentId)
         {
             if (Refuses(menu)) return null;

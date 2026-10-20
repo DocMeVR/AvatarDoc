@@ -54,7 +54,7 @@ namespace DocMe.AvatarDoctor.Editor
                 // animator, carries the effect, so a layer here would only fight with it.
                 if (control.Entry.IsParameterControl) continue;
                 if (!control.Entry.HasEffects) continue;
-                if (control.Entry.kind == EntryKind.Radial) BuildRadialLayer(asc, fx, writeDefaults, control, binding, tree.AvatarRoot, messages);
+                if (control.Entry.kind == EntryKind.Radial) BuildRadialLayer(asc, fx, writeDefaults, control, binding, tree.AvatarRoot, messages, baseState);
                 else BuildToggleLayer(asc, fx, writeDefaults, control, binding, baseState, tree.AvatarRoot, messages, pinLayerNames, followPlan, pinState, touch);
             }
             return messages;
@@ -793,7 +793,7 @@ namespace DocMe.AvatarDoctor.Editor
             }));
         }
 
-        static void BuildRadialLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, bool writeDefaults, ControlNode control, ControlBinding binding, Transform avatarRoot, List<ModelMessage> messages)
+        static void BuildRadialLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, bool writeDefaults, ControlNode control, ControlBinding binding, Transform avatarRoot, List<ModelMessage> messages, BaseState baseState)
         {
             var name = UniqueLayerName(fx, control.LayerName);
             var custom = CustomClips.Collect(control.Entry, avatarRoot, messages);
@@ -802,7 +802,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (custom.Count > 0)
             {
                 var content = new ClipContent(avatarRoot);
-                content.WriteRadialRamp(control.Entry, CustomClips.Length(control.Entry));
+                content.WriteRadialRamp(control.Entry, CustomClips.Length(control.Entry), baseState);
                 content.MergeCustom(custom, control.Entry, messages);
                 var merged = layer.StateMachine.AddState("Blend", content.ToClip(asc, name), new Vector3(0f, 0f, 0f));
                 merged.WriteDefaultValues = writeDefaults;
@@ -812,9 +812,9 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             var min = new ClipContent(avatarRoot);
-            min.WriteRadial(control.Entry, 0f);
+            min.WriteRadial(control.Entry, 0f, baseState);
             var max = new ClipContent(avatarRoot);
-            max.WriteRadial(control.Entry, 1f);
+            max.WriteRadial(control.Entry, 1f, baseState);
 
             var tree = VirtualBlendTree.Create(name);
             tree.BlendType = BlendTreeType.Simple1D;
