@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/DocMeVR/AvatarDoc/compare/0.4.1...0.5.0) (2026-10-20)
+
+
+### Features
+
+* **localization:** language files as .po ([#6](https://github.com/DocMeVR/AvatarDoc/issues/6)) ([6318630](https://github.com/DocMeVR/AvatarDoc/commit/6318630b523e094201a3d31998331179cf2c1689))
+
 ## [0.4.1](https://github.com/DocMeVR/AvatarDoc/compare/0.4.0...0.4.1) (2026-10-19)
 
 
