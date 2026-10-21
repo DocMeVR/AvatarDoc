@@ -57,6 +57,7 @@ export default defineConfig({
             'reference/icon-capture',
             'reference/add-window',
             'reference/copy-window',
+            'reference/gesture-faces-window',
             'reference/window-and-wheel',
             'reference/scene-preview',
             'reference/summary-and-lock',

@@ -243,6 +243,32 @@ See [Link effects to another toggle or a parameter](../../guides/link-to-a-toggl
 
 See [Report a bug](../report-a-bug/).
 
+## A gesture face does not show with face tracking [#gesture-face-tracking]
+
+### Likely cause
+
+- The face is set to <Label k="ad.ui.gestures.paused" /> in the <Label k="ad.ui.gestures.title" /> window. While face tracking is on, a paused face changes nothing on purpose: face tracking has the face.
+- <Label k="ad.ui.gestures.tracking" /> names a parameter your face tracking setup does not set, or one it sets the other way round, so AvatarDoc thinks face tracking is on all the time.
+- The parameter is the Lip Tracking toggle of the VRCFT face tracking templates, LipTrackingActive, which is saved: left on while you play without face tracking, it keeps every face set to <Label k="ad.ui.gestures.paused" /> off.
+- Other players see a face set to <Label k="ad.ui.gestures.paused" /> while you do not: the parameter is not synced, so to them face tracking is never on. The window says so under the field.
+- Face tracking moves different shapes than the face does, so both show at once and the face looks wrong rather than missing.
+- The face does show, but face tracking takes the shapes back the moment you let go of the gesture. That is how a face set to <Label k="ad.ui.gestures.wins" /> ends.
+
+### Fix
+
+1. Select the object with the AvatarDoc component and press <Label k="ad.ui.add.gesture_faces" /> in the toolbar.
+2. In the gesture's row, set <Label k="ad.ui.gestures.row.tracking" /> to <Label k="ad.ui.gestures.wins" /> if the face should show over face tracking while you hold the gesture.
+3. Check <Label k="ad.ui.gestures.tracking" />: it must name the Bool parameter that is on while face tracking is on, such as LipTrackingActive, synced if your setup has one. Pick it from the list beside the field, type its name, or empty the field for <Label k="ad.ui.gestures.tracking.none" /> when the avatar has no face tracking.
+4. Playing without face tracking: switch the Lip Tracking toggle of the face tracking menu off in game, so the faces set to <Label k="ad.ui.gestures.paused" /> show.
+5. To keep face tracking from moving the face's other shapes while a face shows, give the face's trigger a Hold the rest rule: select the trigger in the tree and press <Label k="ad.ui.shape_set.hold" /> in its <Label k="ad.ui.blendshapes" /> section. See [Hold the rest of a face](../../guides/hold-the-rest/).
+6. Press <Label k="ad.ui.gestures.make" />, upload, and test with face tracking on.
+
+More about the choices: [Gesture faces window](../../reference/gesture-faces-window/#while-tracked).
+
+### Still stuck
+
+Press <Label k="ad.ui.summary" /> in the header and keep the text for [Report a bug](../report-a-bug/).
+
 ## A blend shape trigger does nothing [#blend-shape-trigger-does-nothing]
 
 ### Likely cause

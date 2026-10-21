@@ -1,0 +1,96 @@
+---
+title: Facial expressions on hand gestures
+description: Give each VRChat hand gesture a face in one window, with face tracking in mind, and change the faces later in the same place.
+sidebar:
+  order: 11
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+
+## When to use this
+
+You want the avatar to smile while your left hand makes a fist, or to look surprised while either hand shows the victory sign. VRChat has seven hand gestures besides the neutral hand: <Label k="ad.ui.gestures.gesture.1" />, <Label k="ad.ui.gestures.gesture.2" />, <Label k="ad.ui.gestures.gesture.3" />, <Label k="ad.ui.gestures.gesture.4" />, <Label k="ad.ui.gestures.gesture.5" />, <Label k="ad.ui.gestures.gesture.6" /> and <Label k="ad.ui.gestures.gesture.7" />. The <Label k="ad.ui.gestures.title" /> window gives each of them a face for the left hand, the right hand or both, and decides for each face what happens while face tracking is on.
+
+The window makes ordinary triggers, one for each gesture and hand plus a few that go with them, so you can open each one in the inspector afterwards. To make one trigger by hand instead, for a gesture that shows an object say, see [Link effects to another toggle or a parameter](../link-to-a-toggle-or-parameter/).
+
+## Before you start
+
+- Your avatar has an AvatarDoc component. The window needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+- You know which mesh holds the face's blend shapes, usually Body or Face.
+- The face in the scene is at rest: the way it looks while no gesture is held, with Shrink keys and body shapes set the way you wear them. The window keeps every shape's weight as it is when the window first opens, as the face at rest, and <Label k="ad.ui.gestures.make" /> keeps where the faces' shapes rest from then on.
+- If your avatar has face tracking, its face tracking setup is already on the avatar, as a VRCFury or a Modular Avatar prefab for example. AvatarDoc reads its parameters.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object that holds your AvatarDoc component.
+
+2. In the inspector's toolbar, press <Label k="ad.ui.add.gesture_faces" />. On a narrow inspector, it sits under <Label k="ad.ui.more" />.
+
+   You should now see the <Label k="ad.ui.gestures.title" /> window, with a row for every gesture under <Label k="ad.ui.gestures.faces" />.
+
+3. Check <Label k="ad.ui.gestures.mesh" />. AvatarDoc picks the mesh your avatar speaks or blinks with. Press it to pick another one.
+
+4. Check <Label k="ad.ui.gestures.tracking" />. AvatarDoc looks among your avatar's parameters, the ones a face tracking prefab brings included, for LipTrackingActive, then EyeTrackingActive, the names the usual face tracking setups use. Without face tracking, the field stays empty and a note says no face tracking parameter is set. To use another Bool parameter, type its name, or press the arrow beside the field and pick it.
+
+   If a note under the field says the parameter is not synced, other players never see it on, so they see your faces set to <Label k="ad.ui.gestures.paused" /> even while your face is tracked. Pick a synced parameter if your setup has one.
+
+5. Make the first face. In the face mesh's Skinned Mesh Renderer, under **BlendShapes**, set the shapes to the face you want. Then press <Label k="ad.ui.gestures.capture" /> in the gesture's row.
+
+   You should now see each shape you changed, with its name and a slider at its weight. Shapes you did not change are left out, so a Shrink key or a body shape stays where it rests. A warning under the rows says the scene still shows the face. Press <Label k="ad.ui.gestures.posed.reset" /> to put those shapes back where they rested before you set up the next face.
+
+   You can also press <Label k="ad.ui.gestures.add_shape" /> to add one shape at a time, and move its slider.
+
+6. In the gesture's row, choose the hand: <Label k="ad.ui.gestures.hand.left" />, <Label k="ad.ui.gestures.hand.right" />, or <Label k="ad.ui.gestures.hand.both" /> for one face on either hand. To give each hand its own face for the same gesture, set the row to one hand, press <Label k="ad.ui.gestures.add_row" /> and pick the gesture again for the other hand.
+
+7. With face tracking, choose <Label k="ad.ui.gestures.row.tracking" /> for each face:
+   - <Label k="ad.ui.gestures.paused" />: while face tracking is on, the gesture changes nothing on the face.
+   - <Label k="ad.ui.gestures.wins" />: holding the gesture shows the face over face tracking on the shapes the face uses, and letting go hands them back to face tracking. Face tracking keeps every other shape the whole time.
+
+8. Choose <Label k="ad.ui.gestures.order" />: <Label k="ad.ui.gestures.order.right" /> or <Label k="ad.ui.gestures.order.left" />. While both hands show a gesture that has a face, only the winning hand's face shows, and the other face's shapes go back to where they rest.
+
+9. Tick <Label k="ad.ui.gestures.fist" /> if the Fist face should follow how hard the hand squeezes in VR: the trigger on Index controllers, the grip on most other controllers. A fist with no squeeze shows no face yet, and a half squeeze shows half the face. On desktop, where there is no squeeze to follow, the Fist face shows whole. If the Fist face never shows with your controllers or with hand tracking, VRChat reports no squeeze for them: leave <Label k="ad.ui.gestures.fist" /> off.
+
+10. Leave <Label k="ad.ui.gestures.switch" /> ticked to get a toggle in the menu that turns every gesture face off in game.
+
+11. Press <Label k="ad.ui.gestures.make" />.
+
+    You should now see **Saved 3 gesture faces. Undo takes the change back.** under the button, with your own count. In the tree, the triggers sit under <Label k="ad.ui.triggers" />, named like **Gesture: Fist (left)**, with the ones that go with a face named like **Gesture: Fist (left), under the right hand**. The menu has a toggle named **Gesture faces**.
+
+</Steps>
+
+One Undo takes the whole step back. The window never changes what is selected in the Hierarchy.
+
+## Change the faces later
+
+Open the window again with <Label k="ad.ui.add.gesture_faces" />. It reads the faces from the triggers it made, as they are now, so a change you made in a trigger's own panel shows here too, and it remembers your <Label k="ad.ui.gestures.tracking" /> choice, <Label k="ad.ui.gestures.tracking.none" /> included, and where the faces' shapes rest, so a scene you left showing a face is not taken for the face at rest. Change what you like and press <Label k="ad.ui.gestures.make" />. The window edits the same triggers instead of making new ones, removes the triggers of a face you cleared, and keeps what you added to a face's trigger in its panel, such as objects, materials, an <Label k="ad.ui.trigger.gate" /> of your own or conditions in its first card. The blend shapes, the gesture and face tracking conditions and the mode of each trigger are the window's: it writes them again every time, and it keeps only the first condition card. The triggers named "under the other hand" or "on desktop" are the window's alone.
+
+## How the faces work
+
+- Each face holds only its own shapes while its gesture is held. Every other shape stays with face tracking, your toggles and the rest of the avatar.
+- While both hands show a face, a trigger under the losing hand's face holds its shapes at the weights they rest at, so only the winning hand's face shows. It asks for what each face asks for: while face tracking is on, a face set to <Label k="ad.ui.gestures.paused" /> on the winning hand shows nothing, and a face whose own condition or <Label k="ad.ui.trigger.gate" /> is not met shows nothing either, so the losing hand's face stays.
+- What a held face does to face tracking: a face set to <Label k="ad.ui.gestures.wins" /> holds its shapes over face tracking while its gesture is held, and while both hands show faces the losing face's shapes are held at rest over face tracking too. A face set to <Label k="ad.ui.gestures.paused" /> holds nothing while face tracking is on.
+- What a held face does to toggles: while a face holds a shape, a toggle that moves the same shape does not show on it. When you let go, the shape follows the toggle again. While both hands show faces, the same goes for the losing face's shapes, held at rest.
+- A face that sets a shape VRChat blinks or speaks with pauses VRChat's blinking or lip sync while it shows. See [Blinking, lip sync and face tracking](../../how-it-works/blinking-and-lip-sync/).
+- A face set to <Label k="ad.ui.gestures.paused" /> works only while the face tracking parameter is off. In the VRCFT face tracking templates, LipTrackingActive is the Lip Tracking toggle of the face tracking menu, which is saved: if you play without face tracking but leave that toggle on, your faces set to <Label k="ad.ui.gestures.paused" /> stay off until you switch it off. With LipTrackingActive chosen, eye tracking alone never pauses a face.
+- <Label k="ad.ui.gestures.fist" /> makes the Fist trigger a <Label k="ad.ui.touch.follow" /> trigger that follows GestureLeftWeight or GestureRightWeight, the values VRChat gives how hard each hand squeezes. In VR the face shows from the moment the value is above 0 and whole at 1. A second trigger, named like **Gesture: Fist (left), on desktop**, shows the face whole while VRMode is 0, with everything you added to the Fist face's trigger.
+
+## Check it worked
+
+- In Play mode with Gesture Manager, choose a gesture for the left hand, then for the right hand. The face changes with the gesture and goes back when you choose Neutral. See [Your first toggle](../../start-here/first-toggle/#test-it) for Play mode.
+- To test face tracking, set the face tracking parameter, such as LipTrackingActive, to on in Gesture Manager's parameters: a face set to <Label k="ad.ui.gestures.paused" /> no longer shows.
+- Press <Label k="ad.ui.summary" /> in the inspector's header. The summary lists each trigger with its rule.
+
+## If it does not work
+
+- A face does not show while face tracking is on, does not let go, or never shows at all: see [A gesture face does not show with face tracking](../../help/troubleshooting/#gesture-face-tracking).
+- The avatar shows a face all the time: the scene still held that face when you uploaded. Open the window, press <Label k="ad.ui.gestures.posed.reset" /> under the warning, and upload again. The window puts the shapes back where they rest, as <Label k="ad.ui.gestures.make" /> kept them.
+- The window refuses to make the faces and names a gesture: two rows give the same hand a face for it. Set one of them to the other hand, or remove one.
+
+## Related
+
+- [Gesture faces window](../../reference/gesture-faces-window/) describes every control of the window.
+- [Triggers](../../reference/triggers/) describes the triggers the window makes.
+- [Hold the rest of a face](../hold-the-rest/) keeps the other shapes of the face still while a face shows.
