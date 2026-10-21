@@ -111,6 +111,8 @@ namespace DocMe.AvatarDoctor.Editor
             readonly RendererState state;
             Material[] clones;
             Material[] clonedFrom;
+            /// <summary>What each frame writes into the copies: the copy, the name it draws the property with, and the value. Read once per set of copies.</summary>
+            readonly List<(Material clone, string name, PropertyValueEntry value)> writes = new List<(Material, string, PropertyValueEntry)>();
 
             public Node(RendererState state) { this.state = state; }
 
@@ -138,12 +140,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 if (state.Properties.IsEmpty) return;
                 EnsureClones(materials);
-                foreach (var clone in clones)
-                {
-                    if (clone == null) continue;
-                    foreach (var property in state.Properties)
-                        if (clone.HasProperty(property.Key)) SetProperty(clone, property.Key, property.Value);
-                }
+                foreach (var (clone, name, value) in writes) SetProperty(clone, name, value);
                 proxy.sharedMaterials = clones;
             }
 
@@ -158,6 +155,13 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     var source = currentMaterials[i];
                     clones[i] = source != null ? new Material(source) { hideFlags = HideFlags.HideAndDontSave } : null;
+                    if (clones[i] == null) continue;
+                    // The name is read from the material the copy was made from: a Poiyomi rename suffix can come from its name.
+                    foreach (var property in state.Properties)
+                    {
+                        var name = PoiyomiLock.NameOn(source, property.Key);
+                        if (name != null && clones[i].HasProperty(name)) writes.Add((clones[i], name, property.Value));
+                    }
                 }
             }
 
@@ -171,6 +175,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             void DestroyClones()
             {
+                writes.Clear();
                 if (clones == null) return;
                 foreach (var clone in clones)
                     if (clone != null) Object.DestroyImmediate(clone);

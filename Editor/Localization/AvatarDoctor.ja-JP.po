@@ -163,9 +163,25 @@ msgstr "プリセット「{1}」が設定するパラメーター「{0}」は、
 msgid "ad.warn.property_missing"
 msgstr "「{0}」：「{1}」のどのマテリアルにもプロパティ「{2}」がないため、その行はスキップされました。「{1}」のマテリアルにあるプロパティを選んでください。"
 
-#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them; edit the materials first if you want a different one used.
+#. en: \"{0}\": the materials on \"{1}\" already disagree on \"{2}\". Turning it off writes the first material's value to all of them, except Poiyomi materials that rename it, which keep their own in game; edit the materials first if you want a different one used.
 msgid "ad.warn.property_differs"
-msgstr "「{0}」：「{1}」のマテリアル同士で「{2}」の値がすでに異なっています。オフにすると、最初のマテリアルの値がすべてに書き込まれます。別の値を使いたい場合は、先にマテリアルを編集してください。"
+msgstr "「{0}」：「{1}」のマテリアル同士で「{2}」の値がすでに異なっています。オフにすると、最初のマテリアルの値がすべてに書き込まれます（このプロパティをRenamedにしたPoiyomiマテリアルは、ゲーム内では自分の値を保ちます）。別の値を使いたい場合は、先にマテリアルを編集してください。"
+
+#. en: \"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) do not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks them at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in each material and choose Animated (when locked).
+msgid "ad.warn.poiyomi_not_animated"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル{3}個（{4}）が「{1}」をアニメーション用にマークしていないため、アップロード時にPoiyomiがマテリアルをロックすると値が固定され、ゲーム内では変化しません。「{0}」を選んで「アニメーション用にマーク」を押すか、各マテリアルでプロパティを右クリックしてAnimated (when locked)を選んでください。"
+
+#. en: \"{0}\": the Poiyomi material \"{4}\" on \"{2}\" does not mark \"{1}\" as animated, so Poiyomi fixes it at its value when it locks the material at upload, and the change does nothing in game. Select \"{0}\" and press \"Mark as animated\", or right-click the property in the material and choose Animated (when locked).
+msgid "ad.warn.poiyomi_not_animated.one"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル「{4}」が「{1}」をアニメーション用にマークしていないため、アップロード時にPoiyomiがマテリアルをロックすると値が固定され、ゲーム内では変化しません。「{0}」を選んで「アニメーション用にマーク」を押すか、マテリアルでプロパティを右クリックしてAnimated (when locked)を選んでください。"
+
+#. en: \"{0}\": {3} Poiyomi materials on \"{2}\" ({4}) are locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock them, right-click the property in each and choose Animated (when locked), then lock them again or let Poiyomi lock them at upload.
+msgid "ad.warn.poiyomi_baked"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル{3}個（{4}）はロック済みで「{1}」の値が固定されているため、ゲーム内では変化しません。ロックを解除し、各マテリアルでプロパティを右クリックしてAnimated (when locked)を選んでから、もう一度ロックするか、アップロード時のPoiyomiのロックに任せてください。"
+
+#. en: \"{0}\": the Poiyomi material \"{4}\" on \"{2}\" is locked with \"{1}\" fixed at its value, so the change does nothing in game. Unlock the material, right-click the property and choose Animated (when locked), then lock it again or let Poiyomi lock it at upload.
+msgid "ad.warn.poiyomi_baked.one"
+msgstr "「{0}」：「{2}」のPoiyomiマテリアル「{4}」はロック済みで「{1}」の値が固定されているため、ゲーム内では変化しません。マテリアルのロックを解除し、プロパティを右クリックしてAnimated (when locked)を選んでから、もう一度ロックするか、アップロード時のPoiyomiのロックに任せてください。"
 
 #. en: \"{0}\" is in an exclusive group, so its blend time is not used.
 msgid "ad.info.blend_ignored_in_group"
@@ -738,6 +754,10 @@ msgstr "グループ内の値"
 #. en: Give each member its own value
 msgid "ad.ui.group.number"
 msgstr "各メンバーに別々の値を割り当てる"
+
+#. en: Mark as animated
+msgid "ad.ui.poiyomi.mark_animated"
+msgstr "アニメーション用にマーク"
 
 #. en: Parameter
 msgid "ad.ui.parameter"
@@ -3091,6 +3111,10 @@ msgstr "このトグルがオンの間、グループのパラメーターが取
 msgid "ad.ui.group.number.tip"
 msgstr "このグループのメンバーに、メニューの順で1、2、3…と値を割り当てて、重複をなくします。"
 
+#. en: Marks the property Animated (when locked) on the Poiyomi materials this warning names, in one Undo step, so it still changes in game after Poiyomi locks them at upload.
+msgid "ad.ui.poiyomi.mark_animated.tip"
+msgstr "この警告に挙げられたPoiyomiマテリアルでプロパティをAnimated (when locked)にし、アップロード時にロックされてもゲーム内で変化するようにします。元に戻す操作1回で取り消せます。"
+
 #. en: The synced value VRChat uses for this control, named automatically unless you give it your own.
 msgid "ad.ui.parameter.tip"
 msgstr "VRChatがこのコントロールに使う同期値です。自分で名前を付けない限り、自動で名前が付きます。"
@@ -4526,3 +4550,251 @@ msgstr "ほかに {0} 件あります。文字を追加して絞り込んでく�
 #. en: {0} more. Type more letters to narrow the list.
 msgid "ad.ui.pick.more.one"
 msgstr "ほかに {0} 件あります。文字を追加して絞り込んでください。"
+
+#. en: Add {0}...
+msgid "ad.ui.add_from.item"
+msgstr "{0}を追加..."
+
+#. en: Add {0}: the mesh is not part of an avatar in the scene
+msgid "ad.ui.add_from.item.outside"
+msgstr "{0}を追加：メッシュがシーン内のアバターの一部ではありません"
+
+#. en: Add to AvatarDoc
+msgid "ad.ui.add_from.title"
+msgstr "AvatarDocに追加"
+
+#. en: Turns the value this mesh has now into a toggle or a radial, or adds it to one you already have.
+msgid "ad.ui.add_from.intro"
+msgstr "このメッシュの今の値をトグルやラジアルにするか、すでにあるものに追加します。"
+
+#. en: \"{0}\" is not part of an avatar in the scene, so nothing can be added from it. Use a mesh under an avatar.
+msgid "ad.ui.add_from.outside"
+msgstr "「{0}」はシーン内のアバターの一部ではないため、ここからは追加できません。アバターの下にあるメッシュを使ってください。"
+
+#. en: The mesh, its blend shape or its property is gone. Open this window again from the mesh.
+msgid "ad.ui.add_from.gone"
+msgstr "メッシュ、ブレンドシェイプ、またはプロパティが見つかりません。メッシュからもう一度このウィンドウを開いてください。"
+
+#. en: Mesh
+msgid "ad.ui.add_from.mesh"
+msgstr "メッシュ"
+
+#. en: The mesh whose blend shape or material the new effect changes.
+msgid "ad.ui.add_from.mesh.tip"
+msgstr "新しい効果がブレンドシェイプやマテリアルを変えるメッシュです。"
+
+#. en: Change
+msgid "ad.ui.add_from.kind"
+msgstr "変えるもの"
+
+#. en: Whether the effect moves one of the mesh's blend shapes or changes one of its material properties.
+msgid "ad.ui.add_from.kind.tip"
+msgstr "効果がメッシュのブレンドシェイプを動かすか、マテリアルのプロパティを変えるかを選びます。"
+
+#. en: Blend shape
+msgid "ad.ui.add_from.kind.shape"
+msgstr "ブレンドシェイプ"
+
+#. en: Picks one of the mesh's blend shapes.
+msgid "ad.ui.add_from.kind.shape.tip"
+msgstr "メッシュのブレンドシェイプから選びます。"
+
+#. en: Property
+msgid "ad.ui.add_from.kind.property"
+msgstr "プロパティ"
+
+#. en: Picks a colour, a number or a vector of one of the mesh's materials.
+msgid "ad.ui.add_from.kind.property.tip"
+msgstr "メッシュのマテリアルの色、数値、ベクトルから選びます。"
+
+#. en: Shape
+msgid "ad.ui.add_from.shape"
+msgstr "シェイプ"
+
+#. en: The blend shape the effect moves; press to pick another one of this mesh.
+msgid "ad.ui.add_from.shape.tip"
+msgstr "効果が動かすブレンドシェイプです。押すと、このメッシュの別のシェイプを選べます。"
+
+#. en: Material
+msgid "ad.ui.add_from.material"
+msgstr "マテリアル"
+
+#. en: The material the value is read from; the effect changes the property on every material of this mesh that has it.
+msgid "ad.ui.add_from.material.tip"
+msgstr "値を読むマテリアルです。効果は、このプロパティを持つこのメッシュのすべてのマテリアルを変えます。"
+
+#. en: No material
+msgid "ad.ui.add_from.material.none"
+msgstr "マテリアルなし"
+
+#. en: Property
+msgid "ad.ui.add_from.property"
+msgstr "プロパティ"
+
+#. en: The material property the effect changes; press to pick another one of this material's shader.
+msgid "ad.ui.add_from.property.tip"
+msgstr "効果が変えるマテリアルプロパティです。押すと、このマテリアルのシェーダーの別のプロパティを選べます。"
+
+#. en: Now
+msgid "ad.ui.add_from.now"
+msgstr "現在の値"
+
+#. en: The value the blend shape or the property has in the scene right now.
+msgid "ad.ui.add_from.now.tip"
+msgstr "ブレンドシェイプやプロパティのシーンでの今の値です。"
+
+#. en: What Add makes: a new toggle, a new radial, or one more effect of a toggle or a radial you already have.
+msgid "ad.ui.add_from.make.tip"
+msgstr "追加で作るもの：新しいトグル、新しいラジアル、またはすでにあるトグルやラジアルへのもう1つの効果です。"
+
+#. en: New toggle
+msgid "ad.ui.add_from.make.toggle"
+msgstr "新しいトグル"
+
+#. en: Makes a new toggle that sets this value while it is on.
+msgid "ad.ui.add_from.make.toggle.tip"
+msgstr "オンの間この値にする新しいトグルを作ります。"
+
+#. en: New radial
+msgid "ad.ui.add_from.make.radial"
+msgstr "新しいラジアル"
+
+#. en: Makes a new radial that moves from Min to Max as its dial turns.
+msgid "ad.ui.add_from.make.radial.tip"
+msgstr "ダイヤルを回すと最小から最大まで動く新しいラジアルを作ります。"
+
+#. en: Add to
+msgid "ad.ui.add_from.make.add_to"
+msgstr "既存に追加"
+
+#. en: Adds this value to a toggle or a radial you already have.
+msgid "ad.ui.add_from.make.add_to.tip"
+msgstr "すでにあるトグルやラジアルにこの値を追加します。"
+
+#. en: \"{0}\" has no AvatarDoc component yet.
+msgid "ad.ui.add_from.no_component"
+msgstr "「{0}」にはまだAvatarDocコンポーネントがありません。"
+
+#. en: Add AvatarDoc
+msgid "ad.ui.add_from.add_component"
+msgstr "AvatarDocを追加"
+
+#. en: Adds an AvatarDoc component to the avatar's root object, so the new entry has a place to go.
+msgid "ad.ui.add_from.add_component.tip"
+msgstr "アバターのルートオブジェクトにAvatarDocコンポーネントを追加し、新しい項目の置き場所を作ります。"
+
+#. en: Entry
+msgid "ad.ui.add_from.entry"
+msgstr "項目"
+
+#. en: The toggle or radial that gets this value as one more effect.
+msgid "ad.ui.add_from.entry.tip"
+msgstr "この値を効果としてもう1つ受け取るトグルまたはラジアルです。"
+
+#. en: Pick a toggle or radial
+msgid "ad.ui.add_from.entry.pick"
+msgstr "トグルかラジアルを選択"
+
+#. en: This avatar has no toggle or radial yet. Make a new one instead.
+msgid "ad.ui.add_from.entry.none"
+msgstr "このアバターにはまだトグルもラジアルもありません。代わりに新しく作ってください。"
+
+#. en: The name of the new toggle or radial in the menu.
+msgid "ad.ui.add_from.name.tip"
+msgstr "メニューに表示される新しいトグルまたはラジアルの名前です。"
+
+#. en: Component
+msgid "ad.ui.add_from.component"
+msgstr "コンポーネント"
+
+#. en: The AvatarDoc component the new entry goes into.
+msgid "ad.ui.add_from.component.tip"
+msgstr "新しい項目を入れるAvatarDocコンポーネントです。"
+
+#. en: locked
+msgid "ad.ui.add_from.component.locked"
+msgstr "ロック中"
+
+#. en: Submenu
+msgid "ad.ui.add_from.submenu"
+msgstr "サブメニュー"
+
+#. en: Where in the component's menu the new entry goes.
+msgid "ad.ui.add_from.submenu.tip"
+msgstr "コンポーネントのメニューの中で新しい項目を置く場所です。"
+
+#. en: The value while the toggle is on: the value it has now, unless you change it.
+msgid "ad.ui.add_from.on.tip"
+msgstr "トグルがオンの間の値です。変えない限り、今の値になります。"
+
+#. en: The value while the toggle is off: 0 for a blend shape, the shader's default for a property.
+msgid "ad.ui.add_from.off.tip"
+msgstr "トグルがオフの間の値です。ブレンドシェイプでは0、プロパティではシェーダーの初期値です。"
+
+#. en: The value at the radial's highest: the value it has now, unless you change it.
+msgid "ad.ui.add_from.max.tip"
+msgstr "ラジアルが最大のときの値です。変えない限り、今の値になります。"
+
+#. en: The value at the radial's lowest: 0 for a blend shape, the shader's default for a property.
+msgid "ad.ui.add_from.min.tip"
+msgstr "ラジアルが最小のときの値です。ブレンドシェイプでは0、プロパティではシェーダーの初期値です。"
+
+#. en: After adding
+msgid "ad.ui.add_from.after"
+msgstr "追加後"
+
+#. en: Put the value back to Off
+msgid "ad.ui.add_from.put_back"
+msgstr "値をオフ時の値に戻す"
+
+#. en: Put the value back to Min
+msgid "ad.ui.add_from.put_back.radial"
+msgstr "値を最小に戻す"
+
+#. en: After adding, sets the blend shape or the property to the Off value, or a radial's Min, so the scene shows the avatar at rest and the preview shows the new entry.
+msgid "ad.ui.add_from.put_back.tip"
+msgstr "追加したあと、ブレンドシェイプやプロパティをオフ時の値（ラジアルでは最小）にし、シーンでは通常時のアバターを、プレビューでは新しい項目を確認できるようにします。"
+
+#. en: Poiyomi
+msgid "ad.ui.add_from.poiyomi"
+msgstr "Poiyomi"
+
+#. en: Mark as animated for Poiyomi's lock
+msgid "ad.ui.add_from.mark"
+msgstr "Poiyomiのロック用にアニメーションとしてマーク"
+
+#. en: Marks the property Animated (when locked) on this mesh's Poiyomi materials that do not mark it yet, so it still changes in game after Poiyomi locks them at upload.
+msgid "ad.ui.add_from.mark.tip"
+msgstr "このメッシュのPoiyomiマテリアルのうち、まだマークしていないものでプロパティをAnimated (when locked)にし、アップロード時にロックされてもゲーム内で変化するようにします。"
+
+#. en: Marked Renamed: once Poiyomi locks the material, it animates \"{0}\" as \"{1}\". AvatarDoc writes both names.
+msgid "ad.ui.add_from.renamed"
+msgstr "Renamedとしてマーク済み：Poiyomiがマテリアルをロックすると、「{0}」は「{1}」としてアニメーションされます。AvatarDocは両方の名前に書き込みます。"
+
+#. en: {1} Poiyomi materials of this mesh ({2}) are locked with \"{0}\" fixed at its value, so a change does nothing in game. Unlock them, mark the property Animated (when locked), then lock them again or let Poiyomi lock them at upload.
+msgid "ad.ui.add_from.baked"
+msgstr "このメッシュのPoiyomiマテリアル{1}個（{2}）はロック済みで「{0}」の値が固定されているため、ゲーム内では変化しません。ロックを解除し、プロパティをAnimated (when locked)にしてから、もう一度ロックするか、アップロード時のPoiyomiのロックに任せてください。"
+
+#. en: The Poiyomi material \"{2}\" is locked with \"{0}\" fixed at its value, so a change does nothing in game. Unlock it, mark the property Animated (when locked), then lock it again or let Poiyomi lock it at upload.
+msgid "ad.ui.add_from.baked.one"
+msgstr "Poiyomiマテリアル「{2}」はロック済みで「{0}」の値が固定されているため、ゲーム内では変化しません。ロックを解除し、プロパティをAnimated (when locked)にしてから、もう一度ロックするか、アップロード時のPoiyomiのロックに任せてください。"
+
+#. en: Add
+msgid "ad.ui.add_from.add"
+msgstr "追加"
+
+#. en: Makes the entry or adds the effect in one Undo step, and leaves the selection as it is.
+msgid "ad.ui.add_from.add.tip"
+msgstr "項目を作るか効果を追加します。元に戻す操作1回で取り消せ、選択は変わりません。"
+
+#. en: Made the toggle \"{0}\". Undo takes it back.
+msgid "ad.ui.add_from.done.toggle"
+msgstr "トグル「{0}」を作りました。元に戻すと取り消せます。"
+
+#. en: Made the radial \"{0}\". Undo takes it back.
+msgid "ad.ui.add_from.done.radial"
+msgstr "ラジアル「{0}」を作りました。元に戻すと取り消せます。"
+
+#. en: Added to \"{0}\". Undo takes it back.
+msgid "ad.ui.add_from.done.added"
+msgstr "「{0}」に追加しました。元に戻すと取り消せます。"

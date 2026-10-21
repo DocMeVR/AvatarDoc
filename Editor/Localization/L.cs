@@ -27,6 +27,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.error.edit_cycle", "ad.warn.edit_own_entry", "ad.warn.edit_source_missing",
             "ad.warn.preset_empty", "ad.warn.preset_target_missing", "ad.info.preset_pick_control", "ad.error.preset_group_conflict", "ad.warn.preset_parameter_unknown",
             "ad.warn.property_missing", "ad.warn.property_differs", "ad.info.blend_ignored_in_group",
+            "ad.warn.poiyomi_not_animated", "ad.warn.poiyomi_not_animated.one", "ad.warn.poiyomi_baked", "ad.warn.poiyomi_baked.one",
             "ad.warn.animation_proxy", "ad.info.animation_overridden", "ad.info.animation_overridden.one", "ad.warn.animation_binding_missing", "ad.warn.animation_binding_missing.one",
             "ad.import.note.unsupported_action", "ad.import.note.transition", "ad.import.note.security",
             "ad.import.note.separate_local", "ad.import.note.hold_button", "ad.import.note.invert_rest_logic",
@@ -99,7 +100,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.detail.trigger", "ad.ui.detail.none", "ad.ui.name", "ad.ui.icon", "ad.ui.default_on", "ad.ui.default_value", "ad.ui.saved",
             "ad.ui.synced", "ad.ui.group", "ad.ui.group.none", "ad.ui.group.settings", "ad.ui.parameter", "ad.ui.parameter.auto",
             "ad.ui.parameter.custom", "ad.ui.parameter.use_custom", "ad.ui.parameter.bits", "ad.ui.parameter.bits.one", "ad.ui.parameter.no_bits",
-            "ad.ui.parameter.value", "ad.ui.parameter.group_note", "ad.ui.group.value", "ad.ui.group.number", "ad.ui.slots",
+            "ad.ui.parameter.value", "ad.ui.parameter.group_note", "ad.ui.group.value", "ad.ui.group.number", "ad.ui.poiyomi.mark_animated", "ad.ui.slots",
             "ad.ui.objects", "ad.ui.blendshapes", "ad.ui.materials", "ad.ui.add",
             "ad.ui.seg.shown", "ad.ui.seg.hidden", "ad.ui.drop.objects",
             "ad.ui.weight", "ad.ui.min", "ad.ui.max", "ad.ui.slot", "ad.ui.other_component", "ad.ui.select_component", "ad.ui.existing_note",
@@ -222,7 +223,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             // One sentence tooltips on every labelled control.
             "ad.ui.select_component.tip", "ad.ui.icon.tip", "ad.ui.capture.tip", "ad.ui.platform.tip",
-            "ad.ui.default_on.tip", "ad.ui.saved.tip", "ad.ui.synced.tip", "ad.ui.in_menu.tip", "ad.ui.group.tip", "ad.ui.group.value.tip", "ad.ui.group.number.tip",
+            "ad.ui.default_on.tip", "ad.ui.saved.tip", "ad.ui.synced.tip", "ad.ui.in_menu.tip", "ad.ui.group.tip", "ad.ui.group.value.tip", "ad.ui.group.number.tip", "ad.ui.poiyomi.mark_animated.tip",
             "ad.ui.parameter.tip", "ad.ui.parameter.use_custom.tip", "ad.ui.parameter.value.tip",
             "ad.ui.preview.tip", "ad.ui.preview.default.tip", "ad.ui.touch.simulate.tip", "ad.ui.chip.no_menu.tip",
             "ad.ui.trigger.when.tip", "ad.ui.trigger.toggle.tip", "ad.ui.trigger.toggle_state.tip",
@@ -364,6 +365,23 @@ namespace DocMe.AvatarDoctor.Editor
 
             // The search field at the top of every picker.
             "ad.ui.pick.search.tip", "ad.ui.pick.no_match", "ad.ui.pick.more", "ad.ui.pick.more.one",
+
+            // Add to AvatarDoc: the right click items and the window they open.
+            "ad.ui.add_from.item", "ad.ui.add_from.item.outside", "ad.ui.add_from.title", "ad.ui.add_from.intro", "ad.ui.add_from.outside",
+            "ad.ui.add_from.gone", "ad.ui.add_from.mesh", "ad.ui.add_from.mesh.tip", "ad.ui.add_from.kind", "ad.ui.add_from.kind.tip",
+            "ad.ui.add_from.kind.shape", "ad.ui.add_from.kind.shape.tip", "ad.ui.add_from.kind.property", "ad.ui.add_from.kind.property.tip",
+            "ad.ui.add_from.shape", "ad.ui.add_from.shape.tip", "ad.ui.add_from.material", "ad.ui.add_from.material.tip", "ad.ui.add_from.material.none",
+            "ad.ui.add_from.property",
+            "ad.ui.add_from.property.tip", "ad.ui.add_from.now", "ad.ui.add_from.now.tip", "ad.ui.add_from.make.tip", "ad.ui.add_from.make.toggle",
+            "ad.ui.add_from.make.toggle.tip", "ad.ui.add_from.make.radial", "ad.ui.add_from.make.radial.tip", "ad.ui.add_from.make.add_to",
+            "ad.ui.add_from.make.add_to.tip", "ad.ui.add_from.no_component", "ad.ui.add_from.add_component", "ad.ui.add_from.add_component.tip",
+            "ad.ui.add_from.entry", "ad.ui.add_from.entry.tip", "ad.ui.add_from.entry.pick", "ad.ui.add_from.entry.none", "ad.ui.add_from.name.tip",
+            "ad.ui.add_from.component", "ad.ui.add_from.component.tip", "ad.ui.add_from.component.locked", "ad.ui.add_from.submenu",
+            "ad.ui.add_from.submenu.tip", "ad.ui.add_from.on.tip", "ad.ui.add_from.off.tip", "ad.ui.add_from.max.tip", "ad.ui.add_from.min.tip",
+            "ad.ui.add_from.after", "ad.ui.add_from.put_back", "ad.ui.add_from.put_back.radial", "ad.ui.add_from.put_back.tip",
+            "ad.ui.add_from.poiyomi", "ad.ui.add_from.mark", "ad.ui.add_from.mark.tip", "ad.ui.add_from.renamed", "ad.ui.add_from.baked",
+            "ad.ui.add_from.baked.one", "ad.ui.add_from.add", "ad.ui.add_from.add.tip", "ad.ui.add_from.done.toggle", "ad.ui.add_from.done.radial",
+            "ad.ui.add_from.done.added",
         };
 
         static Localizer localizer;

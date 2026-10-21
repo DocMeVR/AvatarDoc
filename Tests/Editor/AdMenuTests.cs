@@ -578,10 +578,15 @@ namespace DocMe.AvatarDoctor.Editor
                 .First(p => p.EndsWith("/AvatarDoctor.uss"));
             string editorDir = Path.GetDirectoryName(Path.GetDirectoryName(uss));
             var banned = new[] { "GenericMenu", "ContextualMenuManipulator", "DropdownMenu", "ShowAsContext", "DisplayPopupMenu" };
+            // Add to AvatarDoc adds one item to Unity's own right click menu of a blend shape slider, which Unity builds as a
+            // GenericMenu, hands to the handler and shows itself. That parameter is the one use allowed: AvatarDoc builds
+            // and shows no menu of its own there.
+            const string handlerParameter = "OnPropertyMenu(GenericMenu menu, SerializedProperty property)";
             var offenders = new List<string>();
             foreach (var file in Directory.GetFiles(editorDir, "*.cs", SearchOption.AllDirectories))
             {
                 var text = File.ReadAllText(file);
+                if (Path.GetFileName(file) == "AddToAvatarDocMenus.cs") text = text.Replace(handlerParameter, "");
                 foreach (var name in banned)
                     if (text.Contains(name)) offenders.Add(Path.GetFileName(file) + ": " + name);
             }

@@ -102,7 +102,12 @@ namespace DocMe.AvatarDoctor.Editor
                 if (MenuModel.SlotExists(target)) bindings.Add(EditorCurveBinding.PPtrCurve(PathOf(target.renderer.gameObject), target.renderer.GetType(), "m_Materials.Array.data[" + target.slot + "]"));
             foreach (var target in entry.properties)
                 if (target.renderer != null && !string.IsNullOrEmpty(target.property))
-                    bindings.Add(EditorCurveBinding.FloatCurve(PathOf(target.renderer.gameObject), target.renderer.GetType(), "material." + target.property));
+                {
+                    var swapped = entry.materials.Where(m => m != null && m.renderer == target.renderer).Select(m => m.material);
+                    foreach (var name in PoiyomiLock.CurveNames(target.renderer, target.property, swapped))
+                        foreach (var (channel, _) in ClipContent.Channels(target.type))
+                            bindings.Add(EditorCurveBinding.FloatCurve(PathOf(target.renderer.gameObject), target.renderer.GetType(), "material." + name + channel));
+                }
             return bindings;
         }
     }

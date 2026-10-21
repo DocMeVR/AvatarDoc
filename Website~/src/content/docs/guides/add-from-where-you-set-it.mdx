@@ -1,0 +1,71 @@
+---
+title: Add a shape or a colour from where you set it
+description: Turn a blend shape or a material value you just set in Unity's inspector into a toggle or a radial, without picking it again in AvatarDoc.
+sidebar:
+  order: 4
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+
+## When to use this
+
+You moved a blend shape slider, or changed a colour or a number of a material, and the avatar now looks the way a toggle should make it look. AvatarDoc can take that value from where you set it: the value you set becomes the toggle's On value, or a radial's highest. You can also add it to a toggle or radial you already have.
+
+To pick the shape or the property inside AvatarDoc instead, see [Change a colour or glow](../colour-and-glow/) and [Add a slider](../sliders/).
+
+## Before you start
+
+- The mesh is part of an avatar in the scene.
+- The avatar has an AvatarDoc component. If it has none, the window offers to add one.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the mesh, such as Face or Body.
+
+2. In the inspector, set the blend shape slider or the material property to the look you want.
+
+3. Open the window from where you set the value:
+
+   - For a blend shape, right-click its slider and choose **AvatarDoc > Add "Smile"...**, with the name of your shape.
+   - For a material property, press the three dots at the right end of the material's header under the mesh, and choose **Add to AvatarDoc...**. Then pick the property in the window. This works for Poiyomi and every other shader. A right click on the property itself shows no AvatarDoc item.
+   - Or use the mesh's component menu: press the three dots at the right end of the Skinned Mesh Renderer or Mesh Renderer header, choose **Add to AvatarDoc...**, then pick the shape, or the material and the property, in the window.
+
+   You should now see the <Label k="ad.ui.add_from.title" /> window, with the value you set in <Label k="ad.ui.add_from.now" />.
+
+4. Choose <Label k="ad.ui.add_from.make.toggle" />, <Label k="ad.ui.add_from.make.radial" /> or <Label k="ad.ui.add_from.make.add_to" />.
+
+5. For a new toggle or radial, check its <Label k="ad.ui.name" /> and pick its <Label k="ad.ui.add_from.submenu" />. For <Label k="ad.ui.add_from.make.add_to" />, pick the toggle or radial in <Label k="ad.ui.add_from.entry" />.
+
+6. Check the values. <Label k="ad.ui.target.on_value" /> holds the value you set. <Label k="ad.ui.target.off_value" /> holds 0 for a blend shape, or the shader's own default for a property. Change them if you like.
+
+7. Leave <Label k="ad.ui.add_from.put_back" /> ticked. The mesh then goes back to the Off value, so the avatar rests in the scene the way it loads in VRChat.
+
+8. Press <Label k="ad.ui.add_from.add" />.
+
+   You should now see **Made the toggle "Smile". Undo takes it back.** under the button, and the new toggle in the AvatarDoc inspector. The window switches to <Label k="ad.ui.add_from.make.add_to" /> with the new toggle picked, so a second press only updates it.
+
+</Steps>
+
+Everything <Label k="ad.ui.add_from.add" /> does undoes in one step: the new entry or row, the value put back, and Poiyomi's mark. The window never changes what is selected in the Hierarchy.
+
+## On a Poiyomi material [#poiyomi]
+
+Open the window from the material's header menu, as in step 3: Unity draws that header above Poiyomi's own inspector too. When the property is not marked as animated yet, the window shows <Label k="ad.ui.add_from.mark" />, ticked. <Label k="ad.ui.add_from.add" /> then marks it **Animated (when locked)**, so the change still works after Poiyomi locks the material at upload. A property marked **Renamed (when locked)** keeps its mark, and the window shows the name Poiyomi animates it under once locked. More about the marks: [Change a colour or glow](../colour-and-glow/#poiyomi).
+
+## Check it worked
+
+- In the new entry's panel, press <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" /> in the <Label k="ad.ui.preview" /> row (<Label k="ad.ui.mode.advanced" /> mode). The Scene view shows the shape or the material change. Press <Label k="ad.ui.preview.default" /> to stop the preview.
+- In Play mode with Gesture Manager, press the control in the menu, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- The AvatarDoc item is not in the right-click menu: see [Add to AvatarDoc is not in the right-click menu](../../help/troubleshooting/#add-item-missing).
+- The colour changes in the editor but not in VRChat: see [A colour or glow does not change in VRChat](../../help/troubleshooting/#property-not-in-game).
+
+## Related
+
+- [Add to AvatarDoc window](../../reference/add-window/) describes every control of the window.
+- [Blend shapes](../../reference/blend-shapes/) and [Material properties](../../reference/material-properties/) describe the rows it makes.

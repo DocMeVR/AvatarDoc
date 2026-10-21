@@ -55,6 +55,7 @@ export default defineConfig({
             'reference/convert-window',
             'reference/import-window',
             'reference/icon-capture',
+            'reference/add-window',
             'reference/window-and-wheel',
             'reference/scene-preview',
             'reference/summary-and-lock',

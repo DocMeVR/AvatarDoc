@@ -315,6 +315,20 @@
 .ad-root .ad-outfit-default { height: 18px; min-height: 18px; padding: 2px 8px; margin-left: 4px; font-size: 10px; color: var(--ad-muted); }
 .ad-outfit-shrinks { margin-top: 4px; }
 .ad-outfit-shrinks .unity-toggle { margin-bottom: 2px; white-space: normal; }
+/* Add to AvatarDoc: rows at the label column, a value or a list button filling the rest, the make choice across the
+   whole width, and check boxes whose sentence wraps under a narrow window instead of running past it. */
+.ad-row > .ad-add-value { flex-grow: 1; flex-shrink: 1; min-width: 0; margin: 0; padding: 0 2px; -unity-text-align: middle-left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-row > .ad-add-pick { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0; margin-left: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.ad-row > .ad-add-choice { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.ad-add-make { margin-bottom: 4px; }
+.ad-row > .unity-toggle.ad-add-check { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.ad-add-check > .unity-toggle__input { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.ad-add-check .unity-toggle__text { flex-grow: 1; flex-shrink: 1; min-width: 0; margin-left: 4px; white-space: normal; }
+.ad-root .ad-add-component-add { align-self: flex-start; margin: 0 0 6px 0; }
+.ad-root .ad-add-run { height: 24px; margin: 6px 0 4px 0; }
+.ad-root .unity-vector4-field__input .unity-base-field__label { min-width: auto; flex-basis: auto; }
+.ad-root .unity-vector4-field__input { flex-shrink: 1; min-width: 0; }
+.ad-root .unity-vector4-field__input .unity-composite-field__field { flex-shrink: 1; min-width: 0; }
 .ad-lock-banner { flex-direction: row; align-items: center; justify-content: space-between; padding: 6px 8px; margin-bottom: 6px; background-color: var(--ad-warn); border-radius: 3px; }
 .ad-lock-banner > Label { color: var(--ad-accent-fg); white-space: normal; flex-shrink: 1; margin-right: 8px; }
 .ad-summary-text { max-height: 320px; margin-bottom: 6px; }

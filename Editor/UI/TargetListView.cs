@@ -1036,43 +1036,13 @@ namespace DocMe.AvatarDoctor.Editor
         void ShowPropertyMenu(VisualElement anchorElement, Renderer renderer, string elementPath)
         {
             var anchor = anchorElement.worldBound;
-            var items = new List<AdMenu.Item>();
-            items.Add(new AdMenu.Item { Text = L.Text("ad.ui.property.other"), Action = () =>
+            var items = PropertyPicker.MenuItems(PropertyPicker.Choices(renderer), picked => SetProperty(elementPath, picked), () =>
             {
                 var property = Find(elementPath)?.FindPropertyRelative(nameof(MaterialPropertyTarget.property));
                 string starting = property != null ? property.stringValue : "";
                 PropertyNamePopup.Show(anchor, starting, name => SetPropertyOther(elementPath, name));
-            } });
-            var choices = PropertyPicker.Choices(renderer);
-            bool manyChoices = choices.Count > 40;
-            var groups = new List<AdMenu.Item>();
-            foreach (var choice in choices)
-            {
-                string group = AlphabetGroup(choice.DisplayName, manyChoices);
-                var branch = groups.Find(g => g.Text == group);
-                if (branch == null) groups.Add(branch = new AdMenu.Item { Text = group, Children = new List<AdMenu.Item>() });
-                var picked = choice;
-                branch.Children.Add(new AdMenu.Item
-                {
-                    Text = choice.DisplayName,
-                    SearchText = choice.PropertyName,
-                    Note = choice.DisplayName == choice.PropertyName ? "" : choice.PropertyName,
-                    Action = () => SetProperty(elementPath, picked),
-                });
-            }
-            items.AddRange(groups);
+            });
             AdMenu.Open(anchor, anchorElement, items, search: true);
-        }
-
-        static string AlphabetGroup(string displayName, bool wideChunks)
-        {
-            char first = string.IsNullOrEmpty(displayName) ? '#' : char.ToUpperInvariant(displayName[0]);
-            if (first < 'A' || first > 'Z') return "#";
-            if (!wideChunks) return first.ToString();
-            int index = first - 'A';
-            char start = (char)('A' + index / 5 * 5);
-            char end = (char)Mathf.Min('Z', start + 4);
-            return start + "-" + end;
         }
 
         /// <summary>Applies a pick from the dropdown to the row at index, exactly as choosing it from the menu would. Public for tests and for driving the picker without opening the menu.</summary>
@@ -1139,6 +1109,7 @@ namespace DocMe.AvatarDoctor.Editor
         {
             foreach (var choice in PropertyPicker.Choices(renderer))
                 if (choice.PropertyName == property) return choice.Type;
+            property = PoiyomiLock.NameOn(material, property) ?? property;
             if (material.HasColor(property)) return PropertyValueType.Color;
             if (material.HasVector(property)) return PropertyValueType.Vector;
             if (material.HasFloat(property)) return PropertyValueType.Float;

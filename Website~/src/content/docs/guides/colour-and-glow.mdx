@@ -13,7 +13,7 @@ import Shot from '../../../components/Shot.astro';
 
 Use a material property when one value of the material should change: a tint, an emission colour that makes a part glow, or a dissolve amount. The material itself stays the same.
 
-To put a different material on the mesh, see [Swap materials](../swap-materials/). To move the value smoothly with a dial instead of switching it, see [Add a slider](../sliders/).
+To put a different material on the mesh, see [Swap materials](../swap-materials/). To move the value smoothly with a dial instead of switching it, see [Add a slider](../sliders/). When you already set the colour in the material's inspector, [Add a shape or a colour from where you set it](../add-from-where-you-set-it/) turns that value into a toggle from there.
 
 ## Steps
 
@@ -53,6 +53,18 @@ The list shows the shader's colours, numbers and vectors. Textures are not in it
 
 The change applies to every material on that mesh that has the property. While the toggle is off, the property goes back to the material's own value. To use another value while the toggle is off, tick <Label k="ad.ui.target.explicit_off" />. An <Label k="ad.ui.target.off_value" /> field appears, starting at the material's current value.
 
+## On a Poiyomi material [#poiyomi]
+
+Poiyomi locks every material when you upload, and a locked material keeps every property at its value unless the property is marked as animated. AvatarDoc reads the marks of the Poiyomi materials on the mesh, and of the materials your AvatarDoc toggles swap onto it:
+
+- When a material does not mark the property, a warning in the toggle's panel says so. Press <Label k="ad.ui.poiyomi.mark_animated" /> under the warning. AvatarDoc marks the property **Animated (when locked)** on those materials, in one Undo step. You can also do it in the material: right-click the property and choose **Animated (when locked)**.
+- The [Add to AvatarDoc window](../../reference/add-window/#poiyomi) marks it for you: when you add the property from the material's header menu or the mesh's component menu, <Label k="ad.ui.add_from.mark" /> is ticked, and <Label k="ad.ui.add_from.add" /> marks the property together with the new toggle.
+- A property marked **Renamed (when locked)** gets a new name when Poiyomi locks the material: its own name, an underscore, and the material's name without spaces (other signs and letters outside English become codes), or the locked property suffix set in the material. AvatarDoc writes the value under both names, so the change shows in Play mode and in the game. While the toggle is off, each such material keeps its own value under its new name in the game, so AvatarDoc does not warn that the materials hold different values.
+- A material that is already locked keeps the values it was locked with, and the names: a locked material you renamed or copied keeps the name it was locked with. A warning names a locked material that fixed the property: unlock the material, mark the property, then lock it again or let Poiyomi lock it at upload.
+- A material variant is locked through the material it is made from, with that material's name and marks. The warning names that material, and <Label k="ad.ui.poiyomi.mark_animated" /> marks it there.
+- Material swaps made outside AvatarDoc's own material rows, such as your own animations, an AvatarDoc custom animation, Modular Avatar's Material Swap or VRCFury, are not checked. Mark the property on the materials they swap in yourself.
+- A tool that copies the materials during the upload, before Poiyomi locks them, gives the copies new names, and the new name of a renamed property changes with them. Set the locked property suffix in the material to keep the name the same.
+
 ## Check it worked
 
 - In the toggle's panel, press <Label k="ad.ui.preview.on" /> and <Label k="ad.ui.preview.off" /> in the <Label k="ad.ui.preview" /> row (<Label k="ad.ui.mode.advanced" /> mode). The Scene view shows the material change. Press <Label k="ad.ui.preview.default" /> to stop the preview.
@@ -61,7 +73,7 @@ The change applies to every material on that mesh that has the property. While t
 ## If it does not work
 
 - Nothing glows: many shaders draw no emission until it is switched on in the material. Switch emission on in the material with a black colour, and let the toggle change the colour.
-- The change shows in the editor but not in the game: some shaders, such as Poiyomi when its materials are locked, keep only the properties marked as animated. Mark the property as animated in the shader's own inspector, then lock the material again.
+- The change shows in the editor but not in the game: the shader fixed the property at its value when the material was locked. On a Poiyomi material, follow the warning in the toggle's panel, as in [On a Poiyomi material](#poiyomi). See [the message](../../reference/messages/#ad-warn-poiyomi-not-animated). Other shaders that lock their materials need the property marked as animated in their own inspector before they lock.
 - A warning says no material on the mesh has the property: AvatarDoc skips that row. Pick a property from the list of that mesh. See [the message](../../reference/messages/#ad-warn-property-missing).
 
 ## Related
