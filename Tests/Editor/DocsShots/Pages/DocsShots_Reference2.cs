@@ -14,10 +14,10 @@ using Object = UnityEngine.Object;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// The pictures of the last fifteen Reference pages: overrides, merged animators, menu assets and declared
+    /// The pictures of the last sixteen Reference pages: overrides, merged animators, menu assets and declared
     /// parameters, presets, outfit sets, AvatarDoc Shapes, the Convert window, the rows Convert reads, the icon
-    /// capture window, the Add to AvatarDoc window, the AvatarDoc window and the wheel, the scene preview, the summary
-    /// and the lock, the language list and the limits. A window is shot at its own width; the inspector at DocsShot.InspectorWidth.
+    /// capture window, the Add to AvatarDoc window, the Copy to another avatar window, the AvatarDoc window and the
+    /// wheel, the scene preview, the summary and the lock, the language list and the limits. A window is shot at its own width; the inspector at DocsShot.InspectorWidth.
     /// DocsShotSetupTests runs every setup without the screen read.
     /// </summary>
     [Explicit, Category("DocsShots")]
@@ -43,6 +43,7 @@ namespace DocMe.AvatarDoctor.Editor
         [Test] public void ImportRows() { using (var avatar = DocsAvatar.Create()) ImportRows(avatar).Take(); }
         [Test] public void IconCaptureOverview() { using (var avatar = DocsAvatar.Create()) IconCaptureOverview(avatar).Take(); }
         [Test] public void AddWindowOverview() { using (var avatar = DocsAvatar.Create()) AddWindowOverview(avatar).Take(); }
+        [Test] public void CopyWindowOverview() { using (var avatar = DocsAvatar.Create()) CopyWindowOverview(avatar).Take(); }
         [Test] public void WindowOverview() { using (var avatar = DocsAvatar.Create()) WindowOverview(avatar).Take(); }
         [Test] public void WheelTestMode() { using (var avatar = DocsAvatar.Create()) WheelTestMode(avatar).Take(); }
         [Test] public void ScenePreviewOverview() { using (var avatar = DocsAvatar.Create()) ScenePreviewOverview(avatar).Take(); }
@@ -383,6 +384,60 @@ namespace DocMe.AvatarDoctor.Editor
                     ("ad-add-on", 5), ("ad-add-off", 6), ("ad-add-put-back", 7), ("ad-add-run", 8),
                 },
                 Release = () => Object.DestroyImmediate(window),
+            };
+        }
+
+        /// <summary>
+        /// The Copy to another avatar window at the width it opens at, copying the menu of Avatar (3) to its next version,
+        /// Avatar (4), which has an AvatarDoc of its own, no Glasses and a face without Tongue_Out: 1 To avatar, 2 Goes
+        /// on, 3 Replace it or Add another, 4 the object it did not find, 5 Use instead, 6 the shape that avatar lacks,
+        /// 7 Copy. The window lists only these two avatars, never the ones of the open scene.
+        /// </summary>
+        internal static DocsShotSpec CopyWindowOverview(DocsAvatar avatar)
+        {
+            avatar.Root.name = "Avatar (3)";
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Hat });
+            menu.AddEntry(EntryKind.Toggle, "Glasses").objects.Add(new ObjectTarget { target = avatar.Glasses });
+            menu.AddEntry(EntryKind.Toggle, "Smile").blendShapes.Add(new BlendShapeTarget { renderer = avatar.Face, shape = "Smile", weight = 100f });
+            menu.AddEntry(EntryKind.Toggle, "Tongue").blendShapes.Add(new BlendShapeTarget { renderer = avatar.Face, shape = "Tongue_Out", weight = 100f });
+            var next = Object.Instantiate(avatar.Root);
+            next.name = "Avatar (4)";
+            Object.DestroyImmediate(next.transform.Find("Glasses").gameObject);
+            var face = TestAvatar.QuadWithShapes(DocsAvatar.FaceShapes.Where(s => s != "Tongue_Out").ToArray());
+            next.transform.Find("Face").GetComponent<SkinnedMeshRenderer>().sharedMesh = face;
+            var avatars = MenuCopy.SceneAvatars;
+            MenuCopy.SceneAvatars = () => new[] { avatar.Root.transform, next.transform };
+            CopyMenuWindow window = null;
+            void Release()
+            {
+                if (window != null) Object.DestroyImmediate(window);
+                MenuCopy.SceneAvatars = avatars;
+                Object.DestroyImmediate(next);
+                Object.DestroyImmediate(face);
+            }
+            try
+            {
+                window = ScriptableObject.CreateInstance<CopyMenuWindow>();
+                window.Init(new CopyDraft { source = menu, target = next.transform });
+            }
+            catch
+            {
+                Release();
+                throw;
+            }
+            return new DocsShotSpec
+            {
+                Page = "reference-copy-window",
+                Name = "overview",
+                View = window.rootVisualElement,
+                Width = CopyMenuWindow.OpeningWidth,
+                Markers = new[]
+                {
+                    ("ad-copy-target", 1), ("ad-copy-goes-on", 2), ("ad-copy-where", 3), ("ad-copy-missing-text-0", 4),
+                    ("ad-copy-pick-0", 5), ("ad-copy-check-0", 6), ("ad-copy-run", 7),
+                },
+                Release = Release,
             };
         }
 

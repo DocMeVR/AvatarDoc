@@ -55,6 +55,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Whether Simple has shown the Component settings fold since the mode last changed. Once shown it stays, even when its last changed setting is put back, so the fold the creator has open does not vanish under the pointer.</summary>
         bool settingsFoldKept;
         readonly VisualElement headerTip = new VisualElement { name = "ad-header-tip" };
+        readonly Button copyButton;
+        readonly VisualElement byHandList = new VisualElement { name = "ad-by-hand-list" };
 
         public HeaderView(AvatarDoctorView owner)
         {
@@ -203,6 +205,18 @@ namespace DocMe.AvatarDoctor.Editor
             tipsRow.Add(tipsButton);
             settingsFoldContent.Add(tipsRow);
 
+            var copyRow = new VisualElement { name = "ad-copy-row" };
+            copyRow.AddToClassList("ad-row");
+            var copyLabel = new Label(L.Text("ad.ui.copy_to.row")) { tooltip = L.Text("ad.ui.copy_to.open.tip") };
+            copyLabel.AddToClassList("ad-label");
+            copyRow.Add(copyLabel);
+            copyButton = new Button(OpenCopy) { text = L.Text("ad.ui.copy_to.open"), name = "ad-copy-open", tooltip = L.Text("ad.ui.copy_to.open.tip") };
+            copyButton.AddToClassList("ad-field-button");
+            copyButton.AddToClassList("ad-copy-open");
+            copyRow.Add(copyButton);
+            settingsFoldContent.Add(copyRow);
+            settingsFoldContent.Add(byHandList);
+
             settingsFoldKey = ComponentFold.KeyFor(owner.Menu, "component_settings");
             settingsFoldOpen = ComponentFold.Load(owner.ViewPrefs, settingsFoldKey);
             ApplySettingsFoldState();
@@ -326,10 +340,63 @@ namespace DocMe.AvatarDoctor.Editor
             RefreshSettingsFoldDot();
         }
 
-        /// <summary>Whether one of the values the fold holds (Install into, Install as, Parameter prefix, Platform) is not at its default.</summary>
+        /// <summary>Whether one of the values the fold holds (Install into, Install as, Parameter prefix, Platform, the objects to pick by hand) is not at its default.</summary>
         bool SettingsNotAtDefault => owner.Menu != null
             && (owner.Menu.installPath.Length > 0 || owner.Menu.installMode != InstallMode.AppendItems
-                || owner.Menu.parameterPrefix != "AD" || owner.Menu.platform != PlatformChoice.Both);
+                || owner.Menu.parameterPrefix != "AD" || owner.Menu.platform != PlatformChoice.Both
+                || (owner.Menu.pickByHand != null && owner.Menu.pickByHand.Count > 0));
+
+        /// <summary>"Copy" in the Component settings fold: opens Copy to another avatar for this component. Public so its button and a test call the same thing.</summary>
+        public void OpenCopy()
+        {
+            if (MenuCopy.CanCopy(owner.Menu)) MenuCopy.Open(MenuCopy.For(owner.Menu));
+        }
+
+        /// <summary>
+        /// The objects marked Pick by hand when copying, one row each with the button that takes the mark off. A locked
+        /// component lists them without the buttons. Hidden while the list is empty.
+        /// </summary>
+        void RefreshByHandList()
+        {
+            byHandList.Clear();
+            var marked = owner.Menu.pickByHand;
+            byHandList.EnableInClassList("ad-hidden", marked == null || marked.Count == 0);
+            if (marked == null) return;
+            for (int i = 0; i < marked.Count; i++)
+            {
+                int index = i;
+                var row = new VisualElement { name = "ad-by-hand-row-" + i };
+                row.AddToClassList("ad-row");
+                var caption = new Label(i == 0 ? L.Text("ad.ui.copy_to.by_hand_list") : "") { tooltip = L.Text("ad.ui.copy_to.by_hand_list.tip") };
+                caption.AddToClassList("ad-label");
+                row.Add(caption);
+                var target = marked[i];
+                var path = target != null ? MenuCopy.PathOf(AvatarPlanCache.RootOf(owner.Menu), target.transform) : "";
+                var name = new Label(target != null ? target.name : L.Text("ad.ui.copy_to.by_hand_gone"))
+                {
+                    tooltip = (path.Length > 0 ? path + "\n" : "") + L.Text("ad.ui.copy_to.by_hand_list.tip"),
+                    displayTooltipWhenElided = false,
+                };
+                name.AddToClassList("ad-add-value");
+                name.AddToClassList("ad-by-hand-name");
+                row.Add(name);
+                if (!owner.Locked)
+                {
+                    var remove = new Button(() => RemoveByHand(index)) { text = "×", name = "ad-by-hand-remove-" + i, tooltip = L.Text("ad.ui.copy_to.by_hand.remove.tip") };
+                    remove.AddToClassList("ad-w-24");
+                    row.Add(remove);
+                }
+                byHandList.Add(row);
+            }
+        }
+
+        /// <summary>Takes the mark off the object at index of the list, with Undo, and redraws.</summary>
+        public void RemoveByHand(int index)
+        {
+            if (!MenuCopy.RemoveByHandAt(owner.Menu, index)) return;
+            AvatarPlanCache.NoteSelfEdit(owner.Menu);
+            owner.Refresh();
+        }
 
         /// <summary>The dot shows only while the fold is closed and one of the values it hides is not at its default, so nothing about this component's install settings is ever silently different without a hint.</summary>
         void RefreshSettingsFoldDot()
@@ -374,6 +441,8 @@ namespace DocMe.AvatarDoctor.Editor
             RefreshReadyLine(plan, orphanEdits);
             RefreshProblemsList(plan, orphanEdits);
             writeDefaultsLabel.text = string.Format(L.Text("ad.ui.write_defaults"), L.Text(plan.WriteDefaultsOn ? "ad.ui.write_defaults.on" : "ad.ui.write_defaults.off"));
+            copyButton.SetEnabled(MenuCopy.CanCopy(owner.Menu));
+            RefreshByHandList();
             UpdateModeRows();
             ApplySettingsFoldState();
         }
