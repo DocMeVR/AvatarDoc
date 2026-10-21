@@ -160,6 +160,7 @@ names go in “”, with a half-width space between Chinese and Latin words, num
 | Touch / Closer than | 接触 / 近接 | 触碰 / 近于 | |
 | Hold / Flip / Fade | ホールド / 切り替え / フェード | 保持 / 翻转 / 渐变 | A touch trigger's mode. |
 | Contact starts | 定番コンタクト | Contact 模板 | Headpat, Eye touch, Nose boop: なでなで / 目タッチ / 鼻ツン in Japanese; Headpat is 摸头 in Chinese. |
+| Test hand | テスト用の手 | 测试用手 | The sphere you drag in the Scene view in place of a hand, so the preview shows what contact triggers do. |
 | Problem / Warning / Error / Info | 問題 / 警告 / エラー / 情報 | 问题 / 警告 / 错误 / 信息 | |
 | Ready to upload | アップロード可能 | 可以上传 | |
 | Blend time | ブレンド時間 | 过渡时间 | |

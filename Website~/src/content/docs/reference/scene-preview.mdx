@@ -79,17 +79,51 @@ Flips the preview of the toggle that the trigger flips, once, the same as a real
 
 **Shown in:** Simple and Advanced, while any preview is set
 
-A button in the header. One press clears every preview you have set, on any entry and any avatar. The wheel's <Label k="ad.ui.wheel.reset" /> does the same. See [The AvatarDoc window and the wheel](../window-and-wheel/).
+A button in the header. One press clears every preview you have set, on any entry and any avatar. The wheel's <Label k="ad.ui.wheel.reset" /> does the same. See [The AvatarDoc window and the wheel](../window-and-wheel/). Pressed while the [test hand](#test-with-a-hand) runs, it also clears the previews the hand would put back when it ends.
+
+### Test with a hand [#test-with-a-hand k=ad.ui.touch_test.start]
+
+**Shown in:** Simple and Advanced, in the header's <Label k="ad.ui.touch_test.row" /> row while the avatar has a contact trigger, and in the panel of each contact trigger · **Choices:** <Label k="ad.ui.touch_test.start" />, or <Label k="ad.ui.touch_test.stop" /> while the hand runs
+
+Starts the test hand: a white sphere in the Scene view, with handles to move it, that stands in for a hand. Pressed in the header, it starts in front of the avatar's face; pressed in a trigger's panel, just in front of that trigger's sphere. While it runs, the selected trigger's own move and size handles step aside, so a drag can only move the hand. Drag it near the avatar, and every contact trigger of the avatar's AvatarDoc components reacts in the preview the way the contact the build makes would, measured at the dot in the middle of the white sphere:
+
+- A <Label k="ad.ui.touch.hold" /> trigger is on while the hand touches it.
+- A <Label k="ad.ui.touch.flip" /> trigger flips its toggle's preview once each time the hand comes in.
+- A <Label k="ad.ui.touch.follow" /> trigger fades in from the edge of its sphere and is fully on at <Label k="ad.ui.touch.fullat" />. The preview draws its effects part way, in whole percents: shapes and properties between their two values, an object shown as soon as the fade starts, a material swapped past halfway, as Unity blends them. While a trigger is part way, its <Label k="ad.ui.preview" /> row picks neither <Label k="ad.ui.preview.on" /> nor <Label k="ad.ui.preview.off" />.
+
+The sphere of each contact trigger shows in grey, and turns green with its name while the hand touches it. The label beside the hand lists the triggers it touches, a <Label k="ad.ui.touch.follow" /> trigger's with how far it is on, and says when a requirement holds one back. Under the label sits <Label k="ad.ui.touch_test.stop" />, which ends the hand whatever the inspector shows.
+
+A requirement on a toggle and the trigger's <Label k="ad.ui.trigger.gate" /> are read from the preview's own state, so switch the toggle's preview to try both ways. Another contact is measured against the hand too, and a parameter or a PhysBone counts as met. A group of conditions that are all toggles follows the preview with no hand needed; a group with a parameter or a PhysBone and no contact is left out. A trigger with no contact among its conditions, a blend shape trigger and a <Label k="ad.ui.touch.follow" /> trigger that follows a parameter are left out. A contact trigger's panel says when the hand passes it by.
+
+The hand writes only previews: nothing on the avatar, the scene or the components, and no Undo step. While it runs, it decides the preview of every contact trigger it measures. <Label k="ad.ui.touch_test.stop" />, entering Play mode, selecting another avatar or something that is not part of the avatar, and a script reload each end it, and every preview it set goes back to what it was. Selecting nothing, or a part of the avatar, keeps it. A preview you change yourself after the hand set it, such as a toggle a <Label k="ad.ui.touch.flip" /> trigger flipped, stays as you set it.
+
+#### Counts as [#counts-as k=ad.ui.touch_test.part]
+
+**Shown in:** Simple and Advanced, in the header while the hand runs · **Default:** <Label k="ad.ui.touch_test.part.hand" /> · **Choices:** <Label k="ad.ui.touch_test.part.hand" />, <Label k="ad.ui.touch_test.part.head" />, <Label k="ad.ui.touch_test.part.torso" />, <Label k="ad.ui.touch_test.part.foot" />, <Label k="ad.ui.touch_test.part.custom" />
+
+The body part the hand stands for, which decides the contacts it can touch through their <Label k="ad.ui.touch.tags" />. <Label k="ad.ui.touch_test.part.hand" /> carries **Hand**, **Finger** and the tags of each side and finger, such as **HandL**, **FingerIndex** and **FingerIndexR**. <Label k="ad.ui.touch_test.part.head" /> carries **Head**, <Label k="ad.ui.touch_test.part.torso" /> **Torso**, and <Label k="ad.ui.touch_test.part.foot" /> **Foot**, **FootL** and **FootR**. <Label k="ad.ui.touch_test.part.custom" /> carries the tag in <Label k="ad.ui.touch_test.tag" />.
+
+#### Tag [#tag k=ad.ui.touch_test.tag]
+
+**Shown in:** Simple and Advanced, in the header while the hand runs as <Label k="ad.ui.touch_test.part.custom" /> · **Default:** empty
+
+The tag the hand carries, written the way a contact's <Label k="ad.ui.touch.custom_tag" /> names it. Type it and press Enter. While it is empty, the hand touches nothing.
+
+#### Belongs to [#belongs-to k=ad.ui.touch_test.who]
+
+**Shown in:** Simple and Advanced, in the header while the hand runs · **Default:** <Label k="ad.ui.touch_test.who.others" /> · **Choices:** <Label k="ad.ui.touch_test.who.others" />, <Label k="ad.ui.touch_test.who.self" />
+
+Whose hand it is. <Label k="ad.ui.touch_test.who.others" /> touches the contacts with <Label k="ad.ui.touch.others" /> on, the way another player's hand does. <Label k="ad.ui.touch_test.who.self" /> touches the contacts with <Label k="ad.ui.touch.self" /> on.
 
 ### The note about requirements [#requirements-note]
 
 **Shown in:** Simple and Advanced, when a trigger or a preview has a requirement the Scene view cannot read
 
-A trigger or a Fade contact that has a parameter, a contact or a PhysBone as a requirement shows the note <Label k="ad.ui.preview.unchecked" /> A requirement that is a toggle is read from the preview's own state, the same as <Label k="ad.ui.trigger.gate" />. This also holds for a blend shape trigger and for a Fade trigger forced on.
+A trigger or a Fade contact that has a parameter, a contact or a PhysBone as a requirement shows the note <Label k="ad.ui.preview.unchecked" /> A requirement that is a toggle is read from the preview's own state, the same as <Label k="ad.ui.trigger.gate" />. This also holds for a blend shape trigger and for a Fade trigger forced on. The [test hand](#test-with-a-hand) measures a contact requirement against the hand.
 
 ## What the preview shows
 
-The preview draws objects shown or hidden, blend shape weights, material swaps, material property values, the weights of AvatarDoc Shapes pieces, and the pinned values of overrides. It follows exclusive groups, and the toggle of a trigger's <Label k="ad.ui.trigger.gate" /> row. Custom animations are not part of it: the panel of an entry with an animation says so. A requirement on a parameter, a contact or a PhysBone counts as met.
+The preview draws objects shown or hidden, blend shape weights, material swaps, material property values, the weights of AvatarDoc Shapes pieces, and the pinned values of overrides. It follows exclusive groups, and the toggle of a trigger's <Label k="ad.ui.trigger.gate" /> row. Custom animations are not part of it: the panel of an entry with an animation says so. A requirement on a parameter, a contact or a PhysBone counts as met, except a contact the [test hand](#test-with-a-hand) measures.
 
 ## What AvatarDoc builds
 

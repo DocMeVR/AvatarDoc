@@ -81,12 +81,47 @@ At upload, AvatarDoc adds the touch area to the avatar it uploads, never to your
 
 While no hand is near, a <Label k="ad.ui.touch.follow" /> trigger writes nothing for the shapes it moves, so face tracking, blinking and your other toggles keep moving them. When the hand leaves, and when the avatar loads, it sets those shapes back to rest once, and never touches the shapes VRChat blinks or speaks with. When its effect moves one of those shapes, VRChat's blinking or lip sync pauses while the effect is on.
 
+## Try it with a test hand [#test-hand]
+
+The test hand is a small sphere in the Scene view that stands in for a hand. Drag it near the avatar and the scene preview shows what your contact triggers do, without Play mode or an upload. It changes only the preview, never the avatar.
+
+<Steps>
+
+1. In the trigger's panel, press <Label k="ad.ui.touch_test.start" />. It sits in the <Label k="ad.ui.touch_test.row" /> row, under the <Label k="ad.ui.preview" /> row.
+
+   You should now see a white sphere in the Scene view, just in front of the trigger's sphere, with handles to move it. The trigger's own handles step aside while the hand runs, so a drag moves only the hand and never the contact. The header has the same button, which starts the hand in front of the avatar's face instead.
+
+2. Drag the white sphere, or its arrows, into the trigger's sphere.
+
+   You should now see the trigger's sphere turn green and show its name, and the effect on the avatar. The label beside the hand lists the triggers it touches.
+
+3. Move the hand around and out again:
+   - A <Label k="ad.ui.touch.hold" /> trigger is on while the hand is inside, and off when it leaves.
+   - A <Label k="ad.ui.touch.flip" /> trigger flips its toggle once each time the hand comes in.
+   - A <Label k="ad.ui.touch.follow" /> trigger grows from the edge of the sphere to <Label k="ad.ui.touch.fullat" />. The hand's label says how far it is on, such as **Cheek poke: 50%**.
+
+4. Press <Label k="ad.ui.touch_test.stop" />, in the panel, in the header, or under the hand's label in the Scene view.
+
+   You should now see the avatar as it was: every preview the hand set goes back to what it was before.
+
+</Steps>
+
+While the hand runs, the header shows what it stands for:
+
+- <Label k="ad.ui.touch_test.part" /> is <Label k="ad.ui.touch_test.part.hand" /> by default, so it touches a contact that lists **Hand** or **Finger**, and one that lists only a side or a finger, such as **HandL** or **FingerIndexR**. Pick <Label k="ad.ui.touch_test.part.head" />, <Label k="ad.ui.touch_test.part.torso" />, <Label k="ad.ui.touch_test.part.foot" />, or <Label k="ad.ui.touch_test.part.custom" /> to try a tag of your own.
+- <Label k="ad.ui.touch_test.who" /> is <Label k="ad.ui.touch_test.who.others" /> by default, the way another player pats you. Pick <Label k="ad.ui.touch_test.who.self" /> to try your own hand, which counts only where <Label k="ad.ui.touch.self" /> is on.
+
+A requirement on a toggle and the trigger's <Label k="ad.ui.trigger.gate" /> follow the scene preview: switch the toggle in its own preview row to try both ways. A group of conditions that are all toggles follows the preview too, with no hand needed. Another contact is measured against the hand, and a parameter or a PhysBone counts as met. A trigger with no contact among its conditions, and a blend shape trigger, do not react to the hand. When the hand passes a trigger by, a note under its <Label k="ad.ui.touch_test.row" /> row says why.
+
+The hand also goes away when you enter Play mode, select another avatar or something that is not part of the avatar, or the scripts reload, and its previews go with it. A click that selects nothing, or the avatar's own mesh, keeps the hand: use <Label k="ad.ui.touch_test.stop" /> under its label to end it there.
+
 ## Check it worked
 
 - In the trigger's panel, press <Label k="ad.ui.preview.on" /> in the <Label k="ad.ui.preview" /> row. The Scene view shows the effect as if the sphere were touched. Press <Label k="ad.ui.preview.default" /> to stop the preview.
+- Touch the sphere with the test hand, as in [Try it with a test hand](#test-hand).
 - In Play mode with Gesture Manager, turn on **Clickable Contacts** and click the sphere in the Game view, as in [Your first headpat](../../start-here/first-headpat/#test-it).
 
-The preview cannot sense a real touch. Only Play mode or VRChat shows that the sphere sits in the right place.
+The test hand is measured from its centre, the dot in the middle of the white sphere. A real hand has a size of its own, so in VRChat it starts the touch sooner, and fades a <Label k="ad.ui.touch.follow" /> trigger further, than the test hand shows.
 
 ## If it does not work
 

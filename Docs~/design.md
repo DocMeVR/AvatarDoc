@@ -2834,3 +2834,48 @@ is the Fade contact's own (`TouchBuilder.BuildFadeLayer`), but `TriggerBuilder` 
 among the other triggers' pin layers instead of after all of them: of a Fist with strength and another gesture's
 face on the other hand, the hand order has to decide, whichever kind each trigger is. The preview queues its rows
 with the pinned rows for the same reason.
+
+## The test hand (asked 2026-10-21, plan 22)
+
+A sphere in the Scene view stands in for a hand, and the scene preview shows what the avatar's contact touch
+triggers do with it, without Play mode or an upload. The headpat bug (faces held while no hand was near) is the kind
+of mistake it shows at once.
+
+- **What it measures.** `TouchProbe` measures every trigger of the inspector plan that is built here, has effects
+  and has a contact among the conditions the build reads, whatever its When starts with; blend shape triggers and
+  parameter Fades are left out. Each contact sits where `TouchBuilder.CreateContact` puts its receiver: the anchor's
+  point at the offset, the radius clamped to 0.005..1 and scaled by the anchor's largest absolute axis, as VRChat
+  scales a contact. One rule draws and places every contact: `ContactSceneHandle.SphereOf` and `ContactStarts` use
+  `TouchProbe.Scale` too, so a stretched or mirrored bone shows the sphere the build makes. The hand is read at its
+  centre, the way Gesture Manager reads its click: Proximity is `1 - distance / radius`, clamped. A plain touch holds
+  inside the sphere, Closer than above its fraction, a Fade's driver above 0.001 (its layer's Far to Near), and its
+  amount is `Proximity / Fully on at`, clamped. Tags must share one with the hand (a hand carries both hands', every
+  finger's and every finger's side tags, a foot both feet's), and Self or Others must let the hand's owner in.
+- **Conditions.** A toggle condition and the gate read the preview (`PreviewState.ToggleMet`, which `GateMet` now
+  calls); a parameter or a PhysBone condition counts as met, as everywhere in the preview. A Hold or Flip group
+  counts when it has a contact or holds only toggles (which the preview reads); one that needs a parameter or a
+  PhysBone and no contact would always count, so it is left out. A Flip follows its layer: it flips once when met and
+  gated, then waits for the hand to leave, ungated. A trigger is blocked, and named so in the hand's label, only when
+  the hand is at it: in its driver's sphere for a Fade, in any sphere otherwise.
+- **What it writes.** Preview values only, in one publish per evaluation, a Flip's included
+  (`PreviewState.Flipped` builds it into the same dictionary): a Hold trigger's 1 while met, a Fade's amount in whole
+  percents, the toggle a Flip flips (its group's siblings included), and no value while untouched. A drag sends a
+  change that only moves a Fade's amount at most every 50 ms (`TouchTest.Tick` on `EditorApplication.update` sends
+  the last one); a flip, a touch that starts or ends and every Hold go out at once. Every publish makes NDMF compute
+  the preview of every avatar in the scene, which is why. The first write to each value notes what it held before;
+  the end puts it back unless the value changed since the hand last wrote it, in which case the creator set it and it
+  stays. `PreviewState.ClearAll` (every Reset preview button) raises `Cleared`, and the hand forgets what it would put
+  back. The preview draws a Fade between 0 and 1 part way (`EffectMath.FadeShapeWeight`, `FadePropertyValue`,
+  `FadeObjectActive`, `FadeMaterialOn`): shapes, rules and properties lerp, an object either end shows stays shown
+  while that end has any weight, a swapped material shows past halfway. A test plays the built FX layer at 0.3 and 0.7
+  and finds Unity doing the same. 0 and 1 draw as Off and On did before; the panel's preview row picks neither On nor
+  Off in between.
+- **The contact's own handles.** While the hand runs on the avatar, `ContactSceneHandle` draws no handles (only an
+  outline, for a contact the hand does not measure) and `ContactSceneHandle.Apply` refuses, so a drag near the
+  selected trigger can never move or resize it, nor record Undo.
+- **How it ends.** Stop (in the panel, the header, or under the hand's label in the Scene view), `ExitingEditMode`,
+  `beforeAssemblyReload`, a selection under another avatar root, and the last attached AvatarDoc view of the avatar
+  leaving its panel while something outside the avatar is selected, checked one `delayCall` later so an inspector or
+  the window rebuilding its view does not end it. A click that misses the hand selects nothing or the avatar's own
+  mesh, which closes the Inspector's view; that keeps the hand. Its Scene view and editor handlers are added at start
+  and removed at the end.

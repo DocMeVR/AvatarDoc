@@ -68,7 +68,7 @@ How close the hand must get, as a part of the radius, before the effects are ful
 
 The object the touch area follows, usually a bone. Press the small circle at the field's right end: the avatar's bones come first in the list, under <Label k="ad.ui.pick.bones" />, when it has a humanoid rig.
 
-While the trigger is selected, the Scene view shows the touch area as a sphere, with a handle to move it and one to change its size. Dragging them writes <Label k="ad.ui.touch.offset" /> and <Label k="ad.ui.touch.radius" />. The panel says so under the contact's settings.
+While the trigger is selected, the Scene view shows the touch area as a sphere, with a handle to move it and one to change its size. Dragging them writes <Label k="ad.ui.touch.offset" /> and <Label k="ad.ui.touch.radius" />. The panel says so under the contact's settings. While the [test hand](#test-with-a-hand) runs, these handles step aside, so a drag can only move the hand.
 
 ### Radius [#radius k=ad.ui.touch.radius]
 
@@ -144,6 +144,20 @@ In <Label k="ad.ui.touch.follow" /> mode, the first contact drives the fade, so 
 
 Takes the place of the <Label k="ad.ui.preview" /> buttons. Each press flips the preview of the target toggle once, as a real touch would.
 
+### Test with a hand [#test-with-a-hand k=ad.ui.touch_test.start]
+
+**Shown in:** Simple and Advanced, for a contact trigger, in the <Label k="ad.ui.touch_test.row" /> row under the <Label k="ad.ui.preview" /> row · **Choices:** <Label k="ad.ui.touch_test.start" />, or <Label k="ad.ui.touch_test.stop" /> while the hand runs
+
+Starts the test hand just in front of this trigger's sphere: a white sphere in the Scene view that you drag near the avatar, while the scene preview shows what every contact trigger of the avatar does with it. Each trigger's sphere turns green and shows its name while the hand touches it. The hand is measured the way VRChat measures the contact the build makes, from the hand's centre:
+
+- <Label k="ad.ui.touch.hold" /> is on while the hand is inside the sphere, or closer than the part of the radius <Label k="ad.ui.touch.closer" /> sets.
+- <Label k="ad.ui.touch.flip" /> flips its toggle's preview once each time the hand comes in.
+- <Label k="ad.ui.touch.follow" /> fades in from the edge of the sphere and is fully on at <Label k="ad.ui.touch.fullat" />.
+
+<Label k="ad.ui.touch.tags" /> and <Label k="ad.ui.touch.who" /> decide whether the hand counts, the same as for a real hand. While the hand runs, the contact's own move and size handles step aside, so the only handles in the Scene view are the hand's. The header has the same button and, while the hand runs, what it stands for: see [Scene preview](../scene-preview/#test-with-a-hand). The hand changes only the preview, never the avatar, and adds no Undo step.
+
+When the hand would pass this trigger by, the note <Label k="ad.ui.touch_test.passed_by" /> shows under the row.
+
 ## What each mode does to the effects
 
 In <Label k="ad.ui.touch.hold" /> mode, the effects behave as on any trigger, and the blend shape rows offer <Label k="ad.ui.seg.fixed" /> or <Label k="ad.ui.seg.pin" />.
@@ -158,7 +172,7 @@ AvatarDoc adds the touch parts to the avatar it uploads, never to your scene:
 - A PhysBone trigger reads the PhysBone's own parameter. If the PhysBone has none, AvatarDoc gives it one. Triggers on the same PhysBone share it, and it costs no synced bits.
 - <Label k="ad.ui.touch.hold" /> builds the same layer as any trigger. <Label k="ad.ui.touch.flip" /> builds a small layer that flips the toggle's parameter with each touch. <Label k="ad.ui.touch.follow" /> builds a layer of its own, placed after everything Modular Avatar and VRCFury add, face tracking included.
 
-The scene preview cannot sense a real touch or a grab. Check that the contact sits in the right place in Play mode, for example with Gesture Manager's **Clickable Contacts**, or in VRChat.
+The scene preview senses no real touch or grab. The [test hand](#test-with-a-hand) stands in for a hand in the editor. A real hand has a size of its own, so it starts the touch sooner and fades a <Label k="ad.ui.touch.follow" /> trigger further than the test hand, which is measured from its centre. Check the contact in Play mode too, for example with Gesture Manager's **Clickable Contacts**, or in VRChat.
 
 ## Messages
 
