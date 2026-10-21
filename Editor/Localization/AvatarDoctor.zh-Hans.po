@@ -4798,3 +4798,235 @@ msgstr "已新建转盘“{0}”。撤销即可还原。"
 #. en: Added to \"{0}\". Undo takes it back.
 msgid "ad.ui.add_from.done.added"
 msgstr "已添加到“{0}”。撤销即可还原。"
+
+#. en: Copy to another avatar
+msgid "ad.ui.copy_to.title"
+msgstr "复制到另一个 Avatar"
+
+#. en: Copies this AvatarDoc component to another version of the avatar. Every object it uses is found there at the same place under the avatar.
+msgid "ad.ui.copy_to.intro"
+msgstr "将此 AvatarDoc 组件复制到同一 Avatar 的另一个版本。它用到的每个对象，都会在那边按 Avatar 下的相同位置查找。"
+
+#. en: The component, or the avatar it is on, is gone, so nothing can be copied.
+msgid "ad.ui.copy_to.gone"
+msgstr "组件或其所在的 Avatar 已不存在，因此无法复制。"
+
+#. en: From
+msgid "ad.ui.copy_to.from"
+msgstr "来源"
+
+#. en: The component that is copied, on its avatar; the copy never changes it.
+msgid "ad.ui.copy_to.from.tip"
+msgstr "要复制的组件及其所在的 Avatar；复制不会改动它。"
+
+#. en: To avatar
+msgid "ad.ui.copy_to.target"
+msgstr "目标 Avatar"
+
+#. en: The avatar that gets the copy, picked from the other avatars in the open scenes.
+msgid "ad.ui.copy_to.target.tip"
+msgstr "接收副本的 Avatar，从已打开场景中的其他 Avatar 中选择。"
+
+#. en: Pick an avatar
+msgid "ad.ui.copy_to.target.pick"
+msgstr "选择 Avatar"
+
+#. en: There is no other avatar in the open scenes. Open or add the version to copy to, then come back here.
+msgid "ad.ui.copy_to.no_target"
+msgstr "已打开的场景中没有其他 Avatar。请先打开或添加要复制到的版本，再回到这里。"
+
+#. en: Goes on
+msgid "ad.ui.copy_to.goes_on"
+msgstr "放置位置"
+
+#. en: The object of the other avatar that gets the copy: the one at the same place as this component's, else the avatar's root.
+msgid "ad.ui.copy_to.goes_on.tip"
+msgstr "另一个 Avatar 上接收副本的对象：与此组件位置相同的对象，若没有则为 Avatar 的根对象。"
+
+#. en: {0} has no object at {1}, so the copy goes on its root.
+msgid "ad.ui.copy_to.goes_on.root"
+msgstr "{0}在{1}处没有对象，因此副本会放在其根对象上。"
+
+#. en: Already there
+msgid "ad.ui.copy_to.where"
+msgstr "已有组件"
+
+#. en: What the copy does with the AvatarDoc component that object already has.
+msgid "ad.ui.copy_to.where.tip"
+msgstr "该对象上已有的 AvatarDoc 组件如何处理。"
+
+#. en: Replace it
+msgid "ad.ui.copy_to.where.replace"
+msgstr "替换"
+
+#. en: Overwrites what that component holds and keeps the component itself, so whatever refers to the component still does; a link from another component to an entry the copy does not have ends.
+msgid "ad.ui.copy_to.where.replace.tip"
+msgstr "覆盖该组件中的内容但保留组件本身，因此引用该组件的地方仍然有效；其他组件指向副本中没有的条目的链接会失效。"
+
+#. en: Add another
+msgid "ad.ui.copy_to.where.add"
+msgstr "再添加一个"
+
+#. en: Adds a second component beside it, with new entry ids so the two never clash.
+msgid "ad.ui.copy_to.where.add.tip"
+msgstr "在旁边再添加一个组件，并使用新的条目 ID，使两者不会冲突。"
+
+#. en: Replace
+msgid "ad.ui.copy_to.replace"
+msgstr "替换对象"
+
+#. en: Which of the AvatarDoc components on that object the copy overwrites.
+msgid "ad.ui.copy_to.replace.tip"
+msgstr "该对象上的哪个 AvatarDoc 组件会被副本覆盖。"
+
+#. en: AvatarDoc {0}
+msgid "ad.ui.copy_to.replace.item"
+msgstr "AvatarDoc {0}"
+
+#. en: {0} entry
+msgid "ad.ui.copy_to.entries.one"
+msgstr "{0} 个条目"
+
+#. en: {0} entries
+msgid "ad.ui.copy_to.entries"
+msgstr "{0} 个条目"
+
+#. en: That component is locked, so it cannot be replaced. Unlock it on that avatar first, or add another component.
+msgid "ad.ui.copy_to.locked"
+msgstr "该组件已锁定，无法替换。请先在那个 Avatar 上解锁，或再添加一个组件。"
+
+#. en: Objects it uses
+msgid "ad.ui.copy_to.objects"
+msgstr "用到的对象"
+
+#. en: The component uses no object of this avatar, so there is nothing to find.
+msgid "ad.ui.copy_to.none_used"
+msgstr "该组件没有用到此 Avatar 的任何对象，因此无需查找。"
+
+#. en: {0} object found at the same place.
+msgid "ad.ui.copy_to.found.one"
+msgstr "在相同位置找到 {0} 个对象。"
+
+#. en: {0} objects found at the same place.
+msgid "ad.ui.copy_to.found"
+msgstr "在相同位置找到 {0} 个对象。"
+
+#. en: {0} is not on {1}. Used by {2}.
+msgid "ad.ui.copy_to.missing"
+msgstr "{1}上没有{0}。使用它的条目：{2}"
+
+#. en: {0} is on {1}, but without the {2} the copy needs. Used by {3}.
+msgid "ad.ui.copy_to.missing_component"
+msgstr "{1}上有{0}，但没有副本所需的{2}。使用它的条目：{3}"
+
+#. en: {0} is marked Pick by hand when copying, so it is not looked for by its place. Pick the object of {1} to use. Used by {2}.
+msgid "ad.ui.copy_to.by_hand_row"
+msgstr "{0}已标记为“复制时手动选择”，因此不按位置查找。请选择{1}上要使用的对象。使用它的条目：{2}"
+
+#. en: Use instead
+msgid "ad.ui.copy_to.use"
+msgstr "改用"
+
+#. en: The object of the other avatar the copy uses in its place; left empty, the copy leaves the field empty.
+msgid "ad.ui.copy_to.use.tip"
+msgstr "副本中改用的另一个 Avatar 上的对象；留空时，副本中该栏也为空。"
+
+#. en: Suggested: the only object named {0} on that avatar. Check it, or pick another.
+msgid "ad.ui.copy_to.suggested"
+msgstr "建议：该 Avatar 上唯一名为{0}的对象。请确认，或选择其他对象。"
+
+#. en: Suggested: the object at the same place on that avatar. Check it, or pick another.
+msgid "ad.ui.copy_to.suggested.place"
+msgstr "建议：该 Avatar 上相同位置的对象。请确认，或选择其他对象。"
+
+#. en: {0} is not part of {1}, so it cannot be used. Pick an object of {1}.
+msgid "ad.ui.copy_to.pick_outside"
+msgstr "{0}不属于{1}，因此无法使用。请选择{1}上的对象。"
+
+#. en: Pick one before copying: an empty path root means the avatar's root, so the clips would move other objects.
+msgid "ad.ui.copy_to.needs.path_root"
+msgstr "请在复制前选择：路径根对象为空时会被当作 Avatar 的根对象，动画剪辑就会移动其他对象。"
+
+#. en: Pick one before copying: left empty, it is an error that stops AvatarDoc building anything on that avatar.
+msgid "ad.ui.copy_to.needs.required"
+msgstr "请在复制前选择：留空会产生错误，AvatarDoc 将不会在该 Avatar 上构建任何内容。"
+
+#. en: {0}: the two avatars have a different number of objects of this name side by side ({1} and {2}), so they are matched in their order. Check it after copying.
+msgid "ad.ui.copy_to.ambiguous"
+msgstr "{0}：两个 Avatar 中并排的同名对象数量不同（{1} 和 {2}），因此按顺序对应。复制后请检查。"
+
+#. en: Checks
+msgid "ad.ui.copy_to.checks"
+msgstr "检查"
+
+#. en: Every blend shape, material slot and property the copy names is on that avatar.
+msgid "ad.ui.copy_to.checks.none"
+msgstr "副本用到的形态键、材质槽和属性都在该 Avatar 上。"
+
+#. en: {0} has no blend shape {1} on that avatar. Used by {2}.
+msgid "ad.ui.copy_to.check.shape"
+msgstr "该 Avatar 上的{0}没有形态键{1}。使用它的条目：{2}"
+
+#. en: {0} has no material slot {1} on that avatar. Used by {2}.
+msgid "ad.ui.copy_to.check.slot"
+msgstr "该 Avatar 上的{0}没有材质槽 {1}。使用它的条目：{2}"
+
+#. en: No material of {0} has the property {1} on that avatar. Used by {2}.
+msgid "ad.ui.copy_to.check.property"
+msgstr "该 Avatar 上{0}的材质都没有属性{1}。使用它的条目：{2}"
+
+#. en: Copy
+msgid "ad.ui.copy_to.run"
+msgstr "复制"
+
+#. en: Copies the component in one Undo step; this component and the selection stay as they are.
+msgid "ad.ui.copy_to.run.tip"
+msgstr "复制该组件，一次撤销即可还原；此组件和当前选择保持不变。"
+
+#. en: Copy waits until every row that says Pick one before copying has an object.
+msgid "ad.ui.copy_to.run.blocked"
+msgstr "在每个标有“请在复制前选择”的行都选好对象之前，无法复制。"
+
+#. en: Added the copy to {0}. Undo takes it back.
+msgid "ad.ui.copy_to.done.added"
+msgstr "已将副本添加到{0}。撤销即可还原。"
+
+#. en: Replaced the component on {0} with the copy. Undo takes it back.
+msgid "ad.ui.copy_to.done.replaced"
+msgstr "已用副本替换{0}上的组件。撤销即可还原。"
+
+#. en: Copy
+msgid "ad.ui.copy_to.row"
+msgstr "复制"
+
+#. en: To another avatar...
+msgid "ad.ui.copy_to.open"
+msgstr "到另一个 Avatar..."
+
+#. en: Opens Copy to another avatar, which copies this component to another version of the avatar.
+msgid "ad.ui.copy_to.open.tip"
+msgstr "打开“复制到另一个 Avatar”，将此组件复制到该 Avatar 的另一个版本。"
+
+#. en: Pick by hand when copying
+msgid "ad.ui.copy_to.by_hand"
+msgstr "复制时手动选择"
+
+#. en: A copy to another avatar never looks for this object by its place: you pick the object to use in the copy window.
+msgid "ad.ui.copy_to.by_hand.description"
+msgstr "复制到另一个 Avatar 时，不按位置查找此对象，而是在复制窗口中选择要使用的对象。"
+
+#. en: Pick by hand
+msgid "ad.ui.copy_to.by_hand_list"
+msgstr "手动选择的对象"
+
+#. en: Objects a copy to another avatar lets you pick by hand instead of finding them by their place; right-click a row of an entry to add one.
+msgid "ad.ui.copy_to.by_hand_list.tip"
+msgstr "复制到另一个 Avatar 时不按位置查找、改为手动选择的对象；右键点击条目中的某一行即可添加。"
+
+#. en: Takes the mark off, so a copy finds this object at its place on the other avatar again.
+msgid "ad.ui.copy_to.by_hand.remove.tip"
+msgstr "取消此标记，复制时将再次使用另一个 Avatar 上相同位置的对象。"
+
+#. en: Missing object
+msgid "ad.ui.copy_to.by_hand_gone"
+msgstr "对象已丢失"

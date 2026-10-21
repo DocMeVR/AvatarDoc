@@ -382,6 +382,20 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.add_from.poiyomi", "ad.ui.add_from.mark", "ad.ui.add_from.mark.tip", "ad.ui.add_from.renamed", "ad.ui.add_from.baked",
             "ad.ui.add_from.baked.one", "ad.ui.add_from.add", "ad.ui.add_from.add.tip", "ad.ui.add_from.done.toggle", "ad.ui.add_from.done.radial",
             "ad.ui.add_from.done.added",
+
+            // Copy to another avatar: the window, the settings row and Pick by hand when copying.
+            "ad.ui.copy_to.title", "ad.ui.copy_to.intro", "ad.ui.copy_to.gone", "ad.ui.copy_to.from", "ad.ui.copy_to.from.tip",
+            "ad.ui.copy_to.target", "ad.ui.copy_to.target.tip", "ad.ui.copy_to.target.pick", "ad.ui.copy_to.no_target", "ad.ui.copy_to.goes_on",
+            "ad.ui.copy_to.goes_on.tip", "ad.ui.copy_to.goes_on.root", "ad.ui.copy_to.where", "ad.ui.copy_to.where.tip", "ad.ui.copy_to.where.replace",
+            "ad.ui.copy_to.where.replace.tip", "ad.ui.copy_to.where.add", "ad.ui.copy_to.where.add.tip", "ad.ui.copy_to.replace", "ad.ui.copy_to.replace.tip",
+            "ad.ui.copy_to.replace.item", "ad.ui.copy_to.entries.one", "ad.ui.copy_to.entries", "ad.ui.copy_to.locked", "ad.ui.copy_to.objects",
+            "ad.ui.copy_to.none_used", "ad.ui.copy_to.found.one", "ad.ui.copy_to.found", "ad.ui.copy_to.missing", "ad.ui.copy_to.missing_component",
+            "ad.ui.copy_to.by_hand_row", "ad.ui.copy_to.use", "ad.ui.copy_to.use.tip", "ad.ui.copy_to.suggested", "ad.ui.copy_to.suggested.place",
+            "ad.ui.copy_to.pick_outside", "ad.ui.copy_to.needs.path_root", "ad.ui.copy_to.needs.required", "ad.ui.copy_to.ambiguous", "ad.ui.copy_to.checks",
+            "ad.ui.copy_to.checks.none", "ad.ui.copy_to.check.shape", "ad.ui.copy_to.check.slot", "ad.ui.copy_to.check.property", "ad.ui.copy_to.run",
+            "ad.ui.copy_to.run.tip", "ad.ui.copy_to.run.blocked", "ad.ui.copy_to.done.added", "ad.ui.copy_to.done.replaced", "ad.ui.copy_to.row",
+            "ad.ui.copy_to.open", "ad.ui.copy_to.open.tip", "ad.ui.copy_to.by_hand", "ad.ui.copy_to.by_hand.description", "ad.ui.copy_to.by_hand_list",
+            "ad.ui.copy_to.by_hand_list.tip", "ad.ui.copy_to.by_hand.remove.tip", "ad.ui.copy_to.by_hand_gone",
         };
 
         static Localizer localizer;

@@ -324,6 +324,30 @@ More about the window: [Add to AvatarDoc window](../../reference/add-window/).
 
 See [Report a bug](../report-a-bug/).
 
+## Some objects were not found when copying a menu [#copy-not-found]
+
+### Likely cause
+
+- The object has another name, or sits in another place, on the version you copy to: the base avatar renamed or moved it in its new release, or you did on one version only.
+- The object is not on that version at all, such as an accessory you added to one version only.
+- The object is there, but not with the component the entry needs, such as a mesh renderer or a second PhysBone.
+- Several objects of one name sit side by side, and the two versions do not have the same number of them. The window then matches them by their order and says so in a note, and the match can be the wrong one.
+- The object is marked Pick by hand when copying: the window always lists it for you to pick, even when the other version has an object at the same place.
+
+### Fix
+
+1. In the <Label k="ad.ui.copy_to.title" /> window, under <Label k="ad.ui.copy_to.objects" />, pick the object to use for each row in <Label k="ad.ui.copy_to.use" />. When the field already holds an object, it is a suggestion: the object at the same place, or the only object of that name. Check that it is the right one. The field takes only an object of the version you copy to.
+2. A row that says **Pick one before copying** needs an object before <Label k="ad.ui.copy_to.run" /> works: an empty path root would make the clips move other objects, and an empty Hold the rest mesh, grabbable object, contact anchor or PhysBone is an error that stops AvatarDoc building on that avatar.
+3. Leave any other field empty to fix it later: the copy leaves that row of the entry empty, the build skips the row, and the entry's messages name it. See [A target is missing](../../reference/messages/#ad-warn-target-missing).
+4. For a note about objects of the same name, rename them on both versions so each name is used once, or check the copied rows after copying.
+5. For an object you want to choose on every version, such as one a world drop holds, mark it on the version you copy from: right-click its row in the entry and choose <Label k="ad.ui.copy_to.by_hand" />.
+
+More about how the window finds objects: [Copy to another avatar window](../../reference/copy-window/#how-objects-are-found).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
 ## VRChat or VRCFury warns about mixed Write Defaults [#write-defaults-warning]
 
 ### Likely cause

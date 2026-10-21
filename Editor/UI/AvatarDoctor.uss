@@ -326,6 +326,12 @@
 .ad-add-check .unity-toggle__text { flex-grow: 1; flex-shrink: 1; min-width: 0; margin-left: 4px; white-space: normal; }
 .ad-root .ad-add-component-add { align-self: flex-start; margin: 0 0 6px 0; }
 .ad-root .ad-add-run { height: 24px; margin: 6px 0 4px 0; }
+/* Copy to another avatar: a section title over the objects and over the checks, and one block for each object not
+   found, its message above the field that picks what to use instead. */
+.ad-copy-title { margin: 6px 0 4px 0; padding: 0; }
+.ad-copy-missing { margin-bottom: 6px; }
+/* The Copy row keeps the 22px of the rows around it in every language: a button grows with the font NDMF gives Japanese and Chinese. */
+.ad-root .unity-button.ad-copy-open { height: 20px; min-height: 20px; padding-top: 0; padding-bottom: 0; }
 .ad-root .unity-vector4-field__input .unity-base-field__label { min-width: auto; flex-basis: auto; }
 .ad-root .unity-vector4-field__input { flex-shrink: 1; min-width: 0; }
 .ad-root .unity-vector4-field__input .unity-composite-field__field { flex-shrink: 1; min-width: 0; }

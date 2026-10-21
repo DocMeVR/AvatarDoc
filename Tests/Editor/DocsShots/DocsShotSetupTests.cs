@@ -1611,6 +1611,41 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheReferenceCopyWindowShotCopiesToTheNextVersionWithAnObjectAndAShapeMissing()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var before = MenuCopy.SceneAvatars;
+                var spec = DocsShots_Reference2.CopyWindowOverview(avatar);
+                try
+                {
+                    Assert.That(spec.Width, Is.EqualTo(CopyMenuWindow.OpeningWidth), "the picture shows the window at the width it opens at");
+                    Assert.That(MenuCopy.SceneAvatars().Select(t => t.name), Is.EqualTo(new[] { "Avatar (3)", "Avatar (4)" }), "the two versions only, never the scene's own avatars");
+                    var next = MenuCopy.SceneAvatars().Last();
+                    Assert.That(next.GetComponent<AvatarDoc>().entries.Select(e => e.name), Is.EqualTo(new[] { "Hat", "Glasses", "Smile", "Tongue" }), "nothing is copied until Copy");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<Label>("ad-copy-from").text, Is.EqualTo("Avatar (3)"));
+                        Assert.That(view.Q<Button>("ad-copy-target").text, Is.EqualTo("Avatar (4)"));
+                        Assert.That(view.Q<Label>("ad-copy-goes-on").text, Is.EqualTo("Avatar (4)"));
+                        Assert.That(view.Q<SegmentedChoice>("ad-copy-where").Index, Is.EqualTo((int)CopyWhere.Replace), "its own AvatarDoc is replaced");
+                        Assert.That(view.Q("ad-copy-missing-text-0").Q<Label>().text, Does.Contain("Avatar (3)/Glasses"));
+                        Assert.That(view.Q("ad-copy-missing-1"), Is.Null, "one object is missing");
+                        Assert.That(view.Q<ObjectField>("ad-copy-pick-0").value, Is.Null, "nothing of that name to suggest");
+                        Assert.That(view.Q("ad-copy-check-0").Q<Label>().text, Does.Contain("Tongue_Out"));
+                        Assert.That(view.Q("ad-copy-check-1"), Is.Null, "one check");
+                        Assert.That(view.Q<Button>("ad-copy-run").enabledSelf, Is.True);
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+                Assert.That(MenuCopy.SceneAvatars, Is.SameAs(before), "the shot puts the scene's own avatar list back");
+            }
+        }
+
+        [Test]
         public void TheReferenceWindowShotShowsTheTreeTheWheelAndThePanelSideBySide()
         {
             using (var avatar = DocsAvatar.Create())

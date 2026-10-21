@@ -162,6 +162,8 @@ names go in “”, with a half-width space between Chinese and Latin words, num
 | Ready to upload | アップロード可能 | 可以上传 | |
 | Blend time | ブレンド時間 | 过渡时间 | |
 | Duplicate / Copy | 複製 / コピー | 创建副本 / 复制 | Kept apart in Chinese: 复制 is the clipboard. |
+| Copy to another avatar | 別のアバターにコピー | 复制到另一个 Avatar | Copies one AvatarDoc component to another version of the avatar. |
+| Pick by hand when copying | コピー時に手動で選ぶ | 复制时手动选择 | A copy to another avatar never looks for this object by its place: the creator picks the object to use there. |
 | Memory bar | メモリーバー | 参数用量条 | Chinese avoids 内存条, a RAM stick. |
 
 ## Kept in English

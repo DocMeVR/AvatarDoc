@@ -1,0 +1,127 @@
+---
+title: Copy to another avatar window
+description: Every control of the Copy to another avatar window, which copies an AvatarDoc component to another version of the avatar and finds every object it uses there by its place.
+---
+
+import Label from '../../../components/Label.astro';
+
+## When to use it
+
+You have two versions of one avatar in your scene, and one of them has an AvatarDoc component set up. This window copies that component, with everything it holds, to the other version: entries, groups, presets, menu edits, parameters, merged animators, menu assets, removed layers and icons. [Copy a menu to another avatar version](../../guides/copy-to-another-avatar/) walks you through it.
+
+There are two ways to open it, both for an AvatarDoc component on an avatar in the scene:
+
+- **The component's menu.** Press the three dots at the right end of the AvatarDoc component's header, or right-click the header, and choose **Copy to another avatar...**. On a component that is not part of an avatar in the scene, the item is greyed out.
+- **Component settings.** Open <Label k="ad.ui.settings_fold" /> in the inspector and press <Label k="ad.ui.copy_to.open" /> in the <Label k="ad.ui.copy_to.row" /> row. In <Label k="ad.ui.mode.simple" /> mode the fold shows only once one of its settings is changed, so use the component's menu there.
+
+The window is called <Label k="ad.ui.copy_to.title" /> and opens at 360 pixels wide. It starts with a short note: <Label k="ad.ui.copy_to.intro" /> Nothing changes until you press <Label k="ad.ui.copy_to.run" />, and the window never changes what is selected in the Hierarchy.
+
+## Settings
+
+The controls in the order the window shows them.
+
+### From [#from k=ad.ui.copy_to.from]
+
+The component that is copied, written as its avatar's name and the place under it, such as `Avatar (3)/MenuAddon`. The copy never changes it.
+
+### To avatar [#to-avatar k=ad.ui.copy_to.target]
+
+**Default:** the first other avatar of the open scenes · **Choices:** every avatar of the open scenes except the one the component is on
+
+The version that gets the copy. When the open scenes have no other avatar, the button reads <Label k="ad.ui.copy_to.target.pick" />, the window says <Label k="ad.ui.copy_to.no_target" /> and <Label k="ad.ui.copy_to.run" /> is greyed out.
+
+### Goes on [#goes-on k=ad.ui.copy_to.goes_on]
+
+The object of the other version the copy goes on: the object at the same place as the component you copy, such as `Avatar (4)/MenuAddon`. When the other version has no object there, the copy goes on its root, and a note says so.
+
+### Already there [#already-there k=ad.ui.copy_to.where]
+
+**Default:** <Label k="ad.ui.copy_to.where.replace" /> when that object has one AvatarDoc component, <Label k="ad.ui.copy_to.where.add" /> when it has several · **Choices:** <Label k="ad.ui.copy_to.where.replace" />, <Label k="ad.ui.copy_to.where.add" />
+
+Shown when the object the copy goes on already has an AvatarDoc component.
+
+- <Label k="ad.ui.copy_to.where.replace" />: overwrites everything that component holds with the copy and keeps the component itself, so anything that refers to the component still does. A link from another component, such as a preset or a trigger, to an entry the copy does not have ends. A locked component cannot be replaced: the window says <Label k="ad.ui.copy_to.locked" />
+- <Label k="ad.ui.copy_to.where.add" />: keeps that component as it is and adds the copy beside it.
+
+### Replace [#replace k=ad.ui.copy_to.replace]
+
+Shown for <Label k="ad.ui.copy_to.where.replace" /> when the object has more than one AvatarDoc component. It picks which one the copy overwrites, numbered in the order they sit on the object, with the number of entries each holds. The list marks a locked one <Label k="ad.ui.add_from.component.locked" />.
+
+### Objects it uses [#objects k=ad.ui.copy_to.objects]
+
+What the window found for every object of the avatar the component refers to, as [How objects are found](#how-objects-are-found) describes:
+
+- A line with the number of objects found at the same place on the other version.
+- A row for every object you pick yourself, with the entries that use it, followed by <Label k="ad.ui.copy_to.use" />. An object gets a row when it is marked [Pick by hand when copying](#pick-by-hand), when the other version has no object at its place, or when the object there lacks a component the copy needs, such as a second PhysBone. One row covers the object and every component of it the copy uses.
+- A note for objects of the same name side by side when the two versions do not have the same number of them: they are matched in their order, so check them after copying.
+
+When the component uses no object of the avatar, the window says <Label k="ad.ui.copy_to.none_used" />
+
+### Use instead [#use-instead k=ad.ui.copy_to.use]
+
+**Default:** empty, or the suggestion · **Choices:** an object of the other version
+
+The object of the other version the copy uses for that row. It starts with a suggestion when there is one, and a line under it says so: the object at the same place on the other version, else the only object of that name there. Check it, or pick another. The field takes only an object of the other version: an object of the avatar you copy from, of a third avatar or of the Project window is refused, and the line under <Label k="ad.ui.copy_to.run" /> says why.
+
+Left empty, the copy leaves that field of the entry empty. For most rows that is fine: the build skips the row and the entry's messages name it, so you fill it in later. Some rows say **Pick one before copying** under the field, and <Label k="ad.ui.copy_to.run" /> waits until each of them has an object:
+
+- A path root, of a custom animation or of a merged animator: <Label k="ad.ui.copy_to.needs.path_root" />
+- A Hold the rest mesh, a grabbable's object, and the anchor or the PhysBone of a contact or PhysBone trigger: <Label k="ad.ui.copy_to.needs.required" />
+
+### Checks [#checks k=ad.ui.copy_to.checks]
+
+What the other version lacks for the copy, each with the entries that need it:
+
+- a blend shape the mesh there does not have;
+- a material slot the renderer there does not have;
+- a material property no material of the renderer there has, and no material the entry swaps onto it.
+
+The copy still goes ahead. Fix these rows after copying, or the build skips them. When nothing is missing, the window says <Label k="ad.ui.copy_to.checks.none" />
+
+### Copy [#copy k=ad.ui.copy_to.run]
+
+Copies the component in one Undo step. The component you copy from and the selection stay as they are. The line under the button then says where the copy went, such as **Added the copy to "Avatar (4)". Undo takes it back.** While a row that says **Pick one before copying** has no object, the button is greyed out and a line above it says <Label k="ad.ui.copy_to.run.blocked" />
+
+A second press overwrites the copy just made instead of adding another one. The copy holds every setting of the component, its lock included: the copy of a locked component is locked too, and a second press overwrites that copy all the same. After an undo of a copy that was added beside another component, the window goes back to <Label k="ad.ui.copy_to.where.add" />.
+
+## How objects are found [#how-objects-are-found]
+
+The window reads every object field of the component, in every entry and every list, and finds each object of the source avatar on the other version:
+
+- **An object** by the names from the avatar's root down to it: `Body/Hat` on one version is `Body/Hat` on the other.
+- **A component**, such as a mesh, a PhysBone or a transform, on that object: the component of the same kind at the same position among the components of that kind. The second PhysBone of an object stays the second.
+- **Objects of the same name side by side** by their order among them: the second `Ribbon` stays the second.
+- **The avatar's root** is the other version's root.
+- **An object marked [Pick by hand when copying](#pick-by-hand)** is never looked for by its place: you pick it in the window.
+- **An object outside the avatar** stays as it is, and so does every asset: materials, clips, controllers, menu assets and icons. Keep both versions in one scene for such an object: Unity cannot save a reference from one scene to an object of another.
+
+The copy never refers to an object of the avatar you copy from.
+
+## Pick by hand when copying [#pick-by-hand k=ad.ui.copy_to.by_hand]
+
+**Shown in:** Advanced · **Default:** Off · **Choices:** On, Off
+
+For an object you choose yourself on every version, such as one that a world drop holds in place, which may not sit at the same place on each version. Select the entry, right-click a row that names the object and choose <Label k="ad.ui.copy_to.by_hand" />, which shows the object's name and a tick while it is marked. Every row offers it: an object, a mesh's or a renderer's object, an animation's path root, and both objects of a follow. Choose it again to take the mark off.
+
+The window then always lists that object under <Label k="ad.ui.copy_to.objects" />, with a row like an object it did not find, and never matches it by its place. Its field starts with the object at the same place on the other version, else the only object of that name there, as a suggestion. Left empty, the field is copied empty. The copy's own list of objects to pick by hand holds the objects you picked on the other version, so the mark carries over to it; a mark with nothing picked is dropped.
+
+The component lists every marked object in its own settings, under [Pick by hand](../inspector/#pick-by-hand). A locked component offers no right-click menu on its rows.
+
+## Entry ids [#entry-ids]
+
+Presets, triggers, gates and menu edits name entries by an id of their own, inside the component.
+
+- <Label k="ad.ui.copy_to.where.replace" /> keeps the ids of the component you copy from.
+- <Label k="ad.ui.copy_to.where.add" /> gives every entry, menu edit, merged animator and menu asset of the copy a new id, and every place in the copy that names one of them follows: parents, trigger sources, gates, flip targets, conditions, presets and removed layers. Two components of one avatar then never share an id.
+- A copy onto an object with no AvatarDoc component keeps the ids, so a preset of another component of that version can still name the copied entries.
+- When another component of that version already uses one of the ids, the copy gets new ids, with <Label k="ad.ui.copy_to.where.replace" /> too.
+
+## What AvatarDoc builds
+
+The window builds nothing of its own. The copy is an ordinary AvatarDoc component, which builds as described on [The inspector at a glance](../inspector/) and the pages of its entries. On a prefab instance, the copy is an override of the instance.
+
+## Related
+
+- [Copy a menu to another avatar version](../../guides/copy-to-another-avatar/)
+- [Some objects were not found when copying a menu](../../help/troubleshooting/#copy-not-found)
+- [Different setups for PC and Quest](../../guides/pc-and-quest/)

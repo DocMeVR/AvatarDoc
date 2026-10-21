@@ -676,6 +676,7 @@ namespace DocMe.AvatarDoctor.Editor
             remove.AddToClassList("ad-w-24");
             remove.clicked += () => RemoveAt((int)row.userData);
             row.Add(remove);
+            row.RegisterCallback<PointerDownEvent>(e => OnRowPointerDown(e, row));
             if (offLine != null)
             {
                 // A line of its own under the row: beside the target and its on value the switch and the off value
@@ -684,6 +685,88 @@ namespace DocMe.AvatarDoctor.Editor
                 row.Add(offLine);
             }
             return row;
+        }
+
+        /// <summary>
+        /// A right click on a row opens its menu, when it offers anything; Control and click does too on a Mac. A right
+        /// click inside a text or number box is left to the box, which has its own Cut, Copy and Paste.
+        /// </summary>
+        void OnRowPointerDown(PointerDownEvent e, VisualElement row)
+        {
+            bool menuClick = e.button == 1 || (e.button == 0 && e.ctrlKey && Application.platform == RuntimePlatform.OSXEditor);
+            if (!menuClick || !(row.userData is int index) || InsideTextInput(e.target as VisualElement, row)) return;
+            var items = RowMenu(index);
+            if (items.Count == 0) return;
+            AdMenu.Open(new Rect(e.position, Vector2.zero), row, items);
+            e.PreventDefault();
+            e.StopPropagation();
+        }
+
+        static bool InsideTextInput(VisualElement element, VisualElement row)
+        {
+            for (var at = element; at != null && at != row; at = at.parent)
+                if (at.ClassListContains(TextInputBaseField<string>.inputUssClassName)) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// The right click menu of the row at index: Pick by hand when copying for each object of this avatar the row
+        /// names, ticked while it is marked. An Advanced choice, so Simple offers none, and a locked component none either,
+        /// since every item is an edit.
+        /// </summary>
+        public List<AdMenu.Item> RowMenu(int index)
+        {
+            var items = new List<AdMenu.Item>();
+            if (Locked || owner.Simple || !Begin()) return items;
+            foreach (var target in RowObjects(index))
+            {
+                bool marked = owner.Menu.pickByHand.Contains(target);
+                items.Add(new AdMenu.Item
+                {
+                    Text = L.Text("ad.ui.copy_to.by_hand"),
+                    Description = L.Text("ad.ui.copy_to.by_hand.description"),
+                    Note = target.name,
+                    Checked = marked,
+                    Action = () => SetByHand(target, !marked),
+                });
+            }
+            return items;
+        }
+
+        /// <summary>The objects of this avatar the row at index names: the object, a renderer's or a path root's object, a follow's object and what it follows.</summary>
+        List<GameObject> RowObjects(int index)
+        {
+            var found = new List<GameObject>();
+            if (index < 0 || index >= list.arraySize) return found;
+            var element = list.GetArrayElementAtIndex(index);
+            void Take(string relative)
+            {
+                var value = element.FindPropertyRelative(relative)?.objectReferenceValue;
+                var go = value is GameObject g ? g : value is Component c ? c.gameObject : null;
+                if (go == null || EditorUtility.IsPersistent(go) || found.Contains(go)) return;
+                if (owner.Plan != null && MenuModel.IsOutsideAvatar(owner.Plan.AvatarRoot, go.transform)) return;
+                found.Add(go);
+            }
+            switch (kind)
+            {
+                case Kind.Objects: Take(nameof(ObjectTarget.target)); break;
+                case Kind.BlendShapes: Take(nameof(BlendShapeTarget.renderer)); break;
+                case Kind.Materials: Take(nameof(MaterialTarget.renderer)); break;
+                case Kind.Properties: Take(nameof(MaterialPropertyTarget.renderer)); break;
+                case Kind.Animations: Take(nameof(AnimationTarget.pathRoot)); break;
+                case Kind.Follows:
+                    Take(nameof(FollowTarget.target));
+                    Take(nameof(FollowTarget.follows));
+                    break;
+            }
+            return found;
+        }
+
+        void SetByHand(GameObject target, bool mark)
+        {
+            if (!MenuCopy.SetByHand(owner.Menu, target, mark)) return;
+            AvatarPlanCache.NoteSelfEdit(owner.Menu);
+            owner.Refresh();
         }
 
         static VisualElement OffLine()

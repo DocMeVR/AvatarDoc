@@ -54,6 +54,8 @@ namespace DocMe.AvatarDoctor
 #endif
         /// <summary>Parameters this component declares itself, for merged animators and installed menu assets that no entry gives a parameter.</summary>
         public List<ParameterDeclaration> parameters = new List<ParameterDeclaration>();
+        /// <summary>Objects of this avatar a copy to another avatar never looks for by their place, such as one a world drop holds: the copy window has the creator pick the object to use on the other avatar.</summary>
+        public List<GameObject> pickByHand = new List<GameObject>();
 
         public string EffectiveMenuName => string.IsNullOrWhiteSpace(menuName) ? gameObject.name : menuName.Trim();
 

@@ -4798,3 +4798,235 @@ msgstr "ラジアル「{0}」を作りました。元に戻すと取り消せま
 #. en: Added to \"{0}\". Undo takes it back.
 msgid "ad.ui.add_from.done.added"
 msgstr "「{0}」に追加しました。元に戻すと取り消せます。"
+
+#. en: Copy to another avatar
+msgid "ad.ui.copy_to.title"
+msgstr "別のアバターにコピー"
+
+#. en: Copies this AvatarDoc component to another version of the avatar. Every object it uses is found there at the same place under the avatar.
+msgid "ad.ui.copy_to.intro"
+msgstr "このAvatarDocコンポーネントを、同じアバターの別のバージョンにコピーします。使っているオブジェクトは、コピー先のアバターで同じ場所にあるものを使います。"
+
+#. en: The component, or the avatar it is on, is gone, so nothing can be copied.
+msgid "ad.ui.copy_to.gone"
+msgstr "コンポーネントか、それがあるアバターがなくなったため、コピーできません。"
+
+#. en: From
+msgid "ad.ui.copy_to.from"
+msgstr "コピー元"
+
+#. en: The component that is copied, on its avatar; the copy never changes it.
+msgid "ad.ui.copy_to.from.tip"
+msgstr "コピーするコンポーネントとそのアバターです。コピーしても元は変わりません。"
+
+#. en: To avatar
+msgid "ad.ui.copy_to.target"
+msgstr "コピー先"
+
+#. en: The avatar that gets the copy, picked from the other avatars in the open scenes.
+msgid "ad.ui.copy_to.target.tip"
+msgstr "コピーを受け取るアバターです。開いているシーンにある他のアバターから選びます。"
+
+#. en: Pick an avatar
+msgid "ad.ui.copy_to.target.pick"
+msgstr "アバターを選択"
+
+#. en: There is no other avatar in the open scenes. Open or add the version to copy to, then come back here.
+msgid "ad.ui.copy_to.no_target"
+msgstr "開いているシーンに他のアバターがありません。コピー先のバージョンを開くか追加してから、もう一度開いてください。"
+
+#. en: Goes on
+msgid "ad.ui.copy_to.goes_on"
+msgstr "追加先"
+
+#. en: The object of the other avatar that gets the copy: the one at the same place as this component's, else the avatar's root.
+msgid "ad.ui.copy_to.goes_on.tip"
+msgstr "コピーを受け取る、コピー先アバターのオブジェクトです。このコンポーネントと同じ場所のもの、なければアバターのルートです。"
+
+#. en: {0} has no object at {1}, so the copy goes on its root.
+msgid "ad.ui.copy_to.goes_on.root"
+msgstr "{0}には{1}にあたるオブジェクトがないため、コピーはルートに追加されます。"
+
+#. en: Already there
+msgid "ad.ui.copy_to.where"
+msgstr "既存のコンポーネント"
+
+#. en: What the copy does with the AvatarDoc component that object already has.
+msgid "ad.ui.copy_to.where.tip"
+msgstr "そのオブジェクトにすでにあるAvatarDocコンポーネントをどうするかを選びます。"
+
+#. en: Replace it
+msgid "ad.ui.copy_to.where.replace"
+msgstr "置き換える"
+
+#. en: Overwrites what that component holds and keeps the component itself, so whatever refers to the component still does; a link from another component to an entry the copy does not have ends.
+msgid "ad.ui.copy_to.where.replace.tip"
+msgstr "そのコンポーネントの中身を上書きし、コンポーネント自体は残すため、それを参照しているものはそのまま使えます。ただし、ほかのコンポーネントからコピーにない項目へのリンクは切れます。"
+
+#. en: Add another
+msgid "ad.ui.copy_to.where.add"
+msgstr "もう1つ追加"
+
+#. en: Adds a second component beside it, with new entry ids so the two never clash.
+msgid "ad.ui.copy_to.where.add.tip"
+msgstr "横に2つ目のコンポーネントを追加します。2つがぶつからないよう、項目に新しいIDを付けます。"
+
+#. en: Replace
+msgid "ad.ui.copy_to.replace"
+msgstr "置き換え対象"
+
+#. en: Which of the AvatarDoc components on that object the copy overwrites.
+msgid "ad.ui.copy_to.replace.tip"
+msgstr "そのオブジェクトにあるAvatarDocコンポーネントのうち、コピーで上書きするものです。"
+
+#. en: AvatarDoc {0}
+msgid "ad.ui.copy_to.replace.item"
+msgstr "AvatarDoc {0}"
+
+#. en: {0} entry
+msgid "ad.ui.copy_to.entries.one"
+msgstr "{0}項目"
+
+#. en: {0} entries
+msgid "ad.ui.copy_to.entries"
+msgstr "{0}項目"
+
+#. en: That component is locked, so it cannot be replaced. Unlock it on that avatar first, or add another component.
+msgid "ad.ui.copy_to.locked"
+msgstr "そのコンポーネントはロックされているため、置き換えられません。先にコピー先のアバターでロックを解除するか、もう1つ追加してください。"
+
+#. en: Objects it uses
+msgid "ad.ui.copy_to.objects"
+msgstr "使うオブジェクト"
+
+#. en: The component uses no object of this avatar, so there is nothing to find.
+msgid "ad.ui.copy_to.none_used"
+msgstr "このコンポーネントはこのアバターのオブジェクトを使っていないため、探すものはありません。"
+
+#. en: {0} object found at the same place.
+msgid "ad.ui.copy_to.found.one"
+msgstr "{0}個のオブジェクトが同じ場所で見つかりました。"
+
+#. en: {0} objects found at the same place.
+msgid "ad.ui.copy_to.found"
+msgstr "{0}個のオブジェクトが同じ場所で見つかりました。"
+
+#. en: {0} is not on {1}. Used by {2}.
+msgid "ad.ui.copy_to.missing"
+msgstr "{0}が{1}にありません。使っている項目：{2}"
+
+#. en: {0} is on {1}, but without the {2} the copy needs. Used by {3}.
+msgid "ad.ui.copy_to.missing_component"
+msgstr "{0}は{1}にありますが、コピーに必要な{2}がありません。使っている項目：{3}"
+
+#. en: {0} is marked Pick by hand when copying, so it is not looked for by its place. Pick the object of {1} to use. Used by {2}.
+msgid "ad.ui.copy_to.by_hand_row"
+msgstr "{0}は「コピー時に手動で選ぶ」の指定があるため、場所では探しません。{1}で使うオブジェクトを選んでください。使っている項目：{2}"
+
+#. en: Use instead
+msgid "ad.ui.copy_to.use"
+msgstr "代わりに使う"
+
+#. en: The object of the other avatar the copy uses in its place; left empty, the copy leaves the field empty.
+msgid "ad.ui.copy_to.use.tip"
+msgstr "コピーで代わりに使う、コピー先アバターのオブジェクトです。空のままだと、コピーでもこの欄は空になります。"
+
+#. en: Suggested: the only object named {0} on that avatar. Check it, or pick another.
+msgid "ad.ui.copy_to.suggested"
+msgstr "候補：そのアバターで{0}という名前のオブジェクトはこれだけです。確認するか、別のものを選んでください。"
+
+#. en: Suggested: the object at the same place on that avatar. Check it, or pick another.
+msgid "ad.ui.copy_to.suggested.place"
+msgstr "候補：そのアバターで同じ場所にあるオブジェクトです。確認するか、別のものを選んでください。"
+
+#. en: {0} is not part of {1}, so it cannot be used. Pick an object of {1}.
+msgid "ad.ui.copy_to.pick_outside"
+msgstr "{0}は{1}の一部ではないため使えません。{1}のオブジェクトを選んでください。"
+
+#. en: Pick one before copying: an empty path root means the avatar's root, so the clips would move other objects.
+msgid "ad.ui.copy_to.needs.path_root"
+msgstr "コピーする前に選んでください。パスのルートが空だとアバターのルートとみなされ、クリップが別のオブジェクトを動かしてしまいます。"
+
+#. en: Pick one before copying: left empty, it is an error that stops AvatarDoc building anything on that avatar.
+msgid "ad.ui.copy_to.needs.required"
+msgstr "コピーする前に選んでください。空のままだとエラーになり、そのアバターではAvatarDocが何もビルドしません。"
+
+#. en: {0}: the two avatars have a different number of objects of this name side by side ({1} and {2}), so they are matched in their order. Check it after copying.
+msgid "ad.ui.copy_to.ambiguous"
+msgstr "{0}：同じ場所に並ぶこの名前のオブジェクトの数が2つのアバターで違うため（{1}と{2}）、並び順で対応させました。コピーした後で確認してください。"
+
+#. en: Checks
+msgid "ad.ui.copy_to.checks"
+msgstr "確認"
+
+#. en: Every blend shape, material slot and property the copy names is on that avatar.
+msgid "ad.ui.copy_to.checks.none"
+msgstr "コピーが使うブレンドシェイプ、マテリアルスロット、プロパティは、すべてそのアバターにあります。"
+
+#. en: {0} has no blend shape {1} on that avatar. Used by {2}.
+msgid "ad.ui.copy_to.check.shape"
+msgstr "そのアバターの{0}にはブレンドシェイプ{1}がありません。使っている項目：{2}"
+
+#. en: {0} has no material slot {1} on that avatar. Used by {2}.
+msgid "ad.ui.copy_to.check.slot"
+msgstr "そのアバターの{0}にはマテリアルスロット{1}がありません。使っている項目：{2}"
+
+#. en: No material of {0} has the property {1} on that avatar. Used by {2}.
+msgid "ad.ui.copy_to.check.property"
+msgstr "そのアバターの{0}には、プロパティ{1}を持つマテリアルがありません。使っている項目：{2}"
+
+#. en: Copy
+msgid "ad.ui.copy_to.run"
+msgstr "コピー"
+
+#. en: Copies the component in one Undo step; this component and the selection stay as they are.
+msgid "ad.ui.copy_to.run.tip"
+msgstr "コンポーネントをコピーします。元に戻す操作1回で取り消せ、このコンポーネントと選択は変わりません。"
+
+#. en: Copy waits until every row that says Pick one before copying has an object.
+msgid "ad.ui.copy_to.run.blocked"
+msgstr "「コピーする前に選んでください」とある行すべてにオブジェクトを選ぶまで、コピーできません。"
+
+#. en: Added the copy to {0}. Undo takes it back.
+msgid "ad.ui.copy_to.done.added"
+msgstr "{0}にコピーを追加しました。元に戻すと取り消せます。"
+
+#. en: Replaced the component on {0} with the copy. Undo takes it back.
+msgid "ad.ui.copy_to.done.replaced"
+msgstr "{0}のコンポーネントをコピーで置き換えました。元に戻すと取り消せます。"
+
+#. en: Copy
+msgid "ad.ui.copy_to.row"
+msgstr "コピー"
+
+#. en: To another avatar...
+msgid "ad.ui.copy_to.open"
+msgstr "別のアバターへ..."
+
+#. en: Opens Copy to another avatar, which copies this component to another version of the avatar.
+msgid "ad.ui.copy_to.open.tip"
+msgstr "「別のアバターにコピー」を開き、このコンポーネントをアバターの別のバージョンにコピーします。"
+
+#. en: Pick by hand when copying
+msgid "ad.ui.copy_to.by_hand"
+msgstr "コピー時に手動で選ぶ"
+
+#. en: A copy to another avatar never looks for this object by its place: you pick the object to use in the copy window.
+msgid "ad.ui.copy_to.by_hand.description"
+msgstr "別のアバターにコピーするとき、このオブジェクトは場所で探さず、コピーのウィンドウで使うオブジェクトを選びます。"
+
+#. en: Pick by hand
+msgid "ad.ui.copy_to.by_hand_list"
+msgstr "手動で選ぶもの"
+
+#. en: Objects a copy to another avatar lets you pick by hand instead of finding them by their place; right-click a row of an entry to add one.
+msgid "ad.ui.copy_to.by_hand_list.tip"
+msgstr "別のアバターにコピーするとき、場所で探さずに手動で選ぶオブジェクトです。項目の行を右クリックすると追加できます。"
+
+#. en: Takes the mark off, so a copy finds this object at its place on the other avatar again.
+msgid "ad.ui.copy_to.by_hand.remove.tip"
+msgstr "指定を外し、コピー時にはもう一度コピー先で同じ場所にあるオブジェクトを使うようにします。"
+
+#. en: Missing object
+msgid "ad.ui.copy_to.by_hand_gone"
+msgstr "見つからないオブジェクト"

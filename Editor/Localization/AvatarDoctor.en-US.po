@@ -3599,3 +3599,177 @@ msgstr "Made the radial \"{0}\". Undo takes it back."
 
 msgid "ad.ui.add_from.done.added"
 msgstr "Added to \"{0}\". Undo takes it back."
+
+msgid "ad.ui.copy_to.title"
+msgstr "Copy to another avatar"
+
+msgid "ad.ui.copy_to.intro"
+msgstr "Copies this AvatarDoc component to another version of the avatar. Every object it uses is found there at the same place under the avatar."
+
+msgid "ad.ui.copy_to.gone"
+msgstr "The component, or the avatar it is on, is gone, so nothing can be copied."
+
+msgid "ad.ui.copy_to.from"
+msgstr "From"
+
+msgid "ad.ui.copy_to.from.tip"
+msgstr "The component that is copied, on its avatar; the copy never changes it."
+
+msgid "ad.ui.copy_to.target"
+msgstr "To avatar"
+
+msgid "ad.ui.copy_to.target.tip"
+msgstr "The avatar that gets the copy, picked from the other avatars in the open scenes."
+
+msgid "ad.ui.copy_to.target.pick"
+msgstr "Pick an avatar"
+
+msgid "ad.ui.copy_to.no_target"
+msgstr "There is no other avatar in the open scenes. Open or add the version to copy to, then come back here."
+
+msgid "ad.ui.copy_to.goes_on"
+msgstr "Goes on"
+
+msgid "ad.ui.copy_to.goes_on.tip"
+msgstr "The object of the other avatar that gets the copy: the one at the same place as this component's, else the avatar's root."
+
+msgid "ad.ui.copy_to.goes_on.root"
+msgstr "{0} has no object at {1}, so the copy goes on its root."
+
+msgid "ad.ui.copy_to.where"
+msgstr "Already there"
+
+msgid "ad.ui.copy_to.where.tip"
+msgstr "What the copy does with the AvatarDoc component that object already has."
+
+msgid "ad.ui.copy_to.where.replace"
+msgstr "Replace it"
+
+msgid "ad.ui.copy_to.where.replace.tip"
+msgstr "Overwrites what that component holds and keeps the component itself, so whatever refers to the component still does; a link from another component to an entry the copy does not have ends."
+
+msgid "ad.ui.copy_to.where.add"
+msgstr "Add another"
+
+msgid "ad.ui.copy_to.where.add.tip"
+msgstr "Adds a second component beside it, with new entry ids so the two never clash."
+
+msgid "ad.ui.copy_to.replace"
+msgstr "Replace"
+
+msgid "ad.ui.copy_to.replace.tip"
+msgstr "Which of the AvatarDoc components on that object the copy overwrites."
+
+msgid "ad.ui.copy_to.replace.item"
+msgstr "AvatarDoc {0}"
+
+msgid "ad.ui.copy_to.entries.one"
+msgstr "{0} entry"
+
+msgid "ad.ui.copy_to.entries"
+msgstr "{0} entries"
+
+msgid "ad.ui.copy_to.locked"
+msgstr "That component is locked, so it cannot be replaced. Unlock it on that avatar first, or add another component."
+
+msgid "ad.ui.copy_to.objects"
+msgstr "Objects it uses"
+
+msgid "ad.ui.copy_to.none_used"
+msgstr "The component uses no object of this avatar, so there is nothing to find."
+
+msgid "ad.ui.copy_to.found.one"
+msgstr "{0} object found at the same place."
+
+msgid "ad.ui.copy_to.found"
+msgstr "{0} objects found at the same place."
+
+msgid "ad.ui.copy_to.missing"
+msgstr "{0} is not on {1}. Used by {2}."
+
+msgid "ad.ui.copy_to.missing_component"
+msgstr "{0} is on {1}, but without the {2} the copy needs. Used by {3}."
+
+msgid "ad.ui.copy_to.by_hand_row"
+msgstr "{0} is marked Pick by hand when copying, so it is not looked for by its place. Pick the object of {1} to use. Used by {2}."
+
+msgid "ad.ui.copy_to.use"
+msgstr "Use instead"
+
+msgid "ad.ui.copy_to.use.tip"
+msgstr "The object of the other avatar the copy uses in its place; left empty, the copy leaves the field empty."
+
+msgid "ad.ui.copy_to.suggested"
+msgstr "Suggested: the only object named {0} on that avatar. Check it, or pick another."
+
+msgid "ad.ui.copy_to.suggested.place"
+msgstr "Suggested: the object at the same place on that avatar. Check it, or pick another."
+
+msgid "ad.ui.copy_to.pick_outside"
+msgstr "{0} is not part of {1}, so it cannot be used. Pick an object of {1}."
+
+msgid "ad.ui.copy_to.needs.path_root"
+msgstr "Pick one before copying: an empty path root means the avatar's root, so the clips would move other objects."
+
+msgid "ad.ui.copy_to.needs.required"
+msgstr "Pick one before copying: left empty, it is an error that stops AvatarDoc building anything on that avatar."
+
+msgid "ad.ui.copy_to.ambiguous"
+msgstr "{0}: the two avatars have a different number of objects of this name side by side ({1} and {2}), so they are matched in their order. Check it after copying."
+
+msgid "ad.ui.copy_to.checks"
+msgstr "Checks"
+
+msgid "ad.ui.copy_to.checks.none"
+msgstr "Every blend shape, material slot and property the copy names is on that avatar."
+
+msgid "ad.ui.copy_to.check.shape"
+msgstr "{0} has no blend shape {1} on that avatar. Used by {2}."
+
+msgid "ad.ui.copy_to.check.slot"
+msgstr "{0} has no material slot {1} on that avatar. Used by {2}."
+
+msgid "ad.ui.copy_to.check.property"
+msgstr "No material of {0} has the property {1} on that avatar. Used by {2}."
+
+msgid "ad.ui.copy_to.run"
+msgstr "Copy"
+
+msgid "ad.ui.copy_to.run.tip"
+msgstr "Copies the component in one Undo step; this component and the selection stay as they are."
+
+msgid "ad.ui.copy_to.run.blocked"
+msgstr "Copy waits until every row that says Pick one before copying has an object."
+
+msgid "ad.ui.copy_to.done.added"
+msgstr "Added the copy to {0}. Undo takes it back."
+
+msgid "ad.ui.copy_to.done.replaced"
+msgstr "Replaced the component on {0} with the copy. Undo takes it back."
+
+msgid "ad.ui.copy_to.row"
+msgstr "Copy"
+
+msgid "ad.ui.copy_to.open"
+msgstr "To another avatar..."
+
+msgid "ad.ui.copy_to.open.tip"
+msgstr "Opens Copy to another avatar, which copies this component to another version of the avatar."
+
+msgid "ad.ui.copy_to.by_hand"
+msgstr "Pick by hand when copying"
+
+msgid "ad.ui.copy_to.by_hand.description"
+msgstr "A copy to another avatar never looks for this object by its place: you pick the object to use in the copy window."
+
+msgid "ad.ui.copy_to.by_hand_list"
+msgstr "Pick by hand"
+
+msgid "ad.ui.copy_to.by_hand_list.tip"
+msgstr "Objects a copy to another avatar lets you pick by hand instead of finding them by their place; right-click a row of an entry to add one."
+
+msgid "ad.ui.copy_to.by_hand.remove.tip"
+msgstr "Takes the mark off, so a copy finds this object at its place on the other avatar again."
+
+msgid "ad.ui.copy_to.by_hand_gone"
+msgstr "Missing object"

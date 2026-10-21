@@ -48,6 +48,12 @@ Which material slot of the mesh the row swaps, counted from 0. In the mesh's own
 
 The material the slot gets while the toggle is on, or while the trigger fires. Drag it from the Project window onto the field. While the toggle is off, the slot shows the material it has in the scene.
 
+### Pick by hand when copying [#pick-by-hand k=ad.ui.copy_to.by_hand]
+
+**Shown in:** Advanced · **Default:** Off · **Choices:** On, Off
+
+Right-click a row and choose <Label k="ad.ui.copy_to.by_hand" /> for the object of the row's renderer. When you [copy the menu to another avatar](../copy-window/), the window then has you pick the object to use on the other version instead of looking at the same place, for an object a world drop holds, for example. The component lists every marked object under [Pick by hand](../inspector/#pick-by-hand).
+
 ## What AvatarDoc builds
 
 The material goes into the on state of the entry's layer, and the slot's material in the scene goes into its off state. On a blend shape trigger, the slot swaps at <Label k="ad.ui.trigger.swap_at" /> in the <Label k="ad.ui.trigger.style.smooth" /> style, or at <Label k="ad.ui.trigger.switch_at" /> in the <Label k="ad.ui.trigger.style.switch" /> style.
