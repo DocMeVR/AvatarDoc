@@ -117,7 +117,7 @@ The settings of the component itself sit in the <Label k="ad.ui.settings_fold" /
 
 ### Component settings [#component-settings k=ad.ui.settings_fold]
 
-**Shown in:** Advanced, and Simple once <Label k="ad.ui.install" />, <Label k="ad.ui.install.mode" />, <Label k="ad.ui.prefix" /> or <Label k="ad.ui.platform" /> is not at its default · **Default:** closed · **Choices:** open, closed
+**Shown in:** Advanced, and Simple once <Label k="ad.ui.install" />, <Label k="ad.ui.install.mode" />, <Label k="ad.ui.prefix" /> or <Label k="ad.ui.platform" /> is not at its default, or <Label k="ad.ui.copy_to.by_hand_list" /> holds an object · **Default:** closed · **Choices:** open, closed
 
 The fold is closed for a new component and remembers whether you left it open. While it is closed, a dot on it shows that one of its settings is not at its default. Its first line reads **Matches your avatar: Write Defaults on**, or off: the Write Defaults setting AvatarDoc's own layers use, matched to the avatar's own FX layers. When those layers mix on and off, AvatarDoc builds with Write Defaults on, and a warning names the layers. In Simple mode, the fold appears once any setting inside is not at its default, and then it shows every row.
 
@@ -162,6 +162,18 @@ Which builds make this component's entries, for every entry whose own <Label k="
 **Shown in:** Advanced, and Simple once the fold shows
 
 <Label k="ad.ui.tips_switch" /> turns every tip you closed back on.
+
+### Copy [#copy k=ad.ui.copy_to.row]
+
+**Shown in:** Advanced, and Simple once the fold shows
+
+<Label k="ad.ui.copy_to.open" /> opens the [Copy to another avatar window](../copy-window/), which copies this component to another version of the avatar. It is greyed out while the component is not part of an avatar in the scene, such as a component of a prefab asset: copy from its instance in the scene. The component's own menu, the three dots at the right end of its header, has the same item: **Copy to another avatar...**.
+
+### Pick by hand [#pick-by-hand k=ad.ui.copy_to.by_hand_list]
+
+**Shown in:** Advanced and Simple, while the list holds an object · **Default:** empty
+
+The objects marked [Pick by hand when copying](../copy-window/#pick-by-hand): a copy to another avatar never looks for these by their place, and its window has you pick the object to use on the other version. Each row names the object, with its place under the avatar in its tooltip, and has an × that takes the mark off in one Undo step. An object deleted since shows as <Label k="ad.ui.copy_to.by_hand_gone" />, so you can still take it off. A locked component shows the list without the ×.
 
 ## What AvatarDoc builds
 

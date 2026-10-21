@@ -1,0 +1,75 @@
+---
+title: Copy a menu to another avatar version
+description: Copy an AvatarDoc menu from one version of your avatar to another, such as a new release of the base or a PC and a Quest copy, instead of building every toggle again.
+sidebar:
+  order: 19
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+
+## When to use this
+
+You have two versions of one avatar in your scene, for example the version you uploaded last month and a new release of the base avatar, or a PC and a Quest copy. One of them already has its AvatarDoc menu. Copy that menu to the other version in one step instead of making every toggle again.
+
+AvatarDoc finds every object the menu uses at the same place on the other version: a toggle that shows `Body/Hat` on one version shows `Body/Hat` on the other. Materials, clips, icons and other assets stay as they are.
+
+To make one version for PC and one for Quest from the same avatar, see also [Different setups for PC and Quest](../pc-and-quest/).
+
+## Before you start
+
+- Both versions are in the open scenes, each with its own VRChat Avatar Descriptor.
+- The version you copy from has its AvatarDoc component set up.
+- The objects keep their names and places from one version to the other, as they do in a newer release of the same base or in a copy of the avatar.
+
+## Steps
+
+<Steps>
+
+1. In the Hierarchy, select the object with the AvatarDoc component on the version that has the menu.
+
+2. Open the window. Press the three dots at the right end of the AvatarDoc component's header, or right-click the header, and choose **Copy to another avatar...**. Or open <Label k="ad.ui.settings_fold" /> in the inspector and press <Label k="ad.ui.copy_to.open" /> in the <Label k="ad.ui.copy_to.row" /> row (<Label k="ad.ui.mode.advanced" /> mode; in <Label k="ad.ui.mode.simple" /> mode the fold shows only once one of its settings is changed).
+
+   You should now see the <Label k="ad.ui.copy_to.title" /> window.
+
+3. In <Label k="ad.ui.copy_to.target" />, pick the version to copy to. The list holds every other avatar of the open scenes.
+
+4. Check <Label k="ad.ui.copy_to.goes_on" />. The copy goes on the object at the same place as the component you copy, such as `MenuAddon`, or on the avatar's root when the other version has no object there.
+
+5. When that object already has an AvatarDoc component, choose <Label k="ad.ui.copy_to.where.replace" /> to overwrite it, or <Label k="ad.ui.copy_to.where.add" /> to keep it and add the copy beside it.
+
+6. Under <Label k="ad.ui.copy_to.objects" />, look at every row: an object the window did not find on the other version, or one you marked [Pick by hand when copying](#pick-by-hand). For each one, pick the object to use in <Label k="ad.ui.copy_to.use" />. When the field already holds an object, a line says it is a suggestion: the object at the same place, or the only object of that name. Check it.
+
+   A row that says **Pick one before copying** needs an object: <Label k="ad.ui.copy_to.run" /> waits for it. You may leave any other row empty and fill the entry's row in later.
+
+7. Under <Label k="ad.ui.copy_to.checks" />, read which blend shapes, material slots and properties the other version lacks. You fix these after copying, in the entries the line names.
+
+8. Press <Label k="ad.ui.copy_to.run" />.
+
+   You should now see **Added the copy to "Avatar (4)". Undo takes it back.** under the button, with the name of the other version, or **Replaced the component on "Avatar (4)" with the copy. Undo takes it back.** when you replaced one.
+
+</Steps>
+
+The copy undoes in one step. The component you copied from stays as it is, and the window never changes what is selected in the Hierarchy. A second press of <Label k="ad.ui.copy_to.run" /> overwrites the copy it just made instead of adding another one, even when the copy is locked because the component you copied from is.
+
+## Pick an object by hand [#pick-by-hand]
+
+Some menus point at an object you want to choose yourself on every version, for example one that a world drop holds in place, which may sit somewhere else on the new version. Before you copy, mark it on the version you copy from: select the entry, right-click the row that names the object and choose <Label k="ad.ui.copy_to.by_hand" /> (<Label k="ad.ui.mode.advanced" /> mode).
+
+The window then always lists that object for you to pick, even when the other version has an object at the same place; that object is only its suggestion. The copy never points back at the version you copy from. The copy marks the object you picked, so the next copy asks again. <Label k="ad.ui.settings_fold" /> lists every marked object under <Label k="ad.ui.copy_to.by_hand_list" />.
+
+## Check it worked
+
+- Select the AvatarDoc component on the other version. Its inspector shows the copied entries, and the ready line says what still needs you.
+- Open each entry that the window named under <Label k="ad.ui.copy_to.objects" /> or <Label k="ad.ui.copy_to.checks" />, and fix its rows.
+- In Play mode with Gesture Manager, press the controls in the menu, as in [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- The window lists objects it did not find, or <Label k="ad.ui.copy_to.run" /> stays greyed out: see [Some objects were not found when copying a menu](../../help/troubleshooting/#copy-not-found).
+- **Copy to another avatar...** is greyed out: the component is not part of an avatar in the scene. Move it under the object that holds the VRChat Avatar Descriptor.
+
+## Related
+
+- [Copy to another avatar window](../../reference/copy-window/) describes every control of the window and how it finds the objects.
+- [Component settings](../../reference/inspector/#component-settings) holds <Label k="ad.ui.copy_to.row" /> and <Label k="ad.ui.copy_to.by_hand_list" />.

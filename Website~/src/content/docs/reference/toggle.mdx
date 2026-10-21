@@ -117,6 +117,8 @@ Your own animation clips, played together with what AvatarDoc writes for this to
 
 Where the clip and the toggle's own rows change the same thing, the toggle's own value wins. While the toggle is off, everything the clip changed goes back to its value in the scene. The <Label k="ad.ui.preview" /> row does not show custom animations, and the panel says so.
 
+In <Label k="ad.ui.mode.advanced" /> mode, right-click a row to mark its <Label k="ad.ui.animation.path_root" /> [Pick by hand when copying](../copy-window/#pick-by-hand).
+
 ### Follows [#follows k=ad.ui.targets.follows]
 
 **Shown in:** Advanced; Simple once it has a row · **Default:** no rows · **Choices:** an object, a target to follow, and <Label k="ad.ui.target.keep_offset" />
@@ -124,6 +126,8 @@ Where the clip and the toggle's own rows change the same thing, the toggle's own
 While the toggle is on, each object in this section follows its target, for example a sword that moves from the back to the hand. Both must be part of the avatar. <Label k="ad.ui.target.keep_offset" /> is off for a new row, so the object snaps onto the target. On keeps the place the object has next to the target in the scene now.
 
 AvatarDoc adds a VRChat constraint to the object in the avatar it uploads. An object that already has a constraint of its own is left alone, with an error.
+
+In <Label k="ad.ui.mode.advanced" /> mode, right-click a row to mark the object or its target [Pick by hand when copying](../copy-window/#pick-by-hand), for a target a world drop holds when you copy the menu to another avatar.
 
 ### + Add effect [#add-effect k=ad.ui.add_effect]
 

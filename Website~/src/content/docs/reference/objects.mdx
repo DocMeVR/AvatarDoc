@@ -45,6 +45,12 @@ The object the row shows or hides. Drag it from the Hierarchy onto the field, or
 
 AvatarDoc sets the object this way whatever it looks like in the scene, so you do not have to switch pieces on or off in the Hierarchy before you upload. On a trigger, on means while the trigger fires.
 
+### Pick by hand when copying [#pick-by-hand k=ad.ui.copy_to.by_hand]
+
+**Shown in:** Advanced · **Default:** Off · **Choices:** On, Off
+
+Right-click a row and choose <Label k="ad.ui.copy_to.by_hand" /> for the row's object. When you [copy the menu to another avatar](../copy-window/), the window then has you pick the object to use on the other version instead of looking at the same place, for an object a world drop holds, for example. The component lists every marked object under [Pick by hand](../inspector/#pick-by-hand).
+
 ## What AvatarDoc builds
 
 Each row switches its object on in one state of the entry's layer and off in the other. A toggle and a trigger that both switch the same object fight over it while both are on. The one AvatarDoc builds later wins, and a note says so. Triggers come after every menu control.
