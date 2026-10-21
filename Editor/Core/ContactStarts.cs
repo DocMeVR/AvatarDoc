@@ -131,8 +131,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// Creates one Follow distance contact trigger anchored on anchor, with a fresh unique name, at the given
         /// world centre and radius. Converts the world placement into contactOffset and contactRadius the same
-        /// way ContactSceneHandle.Apply does: offset in the anchor's own local space, radius divided by the
-        /// anchor's own lossy scale.
+        /// way ContactSceneHandle does: offset in the anchor's own local space, radius divided by the scale a
+        /// contact on the anchor gets (TouchProbe.Scale, its largest axis).
         /// </summary>
         static MenuEntry CreateTrigger(AvatarDoc menu, string baseName, Transform anchor, Vector3 worldCentre, float worldRadius, string[] tags, float fullAt)
         {
@@ -141,7 +141,7 @@ namespace DocMe.AvatarDoctor.Editor
             entry.source = TriggerSource.Contact;
             entry.touchMode = TouchMode.FollowDistance;
             entry.contactAnchor = anchor;
-            float anchorScale = Mathf.Max(0.0001f, anchor.lossyScale.x);
+            float anchorScale = Mathf.Max(0.0001f, TouchProbe.Scale(anchor));
             entry.contactOffset = anchor.InverseTransformPoint(worldCentre);
             entry.contactRadius = Mathf.Clamp(worldRadius / anchorScale, 0.005f, 1f);
             entry.contactTags = new List<string>(tags);

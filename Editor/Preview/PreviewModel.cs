@@ -131,10 +131,11 @@ namespace DocMe.AvatarDoctor.Editor
             var properties = new Dictionary<Renderer, Dictionary<string, PropertyValueEntry>>();
             var follows = new Dictionary<GameObject, FollowTarget>();
 
-            void WriteObject(ObjectTarget target, bool on)
+            void WriteObject(ObjectTarget target, bool on) => WriteObjectActive(target, EffectMath.ObjectActive(target, on));
+            void WriteObjectActive(ObjectTarget target, bool active)
             {
                 if (target.target == null || MenuModel.IsOutsideAvatar(avatarRoot, target.target.transform)) return;
-                objects[target.target] = EffectMath.ObjectActive(target, on);
+                objects[target.target] = active;
             }
             // Off means the object goes back where it belongs, so there is nothing here to preview; only a claim
             // while on is recorded, last one in tree order winning the same way a shared object target already does.
@@ -255,6 +256,32 @@ namespace DocMe.AvatarDoctor.Editor
                     }
                 if (entry.kind == EntryKind.Toggle || entry.kind == EntryKind.Trigger)
                     foreach (var target in entry.follows) WriteFollow(target, on);
+            }
+            // A Fade trigger part way through its Near blend, as the test hand leaves it: every shape, rule and
+            // property between its off and on value, objects and material swaps the way Unity blends them. A
+            // parameter Fade's layer sits among the pin layers, so its shapes join their queue. Follows cannot fade.
+            void WriteFade(MenuEntry entry, float fraction)
+            {
+                bool pinned = entry.IsFollowValueTrigger;
+                foreach (var target in entry.objects) WriteObjectActive(target, EffectMath.FadeObjectActive(target, fraction));
+                foreach (var target in entry.blendShapes)
+                {
+                    if (!MenuModel.ShapeExists(target.renderer, target.shape)) continue;
+                    float weight = EffectMath.FadeShapeWeight(target, fraction, BaseWeight(target));
+                    if (pinned) WritePinned(target, weight);
+                    else WriteShape(target, weight);
+                }
+                foreach (var rule in ShapeSetModel.EffectiveRules(entry))
+                    foreach (var shape in ShapeSetModel.HeldShapes(entry, rule, heldContext))
+                    {
+                        var held = new BlendShapeTarget { renderer = rule.mesh, shape = shape };
+                        float rest = SceneWeight(rule.mesh, shape);
+                        float weight = Mathf.Lerp(rest, ShapeSetModel.HeldWeight(rule, rest), fraction);
+                        if (pinned) WritePinned(held, weight);
+                        else WriteShape(held, weight);
+                    }
+                foreach (var target in entry.materials) WriteMaterial(target, EffectMath.FadeMaterialOn(fraction));
+                foreach (var target in entry.properties) WriteProperty(target, entry, EffectMath.FadePropertyValue(target, fraction, BaseProperty(target, entry)));
             }
 
             var winners = GroupWinners(tree, overrides);
@@ -399,7 +426,9 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 else if (overrides != null && overrides.TryGetValue(entry.id, out var forced))
                 {
-                    if (entry.HasDriver ? RequirementsMet(entry) : GateMet(entry)) WriteSwitch(entry, forced >= 0.5f);
+                    if (!(entry.HasDriver ? RequirementsMet(entry) : GateMet(entry))) continue;
+                    if (entry.IsFollowDistanceTrigger && forced > 0f && forced < 1f) WriteFade(entry, forced);
+                    else WriteSwitch(entry, forced >= 0.5f);
                 }
             }
             if (queuePinned) FlushPinned();

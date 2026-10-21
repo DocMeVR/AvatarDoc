@@ -7,10 +7,11 @@ using UnityEngine.UIElements;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// The pictures of the first eleven guides, one per page, each at the step where a reader needs to see the panel:
-    /// toggles, sliders, colours, material swaps, exclusive groups, names, Hold the rest, contacts, PhysBones, blend
-    /// shape triggers and parameter triggers. Each setup builds the same state the guide's steps leave. Every picture
-    /// but the menu one shows only the selected entry's panel, so it stays readable at the site's width.
+    /// The pictures of the first eleven guides, one per page and a second for contacts, each at the step where a reader
+    /// needs to see the panel: toggles, sliders, colours, material swaps, exclusive groups, names, Hold the rest,
+    /// contacts and their test hand, PhysBones, blend shape triggers and parameter triggers. Each setup builds the same
+    /// state the guide's steps leave. Every picture but the menu one and the test hand's shows only the selected
+    /// entry's panel, so it stays readable at the site's width.
     /// DocsShotSetupTests runs every setup without the screen read.
     /// </summary>
     [Explicit, Category("DocsShots")]
@@ -26,6 +27,7 @@ namespace DocMe.AvatarDoctor.Editor
         [Test] public void OrganiseTheMenuStyle() { using (var avatar = DocsAvatar.Create()) OrganiseTheMenuStyle(avatar).Take(); }
         [Test] public void HoldTheRestRule() { using (var avatar = DocsAvatar.Create()) HoldTheRestRule(avatar).Take(); }
         [Test] public void ReactToTouchFade() { using (var avatar = DocsAvatar.Create()) ReactToTouchFade(avatar).Take(); }
+        [Test] public void ReactToTouchTestHand() { using (var avatar = DocsAvatar.Create()) ReactToTouchTestHand(avatar).Take(); }
         [Test] public void ReactToPhysbonesEvent() { using (var avatar = DocsAvatar.Create()) ReactToPhysbonesEvent(avatar).Take(); }
         [Test] public void FollowABlendShapeSmooth() { using (var avatar = DocsAvatar.Create()) FollowABlendShapeSmooth(avatar).Take(); }
         [Test] public void LinkParameterPicker() { using (var avatar = DocsAvatar.Create()) LinkParameterPicker(avatar).Take(); }
@@ -149,6 +151,39 @@ namespace DocMe.AvatarDoctor.Editor
             poke.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Face, shape = "Cheek_Puff", weight = 100f });
             return PanelShot(menu, poke, "react-to-touch-fade",
                 ("ad-trigger-source", 1), ("ad-touch-mode", 2), ("ad-touch-fullat", 3), ("ad-touch-anchor", 4), ("ad-when-add-and", 5));
+        }
+
+        /// <summary>
+        /// The header while the test hand runs halfway into the sphere of the Headpat start, which fades Blush in: 1 Stop,
+        /// 2 Counts as, 3 Belongs to. The tree and the panel are left out; the hand itself is in the Scene view, which no
+        /// picture of the inspector shows. Release stops the hand, which takes its preview values with it.
+        /// </summary>
+        internal static DocsShotSpec ReactToTouchTestHand(DocsAvatar avatar)
+        {
+            var menu = avatar.AddMenu();
+            var created = ContactStarts.Apply(menu, ContactStarts.StartKind.Headpat, out var errorKey);
+            if (errorKey != null || created.Count != 1)
+                throw new System.InvalidOperationException("The Headpat start made nothing on the docs avatar: " + (errorKey != null ? L.Text(errorKey) : "no trigger came back."));
+            var headpat = created[0];
+            headpat.blendShapes[0].shape = "Blush";
+            var contact = WhenCondition.FromEntry(headpat);
+            return new DocsShotSpec
+            {
+                Page = Page,
+                Name = "react-to-touch-test-hand",
+                View = DocsShot.Inspector(menu),
+                Arrange = root =>
+                {
+                    var view = root.Q<AvatarDoctorView>();
+                    view.Tree.RevealEntry(headpat.id);
+                    view.Q("ad-mode-row").style.display = DisplayStyle.None;
+                    view.Content.style.display = DisplayStyle.None;
+                    if (!TouchTest.RunsOn(view.Plan.AvatarRoot)) TouchTest.Start(menu, headpat, contact);
+                    TouchTest.MoveHand(TouchProbe.Centre(contact) + avatar.Root.transform.forward * (TouchProbe.WorldRadius(contact) * 0.5f));
+                },
+                Markers = new[] { ("ad-touch-test", 1), ("ad-touch-test-part", 2), ("ad-touch-test-who", 3) },
+                Release = TouchTest.Stop,
+            };
         }
 
         /// <summary>A Hair pull trigger on the hair PhysBone, firing once it is stretched past 0.5 and widening the eyes: 1 When, 2 Mode, 3 the PhysBone, 4 the Event, 5 the Amount.</summary>

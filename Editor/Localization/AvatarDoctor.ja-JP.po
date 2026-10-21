@@ -5394,3 +5394,103 @@ msgstr "{0}、{1}手の下"
 #. en: {0}, on desktop
 msgid "ad.ui.gestures.name.whole"
 msgstr "{0}、デスクトップ"
+
+#. en: Test touches
+msgid "ad.ui.touch_test.row"
+msgstr "タッチを試す"
+
+#. en: Test with a hand
+msgid "ad.ui.touch_test.start"
+msgstr "手でテスト"
+
+#. en: Stop
+msgid "ad.ui.touch_test.stop"
+msgstr "停止"
+
+#. en: Counts as
+msgid "ad.ui.touch_test.part"
+msgstr "部位"
+
+#. en: Hand and fingers
+msgid "ad.ui.touch_test.part.hand"
+msgstr "手と指"
+
+#. en: Head
+msgid "ad.ui.touch_test.part.head"
+msgstr "頭"
+
+#. en: Torso
+msgid "ad.ui.touch_test.part.torso"
+msgstr "胴体"
+
+#. en: Foot
+msgid "ad.ui.touch_test.part.foot"
+msgstr "足"
+
+#. en: Custom tag
+msgid "ad.ui.touch_test.part.custom"
+msgstr "カスタムタグ"
+
+#. en: Tag
+msgid "ad.ui.touch_test.tag"
+msgstr "タグ"
+
+#. en: Belongs to
+msgid "ad.ui.touch_test.who"
+msgstr "持ち主"
+
+#. en: Someone else
+msgid "ad.ui.touch_test.who.others"
+msgstr "他プレイヤー"
+
+#. en: You
+msgid "ad.ui.touch_test.who.self"
+msgstr "自分"
+
+#. en: Drag the sphere in the Scene view. Only the scene preview changes, never the avatar.
+msgid "ad.ui.touch_test.note"
+msgstr "シーンビューで球をドラッグします。変わるのはシーンプレビューだけで、アバターは変わりません。"
+
+#. en: Test hand
+msgid "ad.ui.touch_test.hand"
+msgstr "テスト用の手"
+
+#. en: {0}: {1}%
+msgid "ad.ui.touch_test.amount"
+msgstr "{0}：{1}%"
+
+#. en: {0}: waits for a requirement
+msgid "ad.ui.touch_test.blocked"
+msgstr "{0}：必要条件を待っています"
+
+#. en: Puts a hand sphere in the Scene view to drag near the avatar, and the scene preview shows what its touch triggers do.
+msgid "ad.ui.touch_test.start.tip"
+msgstr "シーンビューに手の球を置きます。アバターの近くにドラッグすると、タッチトリガーの動きがシーンプレビューに表示されます。"
+
+#. en: Takes the test hand away and puts back every scene preview it changed.
+msgid "ad.ui.touch_test.stop.tip"
+msgstr "テスト用の手を消し、手が変えたシーンプレビューをすべて元に戻します。"
+
+#. en: The body part the test hand stands for, which decides the contacts it touches through their Touched by tags.
+msgid "ad.ui.touch_test.part.tip"
+msgstr "テスト用の手をどの体の部位として扱うかです。コンタクトの「接触対象」のタグで、触れられるコンタクトが決まります。"
+
+#. en: The contact tag the test hand carries instead, written the way a contact's Custom tag names it.
+msgid "ad.ui.touch_test.tag.tip"
+msgstr "テスト用の手が代わりに持つコンタクトタグです。コンタクトの「カスタムタグ」と同じように書きます。"
+
+#. en: Whether the test hand is another player's or your own, which each contact's Self and Others switches answer to.
+msgid "ad.ui.touch_test.who.tip"
+msgstr "テスト用の手がほかのプレイヤーの手か自分の手かです。各コンタクトの「自分」と「他プレイヤー」の設定がこれに反応します。"
+
+#. en: The hand is another player's, so the contacts with Others on react to it.
+msgid "ad.ui.touch_test.who.others.tip"
+msgstr "ほかのプレイヤーの手として扱うため、「他プレイヤー」がオンのコンタクトが反応します。"
+
+#. en: The hand is your own, so the contacts with Self on react to it.
+msgid "ad.ui.touch_test.who.self.tip"
+msgstr "自分の手として扱うため、「自分」がオンのコンタクトが反応します。"
+
+#. en: The test hand passes this trigger by: it has no effect yet, it is not built on this platform, or its component is switched off or on no avatar.
+msgid "ad.ui.touch_test.passed_by"
+msgstr "テスト用の手はこのトリガーに反応しません。効果がまだないか、このプラットフォームではビルドされないか、コンポーネントがオフか、アバターに付いていません。"

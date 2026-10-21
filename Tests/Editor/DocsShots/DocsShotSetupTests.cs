@@ -444,6 +444,41 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheTestHandShotRunsTheHandHalfwayIntoTheHeadpat()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Guides1.ReactToTouchTestHand(avatar);
+                try
+                {
+                    var menu = MenuOf(avatar);
+
+                    var headpat = menu.entries.Single();
+                    Assert.That(headpat.IsFollowDistanceTrigger, Is.True, "the Headpat start fades");
+                    Assert.That(headpat.blendShapes.Single().shape, Is.EqualTo("Blush"));
+                    Assert.That(Problems(menu), Is.Empty);
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(TouchTest.Running, Is.True, "the hand runs in the picture");
+                        Assert.That(view.Q<Button>("ad-touch-test").text, Is.EqualTo(L.Text("ad.ui.touch_test.stop")));
+                        Assert.That(view.Q("ad-touch-test-settings").ClassListContains("ad-hidden"), Is.False, "the hand's settings show");
+                        Assert.That(view.Q<Label>("ad-touch-test-part-label").text, Is.EqualTo(L.Text("ad.ui.touch_test.part.hand")), "a hand, as the guide says");
+                        Assert.That(view.Q<SegmentedChoice>("ad-touch-test-who").Index, Is.EqualTo(0), "someone else's");
+                        Assert.That(PreviewState.TryGet(headpat.id, out var amount) && amount > 0f && amount < 1f, Is.True, "the Headpat shows part way");
+                    });
+                    spec.Release();
+                    Assert.That(TouchTest.Running, Is.False, "Release stops the hand");
+                    Assert.That(PreviewState.Overrides.Value, Is.Empty, "and leaves no preview behind");
+                }
+                finally
+                {
+                    Release(spec);
+                    TouchTest.Stop();
+                }
+            }
+        }
+
+        [Test]
         public void ThePhysBoneShotShowsAStretchEventWithItsAmount()
         {
             using (var avatar = DocsAvatar.Create())

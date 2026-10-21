@@ -423,6 +423,14 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.gestures.name", "ad.ui.gestures.name.left", "ad.ui.gestures.name.right", "ad.ui.gestures.name.under", "ad.ui.gestures.name.whole", "ad.ui.gestures.switch_name", "ad.ui.gestures.switch_locked",
             "ad.ui.gestures.gesture.1", "ad.ui.gestures.gesture.2", "ad.ui.gestures.gesture.3", "ad.ui.gestures.gesture.4",
             "ad.ui.gestures.gesture.5", "ad.ui.gestures.gesture.6", "ad.ui.gestures.gesture.7",
+
+            // The test hand: its buttons, what it stands for, and its labels in the Scene view.
+            "ad.ui.touch_test.row", "ad.ui.touch_test.start", "ad.ui.touch_test.start.tip", "ad.ui.touch_test.stop", "ad.ui.touch_test.stop.tip",
+            "ad.ui.touch_test.part", "ad.ui.touch_test.part.tip", "ad.ui.touch_test.part.hand", "ad.ui.touch_test.part.head",
+            "ad.ui.touch_test.part.torso", "ad.ui.touch_test.part.foot", "ad.ui.touch_test.part.custom", "ad.ui.touch_test.tag",
+            "ad.ui.touch_test.tag.tip", "ad.ui.touch_test.who", "ad.ui.touch_test.who.tip", "ad.ui.touch_test.who.others",
+            "ad.ui.touch_test.who.others.tip", "ad.ui.touch_test.who.self", "ad.ui.touch_test.who.self.tip", "ad.ui.touch_test.note",
+            "ad.ui.touch_test.hand", "ad.ui.touch_test.amount", "ad.ui.touch_test.blocked", "ad.ui.touch_test.passed_by",
         };
 
         static Localizer localizer;

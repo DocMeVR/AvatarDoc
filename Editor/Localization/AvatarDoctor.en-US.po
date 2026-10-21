@@ -4046,3 +4046,78 @@ msgstr "{0}, under the {1} hand"
 
 msgid "ad.ui.gestures.name.whole"
 msgstr "{0}, on desktop"
+
+msgid "ad.ui.touch_test.row"
+msgstr "Test touches"
+
+msgid "ad.ui.touch_test.start"
+msgstr "Test with a hand"
+
+msgid "ad.ui.touch_test.stop"
+msgstr "Stop"
+
+msgid "ad.ui.touch_test.part"
+msgstr "Counts as"
+
+msgid "ad.ui.touch_test.part.hand"
+msgstr "Hand and fingers"
+
+msgid "ad.ui.touch_test.part.head"
+msgstr "Head"
+
+msgid "ad.ui.touch_test.part.torso"
+msgstr "Torso"
+
+msgid "ad.ui.touch_test.part.foot"
+msgstr "Foot"
+
+msgid "ad.ui.touch_test.part.custom"
+msgstr "Custom tag"
+
+msgid "ad.ui.touch_test.tag"
+msgstr "Tag"
+
+msgid "ad.ui.touch_test.who"
+msgstr "Belongs to"
+
+msgid "ad.ui.touch_test.who.others"
+msgstr "Someone else"
+
+msgid "ad.ui.touch_test.who.self"
+msgstr "You"
+
+msgid "ad.ui.touch_test.note"
+msgstr "Drag the sphere in the Scene view. Only the scene preview changes, never the avatar."
+
+msgid "ad.ui.touch_test.hand"
+msgstr "Test hand"
+
+msgid "ad.ui.touch_test.amount"
+msgstr "{0}: {1}%"
+
+msgid "ad.ui.touch_test.blocked"
+msgstr "{0}: waits for a requirement"
+
+msgid "ad.ui.touch_test.start.tip"
+msgstr "Puts a hand sphere in the Scene view to drag near the avatar, and the scene preview shows what its touch triggers do."
+
+msgid "ad.ui.touch_test.stop.tip"
+msgstr "Takes the test hand away and puts back every scene preview it changed."
+
+msgid "ad.ui.touch_test.part.tip"
+msgstr "The body part the test hand stands for, which decides the contacts it touches through their Touched by tags."
+
+msgid "ad.ui.touch_test.tag.tip"
+msgstr "The contact tag the test hand carries instead, written the way a contact's Custom tag names it."
+
+msgid "ad.ui.touch_test.who.tip"
+msgstr "Whether the test hand is another player's or your own, which each contact's Self and Others switches answer to."
+
+msgid "ad.ui.touch_test.who.others.tip"
+msgstr "The hand is another player's, so the contacts with Others on react to it."
+
+msgid "ad.ui.touch_test.who.self.tip"
+msgstr "The hand is your own, so the contacts with Self on react to it."
+
+msgid "ad.ui.touch_test.passed_by"
+msgstr "The test hand passes this trigger by: it has no effect yet, it is not built on this platform, or its component is switched off or on no avatar."

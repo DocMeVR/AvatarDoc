@@ -156,6 +156,7 @@ namespace DocMe.AvatarDoctor.Editor
                 // holds the next one back has to be let go of here.
                 refreshPending = false;
                 UpdateWheel();
+                TouchTest.NoteView(this, true);
             });
             RegisterCallback<DetachFromPanelEvent>(_ =>
             {
@@ -167,6 +168,7 @@ namespace DocMe.AvatarDoctor.Editor
                 // Nothing off screen has to redraw, and a refresh left waiting here would never run to clear itself.
                 pending?.Pause();
                 refreshPending = false;
+                TouchTest.NoteView(this, false);
             });
             Refresh();
         }
