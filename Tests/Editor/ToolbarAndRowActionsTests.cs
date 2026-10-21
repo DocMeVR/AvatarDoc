@@ -61,7 +61,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(childNames, Is.EqualTo(new[]
             {
                 "ad-add-toggle", "ad-add-radial", "ad-add-submenu", "ad-add-trigger", "ad-add-override", "ad-add-preset", "ad-add-grabbable",
-                "ad-add-animator", "ad-add-menu-asset", "ad-add-parameter", "ad-outfit-open", "ad-add-contact", "ad-more", "", "ad-capture-missing", "ad-import-open", "ad-wheel-toggle",
+                "ad-add-animator", "ad-add-menu-asset", "ad-add-parameter", "ad-add-gesture-faces", "ad-outfit-open", "ad-add-contact", "ad-more", "", "ad-capture-missing", "ad-import-open", "ad-wheel-toggle",
             }), "every add in priority order, More, the flexible spacer, then Capture icons, Convert and the Wheel");
             Assert.That(view.Tree.Q<TextField>("ad-search"), Is.Not.Null, "search stays");
             Assert.That(view.Tree.Q<Button>("ad-tag-filter"), Is.Not.Null, "the tag filter stays, in the finding bar below the actions bar");
@@ -192,7 +192,7 @@ namespace DocMe.AvatarDoctor.Editor
             var expectedNames = new[]
             {
                 "ad.ui.add.trigger", "ad.ui.add.override", "ad.ui.add.preset", "ad.ui.add.grabbable",
-                "ad.ui.add.animator", "ad.ui.add.menu_asset", "ad.ui.parameters.add", "ad.ui.add.outfit",
+                "ad.ui.add.animator", "ad.ui.add.menu_asset", "ad.ui.parameters.add", "ad.ui.add.gesture_faces", "ad.ui.add.outfit",
             };
             Assert.That(items.Select(i => i.NameKey), Is.EqualTo(expectedNames));
             foreach (var item in items)

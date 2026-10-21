@@ -251,7 +251,9 @@ namespace DocMe.AvatarDoctor.Editor
             var entry = node.Entry;
             if (!entry.IsFollowDistanceTrigger) return;
             var (groupIndex, index, condition, tooMany) = FollowDistancePrimary(entry);
-            if (tooMany) tree.Messages.Add(ModelMessage.Warning("ad.warn.follow_distance_one_contact", entry.PlainName, node.Component).For(entry.id));
+            if (tooMany) tree.Messages.Add(ModelMessage.Warning(entry.IsFollowValueTrigger ? "ad.warn.follow_value_one_card" : "ad.warn.follow_distance_one_contact", entry.PlainName, node.Component).For(entry.id));
+            // A parameter Fade reads its parameter, so it makes no receiver.
+            if (entry.IsFollowValueTrigger) return;
             if (condition == null || condition.contactAnchor == null) return;
             if (MenuModel.IsOutsideAvatar(tree.AvatarRoot, condition.contactAnchor)) return;
 
@@ -526,100 +528,121 @@ namespace DocMe.AvatarDoctor.Editor
                 var entry = node.Entry;
                 if (node.Excluded) continue;
                 if (entry.kind != EntryKind.Trigger || !entry.HasEffects) continue;
-                if (!entry.IsFollowDistanceTrigger) continue;
+                // A parameter Fade's layer is built by TriggerBuilder, in its entry's place among the other triggers'.
+                if (!entry.IsFollowDistanceTrigger || entry.IsFollowValueTrigger) continue;
                 var (groupIndex, index, condition, _) = FollowDistancePrimary(entry);
                 if (condition == null || condition.kind != WhenConditionKind.Contact) continue;
                 if (!touch.ByTriggerId.TryGetValue(TouchKey(entry, groupIndex, index), out var info)) continue;
                 var requirements = triggerPlans?.FirstOrDefault(p => p.Kind == TriggerKind.Fade && p.Entry == entry);
                 if (requirements == null && (entry.Requirements().Any() || entry.HasGate)) continue;
-
-                AnimatorBuilder.EnsureParameter(fx, info.Parameter, PlannedType.Float, 0f);
-                if (requirements != null)
-                    foreach (var required in requirements.Conditions.Concat(requirements.Gate))
-                        AnimatorBuilder.EnsureParameter(fx, required.Parameter, required.Type, required.Default);
-
-                // Every shape mode (Fixed, Follow, Pin) writes the same off and on value here: Follow distance has
-                // no separate pin layer, so Pin's usual "no curve while off" exclusion would only make the shape
-                // jump at the boundary instead of blending, which WriteAllShapes avoids.
-                var offContent = new ClipContent(tree.AvatarRoot);
-                offContent.WriteToggle(entry, false, baseState, ShapeSet.All);
-                WriteAllShapes(offContent, entry, false, baseState, tree.AvatarRoot);
-                // A rule's shapes start the blend at rest and reach the rule's value at Fully on, like any row.
-                offContent.WriteShapeSets(entry, baseState, atRuleValue: false);
-                var onContent = new ClipContent(tree.AvatarRoot);
-                onContent.WriteToggle(entry, true, baseState, ShapeSet.All);
-                WriteAllShapes(onContent, entry, true, baseState, tree.AvatarRoot);
-
-                var name = AnimatorBuilder.UniqueLayerName(fx, "AD: " + entry.PlainName + " (distance)");
-                pinLayerNames?.Add(name);
-                var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
-                var sm = layer.StateMachine;
-
-                // Far never carries a curve for the shapes the on pose writes, so blinking and face tracking keep
-                // them while no hand is near. Leaving Near goes through Reset, where the final pass writes their
-                // rest values once, unless another layer, such as face tracking's own Direct tree, already holds
-                // them. The rest value is the off pose's own value, the same one Near's off child shows, so nothing
-                // jumps at the boundary.
-                var farContent = new ClipContent(tree.AvatarRoot);
-                farContent.WriteFarPose(entry, baseState);
-                // A property follows the same rule as a shape here: Reset rests it once, and only when no other
-                // layer owns it; Far writes nothing for it, or this layer, last in FX, would hide a toggle that moves
-                // the same property for good.
-                if (pinState != null)
-                    foreach (var (renderer, property, value) in farContent.TakePropertyWrites())
-                        pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
-                // The pause layers read this flag: 0 in Far, 1 in Near, which is only reached while every
-                // requirement holds, so blinking or lip sync pauses exactly while the effects move.
-                if (touch.PauseFlags.TryGetValue(entry.id, out var pause))
-                {
-                    AnimatorBuilder.EnsureParameter(fx, pause.Parameter, PlannedType.Float, 0f);
-                    farContent.SetAnimatorParameter(pause.Parameter, 0f);
-                    offContent.SetAnimatorParameter(pause.Parameter, 1f);
-                    onContent.SetAnimatorParameter(pause.Parameter, 1f);
-                    pinState?.PauseFlags.Add(pause);
-                }
-                var far = sm.AddState("Far", farContent.ToClip(asc, name + " Far"), new Vector3(0f, 0f, 0f));
-                far.WriteDefaultValues = false;
-                sm.DefaultState = far;
-
-                // A shape the descriptor itself drives (an eyelid or a viseme/jaw flap shape) is never registered
-                // for release: VRChat's own blinking or lip sync owns it while no hand is near, whatever
-                // LayerOwnsBinding would say, and Far must stay free of it even when nothing else currently holds
-                // it (no pause layer built because another system already arbitrates, say).
-                if (pinState != null)
-                    foreach (var (renderer, shape, weight) in offContent.ShapeWrites())
-                    {
-                        var key = (renderer, shape);
-                        if (eyelidShapes.Contains(key) || mouthShapes.Contains(key)) continue;
-                        pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = weight });
-                    }
-
-                float fullAt = entry.EffectiveContactFullAt;
-                var nearTree = VirtualBlendTree.Create(name + " Near");
-                nearTree.BlendType = BlendTreeType.Simple1D;
-                nearTree.BlendParameter = info.Parameter;
-                nearTree.UseAutomaticThresholds = false;
-                nearTree.Children = ImmutableList.Create(
-                    new VirtualBlendTree.VirtualChildMotion { Motion = offContent.ToClip(asc, name + " Near Off"), Threshold = 0f },
-                    new VirtualBlendTree.VirtualChildMotion { Motion = onContent.ToClip(asc, name + " Near On"), Threshold = fullAt });
-                var near = sm.AddState("Near", nearTree, new Vector3(300f, 0f, 0f));
-                near.WriteDefaultValues = false;
-                var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(tree.AvatarRoot);
-                HeldShapePruner.Record(pinState, offContent, entry, name, sm, near, 0, baseState, heldContext);
-                HeldShapePruner.Record(pinState, onContent, entry, name, sm, near, 1, baseState, heldContext);
-
-                // Requirements join the way in (every one must hold) and add a way out each (any one failing
-                // leaves). With none, this is the one transition each way the layer always had. Every way out goes
-                // through Reset back to Far.
-                var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, far, new Vector3(150f, 150f, 0f), false, pinState) : far;
-                var enter = requirements != null ? requirements.Enter : new List<List<AnimatorCondition>> { new List<AnimatorCondition>() };
-                var leave = requirements != null ? requirements.Leave : new List<List<AnimatorCondition>>();
-                far.Transitions = ImmutableList.CreateRange(enter.Select(e =>
-                    AnimatorBuilder.Transition(near, ImmutableList.Create(Cond(info.Parameter, AnimatorConditionMode.Greater, 0.001f)).AddRange(e))));
-                near.Transitions = ImmutableList.Create(AnimatorBuilder.Transition(back, ImmutableList.Create(Cond(info.Parameter, AnimatorConditionMode.Less, 0.001f))))
-                    .AddRange(leave.Select(l => AnimatorBuilder.Transition(back, ImmutableList.CreateRange(l))));
+                touch.PauseFlags.TryGetValue(entry.id, out var pause);
+                BuildFadeLayer(asc, fx, tree, entry, info.Parameter, " (distance)", requirements, pause, baseState, eyelidShapes, mouthShapes, pinLayerNames, pinState);
             }
             return messages;
+        }
+
+        /// <summary>
+        /// A parameter Fade's layer: the same Far, Near, Reset and Load a Fade contact gets, its Near blend driven by
+        /// the Float parameter its first condition names. TriggerBuilder builds it in its entry's place among the
+        /// other triggers' pin layers, so of two triggers that hold one shape the later entry wins, whatever their
+        /// kind. A plan without a driver (its parameter is not a Float) builds nothing.
+        /// </summary>
+        internal static void BuildFollowValueLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, MenuTree tree, TriggerPlan plan, BaseState baseState, ICollection<string> pinLayerNames, PinLayerState pinState)
+        {
+            if (plan?.Driver == null) return;
+            var held = baseState.HeldContext ?? ShapeSetModel.ContextFor(tree.AvatarRoot);
+            BuildFadeLayer(asc, fx, tree, plan.Entry, plan.Driver.Parameter, " (follow)", plan, plan.PauseFlag, baseState, held.Eyelids, held.Mouth, pinLayerNames, pinState);
+        }
+
+        static void BuildFadeLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, MenuTree tree, MenuEntry entry, string driver, string suffix, TriggerPlan requirements, PauseFlag pause,
+            BaseState baseState, HashSet<(SkinnedMeshRenderer renderer, string shape)> eyelidShapes, HashSet<(SkinnedMeshRenderer renderer, string shape)> mouthShapes,
+            ICollection<string> pinLayerNames, PinLayerState pinState)
+        {
+            AnimatorBuilder.EnsureParameter(fx, driver, PlannedType.Float, 0f);
+            if (requirements != null)
+                foreach (var required in requirements.Conditions.Concat(requirements.Gate))
+                    AnimatorBuilder.EnsureParameter(fx, required.Parameter, required.Type, required.Default);
+
+            // Every shape mode (Fixed, Follow, Pin) writes the same off and on value here: Follow distance has
+            // no separate pin layer, so Pin's usual "no curve while off" exclusion would only make the shape
+            // jump at the boundary instead of blending, which WriteAllShapes avoids.
+            var offContent = new ClipContent(tree.AvatarRoot);
+            offContent.WriteToggle(entry, false, baseState, ShapeSet.All);
+            WriteAllShapes(offContent, entry, false, baseState, tree.AvatarRoot);
+            // A rule's shapes start the blend at rest and reach the rule's value at Fully on, like any row.
+            offContent.WriteShapeSets(entry, baseState, atRuleValue: false);
+            var onContent = new ClipContent(tree.AvatarRoot);
+            onContent.WriteToggle(entry, true, baseState, ShapeSet.All);
+            WriteAllShapes(onContent, entry, true, baseState, tree.AvatarRoot);
+
+            var name = AnimatorBuilder.UniqueLayerName(fx, "AD: " + entry.PlainName + suffix);
+            pinLayerNames?.Add(name);
+            var layer = fx.AddLayer(new LayerPriority(int.MaxValue), name);
+            var sm = layer.StateMachine;
+
+            // Far never carries a curve for the shapes the on pose writes, so blinking and face tracking keep
+            // them while no hand is near. Leaving Near goes through Reset, where the final pass writes their
+            // rest values once, unless another layer, such as face tracking's own Direct tree, already holds
+            // them. The rest value is the off pose's own value, the same one Near's off child shows, so nothing
+            // jumps at the boundary.
+            var farContent = new ClipContent(tree.AvatarRoot);
+            farContent.WriteFarPose(entry, baseState);
+            // A property follows the same rule as a shape here: Reset rests it once, and only when no other
+            // layer owns it; Far writes nothing for it, or this layer, last in FX, would hide a toggle that moves
+            // the same property for good.
+            if (pinState != null)
+                foreach (var (renderer, property, value) in farContent.TakePropertyWrites())
+                    pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
+            // The pause layers read this flag: 0 in Far, 1 in Near, which is only reached while every
+            // requirement holds, so blinking or lip sync pauses exactly while the effects move.
+            if (pause != null)
+            {
+                AnimatorBuilder.EnsureParameter(fx, pause.Parameter, PlannedType.Float, 0f);
+                farContent.SetAnimatorParameter(pause.Parameter, 0f);
+                offContent.SetAnimatorParameter(pause.Parameter, 1f);
+                onContent.SetAnimatorParameter(pause.Parameter, 1f);
+                pinState?.PauseFlags.Add(pause);
+            }
+            var far = sm.AddState("Far", farContent.ToClip(asc, name + " Far"), new Vector3(0f, 0f, 0f));
+            far.WriteDefaultValues = false;
+            sm.DefaultState = far;
+
+            // A shape the descriptor itself drives (an eyelid or a viseme/jaw flap shape) is never registered
+            // for release: VRChat's own blinking or lip sync owns it while no hand is near, whatever
+            // LayerOwnsBinding would say, and Far must stay free of it even when nothing else currently holds
+            // it (no pause layer built because another system already arbitrates, say).
+            if (pinState != null)
+                foreach (var (renderer, shape, weight) in offContent.ShapeWrites())
+                {
+                    var key = (renderer, shape);
+                    if (eyelidShapes.Contains(key) || mouthShapes.Contains(key)) continue;
+                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = weight });
+                }
+
+            float fullAt = entry.EffectiveContactFullAt;
+            var nearTree = VirtualBlendTree.Create(name + " Near");
+            nearTree.BlendType = BlendTreeType.Simple1D;
+            nearTree.BlendParameter = driver;
+            nearTree.UseAutomaticThresholds = false;
+            nearTree.Children = ImmutableList.Create(
+                new VirtualBlendTree.VirtualChildMotion { Motion = offContent.ToClip(asc, name + " Near Off"), Threshold = 0f },
+                new VirtualBlendTree.VirtualChildMotion { Motion = onContent.ToClip(asc, name + " Near On"), Threshold = fullAt });
+            var near = sm.AddState("Near", nearTree, new Vector3(300f, 0f, 0f));
+            near.WriteDefaultValues = false;
+            var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(tree.AvatarRoot);
+            HeldShapePruner.Record(pinState, offContent, entry, name, sm, near, 0, baseState, heldContext);
+            HeldShapePruner.Record(pinState, onContent, entry, name, sm, near, 1, baseState, heldContext);
+
+            // Requirements join the way in (every one must hold) and add a way out each (any one failing
+            // leaves). With none, this is the one transition each way the layer always had. Every way out goes
+            // through Reset back to Far.
+            var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, far, new Vector3(150f, 150f, 0f), false, pinState) : far;
+            var enter = requirements != null ? requirements.Enter : new List<List<AnimatorCondition>> { new List<AnimatorCondition>() };
+            var leave = requirements != null ? requirements.Leave : new List<List<AnimatorCondition>>();
+            far.Transitions = ImmutableList.CreateRange(enter.Select(e =>
+                AnimatorBuilder.Transition(near, ImmutableList.Create(Cond(driver, AnimatorConditionMode.Greater, 0.001f)).AddRange(e))));
+            near.Transitions = ImmutableList.Create(AnimatorBuilder.Transition(back, ImmutableList.Create(Cond(driver, AnimatorConditionMode.Less, 0.001f))))
+                .AddRange(leave.Select(l => AnimatorBuilder.Transition(back, ImmutableList.CreateRange(l))));
         }
 
         /// <summary>

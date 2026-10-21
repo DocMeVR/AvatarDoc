@@ -20,7 +20,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.info.path_created", "ad.info.same_submenu_merged", "ad.info.menu_split", "ad.warn.orphan_entry",
             "ad.warn.target_missing", "ad.warn.no_effects", "ad.warn.group_multiple_defaults", "ad.error.group_value_conflict",
             "ad.error.parameter_type_conflict", "ad.error.bits_exceeded", "ad.warn.bits_exceeded_vrcfury", "ad.error.no_fx_layer", "ad.info.curve_overwritten",
-            "ad.warn.marker_clip_skipped", "ad.warn.trigger_source_missing", "ad.warn.parameter_type_unknown",
+            "ad.warn.marker_clip_skipped", "ad.warn.trigger_source_missing", "ad.warn.parameter_type_unknown", "ad.warn.parameter_type_unknown_bool",
             "ad.warn.duplicate_entry_id", "ad.info.parameter_reused", "ad.warn.target_outside_avatar", "ad.info.target_shared",
             "ad.info.target_shared_override", "ad.warn.link_effect_is_source", "ad.info.parameter_animator_only", "ad.warn.replace_kept_source",
             "ad.info.override_applied", "ad.info.override_applied.one", "ad.warn.override_unused", "ad.warn.override_conflict", "ad.warn.override_target_gone",
@@ -89,6 +89,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             // Smooth blend shape triggers and requirements.
             "ad.warn.link_clips_outside_fx", "ad.warn.link_source_tracked", "ad.warn.smooth_range", "ad.warn.requirements_one_card", "ad.warn.link_no_fx_clip",
+
+            // Fade on a parameter trigger.
+            "ad.warn.follow_value_not_float", "ad.warn.follow_value_one_card",
         };
 
         public static readonly string[] UiKeys =
@@ -396,6 +399,30 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.copy_to.run.tip", "ad.ui.copy_to.run.blocked", "ad.ui.copy_to.done.added", "ad.ui.copy_to.done.replaced", "ad.ui.copy_to.row",
             "ad.ui.copy_to.open", "ad.ui.copy_to.open.tip", "ad.ui.copy_to.by_hand", "ad.ui.copy_to.by_hand.description", "ad.ui.copy_to.by_hand_list",
             "ad.ui.copy_to.by_hand_list.tip", "ad.ui.copy_to.by_hand.remove.tip", "ad.ui.copy_to.by_hand_gone",
+
+            // Fade on a parameter trigger.
+            "ad.ui.trigger.value_mode.tip", "ad.ui.trigger.value_hold.tip", "ad.ui.trigger.value_fade.tip", "ad.ui.trigger.value_fullat.tip",
+            "ad.ui.trigger.value_note", "ad.ui.when.value_moves", "ad.ui.builds.follow_value",
+
+            // Gesture faces: the toolbar add, the window and the names of what it makes.
+            "ad.ui.add.gesture_faces", "ad.ui.add.gesture_faces.tip",
+            "ad.ui.gestures.title", "ad.ui.gestures.intro", "ad.ui.gestures.gone", "ad.ui.gestures.mesh", "ad.ui.gestures.mesh.tip",
+            "ad.ui.gestures.mesh.pick", "ad.ui.gestures.tracking", "ad.ui.gestures.tracking.tip", "ad.ui.gestures.tracking.none",
+            "ad.ui.gestures.tracking.none_note", "ad.ui.gestures.tracking.found", "ad.ui.gestures.tracking.pick.tip", "ad.ui.gestures.tracking.local", "ad.ui.gestures.tracking.unknown", "ad.ui.gestures.order", "ad.ui.gestures.order.tip",
+            "ad.ui.gestures.order.right", "ad.ui.gestures.order.right.tip", "ad.ui.gestures.order.left", "ad.ui.gestures.order.left.tip",
+            "ad.ui.gestures.fist", "ad.ui.gestures.fist.check", "ad.ui.gestures.fist.tip", "ad.ui.gestures.switch", "ad.ui.gestures.switch.check",
+            "ad.ui.gestures.switch.tip", "ad.ui.gestures.faces", "ad.ui.gestures.hand.tip", "ad.ui.gestures.hand.left", "ad.ui.gestures.hand.left.tip",
+            "ad.ui.gestures.hand.right", "ad.ui.gestures.hand.right.tip", "ad.ui.gestures.hand.both", "ad.ui.gestures.hand.both.tip",
+            "ad.ui.gestures.row.remove.tip", "ad.ui.gestures.row.empty", "ad.ui.gestures.shape.tip", "ad.ui.gestures.shape.remove.tip",
+            "ad.ui.gestures.capture", "ad.ui.gestures.capture.tip", "ad.ui.gestures.capture.nothing", "ad.ui.gestures.add_shape", "ad.ui.gestures.add_shape.tip",
+            "ad.ui.gestures.row.tracking", "ad.ui.gestures.row.tracking.tip", "ad.ui.gestures.paused", "ad.ui.gestures.paused.tip",
+            "ad.ui.gestures.wins", "ad.ui.gestures.wins.tip", "ad.ui.gestures.add_row", "ad.ui.gestures.add_row.tip", "ad.ui.gestures.overlap",
+            "ad.ui.gestures.posed", "ad.ui.gestures.posed.one", "ad.ui.gestures.posed.reset", "ad.ui.gestures.posed.reset.tip",
+            "ad.ui.gestures.posed.done", "ad.ui.gestures.posed.done.one", "ad.ui.gestures.make", "ad.ui.gestures.make.tip",
+            "ad.ui.gestures.done", "ad.ui.gestures.done.one", "ad.ui.gestures.done.none", "ad.ui.gestures.captured", "ad.ui.gestures.captured.one",
+            "ad.ui.gestures.name", "ad.ui.gestures.name.left", "ad.ui.gestures.name.right", "ad.ui.gestures.name.under", "ad.ui.gestures.name.whole", "ad.ui.gestures.switch_name", "ad.ui.gestures.switch_locked",
+            "ad.ui.gestures.gesture.1", "ad.ui.gestures.gesture.2", "ad.ui.gestures.gesture.3", "ad.ui.gestures.gesture.4",
+            "ad.ui.gestures.gesture.5", "ad.ui.gestures.gesture.6", "ad.ui.gestures.gesture.7",
         };
 
         static Localizer localizer;

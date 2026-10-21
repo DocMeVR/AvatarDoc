@@ -618,6 +618,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             public float Weight(string shape) => body.GetBlendShapeWeight(body.sharedMesh.GetBlendShapeIndex(shape));
 
+            /// <summary>The value a Float animator parameter has now, as the layers animate it.</summary>
+            public float Float(string parameter) => playable.GetFloat(parameter);
+
             /// <summary>The value the animator gives a float material property of the body, read from the renderer's property block.</summary>
             public float Property(string property)
             {

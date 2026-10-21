@@ -213,6 +213,7 @@ namespace DocMe.AvatarDoctor.Editor
                 + "|" + (entry != null && !string.IsNullOrWhiteSpace(entry.exclusiveGroup))
                 + "|" + (trigger ? (int)entry.source : -1)
                 + "|" + (trigger ? (int)entry.touchMode : -1)
+                + "|" + (trigger && OffersValueFade(entry))
                 + "|" + (trigger ? (int)entry.linkStyle : -1)
                 + "|" + (trigger && entry.source == TriggerSource.PhysBone && TouchPanel.IsFloatEvent(entry.physBoneEvent))
                 + "|" + (trigger && entry.source == TriggerSource.Contact && entry.contactProximity > 0f)
@@ -1581,6 +1582,7 @@ namespace DocMe.AvatarDoctor.Editor
                 // Hold or Flip belongs to the trigger, not to any one condition, so it stays below the cards.
                 if (entry.source == TriggerSource.Contact || entry.source == TriggerSource.PhysBone)
                     body.Add(TouchPanel.ModeOnly(this, owner, row));
+                else if (OffersValueFade(entry)) AddValueFadeRows(entry, property);
                 AddGateRow(row, property);
                 if (entry.IsFlipTrigger) return;
                 AddTriggerTargets(property, false, entry);
@@ -1637,18 +1639,23 @@ namespace DocMe.AvatarDoctor.Editor
                     pick.clicked += () => ParameterPicker.Show(pick, owner.Plan, SetSourceParameter);
                     row2.Add(pick);
                     body.Add(row2);
-                    var conditionField = fields.EnumChoice(property.FindPropertyRelative(nameof(MenuEntry.condition)), L.Text("ad.ui.trigger.condition"), ConditionGroupsPanel.ComparisonLabels);
-                    conditionField.name = "ad-trigger-condition";
-                    conditionField.tooltip = L.Text("ad.ui.trigger.condition.tip");
-                    body.Add(Bound(conditionField));
-                    bool needsValue = entry.condition != ParameterCondition.IsTrue && entry.condition != ParameterCondition.IsFalse;
-                    var valueField = fields.Float(property.FindPropertyRelative(nameof(MenuEntry.conditionValue)), L.Text("ad.ui.trigger.value"));
-                    valueField.name = "ad-trigger-value";
-                    valueField.tooltip = L.Text("ad.ui.trigger.value.tip");
-                    var valueRow = Bound(valueField);
-                    valueRow.EnableInClassList("ad-hidden", !needsValue);
-                    body.Add(valueRow);
+                    // A Fade on the parameter blends with its value, so it has no comparison to show.
+                    if (!entry.IsFollowValueTrigger)
+                    {
+                        var conditionField = fields.EnumChoice(property.FindPropertyRelative(nameof(MenuEntry.condition)), L.Text("ad.ui.trigger.condition"), ConditionGroupsPanel.ComparisonLabels);
+                        conditionField.name = "ad-trigger-condition";
+                        conditionField.tooltip = L.Text("ad.ui.trigger.condition.tip");
+                        body.Add(Bound(conditionField));
+                        bool needsValue = entry.condition != ParameterCondition.IsTrue && entry.condition != ParameterCondition.IsFalse;
+                        var valueField = fields.Float(property.FindPropertyRelative(nameof(MenuEntry.conditionValue)), L.Text("ad.ui.trigger.value"));
+                        valueField.name = "ad-trigger-value";
+                        valueField.tooltip = L.Text("ad.ui.trigger.value.tip");
+                        var valueRow = Bound(valueField);
+                        valueRow.EnableInClassList("ad-hidden", !needsValue);
+                        body.Add(valueRow);
+                    }
                     Note(L.Text("ad.ui.trigger.parameter_note"));
+                    if (OffersValueFade(entry)) AddValueFadeRows(entry, property);
                     break;
                 }
                 case TriggerSource.Contact:
@@ -1727,6 +1734,50 @@ namespace DocMe.AvatarDoctor.Editor
             body.Add(Bound(modeField));
             Note(L.Text("ad.ui.trigger.link_note"));
             AddGateRow(row, property);
+        }
+
+        /// <summary>
+        /// Whether a parameter trigger offers Fade, which blends its effects with its first parameter's value: it is
+        /// a Fade already, or that parameter is a Float the avatar or VRChat declares. A Bool or an Int has no value
+        /// in between to follow, so its panel is the one it has always been.
+        /// </summary>
+        bool OffersValueFade(MenuEntry entry)
+        {
+            if (entry == null || entry.kind != EntryKind.Trigger || entry.source != TriggerSource.Parameter) return false;
+            if (entry.touchMode == TouchMode.FollowValue) return true;
+            var first = entry.EffectiveGroups().SelectMany(g => g.group.all).FirstOrDefault(c => c != null);
+            if (first == null || first.kind != WhenConditionKind.Parameter) return false;
+            var name = (first.sourceParameter ?? "").Trim();
+            if (name.Length == 0) return false;
+            var existing = owner.Plan?.Existing;
+            if (existing != null && existing.TryGetValue(name, out var known)) return known.Type == PlannedType.Float;
+            return TriggerPlanner.BuiltInType(name) == PlannedType.Float;
+        }
+
+        /// <summary>A parameter trigger's Mode, Hold or Fade, and for Fade the value at which the effects are fully on.</summary>
+        void AddValueFadeRows(MenuEntry entry, SerializedProperty property)
+        {
+            var row = new VisualElement();
+            row.AddToClassList("ad-row");
+            var label = new Label(L.Text("ad.ui.touch.mode")) { tooltip = L.Text("ad.ui.trigger.value_mode.tip") };
+            label.AddToClassList("ad-label");
+            row.Add(label);
+            bool fade = entry.IsFollowValueTrigger;
+            var choice = new SegmentedChoice(new List<string> { L.Text("ad.ui.touch.hold"), L.Text("ad.ui.touch.follow") }, fade ? 1 : 0,
+                new List<string> { L.Text("ad.ui.trigger.value_hold.tip"), L.Text("ad.ui.trigger.value_fade.tip") })
+            {
+                name = "ad-trigger-value-mode",
+                tooltip = L.Text("ad.ui.trigger.value_mode.tip"),
+            };
+            choice.Changed += index => SetTouchMode(index == 1 ? TouchMode.FollowValue : TouchMode.Hold);
+            row.Add(choice);
+            body.Add(row);
+            if (!fade) return;
+            var fullAt = fields.Slider(property.FindPropertyRelative(nameof(MenuEntry.contactFullAt)), L.Text("ad.ui.touch.fullat"), 0.05f, 1f, owner.ApplyLive);
+            fullAt.name = "ad-trigger-value-fullat";
+            fullAt.tooltip = L.Text("ad.ui.trigger.value_fullat.tip");
+            body.Add(Bound(fullAt));
+            Note(L.Text("ad.ui.trigger.value_note"));
         }
 
         /// <summary>Only while: visible outside the fold when a gate is actually set (it is then something the creator needs to see), tucked into the Advanced fold, like everything else there, while it is not used.</summary>

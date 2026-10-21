@@ -260,7 +260,7 @@ namespace DocMe.AvatarDoctor.Editor
                 string.Format(L.Text(trigger.gateToggleOn ? "ad.ui.when.toggle_on" : "ad.ui.when.toggle_off"), gateName));
         }
 
-        /// <summary>What drives a blend shape trigger or a Fade contact, in words: its shape moving, or a hand coming near its contact.</summary>
+        /// <summary>What drives a blend shape trigger or a Fade trigger, in words: its shape moving, a hand coming near its contact, or its parameter's value.</summary>
         static string DriverWords(MenuEntry trigger)
         {
             if (trigger.source == TriggerSource.BlendShape)
@@ -270,6 +270,11 @@ namespace DocMe.AvatarDoctor.Editor
                 return string.Format(L.Text("ad.ui.when.shape_moves"), renderer + "/" + shape);
             }
             var driver = trigger.EffectiveGroups().SelectMany(g => g.group.all).FirstOrDefault(c => c != null);
+            if (trigger.IsFollowValueTrigger)
+            {
+                var parameter = (driver?.sourceParameter ?? "").Trim();
+                return string.Format(L.Text("ad.ui.when.value_moves"), parameter.Length > 0 ? parameter : L.Text("ad.ui.when.missing"));
+            }
             var anchor = driver != null && driver.contactAnchor != null ? driver.contactAnchor.name : L.Text("ad.ui.when.missing");
             return string.Format(L.Text("ad.ui.when.hand_near"), anchor);
         }

@@ -5030,3 +5030,367 @@ msgstr "指定を外し、コピー時にはもう一度コピー先で同じ場
 #. en: Missing object
 msgid "ad.ui.copy_to.by_hand_gone"
 msgstr "見つからないオブジェクト"
+
+#. en: Fade on \"{0}\" follows \"{1}\", which is not a Float parameter, so nothing was built for it. Make a Float parameter its first condition, or set Mode to Hold. ({2})
+msgid "ad.warn.follow_value_not_float"
+msgstr "「{0}」のフェードは「{1}」に追従しますが、Floatパラメーターではないため、何も作られませんでした。最初の条件をFloatパラメーターにするか、モードをホールドにしてください。（{2}）"
+
+#. en: Fade on \"{0}\" reads only the card its first parameter is in: that parameter drives the fade and the rest of that card are requirements. The conditions in its other cards are kept but not used; move what you need into the first card with + And, or remove the other cards. ({1})
+msgid "ad.warn.follow_value_one_card"
+msgstr "「{0}」のフェードは、最初のパラメーターがあるカードだけを読み取ります。そのパラメーターがフェードを動かし、同じカードの残りは必要条件になります。ほかのカードの条件は残りますが使われません。必要なものは「+ かつ」で最初のカードに移すか、ほかのカードを削除してください。（{1}）"
+
+#. en: Hold applies the effects while every condition holds, and Fade blends them in with the first parameter's value.
+msgid "ad.ui.trigger.value_mode.tip"
+msgstr "ホールドはすべての条件を満たす間だけ効果を適用し、フェードは最初のパラメーターの値に合わせて効果をフェードインします。"
+
+#. en: Applies the trigger's own targets while its conditions hold, and stops the moment they do not.
+msgid "ad.ui.trigger.value_hold.tip"
+msgstr "条件を満たす間はトリガー自身のターゲットを適用し、満たさなくなった瞬間に止めます。"
+
+#. en: Effects blend in with the first parameter's value, from 0 to Fully on at, while the rest of its conditions hold.
+msgid "ad.ui.trigger.value_fade.tip"
+msgstr "残りの条件を満たす間、最初のパラメーターの値に合わせて、0から「最大点」まで効果がフェードインします。"
+
+#. en: The value of the first parameter at which the effects are fully on.
+msgid "ad.ui.trigger.value_fullat.tip"
+msgstr "効果が最大になる、最初のパラメーターの値です。"
+
+#. en: Effects start as the value rises above 0 and are fully on at this value.
+msgid "ad.ui.trigger.value_note"
+msgstr "効果は値が0を超えると始まり、この値で最大になります。"
+
+#. en: \"{0}\" rises above 0
+msgid "ad.ui.when.value_moves"
+msgstr "「{0}」が0を超える"
+
+#. en: fades with \"{0}\", fully on at {1}
+msgid "ad.ui.builds.follow_value"
+msgstr "「{0}」でフェード、{1}で最大"
+
+#. en: + Gesture faces
+msgid "ad.ui.add.gesture_faces"
+msgstr "+ ジェスチャー表情"
+
+#. en: Opens a window that gives each hand gesture a facial expression, with face tracking in mind.
+msgid "ad.ui.add.gesture_faces.tip"
+msgstr "手のジェスチャーごとに表情を付けるウィンドウを開きます。フェイストラッキングにも対応します。"
+
+#. en: Gesture faces
+msgid "ad.ui.gestures.title"
+msgstr "ジェスチャー表情"
+
+#. en: Gives each VRChat hand gesture a face. AvatarDoc makes ordinary triggers for the faces, and opening this window again edits the same triggers.
+msgid "ad.ui.gestures.intro"
+msgstr "VRChatの手のジェスチャーごとに表情を付けます。AvatarDocは表情のために普通のトリガーを作り、このウィンドウを開き直すと同じトリガーを編集します。"
+
+#. en: The component, or the avatar it is on, is gone, so there is nothing to set up.
+msgid "ad.ui.gestures.gone"
+msgstr "コンポーネントか、それがあるアバターがなくなったため、設定できるものがありません。"
+
+#. en: Face mesh
+msgid "ad.ui.gestures.mesh"
+msgstr "顔のメッシュ"
+
+#. en: The mesh of your avatar's face: Capture reads its shapes and + Shape lists them.
+msgid "ad.ui.gestures.mesh.tip"
+msgstr "アバターの顔のメッシュです。「取り込み」はこのシェイプを読み取り、「+ シェイプ」はこの一覧を表示します。"
+
+#. en: Pick a mesh
+msgid "ad.ui.gestures.mesh.pick"
+msgstr "メッシュを選ぶ"
+
+#. en: Face tracking
+msgid "ad.ui.gestures.tracking"
+msgstr "フェイストラッキング"
+
+#. en: The Bool parameter that is on while face tracking is on, found among the avatar's parameters or typed in; a face set to Paused changes nothing while it is on.
+msgid "ad.ui.gestures.tracking.tip"
+msgstr "フェイストラッキング中にオンになるBoolパラメーターです。アバターのパラメーターから見つけるか、名前を入力します。「停止」にした表情は、これがオンの間は何も変えません。"
+
+#. en: None
+msgid "ad.ui.gestures.tracking.none"
+msgstr "なし"
+
+#. en: No face tracking parameter is set, so every face shows whenever its gesture is held.
+msgid "ad.ui.gestures.tracking.none_note"
+msgstr "フェイストラッキングのパラメーターが設定されていないため、どの表情もジェスチャーをしている間は表示されます。"
+
+#. en: found
+msgid "ad.ui.gestures.tracking.found"
+msgstr "検出"
+
+#. en: Both hands
+msgid "ad.ui.gestures.order"
+msgstr "両手"
+
+#. en: Whose face shows while both hands show a gesture that has one.
+msgid "ad.ui.gestures.order.tip"
+msgstr "両手が表情のあるジェスチャーをしているときに、どちらの表情を表示するかです。"
+
+#. en: Right wins
+msgid "ad.ui.gestures.order.right"
+msgstr "右を優先"
+
+#. en: While both hands show a face, only the right hand's face shows, and the left face's shapes rest.
+msgid "ad.ui.gestures.order.right.tip"
+msgstr "両手が表情を出しているときは右手の表情だけを表示し、左手の表情のシェイプは通常の状態に戻します。"
+
+#. en: Left wins
+msgid "ad.ui.gestures.order.left"
+msgstr "左を優先"
+
+#. en: While both hands show a face, only the left hand's face shows, and the right face's shapes rest.
+msgid "ad.ui.gestures.order.left.tip"
+msgstr "両手が表情を出しているときは左手の表情だけを表示し、右手の表情のシェイプは通常の状態に戻します。"
+
+#. en: Fist strength
+msgid "ad.ui.gestures.fist"
+msgstr "グーの強さ"
+
+#. en: The Fist face follows how hard the hand squeezes
+msgid "ad.ui.gestures.fist.check"
+msgstr "グーの表情が手の握り具合に合わせて変わる"
+
+#. en: On: in VR the Fist face blends in with how hard the hand squeezes (the trigger on Index controllers, the grip on most others), starting from no face, and on desktop it shows whole; off: it shows whole as soon as the hand makes a fist.
+msgid "ad.ui.gestures.fist.tip"
+msgstr "オン：VRではグーの表情が手の握り具合（Indexコントローラーではトリガー、ほとんどのほかのコントローラーではグリップ）に合わせて、表情なしの状態からフェードインします。デスクトップでは表情がすべて表示されます。オフ：手がグーになった時点で表情がすべて表示されます。"
+
+#. en: Menu switch
+msgid "ad.ui.gestures.switch"
+msgstr "メニュースイッチ"
+
+#. en: Add a Gesture faces toggle to the menu, on at the start
+msgid "ad.ui.gestures.switch.check"
+msgstr "「ジェスチャー表情」トグルをメニューに追加する（初期状態オン）"
+
+#. en: A toggle in the root menu that turns every gesture face off while it is off, so you can stop them in game; a face with an Only while of your own keeps that instead.
+msgid "ad.ui.gestures.switch.tip"
+msgstr "ルートメニューのトグルです。オフの間はすべてのジェスチャー表情を止めるので、ゲーム内で切れます。自分で「有効条件」を付けた表情は、そちらを使います。"
+
+#. en: Faces
+msgid "ad.ui.gestures.faces"
+msgstr "表情"
+
+#. en: Which hand shows this face: Left, Right, or Both for one face on either hand.
+msgid "ad.ui.gestures.hand.tip"
+msgstr "この表情を出す手です。左、右、またはどちらの手でも同じ表情を出す両手を選びます。"
+
+#. en: Left
+msgid "ad.ui.gestures.hand.left"
+msgstr "左"
+
+#. en: Only the left hand's gesture shows this face.
+msgid "ad.ui.gestures.hand.left.tip"
+msgstr "左手のジェスチャーだけがこの表情を出します。"
+
+#. en: Right
+msgid "ad.ui.gestures.hand.right"
+msgstr "右"
+
+#. en: Only the right hand's gesture shows this face.
+msgid "ad.ui.gestures.hand.right.tip"
+msgstr "右手のジェスチャーだけがこの表情を出します。"
+
+#. en: Both
+msgid "ad.ui.gestures.hand.both"
+msgstr "両手"
+
+#. en: Either hand's gesture shows this face.
+msgid "ad.ui.gestures.hand.both.tip"
+msgstr "どちらの手のジェスチャーでもこの表情を出します。"
+
+#. en: Removes this row; the next Make removes its trigger.
+msgid "ad.ui.gestures.row.remove.tip"
+msgstr "この行を削除します。次に「ジェスチャー表情を作成」を押すと、そのトリガーも削除されます。"
+
+#. en: No face yet, so this gesture changes nothing.
+msgid "ad.ui.gestures.row.empty"
+msgstr "まだ表情がないため、このジェスチャーは何も変えません。"
+
+#. en: The weight this shape has while the face shows.
+msgid "ad.ui.gestures.shape.tip"
+msgstr "表情を出している間の、このシェイプのウェイトです。"
+
+#. en: Takes this shape out of the face.
+msgid "ad.ui.gestures.shape.remove.tip"
+msgstr "このシェイプを表情から外します。"
+
+#. en: Capture
+msgid "ad.ui.gestures.capture"
+msgstr "取り込み"
+
+#. en: Takes every shape of the face mesh that is away from where it rested when this window opened, at its weight now, as this gesture's face.
+msgid "ad.ui.gestures.capture.tip"
+msgstr "顔のメッシュで、このウィンドウを開いたときの状態から変わっているシェイプをすべて、今のウェイトのまま、このジェスチャーの表情として取り込みます。"
+
+#. en: + Shape
+msgid "ad.ui.gestures.add_shape"
+msgstr "+ シェイプ"
+
+#. en: Adds one shape of the face mesh to this face, at 100.
+msgid "ad.ui.gestures.add_shape.tip"
+msgstr "顔のメッシュのシェイプを1つ、100でこの表情に追加します。"
+
+#. en: While tracked
+msgid "ad.ui.gestures.row.tracking"
+msgstr "トラッキング中"
+
+#. en: What this face does while face tracking is on.
+msgid "ad.ui.gestures.row.tracking.tip"
+msgstr "フェイストラッキング中に、この表情がどうなるかです。"
+
+#. en: Paused
+msgid "ad.ui.gestures.paused"
+msgstr "停止"
+
+#. en: Paused by face tracking: while face tracking is on, this gesture changes nothing on the face.
+msgid "ad.ui.gestures.paused.tip"
+msgstr "フェイストラッキング中は停止：フェイストラッキングがオンの間、このジェスチャーは顔を何も変えません。"
+
+#. en: Wins
+msgid "ad.ui.gestures.wins"
+msgstr "優先"
+
+#. en: Wins while held: holding the gesture shows this face over face tracking on the shapes it uses, and letting go hands them back.
+msgid "ad.ui.gestures.wins.tip"
+msgstr "している間は優先：ジェスチャーをしている間は、この表情が使うシェイプでフェイストラッキングより優先して表情を出し、やめるとそれらをフェイストラッキングに戻します。"
+
+#. en: + Row
+msgid "ad.ui.gestures.add_row"
+msgstr "+ 行"
+
+#. en: Adds a row for a gesture, such as a second Fist row to give each hand its own face.
+msgid "ad.ui.gestures.add_row.tip"
+msgstr "ジェスチャーの行を追加します。たとえばグーの行をもう1つ作ると、左右の手で別の表情にできます。"
+
+#. en: {0} has two faces for the same hand. Set one of its rows to the other hand, or remove one.
+msgid "ad.ui.gestures.overlap"
+msgstr "{0}に、同じ手の表情が2つあります。どちらかの行を反対の手にするか、片方を削除してください。"
+
+#. en: {0} shapes of \"{1}\" that your faces use are not where they rested when this window opened: {2}. The avatar shows them like this while no gesture is held, so put them back unless this is how the face rests.
+msgid "ad.ui.gestures.posed"
+msgstr "表情で使う「{1}」のシェイプのうち{0}個が、このウィンドウを開いたときの状態から変わっています：{2}。ジェスチャーをしていない間もアバターはこのまま表示するので、これが顔の通常の状態でなければ元に戻してください。"
+
+#. en: {0} shape of \"{1}\" that your faces use is not where it rested when this window opened: {2}. The avatar shows it like this while no gesture is held, so put it back unless this is how the face rests.
+msgid "ad.ui.gestures.posed.one"
+msgstr "表情で使う「{1}」のシェイプのうち{0}個が、このウィンドウを開いたときの状態から変わっています：{2}。ジェスチャーをしていない間もアバターはこのまま表示するので、これが顔の通常の状態でなければ元に戻してください。"
+
+#. en: Put back
+msgid "ad.ui.gestures.posed.reset"
+msgstr "元に戻す"
+
+#. en: Puts those shapes back at the weights they had when this window opened, in one Undo step.
+msgid "ad.ui.gestures.posed.reset.tip"
+msgstr "それらのシェイプを、このウィンドウを開いたときのウェイトに戻します。元に戻すは1回で済みます。"
+
+#. en: Put {0} shapes back where they rest. Undo takes the change back.
+msgid "ad.ui.gestures.posed.done"
+msgstr "{0}個のシェイプを通常の状態に戻しました。元に戻すと取り消せます。"
+
+#. en: Put {0} shape back where it rests. Undo takes the change back.
+msgid "ad.ui.gestures.posed.done.one"
+msgstr "{0}個のシェイプを通常の状態に戻しました。元に戻すと取り消せます。"
+
+#. en: Make gesture faces
+msgid "ad.ui.gestures.make"
+msgstr "ジェスチャー表情を作成"
+
+#. en: Makes or updates the triggers of every gesture and hand that has a face and removes the ones whose face is gone, in one Undo step, keeping only the first condition card of each.
+msgid "ad.ui.gestures.make.tip"
+msgstr "表情のあるジェスチャーと手ごとにトリガーを作るか更新し、表情がなくなったものは削除します。各トリガーの条件カードは最初の1枚だけを残します。元に戻すは1回で済みます。"
+
+#. en: Saved {0} gesture faces. Undo takes the change back.
+msgid "ad.ui.gestures.done"
+msgstr "{0}個のジェスチャー表情を保存しました。元に戻すと取り消せます。"
+
+#. en: Saved {0} gesture face. Undo takes the change back.
+msgid "ad.ui.gestures.done.one"
+msgstr "{0}個のジェスチャー表情を保存しました。元に戻すと取り消せます。"
+
+#. en: No gesture has a face any more, so the gesture face triggers and their switch were removed. Undo takes the change back.
+msgid "ad.ui.gestures.done.none"
+msgstr "表情のあるジェスチャーがなくなったため、ジェスチャー表情のトリガーとそのスイッチを削除しました。元に戻すと取り消せます。"
+
+#. en: Captured {0} shapes for {1}.
+msgid "ad.ui.gestures.captured"
+msgstr "{1}に{0}個のシェイプを取り込みました。"
+
+#. en: Captured {0} shape for {1}.
+msgid "ad.ui.gestures.captured.one"
+msgstr "{1}に{0}個のシェイプを取り込みました。"
+
+#. en: Gesture: {0} ({1})
+msgid "ad.ui.gestures.name"
+msgstr "ジェスチャー：{0}（{1}）"
+
+#. en: left
+msgid "ad.ui.gestures.name.left"
+msgstr "左"
+
+#. en: right
+msgid "ad.ui.gestures.name.right"
+msgstr "右"
+
+#. en: Gesture faces
+msgid "ad.ui.gestures.switch_name"
+msgstr "ジェスチャー表情"
+
+#. en: Fist
+msgid "ad.ui.gestures.gesture.1"
+msgstr "グー"
+
+#. en: Hand open
+msgid "ad.ui.gestures.gesture.2"
+msgstr "パー"
+
+#. en: Point
+msgid "ad.ui.gestures.gesture.3"
+msgstr "指さし"
+
+#. en: Victory
+msgid "ad.ui.gestures.gesture.4"
+msgstr "ピース"
+
+#. en: Rock and roll
+msgid "ad.ui.gestures.gesture.5"
+msgstr "ロックンロール"
+
+#. en: Hand gun
+msgid "ad.ui.gestures.gesture.6"
+msgstr "ハンドガン"
+
+#. en: Thumbs up
+msgid "ad.ui.gestures.gesture.7"
+msgstr "サムズアップ"
+
+#. en: AvatarDoc cannot find \"{0}\" among the avatar's parameters, so it cannot tell whether it is synced: check that your face tracking setup brings it as a Bool.
+msgid "ad.ui.gestures.tracking.unknown"
+msgstr "AvatarDocはアバターのパラメーターの中に「{0}」を見つけられないため、同期されるかどうかが分かりません。フェイストラッキングの設定がこれをBoolとして持ち込むか確認してください。"
+
+#. en: The Gesture faces toggle cannot go: the locked component on \"{0}\" uses it. Unlock that component, or keep Menu switch ticked.
+msgid "ad.ui.gestures.switch_locked"
+msgstr "「ジェスチャー表情」のトグルは削除できません：「{0}」にあるロックされたコンポーネントがこれを使っています。そのコンポーネントのロックを解除するか、「メニュースイッチ」をオンのままにしてください。"
+
+#. en: The trigger \"{1}\" reads the parameter \"{0}\", but nothing on this avatar declares it, so it is treated as a Bool, since the trigger checks whether it is on or off. Declare \"{0}\" under Parameters with its real type if it is a number.
+msgid "ad.warn.parameter_type_unknown_bool"
+msgstr "トリガー「{1}」はパラメーター「{0}」を読み取りますが、このアバターのどこにも宣言されていません。トリガーはオンかオフかを調べるため、Boolとして扱われます。数値の場合は、「パラメーター」で「{0}」を正しい型で宣言してください。"
+
+#. en: Lists None and every Bool parameter of the avatar, the ones a face tracking prefab brings among them.
+msgid "ad.ui.gestures.tracking.pick.tip"
+msgstr "「なし」と、アバターのすべてのBoolパラメーターを一覧にします。フェイストラッキングのプレハブが持ち込むものも含みます。"
+
+#. en: \"{0}\" is not a synced parameter, so other players never see it on: to them, a Paused face shows even while your face is tracked.
+msgid "ad.ui.gestures.tracking.local"
+msgstr "「{0}」は同期されるパラメーターではないため、ほかのプレイヤーにはオンに見えません。ほかの人には、顔がトラッキングされている間も「停止」の表情が表示されます。"
+
+#. en: No shape of \"{0}\" is away from where it rested when this window opened, so nothing was captured. Set the face up on the mesh first.
+msgid "ad.ui.gestures.capture.nothing"
+msgstr "「{0}」のシェイプは、このウィンドウを開いたときの状態からどれも変わっていないため、何も取り込まれませんでした。先にメッシュで表情を作ってください。"
+
+#. en: {0}, under the {1} hand
+msgid "ad.ui.gestures.name.under"
+msgstr "{0}、{1}手の下"
+
+#. en: {0}, on desktop
+msgid "ad.ui.gestures.name.whole"
+msgstr "{0}、デスクトップ"

@@ -8,7 +8,7 @@ using VRC.SDK3.Avatars.Components;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>One FX layer per condition-driven trigger: Off and On states switched by the planned conditions.</summary>
+    /// <summary>One FX layer per condition-driven trigger: Off and On states switched by the planned conditions. A parameter Fade's layer is built here too, in the same order, so the later of two triggers that hold one shape wins whichever of the two kinds each is.</summary>
     public static class TriggerBuilder
     {
         public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, IReadOnlyList<TriggerPlan> plans, BaseState baseState, ICollection<string> pinLayerNames = null, PinLayerState pinState = null)
@@ -19,6 +19,11 @@ namespace DocMe.AvatarDoctor.Editor
 
             foreach (var plan in plans)
             {
+                if (plan.Kind == TriggerKind.Fade && plan.Entry.IsFollowValueTrigger)
+                {
+                    TouchBuilder.BuildFollowValueLayer(asc, fx, tree, plan, baseState, pinLayerNames, pinState);
+                    continue;
+                }
                 if (plan.Kind != TriggerKind.Condition) continue;
                 foreach (var condition in plan.Conditions)
                     AnimatorBuilder.EnsureParameter(fx, condition.Parameter, condition.Type, condition.Default);

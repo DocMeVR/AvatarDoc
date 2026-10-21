@@ -230,8 +230,12 @@ namespace DocMe.AvatarDoctor.Editor
                     container.Add(ToggleRow(entry, condition, conditionProperty, groupIndex, index));
                     break;
                 case WhenConditionKind.Parameter:
-                    container.Add(ParameterRows(condition, conditionProperty));
+                {
+                    // A parameter Fade's first parameter blends the effects with its value, so it has no comparison.
+                    bool driver = entry.IsFollowValueTrigger && ReferenceEquals(TouchBuilder.FollowDistancePrimary(entry).condition, condition);
+                    container.Add(ParameterRows(condition, conditionProperty, compares: !driver));
                     break;
+                }
                 default:
                     container.Add(TouchRows(row, condition, conditionProperty, groupIndex, index));
                     break;
@@ -262,7 +266,7 @@ namespace DocMe.AvatarDoctor.Editor
             return container;
         }
 
-        VisualElement ParameterRows(WhenCondition condition, SerializedProperty conditionProperty)
+        VisualElement ParameterRows(WhenCondition condition, SerializedProperty conditionProperty, bool compares)
         {
             var container = new VisualElement();
             var line = new VisualElement();
@@ -276,6 +280,7 @@ namespace DocMe.AvatarDoctor.Editor
             pick.clicked += () => ParameterPicker.Show(pick, owner.Plan, picked => detail.SetConditionParameter(conditionProperty, picked));
             line.Add(pick);
             container.Add(line);
+            if (!compares) return container;
 
             var comparison = detail.Fields.EnumChoice(conditionProperty.FindPropertyRelative(nameof(WhenCondition.condition)), L.Text("ad.ui.trigger.condition"), ComparisonLabels);
             comparison.name = "ad-when-comparison";

@@ -5030,3 +5030,367 @@ msgstr "取消此标记，复制时将再次使用另一个 Avatar 上相同位�
 #. en: Missing object
 msgid "ad.ui.copy_to.by_hand_gone"
 msgstr "对象已丢失"
+
+#. en: Fade on \"{0}\" follows \"{1}\", which is not a Float parameter, so nothing was built for it. Make a Float parameter its first condition, or set Mode to Hold. ({2})
+msgid "ad.warn.follow_value_not_float"
+msgstr "“{0}”的渐变跟随“{1}”，但它不是 Float 参数，因此没有为它生成任何内容。请把一个 Float 参数设为第一个条件，或把模式设为保持。（{2}）"
+
+#. en: Fade on \"{0}\" reads only the card its first parameter is in: that parameter drives the fade and the rest of that card are requirements. The conditions in its other cards are kept but not used; move what you need into the first card with + And, or remove the other cards. ({1})
+msgid "ad.warn.follow_value_one_card"
+msgstr "“{0}”的渐变只读取第一个参数所在的卡片：该参数驱动渐变，卡片中的其余行是前提。其他卡片中的条件会保留但不使用；请用“+ 且”把需要的条件移到第一张卡片中，或删除其他卡片。（{1}）"
+
+#. en: Hold applies the effects while every condition holds, and Fade blends them in with the first parameter's value.
+msgid "ad.ui.trigger.value_mode.tip"
+msgstr "保持在所有条件都满足时应用效果，渐变则随第一个参数的值逐渐显现效果。"
+
+#. en: Applies the trigger's own targets while its conditions hold, and stops the moment they do not.
+msgid "ad.ui.trigger.value_hold.tip"
+msgstr "条件满足期间应用触发器自身的目标，条件不再满足时立即停止。"
+
+#. en: Effects blend in with the first parameter's value, from 0 to Fully on at, while the rest of its conditions hold.
+msgid "ad.ui.trigger.value_fade.tip"
+msgstr "其余条件满足期间，效果随第一个参数的值从 0 渐变到“完全开启于”。"
+
+#. en: The value of the first parameter at which the effects are fully on.
+msgid "ad.ui.trigger.value_fullat.tip"
+msgstr "第一个参数达到此值时，效果完全开启。"
+
+#. en: Effects start as the value rises above 0 and are fully on at this value.
+msgid "ad.ui.trigger.value_note"
+msgstr "值超过 0 时效果开始出现，到达此值时完全开启。"
+
+#. en: \"{0}\" rises above 0
+msgid "ad.ui.when.value_moves"
+msgstr "“{0}”超过 0"
+
+#. en: fades with \"{0}\", fully on at {1}
+msgid "ad.ui.builds.follow_value"
+msgstr "随“{0}”渐变，{1} 时完全开启"
+
+#. en: + Gesture faces
+msgid "ad.ui.add.gesture_faces"
+msgstr "+ 手势表情"
+
+#. en: Opens a window that gives each hand gesture a facial expression, with face tracking in mind.
+msgid "ad.ui.add.gesture_faces.tip"
+msgstr "打开一个窗口，为每个手势设置面部表情，并兼顾面部追踪。"
+
+#. en: Gesture faces
+msgid "ad.ui.gestures.title"
+msgstr "手势表情"
+
+#. en: Gives each VRChat hand gesture a face. AvatarDoc makes ordinary triggers for the faces, and opening this window again edits the same triggers.
+msgid "ad.ui.gestures.intro"
+msgstr "为 VRChat 的每个手势设置一个表情。AvatarDoc 为这些表情生成普通的触发器，再次打开此窗口时会编辑同一批触发器。"
+
+#. en: The component, or the avatar it is on, is gone, so there is nothing to set up.
+msgid "ad.ui.gestures.gone"
+msgstr "组件或其所在的 Avatar 已不存在，因此没有可设置的内容。"
+
+#. en: Face mesh
+msgid "ad.ui.gestures.mesh"
+msgstr "脸部网格"
+
+#. en: The mesh of your avatar's face: Capture reads its shapes and + Shape lists them.
+msgid "ad.ui.gestures.mesh.tip"
+msgstr "Avatar 脸部的网格：“捕获”读取它的形态键，“+ 形态键”列出它们。"
+
+#. en: Pick a mesh
+msgid "ad.ui.gestures.mesh.pick"
+msgstr "选择网格"
+
+#. en: Face tracking
+msgid "ad.ui.gestures.tracking"
+msgstr "面部追踪"
+
+#. en: The Bool parameter that is on while face tracking is on, found among the avatar's parameters or typed in; a face set to Paused changes nothing while it is on.
+msgid "ad.ui.gestures.tracking.tip"
+msgstr "面部追踪开启时为开启的 Bool 参数，可从 Avatar 的参数中找到，也可手动输入；设为“暂停”的表情在它开启期间不做任何改变。"
+
+#. en: None
+msgid "ad.ui.gestures.tracking.none"
+msgstr "无"
+
+#. en: No face tracking parameter is set, so every face shows whenever its gesture is held.
+msgid "ad.ui.gestures.tracking.none_note"
+msgstr "没有设置面部追踪参数，因此只要做出手势，对应的表情就会显示。"
+
+#. en: found
+msgid "ad.ui.gestures.tracking.found"
+msgstr "已找到"
+
+#. en: Both hands
+msgid "ad.ui.gestures.order"
+msgstr "双手"
+
+#. en: Whose face shows while both hands show a gesture that has one.
+msgid "ad.ui.gestures.order.tip"
+msgstr "双手都做出有表情的手势时，显示哪只手的表情。"
+
+#. en: Right wins
+msgid "ad.ui.gestures.order.right"
+msgstr "右手优先"
+
+#. en: While both hands show a face, only the right hand's face shows, and the left face's shapes rest.
+msgid "ad.ui.gestures.order.right.tip"
+msgstr "双手都显示表情时，只显示右手的表情，左手表情的形态键回到常态。"
+
+#. en: Left wins
+msgid "ad.ui.gestures.order.left"
+msgstr "左手优先"
+
+#. en: While both hands show a face, only the left hand's face shows, and the right face's shapes rest.
+msgid "ad.ui.gestures.order.left.tip"
+msgstr "双手都显示表情时，只显示左手的表情，右手表情的形态键回到常态。"
+
+#. en: Fist strength
+msgid "ad.ui.gestures.fist"
+msgstr "握拳力度"
+
+#. en: The Fist face follows how hard the hand squeezes
+msgid "ad.ui.gestures.fist.check"
+msgstr "握拳表情随手握紧的程度变化"
+
+#. en: On: in VR the Fist face blends in with how hard the hand squeezes (the trigger on Index controllers, the grip on most others), starting from no face, and on desktop it shows whole; off: it shows whole as soon as the hand makes a fist.
+msgid "ad.ui.gestures.fist.tip"
+msgstr "开启：在 VR 中，握拳表情从无表情开始随手握紧的程度渐变（Index 控制器上是扳机，大多数其他控制器上是握把），在桌面模式下完整显示表情；关闭：手一握拳就完整显示表情。"
+
+#. en: Menu switch
+msgid "ad.ui.gestures.switch"
+msgstr "菜单开关"
+
+#. en: Add a Gesture faces toggle to the menu, on at the start
+msgid "ad.ui.gestures.switch.check"
+msgstr "在菜单中添加“手势表情”开关，默认开启"
+
+#. en: A toggle in the root menu that turns every gesture face off while it is off, so you can stop them in game; a face with an Only while of your own keeps that instead.
+msgid "ad.ui.gestures.switch.tip"
+msgstr "根菜单中的一个开关，关闭期间所有手势表情都不生效，便于在游戏中停用；你自己设置了“仅当”的表情则继续使用那一项。"
+
+#. en: Faces
+msgid "ad.ui.gestures.faces"
+msgstr "表情"
+
+#. en: Which hand shows this face: Left, Right, or Both for one face on either hand.
+msgid "ad.ui.gestures.hand.tip"
+msgstr "由哪只手显示此表情：左、右，或双手（任一只手都显示同一个表情）。"
+
+#. en: Left
+msgid "ad.ui.gestures.hand.left"
+msgstr "左"
+
+#. en: Only the left hand's gesture shows this face.
+msgid "ad.ui.gestures.hand.left.tip"
+msgstr "只有左手的手势显示此表情。"
+
+#. en: Right
+msgid "ad.ui.gestures.hand.right"
+msgstr "右"
+
+#. en: Only the right hand's gesture shows this face.
+msgid "ad.ui.gestures.hand.right.tip"
+msgstr "只有右手的手势显示此表情。"
+
+#. en: Both
+msgid "ad.ui.gestures.hand.both"
+msgstr "双手"
+
+#. en: Either hand's gesture shows this face.
+msgid "ad.ui.gestures.hand.both.tip"
+msgstr "任一只手的手势都显示此表情。"
+
+#. en: Removes this row; the next Make removes its trigger.
+msgid "ad.ui.gestures.row.remove.tip"
+msgstr "移除此行；下次点击“生成手势表情”时会移除它的触发器。"
+
+#. en: No face yet, so this gesture changes nothing.
+msgid "ad.ui.gestures.row.empty"
+msgstr "还没有表情，因此此手势不做任何改变。"
+
+#. en: The weight this shape has while the face shows.
+msgid "ad.ui.gestures.shape.tip"
+msgstr "显示表情期间此形态键的权重。"
+
+#. en: Takes this shape out of the face.
+msgid "ad.ui.gestures.shape.remove.tip"
+msgstr "从表情中移除此形态键。"
+
+#. en: Capture
+msgid "ad.ui.gestures.capture"
+msgstr "捕获"
+
+#. en: Takes every shape of the face mesh that is away from where it rested when this window opened, at its weight now, as this gesture's face.
+msgid "ad.ui.gestures.capture.tip"
+msgstr "把脸部网格中与打开此窗口时的常态不同的所有形态键，按当前权重捕获为此手势的表情。"
+
+#. en: + Shape
+msgid "ad.ui.gestures.add_shape"
+msgstr "+ 形态键"
+
+#. en: Adds one shape of the face mesh to this face, at 100.
+msgid "ad.ui.gestures.add_shape.tip"
+msgstr "把脸部网格的一个形态键以 100 加入此表情。"
+
+#. en: While tracked
+msgid "ad.ui.gestures.row.tracking"
+msgstr "追踪时"
+
+#. en: What this face does while face tracking is on.
+msgid "ad.ui.gestures.row.tracking.tip"
+msgstr "面部追踪开启时此表情的行为。"
+
+#. en: Paused
+msgid "ad.ui.gestures.paused"
+msgstr "暂停"
+
+#. en: Paused by face tracking: while face tracking is on, this gesture changes nothing on the face.
+msgid "ad.ui.gestures.paused.tip"
+msgstr "面部追踪时暂停：面部追踪开启期间，此手势不改变脸部。"
+
+#. en: Wins
+msgid "ad.ui.gestures.wins"
+msgstr "优先"
+
+#. en: Wins while held: holding the gesture shows this face over face tracking on the shapes it uses, and letting go hands them back.
+msgid "ad.ui.gestures.wins.tip"
+msgstr "保持手势时优先：做出手势期间，此表情在它用到的形态键上覆盖面部追踪，松开后把它们交还给面部追踪。"
+
+#. en: + Row
+msgid "ad.ui.gestures.add_row"
+msgstr "+ 行"
+
+#. en: Adds a row for a gesture, such as a second Fist row to give each hand its own face.
+msgid "ad.ui.gestures.add_row.tip"
+msgstr "为某个手势添加一行，例如再加一行握拳，让左右手各有自己的表情。"
+
+#. en: {0} has two faces for the same hand. Set one of its rows to the other hand, or remove one.
+msgid "ad.ui.gestures.overlap"
+msgstr "{0}对同一只手有两个表情。请把其中一行改为另一只手，或删除其中一行。"
+
+#. en: {0} shapes of \"{1}\" that your faces use are not where they rested when this window opened: {2}. The avatar shows them like this while no gesture is held, so put them back unless this is how the face rests.
+msgid "ad.ui.gestures.posed"
+msgstr "表情用到的“{1}”中有 {0} 个形态键与打开此窗口时的常态不同：{2}。不做手势时 Avatar 也会这样显示它们；如果这不是脸部的常态，请把它们放回原处。"
+
+#. en: {0} shape of \"{1}\" that your faces use is not where it rested when this window opened: {2}. The avatar shows it like this while no gesture is held, so put it back unless this is how the face rests.
+msgid "ad.ui.gestures.posed.one"
+msgstr "表情用到的“{1}”中有 {0} 个形态键与打开此窗口时的常态不同：{2}。不做手势时 Avatar 也会这样显示它；如果这不是脸部的常态，请把它放回原处。"
+
+#. en: Put back
+msgid "ad.ui.gestures.posed.reset"
+msgstr "放回原处"
+
+#. en: Puts those shapes back at the weights they had when this window opened, in one Undo step.
+msgid "ad.ui.gestures.posed.reset.tip"
+msgstr "把这些形态键放回打开此窗口时的权重，一步即可撤销。"
+
+#. en: Put {0} shapes back where they rest. Undo takes the change back.
+msgid "ad.ui.gestures.posed.done"
+msgstr "已把 {0} 个形态键放回常态。撤销即可还原。"
+
+#. en: Put {0} shape back where it rests. Undo takes the change back.
+msgid "ad.ui.gestures.posed.done.one"
+msgstr "已把 {0} 个形态键放回常态。撤销即可还原。"
+
+#. en: Make gesture faces
+msgid "ad.ui.gestures.make"
+msgstr "生成手势表情"
+
+#. en: Makes or updates the triggers of every gesture and hand that has a face and removes the ones whose face is gone, in one Undo step, keeping only the first condition card of each.
+msgid "ad.ui.gestures.make.tip"
+msgstr "为每个有表情的手势和手生成或更新触发器，并移除表情已清空的触发器，每个触发器只保留第一张条件卡，一步即可撤销。"
+
+#. en: Saved {0} gesture faces. Undo takes the change back.
+msgid "ad.ui.gestures.done"
+msgstr "已保存 {0} 个手势表情。撤销即可还原。"
+
+#. en: Saved {0} gesture face. Undo takes the change back.
+msgid "ad.ui.gestures.done.one"
+msgstr "已保存 {0} 个手势表情。撤销即可还原。"
+
+#. en: No gesture has a face any more, so the gesture face triggers and their switch were removed. Undo takes the change back.
+msgid "ad.ui.gestures.done.none"
+msgstr "已没有带表情的手势，因此移除了手势表情的触发器及其开关。撤销即可还原。"
+
+#. en: Captured {0} shapes for {1}.
+msgid "ad.ui.gestures.captured"
+msgstr "已为{1}捕获 {0} 个形态键。"
+
+#. en: Captured {0} shape for {1}.
+msgid "ad.ui.gestures.captured.one"
+msgstr "已为{1}捕获 {0} 个形态键。"
+
+#. en: Gesture: {0} ({1})
+msgid "ad.ui.gestures.name"
+msgstr "手势：{0}（{1}）"
+
+#. en: left
+msgid "ad.ui.gestures.name.left"
+msgstr "左"
+
+#. en: right
+msgid "ad.ui.gestures.name.right"
+msgstr "右"
+
+#. en: Gesture faces
+msgid "ad.ui.gestures.switch_name"
+msgstr "手势表情"
+
+#. en: Fist
+msgid "ad.ui.gestures.gesture.1"
+msgstr "握拳"
+
+#. en: Hand open
+msgid "ad.ui.gestures.gesture.2"
+msgstr "张开手"
+
+#. en: Point
+msgid "ad.ui.gestures.gesture.3"
+msgstr "指向"
+
+#. en: Victory
+msgid "ad.ui.gestures.gesture.4"
+msgstr "剪刀手"
+
+#. en: Rock and roll
+msgid "ad.ui.gestures.gesture.5"
+msgstr "摇滚"
+
+#. en: Hand gun
+msgid "ad.ui.gestures.gesture.6"
+msgstr "手枪"
+
+#. en: Thumbs up
+msgid "ad.ui.gestures.gesture.7"
+msgstr "点赞"
+
+#. en: AvatarDoc cannot find \"{0}\" among the avatar's parameters, so it cannot tell whether it is synced: check that your face tracking setup brings it as a Bool.
+msgid "ad.ui.gestures.tracking.unknown"
+msgstr "AvatarDoc 在 Avatar 的参数中找不到“{0}”，因此无法判断它是否同步：请确认你的面部追踪设置会以 Bool 类型带入它。"
+
+#. en: The Gesture faces toggle cannot go: the locked component on \"{0}\" uses it. Unlock that component, or keep Menu switch ticked.
+msgid "ad.ui.gestures.switch_locked"
+msgstr "无法移除“手势表情”开关：“{0}”上被锁定的组件正在使用它。请解锁该组件，或保持勾选“菜单开关”。"
+
+#. en: The trigger \"{1}\" reads the parameter \"{0}\", but nothing on this avatar declares it, so it is treated as a Bool, since the trigger checks whether it is on or off. Declare \"{0}\" under Parameters with its real type if it is a number.
+msgid "ad.warn.parameter_type_unknown_bool"
+msgstr "触发器“{1}”读取参数“{0}”，但此 Avatar 上没有任何地方声明它；由于触发器检查它是开还是关，因此按 Bool 处理。如果它是数值，请在“参数”中按实际类型声明“{0}”。"
+
+#. en: Lists None and every Bool parameter of the avatar, the ones a face tracking prefab brings among them.
+msgid "ad.ui.gestures.tracking.pick.tip"
+msgstr "列出“无”以及 Avatar 的所有 Bool 参数，包括面部追踪预制件带来的参数。"
+
+#. en: \"{0}\" is not a synced parameter, so other players never see it on: to them, a Paused face shows even while your face is tracked.
+msgid "ad.ui.gestures.tracking.local"
+msgstr "“{0}”不是同步参数，其他玩家永远看不到它开启：在他们看来，即使你的脸正在被追踪，设为“暂停”的表情也会显示。"
+
+#. en: No shape of \"{0}\" is away from where it rested when this window opened, so nothing was captured. Set the face up on the mesh first.
+msgid "ad.ui.gestures.capture.nothing"
+msgstr "“{0}”的形态键与打开此窗口时的常态相比都没有变化，因此没有捕获任何内容。请先在网格上摆好表情。"
+
+#. en: {0}, under the {1} hand
+msgid "ad.ui.gestures.name.under"
+msgstr "{0}，在{1}手之下"
+
+#. en: {0}, on desktop
+msgid "ad.ui.gestures.name.whole"
+msgstr "{0}，桌面模式"
