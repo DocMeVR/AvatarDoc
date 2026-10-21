@@ -1611,6 +1611,43 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheReferenceGestureFacesWindowShotHasASmileOnFistAndAGrinOnTheRightVictory()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference2.GestureFacesWindowOverview(avatar);
+                try
+                {
+                    Assert.That(spec.Width, Is.EqualTo(GestureFacesWindow.OpeningWidth), "the picture shows the window at the width it opens at");
+                    Assert.That(MenuOf(avatar).entries, Is.Empty, "nothing is made until Make");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(view.Q<Button>("ad-gestures-mesh").text, Is.EqualTo("Face"), "the mesh the avatar speaks with");
+                        Assert.That(view.Q<TextField>("ad-gestures-tracking").value, Is.EqualTo("LipTrackingActive"), "found among the avatar's parameters");
+                        Assert.That(view.Q<SegmentedChoice>("ad-gestures-order").Index, Is.EqualTo((int)GestureOrder.RightWins));
+                        Assert.That(view.Q<Toggle>("ad-gestures-fist").value, Is.False);
+                        Assert.That(view.Q<Toggle>("ad-gestures-switch").value, Is.True);
+                        var fist = view.Q("ad-gestures-row-0");
+                        Assert.That(fist.Q<Label>("ad-gestures-row-title").text, Is.EqualTo("Fist"));
+                        Assert.That(fist.Q<SegmentedChoice>("ad-gestures-hand").Index, Is.EqualTo((int)GestureHand.Both));
+                        Assert.That(fist.Query<Label>("ad-gestures-shape-name").ToList().Select(s => s.text), Is.EqualTo(new[] { "Smile", "Smile_Eyes" }));
+                        Assert.That(fist.Q<SegmentedChoice>("ad-gestures-row-tracking").Index, Is.EqualTo((int)GestureTracking.Paused));
+                        var victory = view.Q("ad-gestures-row-3");
+                        Assert.That(victory.Q<Label>("ad-gestures-row-title").text, Is.EqualTo("Victory"));
+                        Assert.That(victory.Q<SegmentedChoice>("ad-gestures-hand").Index, Is.EqualTo((int)GestureHand.Right));
+                        Assert.That(victory.Q<SegmentedChoice>("ad-gestures-row-tracking").Index, Is.EqualTo((int)GestureTracking.Wins));
+                        Assert.That(view.Q("ad-gestures-posed"), Is.Null, "the scene shows the face at rest");
+                        Assert.That(view.Q<Button>("ad-gestures-make").enabledSelf, Is.True);
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
         public void TheReferenceCopyWindowShotCopiesToTheNextVersionWithAnObjectAndAShapeMissing()
         {
             using (var avatar = DocsAvatar.Create())

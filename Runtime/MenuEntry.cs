@@ -22,8 +22,8 @@ namespace DocMe.AvatarDoctor
     /// <summary>Which of a PhysBone's own parameters a PhysBone sourced trigger watches.</summary>
     public enum PhysBoneEvent { Grabbed = 0, Posed = 1, AngleAbove = 2, StretchAbove = 3, SquishAbove = 4 }
 
-    /// <summary>What a Contact or PhysBone sourced trigger does with its condition: hold its own effects, flip another toggle, or blend its effects by how close the hand is.</summary>
-    public enum TouchMode { Hold = 0, FlipToggle = 1, FollowDistance = 2 }
+    /// <summary>What a Contact or PhysBone sourced trigger does with its condition: hold its own effects, flip another toggle, or blend its effects by how close the hand is. A Parameter sourced trigger holds its effects, or blends them with its first parameter's value (FollowValue).</summary>
+    public enum TouchMode { Hold = 0, FlipToggle = 1, FollowDistance = 2, FollowValue = 3 }
 
     /// <summary>One entry's platform choice. Inherit takes the enclosing submenu's, or the component's when no submenu above it sets one.</summary>
     public enum EntryPlatform { Inherit = 0, Both = 1, PCOnly = 2, MobileOnly = 3 }
@@ -48,6 +48,8 @@ namespace DocMe.AvatarDoctor
         public Texture2D icon;
         /// <summary>Which platforms this entry is built on. Inherit follows the enclosing submenu, then the component.</summary>
         public EntryPlatform platform = EntryPlatform.Inherit;
+        /// <summary>Which row of the Gesture faces window made this entry, such as "left:1" for its left Fist trigger, or "switch" for its menu switch. Empty for every entry the creator made; a copy made with Duplicate is the creator's own and starts empty.</summary>
+        public string gestureFace = "";
 
         /// <summary>The name stripped of rich text tags. The build uses this for parameters, layer names, paths and messages.</summary>
         public string PlainName => RichName.Strip(name);
@@ -195,10 +197,11 @@ namespace DocMe.AvatarDoctor
         public bool IsFlipTrigger => kind == EntryKind.Trigger && (source == TriggerSource.Contact || source == TriggerSource.PhysBone) && touchMode == TouchMode.FlipToggle;
 
         /// <summary>
-        /// A contact sourced trigger whose effects blend in with how close the touching hand is, instead of
-        /// switching fully on or off. True only when the source is Contact, the mode is FollowDistance, and the
-        /// first condition the trigger actually reads is itself a contact; a trigger whose data says FollowDistance
-        /// but fails any of that behaves and shows as Hold, the same as a stale FlipToggle on a trigger of another
+        /// A Fade trigger: its effects blend in with how close the touching hand is (a Contact source in
+        /// FollowDistance), or with the value of a Float parameter (a Parameter source in FollowValue,
+        /// <see cref="IsFollowValueTrigger"/>), instead of switching fully on or off. True only when the first
+        /// condition the trigger actually reads is of its source's own kind; a trigger whose data says Fade but
+        /// fails any of that behaves and shows as Hold, the same as a stale FlipToggle on a trigger of another
         /// source. This is the one predicate the build and the inspector both ask, so they never disagree about
         /// which trigger this mode really applies to.
         /// </summary>
@@ -206,13 +209,24 @@ namespace DocMe.AvatarDoctor
         {
             get
             {
-                if (kind != EntryKind.Trigger || source != TriggerSource.Contact || touchMode != TouchMode.FollowDistance) return false;
+                if (kind != EntryKind.Trigger) return false;
+                WhenConditionKind driver;
+                if (source == TriggerSource.Contact && touchMode == TouchMode.FollowDistance) driver = WhenConditionKind.Contact;
+                else if (source == TriggerSource.Parameter && touchMode == TouchMode.FollowValue) driver = WhenConditionKind.Parameter;
+                else return false;
                 foreach (var (_, group) in EffectiveGroups())
                     foreach (var condition in group.all)
-                        if (condition != null) return condition.kind == WhenConditionKind.Contact;
+                        if (condition != null) return condition.kind == driver;
                 return false;
             }
         }
+
+        /// <summary>
+        /// The parameter kind of Fade: a parameter sourced trigger in FollowValue mode whose first condition is a
+        /// parameter, so its effects blend with that Float's value from 0 to Fully on at while every other condition
+        /// of its card holds. Always also an IsFollowDistanceTrigger; only the driver differs from a Fade contact.
+        /// </summary>
+        public bool IsFollowValueTrigger => source == TriggerSource.Parameter && IsFollowDistanceTrigger;
 
         /// <summary>A trigger only works while its gate toggle is in the chosen state. Empty gateToggleId means always, so this is false.</summary>
         public bool HasGate => kind == EntryKind.Trigger && !string.IsNullOrEmpty(gateToggleId);

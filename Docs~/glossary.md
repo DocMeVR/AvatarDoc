@@ -42,6 +42,8 @@ names go in “”, with a half-width space between Chinese and Latin words, num
 | Blinking | まばたき | 眨眼 | ("Hold blink": まばたきを保持) |
 | Lip sync | リップシンク | 口型同步 | |
 | Viseme | 口パク | 口型 | A mouth shape for one sound, used by lip sync ("Hold visemes": 口パクを保持). |
+| Face tracking | フェイストラッキング | 面部追踪 | Face and eye tracking hardware moving the face through a layer of the FX animator. |
+| Gesture | ジェスチャー | 手势 | A VRChat hand gesture. The seven besides Neutral: Fist, Hand open, Point, Victory, Rock and roll, Hand gun, Thumbs up; グー、パー、指さし、ピース、ロックンロール、ハンドガン、サムズアップ; 握拳、张开手、指向、剪刀手、摇滚、手枪、点赞. |
 | Eye | 目 | 眼睛 | |
 | PC | PC | PC | The Windows version of VRChat. |
 | Quest | Quest | Quest | The Android version of VRChat (Quest and phones). |
@@ -165,6 +167,8 @@ names go in “”, with a half-width space between Chinese and Latin words, num
 | Copy to another avatar | 別のアバターにコピー | 复制到另一个 Avatar | Copies one AvatarDoc component to another version of the avatar. |
 | Pick by hand when copying | コピー時に手動で選ぶ | 复制时手动选择 | A copy to another avatar never looks for this object by its place: the creator picks the object to use there. |
 | Memory bar | メモリーバー | 参数用量条 | Chinese avoids 内存条, a RAM stick. |
+| Gesture faces | ジェスチャー表情 | 手势表情 | The window that gives each hand gesture a face, made of triggers. |
+| Paused / Wins (while tracked) | 停止 / 優先（トラッキング中） | 暂停 / 优先（追踪时） | What a gesture face does while face tracking is on: nothing, or show over face tracking while held. |
 
 ## Kept in English
 

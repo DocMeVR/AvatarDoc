@@ -214,11 +214,26 @@ namespace DocMe.AvatarDoctor.Editor
             var t = Trigger("T");
             t.source = TriggerSource.Parameter;
             t.sourceParameter = "Custom/Thing";
-            t.condition = ParameterCondition.IsTrue;
+            t.condition = ParameterCondition.Greater;
+            t.conditionValue = 0.5f;
 
             BuildWithTriggers(out var errors, out _);
 
             Assert.That(errors.Any(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.parameter_type_unknown"), Is.True);
+        }
+
+        [Test]
+        public void AnUnknownParameterReadAsOnOrOffBuildsAsABool()
+        {
+            var t = Trigger("T");
+            t.source = TriggerSource.Parameter;
+            t.sourceParameter = "Custom/Thing";
+            t.condition = ParameterCondition.IsTrue;
+
+            var fx = BuildWithTriggers(out var errors, out _);
+
+            Assert.That(errors.Any(e => e.TheError is SimpleError s && s.TitleKey == "ad.warn.parameter_type_unknown_bool"), Is.True);
+            Assert.That(fx.parameters.Single(p => p.name == "Custom/Thing").type, Is.EqualTo(AnimatorControllerParameterType.Bool));
         }
 
         [Test]

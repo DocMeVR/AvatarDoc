@@ -14,10 +14,10 @@ using Object = UnityEngine.Object;
 namespace DocMe.AvatarDoctor.Editor
 {
     /// <summary>
-    /// The pictures of the last sixteen Reference pages: overrides, merged animators, menu assets and declared
+    /// The pictures of the last seventeen Reference pages: overrides, merged animators, menu assets and declared
     /// parameters, presets, outfit sets, AvatarDoc Shapes, the Convert window, the rows Convert reads, the icon
-    /// capture window, the Add to AvatarDoc window, the Copy to another avatar window, the AvatarDoc window and the
-    /// wheel, the scene preview, the summary and the lock, the language list and the limits. A window is shot at its own width; the inspector at DocsShot.InspectorWidth.
+    /// capture window, the Add to AvatarDoc window, the Copy to another avatar window, the Gesture faces window, the
+    /// AvatarDoc window and the wheel, the scene preview, the summary and the lock, the language list and the limits. A window is shot at its own width; the inspector at DocsShot.InspectorWidth.
     /// DocsShotSetupTests runs every setup without the screen read.
     /// </summary>
     [Explicit, Category("DocsShots")]
@@ -44,6 +44,7 @@ namespace DocMe.AvatarDoctor.Editor
         [Test] public void IconCaptureOverview() { using (var avatar = DocsAvatar.Create()) IconCaptureOverview(avatar).Take(); }
         [Test] public void AddWindowOverview() { using (var avatar = DocsAvatar.Create()) AddWindowOverview(avatar).Take(); }
         [Test] public void CopyWindowOverview() { using (var avatar = DocsAvatar.Create()) CopyWindowOverview(avatar).Take(); }
+        [Test] public void GestureFacesWindowOverview() { using (var avatar = DocsAvatar.Create()) GestureFacesWindowOverview(avatar).Take(); }
         [Test] public void WindowOverview() { using (var avatar = DocsAvatar.Create()) WindowOverview(avatar).Take(); }
         [Test] public void WheelTestMode() { using (var avatar = DocsAvatar.Create()) WheelTestMode(avatar).Take(); }
         [Test] public void ScenePreviewOverview() { using (var avatar = DocsAvatar.Create()) ScenePreviewOverview(avatar).Take(); }
@@ -382,6 +383,52 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     ("ad-add-shape", 1), ("ad-add-make", 2), ("ad-add-name", 3), ("ad-add-submenu", 4),
                     ("ad-add-on", 5), ("ad-add-off", 6), ("ad-add-put-back", 7), ("ad-add-run", 8),
+                },
+                Release = () => Object.DestroyImmediate(window),
+            };
+        }
+
+        /// <summary>
+        /// The Gesture faces window at the width it opens at, for an avatar with lip tracking: a smile on Fist for
+        /// both hands, paused by face tracking, and a wide grin on Victory for the right hand, which wins while held:
+        /// 1 Face mesh, 2 Face tracking, 3 Both hands, 4 Fist strength, 5 Menu switch, 6 the Fist row's hand choice,
+        /// 7 its Capture, 8 its While tracked choice. Nothing is made: the picture shows the faces before Make.
+        /// </summary>
+        internal static DocsShotSpec GestureFacesWindowOverview(DocsAvatar avatar)
+        {
+            var parameters = avatar.Test.ExpressionParameters.parameters.ToList();
+            parameters.Add(new VRCExpressionParameters.Parameter { name = "LipTrackingActive", valueType = VRCExpressionParameters.ValueType.Bool, saved = false, networkSynced = true });
+            avatar.Test.ExpressionParameters.parameters = parameters.ToArray();
+            AvatarPlanCache.Invalidate();
+            var menu = avatar.AddMenu();
+            var draft = GestureFaces.Read(menu);
+            var fist = draft.rows.First(r => r.gesture == GestureFaces.Fist);
+            fist.shapes.Add(new GestureShape { renderer = avatar.Face, shape = "Smile", weight = 100f });
+            fist.shapes.Add(new GestureShape { renderer = avatar.Face, shape = "Smile_Eyes", weight = 80f });
+            var victory = draft.rows.First(r => r.gesture == 4);
+            victory.hand = GestureHand.Right;
+            victory.tracking = GestureTracking.Wins;
+            victory.shapes.Add(new GestureShape { renderer = avatar.Face, shape = "Mouth_Smile_Wide", weight = 100f });
+            var window = ScriptableObject.CreateInstance<GestureFacesWindow>();
+            try
+            {
+                window.Init(draft);
+            }
+            catch
+            {
+                Object.DestroyImmediate(window);
+                throw;
+            }
+            return new DocsShotSpec
+            {
+                Page = "reference-gesture-faces-window",
+                Name = "overview",
+                View = window.rootVisualElement,
+                Width = GestureFacesWindow.OpeningWidth,
+                Markers = new[]
+                {
+                    ("ad-gestures-mesh", 1), ("ad-gestures-tracking", 2), ("ad-gestures-order", 3), ("ad-gestures-fist", 4),
+                    ("ad-gestures-switch", 5), ("ad-gestures-hand", 6), ("ad-gestures-capture", 7), ("ad-gestures-row-tracking", 8),
                 },
                 Release = () => Object.DestroyImmediate(window),
             };

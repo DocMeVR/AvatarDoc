@@ -1062,6 +1062,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Opens the outfit set wizard for this component. The method the toolbar's own button calls, so a test can call the same thing. Refused while locked.</summary>
         public void OpenOutfitWindow() { if (!Locked) OutfitSetWindow.Open(owner.Menu); }
 
+        /// <summary>Opens the Gesture faces window for this component, as its toolbar button does. Refused while locked.</summary>
+        public void OpenGestureFacesWindow() { if (!Locked) GestureFacesWindow.Open(owner.Menu); }
+
         // ---- the welcome card (first screen) --------------------------------------------------------------
 
         Button welcomeConvertButton;
@@ -1180,6 +1183,7 @@ namespace DocMe.AvatarDoctor.Editor
                 ("ad.ui.add.animator", "ad.ui.add.animator.tip", () => AddAnimator(null)),
                 ("ad.ui.add.menu_asset", "ad.ui.add.menu_asset.tip", () => AddMenuAsset(null)),
                 ("ad.ui.parameters.add", "ad.ui.parameters.add.tip", () => AddDeclaration()),
+                ("ad.ui.add.gesture_faces", "ad.ui.add.gesture_faces.tip", OpenGestureFacesWindow),
                 ("ad.ui.add.outfit", "ad.ui.add.outfit.tip", OpenOutfitWindow),
             };
         }
@@ -1195,6 +1199,7 @@ namespace DocMe.AvatarDoctor.Editor
                 case "ad.ui.add.animator": return "ad-add-animator";
                 case "ad.ui.add.menu_asset": return "ad-add-menu-asset";
                 case "ad.ui.parameters.add": return "ad-add-parameter";
+                case "ad.ui.add.gesture_faces": return "ad-add-gesture-faces";
                 case "ad.ui.add.outfit": return "ad-outfit-open";
                 default: return nameKey;
             }

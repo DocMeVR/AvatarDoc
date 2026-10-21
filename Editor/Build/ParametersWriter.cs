@@ -122,6 +122,33 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        /// <summary>
+        /// The parameters another tool merges into the avatar at build time under their own names: those of the
+        /// parameters assets VRCFury Full Controllers merge that VRCFury keeps global, read by VrcFuryReader through
+        /// serialized data alone so no VRCFury type is named. Every other name in such an asset is renamed by VRCFury,
+        /// so it is left out.
+        /// </summary>
+        public static List<VRCExpressionParameters.Parameter> ReferencedParameters(Transform avatarRoot)
+            => avatarRoot == null ? new List<VRCExpressionParameters.Parameter>() : VrcFuryReader.FullControllerGlobalParameters(avatarRoot);
+
+        /// <summary>Folds in the names ReferencedParameters found. A declaration already in the map wins; the rest join as animator names, since the tool that refers to them declares them itself.</summary>
+        public static void AddReferenced(Dictionary<string, ExistingParameter> existing, IEnumerable<VRCExpressionParameters.Parameter> referenced)
+        {
+            if (existing == null || referenced == null) return;
+            foreach (var parameter in referenced)
+            {
+                if (parameter == null || string.IsNullOrEmpty(parameter.name) || existing.ContainsKey(parameter.name)) continue;
+                existing[parameter.name] = new ExistingParameter
+                {
+                    Type = ToPlanned(parameter.valueType),
+                    IsExpressionParameter = false,
+                    Saved = false,
+                    Synced = false,
+                    Default = parameter.defaultValue,
+                };
+            }
+        }
+
         public static int SyncedCost(VRCExpressionParameters parameters)
         {
             return parameters == null ? 0 : parameters.CalcTotalCost();

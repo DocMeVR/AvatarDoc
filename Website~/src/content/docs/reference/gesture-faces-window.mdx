@@ -1,0 +1,117 @@
+---
+title: Gesture faces window
+description: Every control of the Gesture faces window, which gives each VRChat hand gesture a facial expression and decides what each one does while face tracking is on.
+---
+
+import Label from '../../../components/Label.astro';
+
+## When to use it
+
+Use this window to give hand gestures their faces: a smile on Fist, a grin on Victory, for the left hand, the right hand or both. It makes ordinary triggers, one for each gesture and hand plus a few that go with them, and edits the same triggers when you open it again. [Facial expressions on hand gestures](../../guides/gesture-faces/) walks you through it. For a single trigger that reacts to a gesture in some other way, such as one that shows an object, make the trigger yourself: see [Triggers](../triggers/).
+
+To open it, press <Label k="ad.ui.add.gesture_faces" /> in the inspector's toolbar. On a narrow inspector, it sits under <Label k="ad.ui.more" />. The add needs <Label k="ad.ui.mode.advanced" /> mode, and a component that is not locked.
+
+The window is called <Label k="ad.ui.gestures.title" /> and opens at 360 pixels wide. It starts with a short note: <Label k="ad.ui.gestures.intro" /> It starts from the faces the component's gesture face triggers show now, read from the triggers themselves, with a row for every gesture that has none yet. Where each shape of a face rests is what <Label k="ad.ui.gestures.make" /> kept on the component; for every other shape of the face mesh, it is the weight the shape has when the window opens. So open the window while the face is at rest the first time, and a scene left showing a face later is never taken for the rest. Nothing changes until you press <Label k="ad.ui.gestures.make" />, and the window never changes what is selected in the Hierarchy.
+
+## Settings
+
+The controls in the order the window shows them.
+
+### Face mesh [#face-mesh k=ad.ui.gestures.mesh]
+
+**Default:** the mesh most of the faces use; for new faces, the mesh the Avatar Descriptor speaks with, then the one it blinks with, then a mesh named Face or Body · **Choices:** every mesh of the avatar that has blend shapes
+
+The mesh <Label k="ad.ui.gestures.capture" /> reads and <Label k="ad.ui.gestures.add_shape" /> lists. Without one, it reads <Label k="ad.ui.gestures.mesh.pick" /> and both buttons are greyed out.
+
+### Face tracking [#face-tracking k=ad.ui.gestures.tracking]
+
+**Default:** the choice the faces were made with; before the first <Label k="ad.ui.gestures.make" />, the parameter face tracking sets, when the avatar has one · **Choices:** <Label k="ad.ui.gestures.tracking.none" /> (an empty field), any Bool parameter of the avatar, or a name you type
+
+The Bool parameter that is on while face tracking is on. AvatarDoc looks for it among the avatar's expression parameters, its FX controller's parameters, the parameters its components declare, Modular Avatar's included, and the parameters assets other components merge, such as a VRCFury face tracking prefab's: LipTrackingActive first, then EyeTrackingActive, then either name after a prefix such as `FT/`.
+
+Type a name into the field, or press the arrow beside it for the list: <Label k="ad.ui.gestures.tracking.none" />, then every Bool parameter of the avatar, the one it found marked <Label k="ad.ui.gestures.tracking.found" />. The list never shows VRChat's own parameters or the ones AvatarDoc makes. <Label k="ad.ui.gestures.make" /> keeps your choice on the component, <Label k="ad.ui.gestures.tracking.none" /> included, so the window does not look for a parameter again.
+
+With <Label k="ad.ui.gestures.tracking.none" />, a note says <Label k="ad.ui.gestures.tracking.none_note" /> and the faces have no <Label k="ad.ui.gestures.row.tracking" /> choice. When AvatarDoc cannot find a typed name among the avatar's parameters, a note says so, since it cannot tell whether the parameter is synced; the faces then read it as a Bool. When the parameter is not a synced one, a note says so: other players never see it on, so to them a face set to <Label k="ad.ui.gestures.paused" /> shows even while your face is tracked.
+
+### Both hands [#both-hands k=ad.ui.gestures.order]
+
+**Default:** <Label k="ad.ui.gestures.order.right" /> · **Choices:** <Label k="ad.ui.gestures.order.right" />, <Label k="ad.ui.gestures.order.left" />
+
+Whose face shows while both hands show a gesture that has one. Only the winning hand's face shows: the losing hand's face goes back to where it rests while the other hand shows a face too. The winning hand's triggers sit after the other hand's, so their layers come later in the FX animator. While face tracking is on, a face set to <Label k="ad.ui.gestures.paused" /> on the winning hand shows nothing, so the losing hand's face stays.
+
+### Fist strength [#fist-strength k=ad.ui.gestures.fist]
+
+**Default:** off · **Choices:** on, off
+
+On, the Fist faces blend in with how hard the hand squeezes, which VRChat gives as GestureLeftWeight for the left hand and GestureRightWeight for the right one: the trigger on Index controllers, the grip on most other controllers. The face starts above 0 and is whole at 1. In VR a fist with no squeeze shows no face yet, so on Index the face grows from nothing as you pull the trigger. On desktop, where VRMode is 0 and there is no squeeze to follow, the Fist face shows whole. If the Fist face never shows with your controllers or with hand tracking, VRChat reports no squeeze for them: leave it off. Off, a Fist face shows whole as soon as the hand makes a fist.
+
+### Menu switch [#menu-switch k=ad.ui.gestures.switch]
+
+**Default:** on · **Choices:** on, off
+
+On, <Label k="ad.ui.gestures.make" /> adds a toggle named <Label k="ad.ui.gestures.switch_name" /> to the root of the component's menu, on at the start, saved and synced, and sets it as every face's <Label k="ad.ui.trigger.gate" />, except a face with an <Label k="ad.ui.trigger.gate" /> of your own, which keeps yours. Turning it off in game turns every gesture face off. It costs 1 synced bit. Off, <Label k="ad.ui.gestures.make" /> removes the toggle it made before, and with it every link to it: a gate, a condition or a preset state that named it, in a trigger you copied too. While a locked component still links to it, <Label k="ad.ui.gestures.make" /> writes nothing and says which component: unlock it, or keep <Label k="ad.ui.gestures.switch" /> ticked.
+
+### Faces [#faces k=ad.ui.gestures.faces]
+
+One card for each row: the gesture's name, the hand, the x that removes the row, then its face.
+
+The hand choice is <Label k="ad.ui.gestures.hand.left" />, <Label k="ad.ui.gestures.hand.right" /> or <Label k="ad.ui.gestures.hand.both" />: one face for either hand. The rows the window starts with for gestures that have no face yet are set to <Label k="ad.ui.gestures.hand.both" />.
+
+Each shape of the face shows its whole name on a line of its own, with its mesh's name before it when that is not <Label k="ad.ui.gestures.mesh" /> and the x that takes the shape out of the face, then a slider from 0 to 100. A shape at 0 stays part of the face: the face holds it at 0. A row without shapes says <Label k="ad.ui.gestures.row.empty" />
+
+Removing a row, or every shape of it, removes the gesture's trigger at the next <Label k="ad.ui.gestures.make" />.
+
+### Capture [#capture k=ad.ui.gestures.capture]
+
+Takes every shape of <Label k="ad.ui.gestures.mesh" /> whose weight in the scene is not where it rests, at its weight now, as the row's face, in place of the shapes the face had on that mesh. A shape you set below where it rests counts too. A Shrink key or a body shape you did not change is left out. It only reads the scene. When no shape changed, nothing changes and the window says so.
+
+### + Shape [#add-shape k=ad.ui.gestures.add_shape]
+
+Adds one shape of <Label k="ad.ui.gestures.mesh" /> to the face at 100. The list has a search field when the mesh has more than 8 shapes.
+
+### While tracked [#while-tracked k=ad.ui.gestures.row.tracking]
+
+**Shown:** while <Label k="ad.ui.gestures.tracking" /> names a parameter · **Default:** <Label k="ad.ui.gestures.paused" /> · **Choices:** <Label k="ad.ui.gestures.paused" />, <Label k="ad.ui.gestures.wins" />
+
+- <Label k="ad.ui.gestures.paused" />, paused by face tracking: while the face tracking parameter is on, the gesture changes nothing on the face. The trigger gets one more condition: the parameter is off.
+- <Label k="ad.ui.gestures.wins" />, wins while held: while the gesture is held, the face shows over face tracking on the shapes it holds. When you let go, the shapes go back to face tracking.
+
+### + Row [#add-row k=ad.ui.gestures.add_row]
+
+Adds a row for the gesture you pick from its list: a row for the left hand, or for the right hand when the gesture already has a left one. Use it to give each hand its own face for one gesture.
+
+### Make gesture faces [#make k=ad.ui.gestures.make]
+
+Makes a trigger for each gesture and hand that has a face, edits the one it made before, and removes the trigger of a face that is gone, all in one Undo step. The line under it says how many faces it saved, such as **Saved 3 gesture faces. Undo takes the change back.** When no face is left, it removes the triggers and the menu switch and says <Label k="ad.ui.gestures.done.none" />
+
+The button is greyed out while no row has a face and the window has made nothing before, while two rows overlap, and while the component is locked, which the window then says: <Label k="ad.ui.locked.refused" />
+
+## Warnings in the window
+
+- Two rows give one hand a face for the same gesture: <Label k="ad.ui.gestures.make" /> waits until you set one of them to the other hand or remove one. A row without shapes never overlaps.
+- The scene shows a shape of a face away from where it rests: while no gesture is held, the avatar shows the shape at the weight the scene has at upload. <Label k="ad.ui.gestures.posed.reset" /> puts those shapes back where they rest, in one Undo step. Leave a shape as it is when that weight is how the face rests.
+
+## What AvatarDoc builds
+
+<Label k="ad.ui.gestures.make" /> writes ordinary triggers into the component, each tagged with its gesture and hand so the window finds it again:
+
+- One trigger for each gesture and hand, named like **Gesture: Fist (left)**, with <Label k="ad.ui.gestures.name.left" /> or <Label k="ad.ui.gestures.name.right" /> for the hand. A face for both hands makes two triggers. Its condition is GestureLeft or GestureRight <Label k="ad.ui.trigger.condition.equals" /> the gesture's number, from 1 for Fist to 7 for Thumbs up, and for a face set to <Label k="ad.ui.gestures.paused" /> also the face tracking parameter <Label k="ad.ui.trigger.condition.is_false" />. Its blend shape rows are the face's own shapes at their weights, set to <Label k="ad.ui.seg.pin" />, and nothing else: face tracking and your toggles keep every other shape.
+- For each face of the losing hand, a trigger named like **Gesture: Fist (left), under the right hand**: while that face's gesture is held and the other hand shows a gesture that has a face, it holds the face's shapes at the weights they rest at, so only the winning face shows. It also asks for the losing face's own conditions. A face of the winning hand set to <Label k="ad.ui.gestures.paused" /> counts only while the face tracking parameter is off, and one with conditions or an <Label k="ad.ui.trigger.gate" /> of your own counts only while they are met. A case that would need more than four conditions on one card is left out, and then both faces show. When the rule is too long for one layer, it is split over more triggers, named with 2, 3 and so on at their end.
+- With <Label k="ad.ui.gestures.fist" />, the Fist triggers are in <Label k="ad.ui.touch.follow" /> mode on GestureLeftWeight or GestureRightWeight, with <Label k="ad.ui.touch.fullat" /> at 1. See [Mode](../triggers/#mode). Each also gets a trigger named like **Gesture: Fist (left), on desktop**, after it, that shows the face whole while the hand makes a fist and VRMode is 0, with the objects, materials, properties, follows and Hold the rest rules you added to the Fist face's trigger.
+- The triggers sit together in the component, the hand that loses first.
+
+At upload, each trigger builds the pin layer every trigger with Pin rows builds, at the end of the FX animator, after face tracking. While a face holds a shape, a toggle that moves the same shape does not show on it; when you let go, the shape follows the toggle again. A Fist trigger with <Label k="ad.ui.gestures.fist" /> builds its fade layer in the same place. When a face sets a shape VRChat blinks or speaks with, blinking or lip sync pauses while it shows. The triggers add no synced bits; the menu switch adds 1.
+
+You can open each trigger in the inspector and change it there. The next <Label k="ad.ui.gestures.make" /> keeps what you added to a face's trigger, such as objects, materials, properties, follows, a Hold the rest rule, an <Label k="ad.ui.trigger.gate" /> of your own or conditions of your own in its first card, and writes the blend shape rows, the gesture and face tracking conditions and the mode again. It keeps only the first condition card. The triggers under the other hand and the no squeeze ones are the window's alone: it writes them whole every time. A trigger you copy with Duplicate is your own, and the window leaves it alone.
+
+## Messages
+
+- [Nothing declares the parameter](../messages/#ad-warn-parameter-type-unknown-bool): the face tracking parameter is not a parameter AvatarDoc can find, so it is read as a Bool.
+- [A target is missing](../messages/#ad-warn-target-missing): a shape of a face is gone from its mesh.
+
+## Related
+
+- [Facial expressions on hand gestures](../../guides/gesture-faces/)
+- [Triggers](../triggers/)
+- [Blinking, lip sync and face tracking](../../how-it-works/blinking-and-lip-sync/)
+- [Layers, Write Defaults and pinned layers](../../how-it-works/layers-and-pins/)

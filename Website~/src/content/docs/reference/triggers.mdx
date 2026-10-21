@@ -82,6 +82,21 @@ On a whole number, <Label k="ad.ui.trigger.condition.is_true" /> means not 0. On
 
 The number the condition compares with. GestureRight <Label k="ad.ui.trigger.condition.equals" /> 7 is true while the right hand shows a thumbs up.
 
+### Mode [#mode k=ad.ui.touch.mode]
+
+**Shown in:** Simple and Advanced, with <Label k="ad.ui.trigger.source.parameter" />, while the first parameter is a Float or the trigger is already in <Label k="ad.ui.touch.follow" /> mode · **Default:** <Label k="ad.ui.touch.hold" /> · **Choices:** <Label k="ad.ui.touch.hold" />, <Label k="ad.ui.touch.follow" />
+
+- <Label k="ad.ui.touch.hold" />: the effects are on while the conditions are true, and off the moment they are not.
+- <Label k="ad.ui.touch.follow" />: the effects blend in with the first parameter's value, from 0 to <Label k="ad.ui.touch.fullat" />, while the trigger's other conditions are true. The first parameter has no <Label k="ad.ui.trigger.condition" /> then: its value itself moves the effects. Use it for a value between 0 and 1, such as GestureLeftWeight, how hard the left hand squeezes: the trigger on Index controllers, the grip on most other controllers. The [Gesture faces window](../gesture-faces-window/) uses it for <Label k="ad.ui.gestures.fist" />.
+
+A parameter that is on or off, or a whole number, has no value in between to follow, so its trigger does not show <Label k="ad.ui.touch.mode" />.
+
+### Fully on at [#fully-on-at k=ad.ui.touch.fullat]
+
+**Shown in:** Simple and Advanced, in <Label k="ad.ui.touch.follow" /> mode on a parameter · **Default:** 0.8 · **Range:** 0.05 to 1
+
+The value of the first parameter at which the effects are fully on. Above 0 they start to show, and between 0 and this value they blend.
+
 ### Fires [#fires k=ad.ui.fires]
 
 **Shown in:** Simple and Advanced
@@ -128,7 +143,7 @@ The scene preview and the wheel's Test mode respect <Label k="ad.ui.trigger.gate
 
 **Shown in:** Simple and Advanced · **Default:** <Label k="ad.ui.objects" />, empty · **Choices:** <Label k="ad.ui.objects" />, <Label k="ad.ui.blendshapes" />, <Label k="ad.ui.materials" />, <Label k="ad.ui.targets.properties" />, <Label k="ad.ui.targets.follows" />
 
-A trigger has the same effect sections as a toggle, except <Label k="ad.ui.targets.animations" />. A trigger in <Label k="ad.ui.touch.flip" /> mode has none, and a blend shape trigger and a <Label k="ad.ui.touch.follow" /> contact have no <Label k="ad.ui.targets.follows" />. The sections are [Objects](../objects/), [Blend shape rows](../blend-shapes/), [Material slots](../material-slots/), [Material properties](../material-properties/) and [Follows](../toggle/#follows). <Label k="ad.ui.add_effect" /> adds a section. A trigger can also hold the rest of a mesh while it fires, with <Label k="ad.ui.shape_set.hold" />.
+A trigger has the same effect sections as a toggle, except <Label k="ad.ui.targets.animations" />. A trigger in <Label k="ad.ui.touch.flip" /> mode has none, and a blend shape trigger and a trigger in <Label k="ad.ui.touch.follow" /> mode have no <Label k="ad.ui.targets.follows" />. The sections are [Objects](../objects/), [Blend shape rows](../blend-shapes/), [Material slots](../material-slots/), [Material properties](../material-properties/) and [Follows](../toggle/#follows). <Label k="ad.ui.add_effect" /> adds a section. A trigger can also hold the rest of a mesh while it fires, with <Label k="ad.ui.shape_set.hold" />.
 
 On means while the trigger fires, and off while it does not.
 
@@ -148,6 +163,8 @@ Which build makes the trigger. A trigger sits in no submenu, so <Label k="ad.ui.
 
 At upload, a trigger adds one layer to the avatar's FX animator, named AD: and the trigger's name, with an off state and an on state. Its conditions become the moves between them. When the trigger changes a material property on an avatar with Write Defaults off, the layer also gets a Reset state, which it passes at load and on its way from on to off to set the property back to rest once; see [Explicit rests](../../how-it-works/layers-and-pins/#explicit-rests). It adds no parameter, no menu button and no synced bits: it reads parameters that already exist. A trigger with <Label k="ad.ui.seg.pin" /> rows or a rule that holds the rest puts those in a layer of its own, like a toggle.
 
+A parameter trigger in <Label k="ad.ui.touch.follow" /> mode builds one layer instead, named AD:, the trigger's name and (follow): a resting state that writes no blend shape while the first parameter is 0 or another condition is false, and a blend from the effects' rest values to their full values over the parameter. It is built like a pin layer, at the end of the FX animator, in the place the trigger has among the other triggers.
+
 When a trigger and a menu control change the same thing, the one AvatarDoc builds later wins. Triggers come after every menu control.
 
 ## Messages
@@ -157,6 +174,8 @@ When a trigger and a menu control change the same thing, the one AvatarDoc build
 - [The rule has too many conditions](../messages/#ad-error-trigger-too-complex).
 - [The trigger's toggle, parameter or shape is gone](../messages/#ad-warn-trigger-source-missing).
 - [Nothing declares the parameter](../messages/#ad-warn-parameter-type-unknown): it is read as a Float.
+- [Nothing declares the parameter, read as on or off](../messages/#ad-warn-parameter-type-unknown-bool): a condition <Label k="ad.ui.trigger.condition.is_true" /> or <Label k="ad.ui.trigger.condition.is_false" /> on it reads it as a Bool.
+- [A Fade on a parameter that is not a Float](../messages/#ad-warn-follow-value-not-float): nothing is built for it.
 - [The toggle for Only while is missing or cannot be used](../messages/#ad-error-gate-target).
 - [The trigger has no targets](../messages/#ad-warn-no-effects).
 - [A target is missing](../messages/#ad-warn-target-missing).

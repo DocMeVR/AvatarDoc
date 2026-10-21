@@ -2773,3 +2773,64 @@ On, and a pin on the same shape flickered it to rest for a moment at load and on
 ordinary layer's idle state is Write Defaults on by the final pass (VRCFury's Write Defaults fixer turns every state
 on between AvatarDoc's passes when the creator does not choose Skip), `ReleasePinsToRest` writes the rest into that
 idle state too, since it writes the binding on every frame anyway.
+
+## Gesture faces (asked 2026-10-21, plan 21)
+
+A window gives each VRChat hand gesture a face. It writes ordinary parameter triggers, so the faces get everything a
+trigger already has: pin layers that reset once and let go, the blink and lip sync pause, Hold the rest, the preview.
+
+- **One trigger per gesture and hand.** The condition is `GestureLeft` or `GestureRight` equals the gesture's value
+  (1 Fist to 7 Thumbs up). A row for both hands makes a left and a right trigger with the same face. Each trigger is
+  tagged in `MenuEntry.gestureFace` (`left:1`, `right:4`; the menu switch is `switch`), so the window reads its rows
+  back from the triggers and edits the same triggers next time. A Duplicate clears the tag.
+- **Face tracking.** The window looks for a Bool among the avatar's expression, FX and provided parameters and the
+  parameters VRCFury Full Controllers merge under their own names (`VrcFuryReader.FullControllerGlobalParameters`:
+  the `prms` assets read through `SerializedObject`, kept only where `globalParams` keeps the name, matched the way
+  VRCFury matches it, plus GoGo Loco's `Go/` names; every other name VRCFury renames, so it must not reach the
+  planner, where it would turn a toggle's own parameter of the same name animator-only). The planner learns their
+  types, so the condition builds as a Bool: `LipTrackingActive`, then `EyeTrackingActive`, then either after a
+  prefix. Any name can be typed; one AvatarDoc cannot find gets a note instead of the sync note, and an "is true"
+  or "is false" condition on an unknown name now builds as a Bool (`ad.warn.parameter_type_unknown_bool`). A face that is Paused gets one more
+  condition, that parameter is false. A face that Wins gets none: its pin layer sits after face tracking, and its
+  Reset skips the shapes face tracking's Direct tree owns, so letting go hands them straight back. The choice,
+  None included, is kept in `AvatarDoc.gestureFaces`, so a creator's own "something is false" condition is never
+  read as the tracking parameter, and None is not detected away. A note says when the parameter is not synced.
+- **Rest.** Make keeps where every shape of the faces rests in `GestureFaceSettings.rest`. Read takes those first
+  and the scene's weights only for shapes never kept (`GestureFacesDraft.rest`), so a scene left posed is not taken
+  for the rest on the next open. Capture takes only the shapes away from rest, the posed warning and Put back use
+  it, and the losing face is held at it. The scene comes before the prefab source because outfit Shrink keys are
+  usually instance overrides: the prefab would call them posed and pin them at 0.
+- **Both hands.** A face pins only its own shapes, so face tracking and toggles keep the rest (the creator's ruling:
+  Wins overrides face tracking only on the shapes that face uses). The triggers sit together in the component, the
+  losing hand's first, so the winning hand's pin layers come later in FX. Each losing face gets one more Hold
+  trigger after it, tagged `left:1:under` (`under2` and on when split), that pins its shapes at rest while its
+  gesture is held and the other hand shows a faced gesture: one card per run of the other hand's faced gestures
+  (Greater and Less around a run, Equals for one), the tracking parameter being off added to the runs of Paused
+  faces on the winning hand, or to every card when the losing face is Paused itself. Every card also asks for the
+  losing face's own conditions, and a winning face with conditions or a gate of its own gets a card of its own with
+  them, so the hold exists only while both faces would show. A card past four conditions is left out. Cards are
+  split over more triggers to keep the leave product under the cap with the gate's one. No face holds another
+  face's shapes while it shows alone.
+- **Fist strength on desktop.** VRChat's weight follows the trigger on Index and the grip elsewhere, so in VR a
+  fist with no squeeze is the normal start and the face must grow from nothing. Keying a whole face on a weight of
+  0 made Index jump from whole to nothing at the first touch. Each Fist with strength instead gets a Hold trigger
+  `left:1:whole` (gesture is Fist, `VRMode` is 0) after the Fade, so on desktop the whole face wins whatever weight
+  is reported, with the Fist face's objects, materials, properties, follows and rules copied in. What hand tracking
+  reports is not checked; the docs tell a creator to leave Fist strength off if the face never shows.
+- **What the window owns.** Each Make writes a face trigger's blend shape rows, its gesture and tracking conditions
+  and its mode again, and the switch as its gate unless it has an Only while of the creator's own. Objects,
+  materials, properties, follows, rules, the icon, the name and conditions of the creator's own in the first group
+  stay. The `whole` and `under` triggers are the window's alone (an under carries no effect but its rest rows).
+  Removing the switch also clears every gate, condition, flip, source and preset state on the avatar that names it,
+  in the same Undo step; while a locked component still names it, Make refuses and says which.
+
+### Fade on a parameter
+
+Fist strength needs a face that follows `GestureLeftWeight`. A parameter trigger gets the Fade a contact has:
+`TouchMode.FollowValue`, a new value so a contact's `FollowDistance` left behind by a source switch still means
+nothing on a parameter. Its first condition is the driver and must resolve to a Float
+(`ad.warn.follow_value_not_float` otherwise); the rest of its card are requirements, as on a Fade contact. The layer
+is the Fade contact's own (`TouchBuilder.BuildFadeLayer`), but `TriggerBuilder` builds it in the entry's place
+among the other triggers' pin layers instead of after all of them: of a Fist with strength and another gesture's
+face on the other hand, the hand order has to decide, whichever kind each trigger is. The preview queues its rows
+with the pinned rows for the same reason.

@@ -8,7 +8,7 @@ using VRC.SDK3.Avatars.Components;
 
 namespace DocMe.AvatarDoctor.Editor
 {
-    /// <summary>Condition: an Off and On layer. Link: a blend shape trigger, its own layer driven by the hidden copy of its shape. Fade: a Follow distance contact, whose layer TouchBuilder builds; the plan carries only its requirements.</summary>
+    /// <summary>Condition: an Off and On layer. Link: a blend shape trigger, its own layer driven by the hidden copy of its shape. Fade: a Follow distance contact or a parameter Fade, whose layer TouchBuilder builds; the plan carries its requirements, and a parameter Fade's driver.</summary>
     public enum TriggerKind { Condition = 0, Link = 1, Fade = 2 }
 
     /// <summary>An animator condition for a trigger: which parameter, its type, and the transitions that switch the trigger on and off.</summary>
@@ -46,8 +46,10 @@ namespace DocMe.AvatarDoctor.Editor
         public float SmoothFull = 100f;
         /// <summary>The hidden Float parameter that copies the source shape's weight, in the same 0 to 100 units, from every FX clip that moves it. Never an expression parameter.</summary>
         public string MirrorParameter = "";
-        /// <summary>The trigger's pause flag: a blend shape trigger's when its effects or a rule move a shape VRChat blinks or speaks with, a Hold trigger's when a rule holds one. Null otherwise.</summary>
+        /// <summary>The trigger's pause flag: a blend shape trigger's or a Fade trigger's when its effects or a rule move a shape VRChat blinks or speaks with, a Hold trigger's when a rule holds one. Null otherwise.</summary>
         public TouchBuilder.PauseFlag PauseFlag;
+        /// <summary>A parameter Fade's driver: the Float parameter its effects blend with. Null on every other trigger.</summary>
+        public TriggerCondition Driver;
         public MenuEntry Entry => Node.Entry;
         public AvatarDoc Component => Node.Component;
     }
@@ -97,8 +99,9 @@ namespace DocMe.AvatarDoctor.Editor
                         LeaveTooComplex(node, flipMet, AndGate(Enumerable.Empty<AnimatorCondition>(), BuildGate(tree, plan, entry)), messages);
                     continue;
                 }
-                // Follow distance builds its own Far/Near layer from the receiver's float directly
-                // (TouchBuilder.BuildFollowDistanceLayers); its plan carries only the requirements that layer adds.
+                // Fade builds its own Far/Near layer from the receiver's float (TouchBuilder.BuildFollowDistanceLayers)
+                // or from its Float parameter (TriggerBuilder, in the entry's place); its plan carries the requirements
+                // that layer adds, and a parameter Fade's driver.
                 TriggerPlan result;
                 if (entry.IsFollowDistanceTrigger) result = PlanFade(tree, plan, node, existing, touch, messages);
                 else if (entry.source == TriggerSource.BlendShape) result = PlanLink(tree, plan, node, existing, touch, messages);
@@ -242,6 +245,12 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var builtIn = BuiltInType(parameter);
                 if (builtIn.HasValue) condition.Type = builtIn.Value;
+                else if (source.condition == ParameterCondition.IsTrue || source.condition == ParameterCondition.IsFalse)
+                {
+                    // Read as on or off, it is a Bool to whatever tool brings it later.
+                    condition.Type = PlannedType.Bool;
+                    messages.Add(ModelMessage.Warning("ad.warn.parameter_type_unknown_bool", parameter, name).For(node.Entry.id));
+                }
                 else
                 {
                     condition.Type = PlannedType.Float;
@@ -322,11 +331,35 @@ namespace DocMe.AvatarDoctor.Editor
             return PlanRequirements(tree, plan, node, existing, touch, messages, result) ? result : null;
         }
 
-        /// <summary>A Fade contact's requirements, for the Far and Near layer TouchBuilder builds from its receiver. Null when a requirement does not resolve, so the layer is never built on the rest of its rule.</summary>
+        /// <summary>A Fade trigger's requirements, for the Far and Near layer TouchBuilder builds from its receiver or, on a parameter Fade, from its Float parameter. Null when a requirement or a parameter driver does not resolve, so the layer is never built on the rest of its rule.</summary>
         static TriggerPlan PlanFade(MenuTree tree, ParameterPlan plan, TriggerNode node, IReadOnlyDictionary<string, ExistingParameter> existing, TouchBuilder.TouchParameters touch, List<ModelMessage> messages)
         {
             var result = new TriggerPlan { Node = node, Kind = TriggerKind.Fade };
+            if (touch != null && touch.PauseFlags.TryGetValue(node.Entry.id, out var pause)) result.PauseFlag = pause;
+            if (node.Entry.IsFollowValueTrigger && !PlanValueDriver(node, existing, messages, result)) return null;
             return PlanRequirements(tree, plan, node, existing, touch, messages, result) ? result : null;
+        }
+
+        /// <summary>
+        /// A parameter Fade's first condition, resolved as any parameter condition is, which has to name a Float: a
+        /// blend tree reads nothing else. Its comparison is not read, since the value itself moves the effects. False
+        /// with a message when the parameter is not a Float, or with the usual one when it is not named at all.
+        /// </summary>
+        static bool PlanValueDriver(TriggerNode node, IReadOnlyDictionary<string, ExistingParameter> existing, List<ModelMessage> messages, TriggerPlan result)
+        {
+            var entry = node.Entry;
+            var (groupIndex, index, condition, _) = TouchBuilder.FollowDistancePrimary(entry);
+            if (condition == null) return false;
+            var name = entry.UsesWhenGroups ? entry.PlainName + ConditionLogic.Position(groupIndex, index) : entry.PlainName;
+            var driver = ParameterConditionFor(condition, name, node, existing, messages);
+            if (driver == null) return false;
+            if (driver.Type != PlannedType.Float)
+            {
+                messages.Add(ModelMessage.Warning("ad.warn.follow_value_not_float", entry.PlainName, driver.Parameter, node.Component).For(entry.id));
+                return false;
+            }
+            result.Driver = driver;
+            return true;
         }
 
         /// <summary>

@@ -6,6 +6,8 @@ using System.Text;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
+using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace DocMe.AvatarDoctor.Editor
 {
@@ -130,6 +132,77 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var name in found)
                     if (!string.IsNullOrWhiteSpace(name)) yield return name;
             }
+        }
+
+        /// <summary>
+        /// The parameters of the parameters assets Full Controllers merge that keep their own name in the build, as
+        /// VRCFury decides it: a name its global list keeps (the name itself, or a prefix ending in "*"; a "!" in front
+        /// of one takes it back), and with GoGo Loco every name under "Go/". VRCFury gives every other name one of its
+        /// own, so nothing else on the avatar can read it by the name in the asset.
+        /// </summary>
+        public static List<VRCExpressionParameters.Parameter> FullControllerGlobalParameters(Transform avatarRoot)
+        {
+            var result = new List<VRCExpressionParameters.Parameter>();
+            foreach (var component in Components(avatarRoot))
+                using (var so = new SerializedObject(component))
+                {
+                    var content = Content(so);
+                    if (!IsFeature(content, FullControllerTypeName)) continue;
+                    var globals = new List<string>();
+                    var list = content.FindPropertyRelative("globalParams");
+                    if (list != null && list.isArray)
+                        for (int i = 0; i < list.arraySize; i++) globals.Add(list.GetArrayElementAtIndex(i).stringValue ?? "");
+                    var merged = new List<VRCExpressionParameters.Parameter>();
+                    var prms = content.FindPropertyRelative("prms");
+                    if (prms != null && prms.isArray)
+                        for (int i = 0; i < prms.arraySize; i++)
+                        {
+                            var objRef = prms.GetArrayElementAtIndex(i).FindPropertyRelative("parameters")?.FindPropertyRelative("objRef");
+                            if (objRef?.objectReferenceValue is VRCExpressionParameters asset && asset.parameters != null)
+                                merged.AddRange(asset.parameters.Where(p => p != null && !string.IsNullOrEmpty(p.name)));
+                        }
+                    bool gogo = merged.Any(p => p.name == "Go/Locomotion") && MergesABaseController(content);
+                    foreach (var parameter in merged)
+                    {
+                        if (gogo)
+                            result.Add(parameter.name.StartsWith("Go/", StringComparison.Ordinal) ? parameter : new VRCExpressionParameters.Parameter
+                            {
+                                name = "Go/" + parameter.name, valueType = parameter.valueType, saved = parameter.saved, networkSynced = parameter.networkSynced, defaultValue = parameter.defaultValue,
+                            });
+                        else if (KeptGlobal(parameter.name, globals)) result.Add(parameter);
+                    }
+                }
+            return result;
+        }
+
+        /// <summary>Whether a Full Controller's global list keeps a name, matched the way VRCFury matches it: the last plain match keeps it, any "!" match takes it back.</summary>
+        static bool KeptGlobal(string name, List<string> globals)
+        {
+            bool kept = false;
+            foreach (var entry in globals)
+            {
+                var global = entry ?? "";
+                bool negative = global.StartsWith("!", StringComparison.Ordinal);
+                if (negative) global = global.Substring(1);
+                bool wildcard = global.EndsWith("*", StringComparison.Ordinal);
+                if (wildcard) global = global.Substring(0, global.Length - 1);
+                if (name != global && !(wildcard && name.StartsWith(global, StringComparison.Ordinal))) continue;
+                if (negative) return false;
+                kept = true;
+            }
+            return kept;
+        }
+
+        static bool MergesABaseController(SerializedProperty content)
+        {
+            var controllers = content.FindPropertyRelative("controllers");
+            if (controllers == null || !controllers.isArray) return false;
+            for (int i = 0; i < controllers.arraySize; i++)
+            {
+                var type = controllers.GetArrayElementAtIndex(i).FindPropertyRelative("type");
+                if (type != null && type.intValue == (int)VRCAvatarDescriptor.AnimLayerType.Base) return true;
+            }
+            return false;
         }
 
         public const string ObjectToggleActionTypeName = "VF.Model.StateAction.ObjectToggleAction";

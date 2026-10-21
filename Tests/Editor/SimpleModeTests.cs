@@ -23,7 +23,7 @@ namespace DocMe.AvatarDoctor.Editor
         static readonly string[] AdvancedOnlyButtons =
         {
             "ad-add-trigger", "ad-add-override", "ad-add-preset", "ad-add-grabbable", "ad-add-animator", "ad-add-menu-asset", "ad-add-parameter",
-            "ad-add-contact", "ad-capture-missing", "ad-import-open", "ad-wheel-toggle", "ad-tag-filter",
+            "ad-add-gesture-faces", "ad-add-contact", "ad-capture-missing", "ad-import-open", "ad-wheel-toggle", "ad-tag-filter",
         };
 
         TestAvatar avatar;
@@ -283,7 +283,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 Click(b.ModeChoice.Items[1]);
                 Assert.That(a.Mode, Is.EqualTo(ViewMode.Advanced), "and back, from the other view");
-                Assert.That(a.Tree.AddButtons.Count, Is.EqualTo(12));
+                Assert.That(a.Tree.AddButtons.Count, Is.EqualTo(13));
                 Assert.That(a.ModeChoice.Index, Is.EqualTo(1));
 
                 Click(a.ModeChoice.Items[0]);
@@ -332,7 +332,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(ViewModes.Load(storeA), Is.EqualTo(ViewMode.Simple));
                 Assert.That(b.Mode, Is.EqualTo(ViewMode.Advanced), "another person's view, with a store of its own, is not switched by a press elsewhere");
                 Assert.That(b.ModeChoice.Index, Is.EqualTo(1));
-                Assert.That(b.Tree.AddButtons.Count, Is.EqualTo(12), "and keeps its whole toolbar");
+                Assert.That(b.Tree.AddButtons.Count, Is.EqualTo(13), "and keeps its whole toolbar");
                 Assert.That(Shown(b.Header.Q<VisualElement>("ad-settings-fold-header")), Is.True, "and its header");
                 Assert.That(storeB.GetString(ViewModes.PrefKey, "unset"), Is.EqualTo("unset"), "and its store is never written by a press elsewhere");
 
@@ -1196,7 +1196,7 @@ namespace DocMe.AvatarDoctor.Editor
             var view = View(menu);
             Assert.That(view.Mode, Is.EqualTo(ViewMode.Advanced));
             Assert.That(view.Simple, Is.False);
-            Assert.That(view.Tree.AddButtons.Count, Is.EqualTo(12));
+            Assert.That(view.Tree.AddButtons.Count, Is.EqualTo(13));
             foreach (var name in AdvancedOnlyButtons) Assert.That(view.Tree.Q<VisualElement>(name).ClassListContains("ad-hidden"), Is.False, name);
             Assert.That(Shown(view.Header.Q<VisualElement>("ad-settings-fold-header")), Is.True);
             view.Tree.SelectEntry(hat.id);

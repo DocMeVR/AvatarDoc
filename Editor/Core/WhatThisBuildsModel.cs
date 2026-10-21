@@ -63,7 +63,9 @@ namespace DocMe.AvatarDoctor.Editor
                         : string.Format(L.Text("ad.ui.builds.smooth"), Number(entry.EffectiveSmoothStart), Number(entry.EffectiveSmoothFull)));
                     parts.Add(L.Text("ad.ui.builds.mirror"));
                 }
-                if (entry.IsFollowDistanceTrigger)
+                if (entry.IsFollowValueTrigger)
+                    parts.Add(string.Format(L.Text("ad.ui.builds.follow_value"), (TouchBuilder.FollowDistancePrimary(entry).condition?.sourceParameter ?? "").Trim(), Number(entry.EffectiveContactFullAt)));
+                else if (entry.IsFollowDistanceTrigger)
                     parts.Add(string.Format(L.Text("ad.ui.builds.follow_distance"), Mathf.RoundToInt(entry.EffectiveContactFullAt * 100f)));
                 // A Fade contact or a blend shape trigger that moves a shape VRChat blinks or speaks with pauses that
                 // part of tracking while its effects move, through the shared pause layers; a toggle or a Hold
@@ -76,7 +78,7 @@ namespace DocMe.AvatarDoctor.Editor
                     else ShapeSetModel.PinTracking(entry, plan.Tree.HeldContext, out eyes, out mouth);
                     if (eyes || mouth)
                     {
-                        bool fade = entry.IsFollowDistanceTrigger;
+                        bool fade = entry.IsFollowDistanceTrigger && !entry.IsFollowValueTrigger;
                         var fx = descriptor != null ? ParametersWriter.FxOf(descriptor) : null;
                         var (eyesOwner, mouthOwner) = TouchBuilder.ExistingTrackingControlOwners(fx);
                         if (eyes) parts.Add(eyesOwner != null ? string.Format(L.Text("ad.ui.builds.blink_left_to"), eyesOwner) : L.Text(fade ? "ad.ui.builds.pauses_blink" : "ad.ui.builds.pauses_blink_shape"));
@@ -112,7 +114,7 @@ namespace DocMe.AvatarDoctor.Editor
                 // Follow distance reads its driving contact and its requirements, whatever else its stale data
                 // still carries in other cards; a blend shape trigger's groups are its requirements alone.
                 if (entry.IsFollowDistanceTrigger)
-                    contacts = 1 + entry.Requirements().Count(r => r.condition.kind == WhenConditionKind.Contact);
+                    contacts = (entry.IsFollowValueTrigger ? 0 : 1) + entry.Requirements().Count(r => r.condition.kind == WhenConditionKind.Contact);
                 else
                     foreach (var group in entry.EffectiveWhen)
                         foreach (var condition in group.all)

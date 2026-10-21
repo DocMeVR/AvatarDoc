@@ -18,6 +18,27 @@ namespace DocMe.AvatarDoctor
         public string editId = "";
     }
 
+    /// <summary>What the Gesture faces window keeps on the component between two runs, beside the triggers it makes.</summary>
+    [Serializable]
+    public class GestureFaceSettings
+    {
+        /// <summary>True once faces were made with a face tracking choice, None included, so the window does not look for one again.</summary>
+        public bool trackingChosen;
+        /// <summary>The Bool parameter that is on while face tracking is on. Empty: None.</summary>
+        public string trackingParameter = "";
+        /// <summary>Where each shape of the faces rests while no gesture is held, as it was when the faces were made, so a scene left posed is never taken for it.</summary>
+        public List<GestureRestWeight> rest = new List<GestureRestWeight>();
+    }
+
+    /// <summary>One shape of a gesture face and the weight it rests at.</summary>
+    [Serializable]
+    public class GestureRestWeight
+    {
+        public SkinnedMeshRenderer renderer;
+        public string shape = "";
+        public float weight;
+    }
+
     /// <summary>
     /// A menu fragment. Entries install into the avatar's expressions menu at installPath at build time.
     /// Any number of these can exist on an avatar; they merge into one menu.
@@ -56,6 +77,7 @@ namespace DocMe.AvatarDoctor
         public List<ParameterDeclaration> parameters = new List<ParameterDeclaration>();
         /// <summary>Objects of this avatar a copy to another avatar never looks for by their place, such as one a world drop holds: the copy window has the creator pick the object to use on the other avatar.</summary>
         public List<GameObject> pickByHand = new List<GameObject>();
+        public GestureFaceSettings gestureFaces = new GestureFaceSettings();
 
         public string EffectiveMenuName => string.IsNullOrWhiteSpace(menuName) ? gameObject.name : menuName.Trim();
 

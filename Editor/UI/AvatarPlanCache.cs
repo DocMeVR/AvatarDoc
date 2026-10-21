@@ -18,6 +18,8 @@ namespace DocMe.AvatarDoctor.Editor
         public MenuTree Tree;
         public ParameterPlan Plan;
         public List<TriggerPlan> Triggers = new List<TriggerPlan>();
+        /// <summary>Every parameter the avatar has before AvatarDoc adds its own, by name, as the planners read them: the expression parameters, the FX controller's and what the NDMF providers (Modular Avatar among them) declare.</summary>
+        public Dictionary<string, ExistingParameter> Existing = new Dictionary<string, ExistingParameter>();
         public List<ModelMessage> Messages = new List<ModelMessage>();
         public AnimationUsage Usage = AnimationUsage.Empty;
         PieceSwitches pieceSwitches;
@@ -104,6 +106,7 @@ namespace DocMe.AvatarDoctor.Editor
     {
         static readonly Dictionary<Transform, AvatarPlan> plans = new Dictionary<Transform, AvatarPlan>();
         static readonly Dictionary<Transform, List<ProvidedParameter>> provided = new Dictionary<Transform, List<ProvidedParameter>>();
+        static readonly Dictionary<Transform, List<VRCExpressionParameters.Parameter>> referenced = new Dictionary<Transform, List<VRCExpressionParameters.Parameter>>();
         static readonly Dictionary<Transform, PreviewPlan> previewPlans = new Dictionary<Transform, PreviewPlan>();
         /// <summary>
         /// What a control removes and what keeps a parameter alive, per avatar. This answers to which names a menu
@@ -269,6 +272,7 @@ namespace DocMe.AvatarDoctor.Editor
             previewPlans.Remove(gone);
             removalPlans.Remove(gone);
             provided.Remove(gone);
+            referenced.Remove(gone);
             planVersions.Remove(gone);
             dropReasons.Remove(gone);
             assetsRead.Remove(gone);
@@ -695,6 +699,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (!wide) return;
             snapshots.Remove(avatarRoot);
             provided.Remove(avatarRoot);
+            referenced.Remove(avatarRoot);
             ParameterUsage.ClearAvatarCache(avatarRoot);
             VrcFuryReader.ClearCache(avatarRoot);
         }
@@ -770,6 +775,7 @@ namespace DocMe.AvatarDoctor.Editor
             globalEpoch++;
             plans.Clear();
             provided.Clear();
+            referenced.Clear();
             previewPlans.Clear();
             removalPlans.Clear();
             snapshots.Clear();
@@ -880,6 +886,19 @@ namespace DocMe.AvatarDoctor.Editor
             return walked;
         }
 
+        /// <summary>The parameters of the expression parameters assets the avatar's other components refer to, read once per avatar and kept as long as the NDMF-provided list is.</summary>
+        public static IReadOnlyList<VRCExpressionParameters.Parameter> ReferencedFor(Transform avatarRoot)
+        {
+            if (avatarRoot == null) return noReferenced;
+            if (referenced.TryGetValue(avatarRoot, out var cached)) return cached;
+            Remember(avatarRoot);
+            var read = ParametersWriter.ReferencedParameters(avatarRoot);
+            referenced[avatarRoot] = read;
+            return read;
+        }
+
+        static readonly List<VRCExpressionParameters.Parameter> noReferenced = new List<VRCExpressionParameters.Parameter>();
+
         /// <summary>
         /// The removal plan for this avatar, walked once and kept across a reorder or a reparent (InvalidateOrder):
         /// what a control removes and what keeps a parameter alive reads which names are marked for removal and
@@ -965,14 +984,18 @@ namespace DocMe.AvatarDoctor.Editor
             MenuModel.SplitOverflow(tree, null);
             var walked = ProvidedFor(avatarRoot);
             var existing = ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor));
-            if (avatarRoot != null) ParametersWriter.AddProvided(existing, walked);
+            if (avatarRoot != null)
+            {
+                ParametersWriter.AddProvided(existing, walked);
+                ParametersWriter.AddReferenced(existing, ReferencedFor(avatarRoot));
+            }
             var plan = ParameterPlanner.Plan(tree, existing);
             tree.Removal = RemovalPlanFor(avatarRoot, tree, descriptor);
             var touch = TouchBuilder.Describe(tree, existing, plan);
             var (triggers, triggerMessages) = TriggerPlanner.Plan(tree, plan, existing, touch);
             var result = new AvatarPlan
             {
-                AvatarRoot = avatarRoot, Tree = tree, Plan = plan, Triggers = triggers, Version = version, BuildReason = ReasonFor(avatarRoot),
+                AvatarRoot = avatarRoot, Tree = tree, Plan = plan, Triggers = triggers, Existing = existing, Version = version, BuildReason = ReasonFor(avatarRoot),
                 ConstraintClaims = MenuModel.ClaimedConstraintTargets(tree),
             };
             result.Messages.AddRange(tree.Messages);

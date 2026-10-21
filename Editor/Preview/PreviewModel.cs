@@ -194,8 +194,9 @@ namespace DocMe.AvatarDoctor.Editor
             float SceneWeight(SkinnedMeshRenderer renderer, string shape) => scene.ShapeWeight(renderer, renderer.sharedMesh.GetBlendShapeIndex(shape));
             // A toggle's or a Hold trigger's Pin rows and rules live in its pin layer, which the build moves above every
             // ordinary layer while keeping the pin layers' own order (MovePinLayersLast). So they are queued here and
-            // written in tree order once the controls and the other triggers are done, before Fade and blend shape
-            // triggers, whose layers come after theirs.
+            // written in tree order once the controls and the other triggers are done, before Fade contacts and blend
+            // shape triggers, whose layers come after theirs. A parameter Fade's layer sits among the pin layers, in
+            // its entry's place, so every row of it joins the queue in tree order.
             var pinned = new List<(BlendShapeTarget target, float weight)>();
             bool queuePinned = true;
             void WritePinned(BlendShapeTarget target, float weight)
@@ -211,14 +212,15 @@ namespace DocMe.AvatarDoctor.Editor
             }
             void WriteSwitch(MenuEntry entry, bool on)
             {
-                bool pinLayer = entry.kind == EntryKind.Toggle || (entry.kind == EntryKind.Trigger && !entry.HasDriver);
+                bool followValue = entry.IsFollowValueTrigger;
+                bool pinLayer = entry.kind == EntryKind.Toggle || (entry.kind == EntryKind.Trigger && (!entry.HasDriver || followValue));
                 foreach (var target in entry.objects) WriteObject(target, on);
                 foreach (var target in entry.blendShapes)
                 {
                     if (!on && !EffectMath.WritesWhenOff(target)) continue;
                     if (!MenuModel.ShapeExists(target.renderer, target.shape)) continue;
                     float weight = EffectMath.ToggleShapeWeight(target, on, BaseWeight(target));
-                    if (on && pinLayer && target.mode == ShapeEffectMode.Pin) WritePinned(target, weight);
+                    if (on && pinLayer && (target.mode == ShapeEffectMode.Pin || followValue)) WritePinned(target, weight);
                     else WriteShape(target, weight);
                 }
                 // A shape set rule follows the same pin semantics as a pinned row: held at its value while on (0, or
@@ -336,13 +338,15 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 WriteSwitch(entry, EffectiveValue(entry, binding, overrides, scene) >= 0.5f);
             }
-            // The build puts every Fade trigger's layer above every other trigger's, and every blend shape trigger's
+            // The build puts every Fade contact's layer above every other trigger's, and every blend shape trigger's
             // layer above those (MovePinLayersLast keeps the order they were built in), and copies a blend shape
             // trigger's shape from every FX clip in the final pass, Fade's Near clips included. So the order here is:
-            // the other triggers, then Fade triggers, then blend shape triggers, each group in tree order.
-            foreach (var trigger in tree.Triggers.OrderBy(t => t.Entry.source == TriggerSource.BlendShape ? 2 : t.Entry.IsFollowDistanceTrigger ? 1 : 0))
+            // the other triggers, parameter Fades among them, then Fade contacts, then blend shape triggers, each
+            // group in tree order.
+            bool FadeContact(MenuEntry entry) => entry.IsFollowDistanceTrigger && !entry.IsFollowValueTrigger;
+            foreach (var trigger in tree.Triggers.OrderBy(t => t.Entry.source == TriggerSource.BlendShape ? 2 : FadeContact(t.Entry) ? 1 : 0))
             {
-                if (queuePinned && (trigger.Entry.source == TriggerSource.BlendShape || trigger.Entry.IsFollowDistanceTrigger)) FlushPinned();
+                if (queuePinned && (trigger.Entry.source == TriggerSource.BlendShape || FadeContact(trigger.Entry))) FlushPinned();
                 if (trigger.Excluded) continue;
                 var entry = trigger.Entry;
                 // A flip trigger acts on its target toggle's override, never on effects of its own.

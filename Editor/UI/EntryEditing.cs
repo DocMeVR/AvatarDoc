@@ -192,6 +192,8 @@ namespace DocMe.AvatarDoctor.Editor
             var descendants = Descendants(menu, entry);
             var copies = new List<MenuEntry> { copy };
             foreach (var descendant in descendants) copies.Add(Clone(descendant, idMap));
+            // A copy is the creator's own entry: the Gesture faces window keeps editing the one it made.
+            foreach (var c in copies) c.gestureFace = "";
             foreach (var c in copies.Skip(1)) c.parentId = idMap.TryGetValue(c.parentId, out var mapped) ? mapped : c.parentId;
             // A preset or a trigger copied along with the controls it names has to follow the copies.
             foreach (var c in copies) RemapLinks(c, idMap);

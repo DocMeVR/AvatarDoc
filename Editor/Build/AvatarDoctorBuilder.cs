@@ -35,6 +35,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var existing = ParametersWriter.ExistingParameters(descriptor.expressionParameters, fx);
             ParametersWriter.AddProvided(existing, ParameterInfo.ForContext(context).GetParametersForObject(context.AvatarRootObject));
+            ParametersWriter.AddReferenced(existing, ParametersWriter.ReferencedParameters(context.AvatarRootTransform));
             var plan = ParameterPlanner.Plan(tree, existing);
             // Planned in the Resolving phase, while the avatar's controllers still held their layers. Planning it
             // here instead would read controllers the animator services have already emptied, which frees whatever
