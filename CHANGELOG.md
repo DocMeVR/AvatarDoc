@@ -5,13 +5,9 @@
 
 ### Features
 
-* Add to AvatarDoc from the inspector, and Poiyomi's locked materials ([f783385](https://github.com/DocMeVR/AvatarDoc/commit/f783385cacf755702a425732172f5f14c3a4b928))
-* **copy:** copy a menu to another avatar version ([2308386](https://github.com/DocMeVR/AvatarDoc/commit/2308386b1e43b97aa8cf722d6d12c2cdfe867c71))
 * **copy:** copy an AvatarDoc menu to another version of the avatar ([c2e7b24](https://github.com/DocMeVR/AvatarDoc/commit/c2e7b24a5c74b631f76b295228018d34c64b3a93))
-* **gestures:** facial expressions on hand gestures ([d473e25](https://github.com/DocMeVR/AvatarDoc/commit/d473e25111c0acafa58f00ef4634ee11340ee4c9))
 * **gestures:** facial expressions on hand gestures, with face tracking in mind ([30de19b](https://github.com/DocMeVR/AvatarDoc/commit/30de19b5f3b8e607fc74e1cefcbeea978339d623))
 * **poiyomi:** keep material animations working after Poiyomi locks the material ([4df8dcc](https://github.com/DocMeVR/AvatarDoc/commit/4df8dcc7d39f5409605541a991c0440d9bc2315f))
-* **preview:** try touch triggers with a test hand ([633cc33](https://github.com/DocMeVR/AvatarDoc/commit/633cc337e569a26779bff2978e9a7048e7f9273e))
 * **preview:** try touch triggers with a test hand in the Scene view ([2d679fc](https://github.com/DocMeVR/AvatarDoc/commit/2d679fcda57ce10b27cebbc82d6c3fc1f550aea2))
 * **triggers:** a Fade that follows a Float parameter ([30de19b](https://github.com/DocMeVR/AvatarDoc/commit/30de19b5f3b8e607fc74e1cefcbeea978339d623))
 * **ui:** add a blend shape or material property to AvatarDoc from where you set it ([4d1e1c7](https://github.com/DocMeVR/AvatarDoc/commit/4d1e1c71939cf4fa7c14b532e1e90b8186ab55de))
