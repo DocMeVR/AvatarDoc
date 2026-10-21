@@ -332,6 +332,14 @@
 .ad-copy-missing { margin-bottom: 6px; }
 /* The Copy row keeps the 22px of the rows around it in every language: a button grows with the font NDMF gives Japanese and Chinese. */
 .ad-root .unity-button.ad-copy-open { height: 20px; min-height: 20px; padding-top: 0; padding-bottom: 0; }
+/* The test hand: the same 22px rows as the preview controls beside it, in every language, and a little air above the header's block. */
+.ad-root .unity-button.ad-touch-test-button { height: 20px; min-height: 20px; padding-top: 0; padding-bottom: 0; }
+.ad-touch-test-block { margin-top: 4px; }
+/* Counts as: its choice and the arrow that says it opens a menu, as the language picker shows them. */
+.ad-root .unity-button.ad-touch-test-part { flex-direction: row; align-items: center; }
+.ad-touch-test-part > Label { margin: 0; padding: 0; -unity-text-align: middle-left; }
+/* Belongs to fills its row up to the mode switch's width, so the bold chosen half never runs short of its text in Japanese. */
+.ad-row > .ad-seg.ad-touch-test-who { flex-grow: 1; max-width: 200px; }
 /* Gesture faces: the face tracking name field beside its list button, a card per row with the gesture's name, its
    hand choice and its remove button in the title, each shape's whole name on a line of its own above its slider,
    then Capture and + Shape on one line. */

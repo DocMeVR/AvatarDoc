@@ -85,6 +85,18 @@ namespace DocMe.AvatarDoctor.Editor
             else { SceneView.duringSceneGui -= OnSceneGui; subscribed = false; }
         }
 
+        /// <summary>Whether this row's contact shows its handles: never while the test hand runs on its avatar, so a drag there can only move the hand.</summary>
+        public static bool Editable(TreeRow row)
+        {
+            var owner = row?.Owner;
+            return owner == null || !HandRunsOn(owner);
+        }
+
+        static bool HandRunsOn(AvatarDoc component) => TouchTest.RunsOn(AvatarPlanCache.RootOf(component));
+
+        /// <summary>The sphere the build's receiver for this contact makes, measured the way the test hand measures it: the same centre, and the radius clamped as the build clamps it and scaled by the anchor's largest axis.</summary>
+        public static (Vector3 centre, float radius) SphereOf(WhenCondition condition) => (TouchProbe.Centre(condition), TouchProbe.WorldRadius(condition));
+
         static bool Shows(TreeRow row, WhenCondition condition)
         {
             return row != null && row.Mine && row.Entry != null && row.Entry.kind == EntryKind.Trigger
@@ -100,14 +112,15 @@ namespace DocMe.AvatarDoctor.Editor
             var condition = view.TouchConditionOf(row);
             if (!Shows(row, condition)) { Withdraw(); return; }
             var anchor = condition.contactAnchor;
-            float scale = Mathf.Max(0.0001f, anchor.lossyScale.x);
-            Vector3 centre = anchor.TransformPoint(condition.contactOffset);
-            float worldRadius = condition.contactRadius * scale;
-
-            Handles.color = AccentColor();
-            Handles.DrawWireDisc(centre, Vector3.up, worldRadius);
-            Handles.DrawWireDisc(centre, Vector3.right, worldRadius);
-            Handles.DrawWireDisc(centre, Vector3.forward, worldRadius);
+            var (centre, worldRadius) = SphereOf(condition);
+            if (!Editable(row))
+            {
+                // The test hand draws every contact it measures in its own colours; one it passes by is still outlined.
+                if (!TouchTest.Measures(row.Entry)) DrawSphere(centre, worldRadius, new Color(0.8f, 0.8f, 0.8f, 0.45f));
+                return;
+            }
+            float scale = Mathf.Max(0.0001f, TouchProbe.Scale(anchor));
+            DrawSphere(centre, worldRadius, AccentColor());
 
             EditorGUI.BeginChangeCheck();
             var newCentre = Handles.PositionHandle(centre, anchor.rotation);
@@ -123,10 +136,18 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
-        /// <summary>Writes the offset and radius the handles report onto one condition of a trigger's rule, with Undo. The overload below does the same on a trigger that still works from its flat source fields.</summary>
+        static void DrawSphere(Vector3 centre, float radius, Color color)
+        {
+            Handles.color = color;
+            Handles.DrawWireDisc(centre, Vector3.up, radius);
+            Handles.DrawWireDisc(centre, Vector3.right, radius);
+            Handles.DrawWireDisc(centre, Vector3.forward, radius);
+        }
+
+        /// <summary>Writes the offset and radius the handles report onto one condition of a trigger's rule, with Undo. The overload below does the same on a trigger that still works from its flat source fields. Neither writes while the test hand runs on the avatar.</summary>
         public static void Apply(WhenCondition condition, AvatarDoc component, Vector3 newOffsetLocal, float newRadius)
         {
-            if (condition == null || EntryEditing.Refuses(component)) return;
+            if (condition == null || EntryEditing.Refuses(component) || HandRunsOn(component)) return;
             Undo.RecordObject(component, "Move contact");
             condition.contactOffset = newOffsetLocal;
             condition.contactRadius = Mathf.Clamp(newRadius, 0.005f, 1f);
@@ -137,7 +158,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Writes the offset and radius the handles report, with Undo, clamps the radius and marks the component changed. The testable core: no SceneView needed to call it.</summary>
         public static void Apply(MenuEntry entry, AvatarDoc component, Vector3 newOffsetLocal, float newRadius)
         {
-            if (entry == null || EntryEditing.Refuses(component)) return;
+            if (entry == null || EntryEditing.Refuses(component) || HandRunsOn(component)) return;
             Undo.RecordObject(component, "Move contact");
             entry.contactOffset = newOffsetLocal;
             entry.contactRadius = Mathf.Clamp(newRadius, 0.005f, 1f);

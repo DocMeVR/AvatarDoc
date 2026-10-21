@@ -45,6 +45,7 @@ namespace DocMe.AvatarDoctor.Editor
         readonly SegmentedChoice platformChoice;
         readonly Label previewNote = new Label();
         readonly Button previewReset;
+        readonly TouchTestBlock touchTest;
         readonly PublishedValueWatch<bool> previewWatch;
         readonly DirectFields fields;
         readonly Foldout settingsFold;
@@ -239,6 +240,8 @@ namespace DocMe.AvatarDoctor.Editor
             previewReset = new Button(ResetPreview) { name = "ad-preview-reset", text = L.Text("ad.ui.preview.reset"), tooltip = L.Text("ad.ui.preview.reset.tip") };
             previewReset.AddToClassList("ad-preview-reset");
             body.Add(previewReset);
+            touchTest = new TouchTestBlock(owner);
+            body.Add(touchTest);
 
             UpdateModeRows();
 
@@ -436,6 +439,7 @@ namespace DocMe.AvatarDoctor.Editor
             disabledNote.EnableInClassList("ad-hidden", owner.Menu.enabled);
             noAvatarNote.EnableInClassList("ad-hidden", plan.AvatarRoot != null);
             RefreshPreviewIndicator();
+            touchTest.Refresh(plan);
             platformNote.text = string.Format(L.Text("ad.ui.platform.current"), CurrentPlatformName);
             var orphanEdits = OrphanEdits(plan).ToList();
             RefreshReadyLine(plan, orphanEdits);

@@ -58,6 +58,24 @@ namespace DocMe.AvatarDoctor.Editor
 
         public static Material ToggleMaterial(MaterialTarget target, bool on, Material baseMaterial) => on ? target.material : baseMaterial;
 
+        /// <summary>A Fade trigger's shape part way through its Near blend, from the row's off weight to its on weight.</summary>
+        public static float FadeShapeWeight(BlendShapeTarget target, float fraction, float baseWeight)
+            => Mathf.Lerp(ToggleShapeWeight(target, false, baseWeight), ToggleShapeWeight(target, true, baseWeight), Mathf.Clamp01(fraction));
+
+        /// <summary>A Fade trigger's property part way, from the row's off value to its on value.</summary>
+        public static Vector4 FadePropertyValue(MaterialPropertyTarget target, float fraction, Vector4 baseValue)
+            => Vector4.Lerp(PropertyValue(target, false, baseValue), PropertyValue(target, true, baseValue), Mathf.Clamp01(fraction));
+
+        /// <summary>A Fade trigger's object part way. Unity counts a blended m_IsActive above zero as active, so an object either end shows stays shown until that end's share of the blend reaches zero.</summary>
+        public static bool FadeObjectActive(ObjectTarget target, float fraction)
+        {
+            fraction = Mathf.Clamp01(fraction);
+            return (ObjectActive(target, false) && fraction < 1f) || (ObjectActive(target, true) && fraction > 0f);
+        }
+
+        /// <summary>Whether a Fade trigger part way shows its swapped material: a blend takes an object reference from the clip that weighs more, so the swap shows past halfway.</summary>
+        public static bool FadeMaterialOn(float fraction) => fraction > 0.5f;
+
         /// <summary>A property target's value while a toggle is on or off, packed into a Vector4 (float in x, colour in rgba, vector in xyzw). Off falls back to what the materials already hold, unless the target carries an off value of its own.</summary>
         public static Vector4 PropertyValue(MaterialPropertyTarget target, bool on, Vector4 baseValue)
         {

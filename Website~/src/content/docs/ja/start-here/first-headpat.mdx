@@ -3,7 +3,7 @@ title: はじめてのなでなで
 description: 手が頭のてっぺんに近づいたときに、アバターの頬を赤らめます。
 sidebar:
   order: 4
-sourceHash: "879689f0038330b01b72294d845ef27e204c8dd8ab9b5226057b0c1b35b50061"
+sourceHash: "77f48220657caa8ec1acb0942bb86d981d04dd038f23353d47d93fec6cb0fe10"
 ---
 
 import { Steps } from '@astrojs/starlight/components';
@@ -50,6 +50,28 @@ import Shot from '../../../../components/Shot.astro';
    そこにトリガーの球が表示され、動かしたり大きさを変えたりするためのハンドルが付いています。
 
 </Steps>
+
+## テスト用の手で試す [#test-hand]
+
+再生モードにする前に、シーンビューのテスト用の手で頭をなでてみることができます。変わるのはシーンプレビューだけで、アバターは変わりません。
+
+<Steps>
+
+1. 「Headpat」のパネルで<Label k="ad.ui.touch_test.start" />を押します。このボタンは<Label k="ad.ui.preview" />の行の下にあります。
+
+   シーンビューで、トリガーの球のすぐ手前に白い球が表示されます。
+
+2. 白い球を、頭のてっぺんにあるトリガーの球の中へドラッグします。
+
+   トリガーの球が緑色に変わり、手が中心に近づくほどアバターの頬が赤くなります。
+
+3. <Label k="ad.ui.touch_test.stop" />を押します。
+
+   アバターの頬の赤みが消え、元に戻ります。
+
+</Steps>
+
+アバターが変わらない場合は、シーンプレビューがオフになっています。オンにする方法は[シーンプレビュー](../../reference/scene-preview/#turning-it-on)で説明しています。テスト用の手でほかに何ができるかは、[テスト用の手で試す](../../guides/react-to-touch/#test-hand)を参照してください。
 
 ## 試してみる [#test-it]
 

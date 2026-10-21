@@ -5394,3 +5394,103 @@ msgstr "{0}，在{1}手之下"
 #. en: {0}, on desktop
 msgid "ad.ui.gestures.name.whole"
 msgstr "{0}，桌面模式"
+
+#. en: Test touches
+msgid "ad.ui.touch_test.row"
+msgstr "测试触碰"
+
+#. en: Test with a hand
+msgid "ad.ui.touch_test.start"
+msgstr "用手测试"
+
+#. en: Stop
+msgid "ad.ui.touch_test.stop"
+msgstr "停止"
+
+#. en: Counts as
+msgid "ad.ui.touch_test.part"
+msgstr "部位"
+
+#. en: Hand and fingers
+msgid "ad.ui.touch_test.part.hand"
+msgstr "手和手指"
+
+#. en: Head
+msgid "ad.ui.touch_test.part.head"
+msgstr "头部"
+
+#. en: Torso
+msgid "ad.ui.touch_test.part.torso"
+msgstr "躯干"
+
+#. en: Foot
+msgid "ad.ui.touch_test.part.foot"
+msgstr "脚"
+
+#. en: Custom tag
+msgid "ad.ui.touch_test.part.custom"
+msgstr "自定义标签"
+
+#. en: Tag
+msgid "ad.ui.touch_test.tag"
+msgstr "标签"
+
+#. en: Belongs to
+msgid "ad.ui.touch_test.who"
+msgstr "所属"
+
+#. en: Someone else
+msgid "ad.ui.touch_test.who.others"
+msgstr "他人"
+
+#. en: You
+msgid "ad.ui.touch_test.who.self"
+msgstr "自己"
+
+#. en: Drag the sphere in the Scene view. Only the scene preview changes, never the avatar.
+msgid "ad.ui.touch_test.note"
+msgstr "在 Scene 视图中拖动球体。只有场景预览会变化，Avatar 本身不会改变。"
+
+#. en: Test hand
+msgid "ad.ui.touch_test.hand"
+msgstr "测试用手"
+
+#. en: {0}: {1}%
+msgid "ad.ui.touch_test.amount"
+msgstr "{0}：{1}%"
+
+#. en: {0}: waits for a requirement
+msgid "ad.ui.touch_test.blocked"
+msgstr "{0}：等待前提满足"
+
+#. en: Puts a hand sphere in the Scene view to drag near the avatar, and the scene preview shows what its touch triggers do.
+msgid "ad.ui.touch_test.start.tip"
+msgstr "在 Scene 视图中放一个手形球体，把它拖到 Avatar 附近，场景预览就会显示其触碰触发器的效果。"
+
+#. en: Takes the test hand away and puts back every scene preview it changed.
+msgid "ad.ui.touch_test.stop.tip"
+msgstr "移除测试用手，并还原它改动过的所有场景预览。"
+
+#. en: The body part the test hand stands for, which decides the contacts it touches through their Touched by tags.
+msgid "ad.ui.touch_test.part.tip"
+msgstr "测试用手代表的身体部位，它能碰到哪些 Contact 由其“触碰来源”标签决定。"
+
+#. en: The contact tag the test hand carries instead, written the way a contact's Custom tag names it.
+msgid "ad.ui.touch_test.tag.tip"
+msgstr "测试用手改为携带的 Contact 标签，写法与 Contact 的“自定义标签”相同。"
+
+#. en: Whether the test hand is another player's or your own, which each contact's Self and Others switches answer to.
+msgid "ad.ui.touch_test.who.tip"
+msgstr "测试用手是其他玩家的还是你自己的，各 Contact 的“自己”和“他人”开关据此决定是否响应。"
+
+#. en: The hand is another player's, so the contacts with Others on react to it.
+msgid "ad.ui.touch_test.who.others.tip"
+msgstr "视为其他玩家的手，因此开启“他人”的 Contact 会响应。"
+
+#. en: The hand is your own, so the contacts with Self on react to it.
+msgid "ad.ui.touch_test.who.self.tip"
+msgstr "视为你自己的手，因此开启“自己”的 Contact 会响应。"
+
+#. en: The test hand passes this trigger by: it has no effect yet, it is not built on this platform, or its component is switched off or on no avatar.
+msgid "ad.ui.touch_test.passed_by"
+msgstr "测试用手会略过此触发器：它还没有效果、不在此平台上构建，或其组件已关闭或不在任何 Avatar 上。"

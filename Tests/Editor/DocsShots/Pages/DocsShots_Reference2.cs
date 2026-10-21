@@ -425,6 +425,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Name = "overview",
                 View = window.rootVisualElement,
                 Width = GestureFacesWindow.OpeningWidth,
+                Height = 812f,
                 Markers = new[]
                 {
                     ("ad-gestures-mesh", 1), ("ad-gestures-tracking", 2), ("ad-gestures-order", 3), ("ad-gestures-fist", 4),

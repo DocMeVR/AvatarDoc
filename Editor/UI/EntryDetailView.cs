@@ -47,6 +47,7 @@ namespace DocMe.AvatarDoctor.Editor
         Button previewDefault;
         SegmentedChoice previewChoice;
         Slider previewSlider;
+        Label touchTestNote;
         Label syncedCost;
         Label buildsLine;
         AdvancedFold advancedFold;
@@ -380,6 +381,7 @@ namespace DocMe.AvatarDoctor.Editor
             previewDefault = null;
             previewChoice = null;
             previewSlider = null;
+            touchTestNote = null;
             syncedCost = null;
             buildsLine = null;
             advancedFold = null;
@@ -714,6 +716,7 @@ namespace DocMe.AvatarDoctor.Editor
             RefreshBuildsLine(row);
             RefreshMessages(row);
             if (previewDefault != null || previewChoice != null) RefreshPreviewRow(row.Entry);
+            RefreshTouchTestNote(row);
         }
 
         /// <summary>What the Synced switch costs right now, from the same parameter plan the row's binding already carries: never a second calculation of what a Bool or an Int/Float costs.</summary>
@@ -878,6 +881,14 @@ namespace DocMe.AvatarDoctor.Editor
                 buttons.Add(note);
                 return container;
             }
+            // A contact trigger can also be tried with the test hand, under its own preview controls.
+            if (TouchProbe.Simulates(entry))
+            {
+                container.Add(TouchTestControls.Row(owner, "ad-touch-test-trigger-row", "ad-touch-test-trigger", () => Row?.Entry, () => TouchConditionOf(Row)));
+                touchTestNote = new Label(L.Text("ad.ui.touch_test.passed_by")) { name = "ad-touch-test-trigger-note" };
+                touchTestNote.AddToClassList("ad-note");
+                container.Add(touchTestNote);
+            }
             if (entry.IsFlipTrigger)
             {
                 var simulate = new Button(SimulateTouch) { text = L.Text("ad.ui.touch.simulate"), name = "ad-preview-simulate", tooltip = L.Text("ad.ui.touch.simulate.tip") };
@@ -952,6 +963,15 @@ namespace DocMe.AvatarDoctor.Editor
             return container;
         }
 
+        /// <summary>Shows the note under the test hand's row while the hand would pass this trigger by: the plan builds nothing for it, or the component is on no avatar.</summary>
+        void RefreshTouchTestNote(TreeRow row)
+        {
+            if (touchTestNote == null) return;
+            var plan = owner.Plan;
+            bool measured = plan != null && plan.AvatarRoot != null && row?.Entry != null && TouchProbe.TouchTriggers(plan.Tree).Any(n => n.Entry == row.Entry);
+            touchTestNote.EnableInClassList("ad-hidden", measured);
+        }
+
         /// <summary>Rewrites the preview row from the overrides as they stand, for a change that came from outside this panel.</summary>
         public void RefreshPreview()
         {
@@ -962,7 +982,9 @@ namespace DocMe.AvatarDoctor.Editor
         {
             bool has = PreviewState.TryGet(entry.id, out var value);
             previewDefault?.EnableInClassList("ad-primary", !has);
-            previewChoice?.SetIndexWithoutNotify(!has ? 0 : value >= 0.5f ? 1 : 2);
+            // A Fade the test hand holds part way is neither On nor Off.
+            bool partWay = has && entry.IsFollowDistanceTrigger && value > 0f && value < 1f;
+            previewChoice?.SetIndexWithoutNotify(!has ? 0 : partWay ? -1 : value >= 0.5f ? 1 : 2);
             previewSlider?.SetValueWithoutNotify(has ? value : Mathf.Clamp01(entry.defaultValue));
         }
 
