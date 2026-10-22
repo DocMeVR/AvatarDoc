@@ -37,7 +37,7 @@ namespace DocMe.AvatarDoctor.Editor
             bool writeDefaults = DecideWriteDefaults(fx, pinLayerNames);
             foreach (var parameter in plan.Parameters) EnsureParameter(fx, parameter);
 
-            var builtGroups = new HashSet<string>();
+            var builtGroups = new HashSet<PlannedParameter>();
             foreach (var control in tree.Controls)
             {
                 // A preset gets its own layer from PresetBuilder, with a parameter driver instead of a toggle body.
@@ -47,7 +47,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (!plan.Bindings.TryGetValue(control, out var binding)) continue;
                 if (binding.Parameter.GroupName != null)
                 {
-                    if (builtGroups.Add(binding.Parameter.GroupName)) BuildGroupLayer(asc, fx, writeDefaults, binding.Parameter, plan, baseState, tree.AvatarRoot, messages, pinLayerNames, pinState, touch);
+                    if (builtGroups.Add(binding.Parameter)) BuildGroupLayer(asc, fx, writeDefaults, binding.Parameter, plan, baseState, tree.AvatarRoot, messages, pinLayerNames, pinState, touch);
                     continue;
                 }
                 // A parameter control drives its parameter and nothing else: whatever reads it, usually a merged

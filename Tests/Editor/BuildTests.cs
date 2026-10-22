@@ -591,7 +591,9 @@ namespace DocMe.AvatarDoctor.Editor
             var pack = new GameObject("Pack"); pack.transform.SetParent(avatar.Root.transform);
             var packMenu = avatar.AddMenu(pack);
             packMenu.installPath = "Outfits";
-            Toggle(packMenu, "Swim", avatar.Glasses).exclusiveGroup = "Outfits";
+            var swim = Toggle(packMenu, "Swim", avatar.Glasses);
+            swim.exclusiveGroup = "Outfits";
+            swim.groupComponent = menu;
 
             var errors = RunFullBuild();
 

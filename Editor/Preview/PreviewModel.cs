@@ -285,7 +285,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             var winners = GroupWinners(tree, overrides);
-            var builtGroups = new HashSet<string>();
+            var builtGroups = new HashSet<GroupKey>();
 
             // A trigger's gate reads a toggle the same way any other control does: its override, else the group's
             // winner, else its default. A gate that does not resolve to a toggle is treated as always met; the
@@ -296,8 +296,9 @@ namespace DocMe.AvatarDoctor.Editor
                 var gate = tree.FindControl(toggleId);
                 if (gate == null || gate.Entry.kind != EntryKind.Toggle) return true;
                 bool on;
-                if (!string.IsNullOrWhiteSpace(gate.Entry.exclusiveGroup))
-                    on = winners.TryGetValue(gate.Entry.exclusiveGroup.Trim(), out var winner) && winner == gate;
+                var gateGroup = tree.GroupOf(gate);
+                if (!gateGroup.IsNone)
+                    on = winners.TryGetValue(gateGroup, out var winner) && winner == gate;
                 else
                     on = EffectiveValue(gate.Entry, BindingOf(plan, gate), overrides, scene) >= 0.5f;
                 return wantOn == on;
@@ -344,20 +345,18 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 // Only a toggle is ever a group member, the same rule GroupWinners, PreviewState and
                 // ParameterPlanner follow: a stale group name left on an entry of another kind means nothing.
-                if (entry.kind == EntryKind.Toggle && !string.IsNullOrWhiteSpace(entry.exclusiveGroup))
+                var group = tree.GroupOf(control);
+                if (!group.IsNone)
                 {
                     // A group is one state in the build (AnimatorBuilder.BuildGroupLayer), so it is written as one
                     // unit here too, at its first included member: every other member off first, the winner last.
                     // Written member by member in tree order instead, a member that is off would write its own off
                     // value over a target it shares with the winner.
-                    var group = entry.exclusiveGroup.Trim();
                     if (!builtGroups.Add(group)) continue;
                     winners.TryGetValue(group, out var winner);
                     foreach (var member in tree.Controls)
                     {
-                        if (member == winner || member.Excluded || member.Entry.kind != EntryKind.Toggle) continue;
-                        var memberGroup = member.Entry.exclusiveGroup;
-                        if (string.IsNullOrWhiteSpace(memberGroup) || memberGroup.Trim() != group) continue;
+                        if (member == winner || member.Excluded || tree.GroupOf(member) != group) continue;
                         WriteSwitch(member.Entry, false);
                     }
                     if (winner != null) WriteSwitch(winner.Entry, true);
@@ -619,15 +618,15 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>The one member of each exclusive group that is on: the last overridden-on member in tree order, else the first defaultOn member. Shared with PreviewState, so the wheel, test mode and the panel answer "is this member on" the same way the scene preview does.</summary>
-        internal static Dictionary<string, ControlNode> GroupWinners(MenuTree tree, IReadOnlyDictionary<string, float> overrides)
+        internal static Dictionary<GroupKey, ControlNode> GroupWinners(MenuTree tree, IReadOnlyDictionary<string, float> overrides)
         {
-            var winners = new Dictionary<string, ControlNode>();
+            var winners = new Dictionary<GroupKey, ControlNode>();
             foreach (var control in tree.Controls)
             {
                 if (control.Excluded) continue;
                 var entry = control.Entry;
-                if (entry.kind != EntryKind.Toggle || string.IsNullOrWhiteSpace(entry.exclusiveGroup)) continue;
-                string group = entry.exclusiveGroup.Trim();
+                var group = tree.GroupOf(control);
+                if (group.IsNone) continue;
                 float value = 0f;
                 bool overridden = overrides != null && overrides.TryGetValue(entry.id, out value);
                 if (overridden && value >= 0.5f) winners[group] = control;

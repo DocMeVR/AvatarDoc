@@ -17,6 +17,8 @@ namespace DocMe.AvatarDoctor.Editor
         {
             root = new GameObject("Avatar");
             menu = root.AddComponent<AvatarDoc>();
+            // An object with no Avatar Descriptor gives a new component a prefix from its name; these tests plan AD.
+            menu.parameterPrefix = "AD";
         }
 
         [TearDown]

@@ -1094,6 +1094,89 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void TheSeveralComponentsShotsShowTheJoinWarningTheListTheLinkAndThePrefixClash()
+        {
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ExclusiveGroupsJoin(avatar);
+                try
+                {
+                    var menu = avatar.Root.GetComponent<AvatarDoc>();
+                    Assert.That(Problems(menu), Is.Empty, "two Outfits groups kept apart are a note, not a problem");
+                    Assert.That(AvatarPlanCache.GetFor(menu).Messages.Count(m => m.Key == "ad.info.group_same_name"), Is.EqualTo(1));
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Jacket"));
+                        Assert.That(view.Q<Button>("ad-group-join").text, Is.EqualTo(L.Text("ad.ui.group.join")));
+                        Assert.That(view.Q<Button>("ad-group-join").enabledSelf, Is.True);
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ExclusiveGroupsList(avatar);
+                try
+                {
+                    Rehearse(spec, (view, keptBottom) =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Bag"));
+                        var list = view.panel.visualTree.Q<AdMenu>();
+                        Assert.That(list, Is.Not.Null, "the group list is open");
+                        Assert.That(list.Items.Select(i => i.Text), Is.EqualTo(new[] { L.Text("ad.ui.group.none"), "Outfits", L.Aside("Outfits", "Mayo menu") }));
+                        Assert.That(list.Card.worldBound.yMax, Is.LessThanOrEqualTo(keptBottom + 0.5f), "the list ends inside the picture");
+                    });
+                }
+                finally
+                {
+                    DocsShots_Guides1.CloseMenus(spec.View);
+                    Release(spec);
+                }
+            }
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.ExclusiveGroupsLinked(avatar);
+                try
+                {
+                    var menu = avatar.Root.GetComponent<AvatarDoc>();
+                    Assert.That(Problems(menu), Is.Empty, "a linked Kimono leaves nothing to warn about");
+                    Rehearse(spec, view =>
+                    {
+                        Assert.That(Selected(view)?.name, Is.EqualTo("Kimono"));
+                        Assert.That(view.Q<Label>("ad-group-owner").text, Is.EqualTo(string.Format(L.Text("ad.ui.group.linked"), avatar.Root.name)), "the Kimono is in the avatar's own group");
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+            using (var avatar = DocsAvatar.Create())
+            {
+                var spec = DocsShots_Reference1.InspectorPrefixClash(avatar);
+                try
+                {
+                    var menu = avatar.Root.GetComponent<AvatarDoc>();
+                    Assert.That(Problems(menu), Is.EqualTo(new[] { "ad.warn.prefix_clash.one" }), "the shared AD/Hat is the one warning");
+                    Rehearse(spec, view =>
+                    {
+                        var doctor = view.Q<AvatarDoctorView>();
+                        Assert.That(doctor.Header.ProblemsOpen, Is.True);
+                        Assert.That(doctor.Content.resolvedStyle.display, Is.EqualTo(DisplayStyle.None), "the picture shows the header alone");
+                        Assert.That(view.Q<Button>("ad-prefix-own").text, Is.EqualTo(L.Text("ad.ui.prefix.own")));
+                    });
+                }
+                finally
+                {
+                    Release(spec);
+                }
+            }
+        }
+
+        [Test]
         public void TheReferenceObjectsShotShowsTheJacketShownAndTheHoodieHidden()
         {
             using (var avatar = DocsAvatar.Create())

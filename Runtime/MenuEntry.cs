@@ -28,7 +28,7 @@ namespace DocMe.AvatarDoctor
     /// <summary>One entry's platform choice. Inherit takes the enclosing submenu's, or the component's when no submenu above it sets one.</summary>
     public enum EntryPlatform { Inherit = 0, Both = 1, PCOnly = 2, MobileOnly = 3 }
 
-    /// <summary>Settings of an exclusive group. Toggles join a group by name, so a group can span components.</summary>
+    /// <summary>Settings of an exclusive group, kept by the component the group belongs to. A toggle of another component joins the group only through its link (MenuEntry.groupComponent).</summary>
     [Serializable]
     public class ExclusiveGroup
     {
@@ -62,6 +62,8 @@ namespace DocMe.AvatarDoctor
         public string parameterName = "";
         public float parameterValue = 1f;
         public string exclusiveGroup = "";
+        /// <summary>The AvatarDoc whose exclusive group of that name this toggle joins. Empty means its own component.</summary>
+        public AvatarDoc groupComponent;
         public int groupValue;
         /// <summary>Seconds the toggle's main layer takes to fade between Off and On. Zero means an instant switch. Ignored on a member of an exclusive group.</summary>
         public float blendSeconds;

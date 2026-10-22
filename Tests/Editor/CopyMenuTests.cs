@@ -924,7 +924,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>The built FX controller, the expression parameters and the menu as text: every layer, state, transition, clip curve and blend tree, in order.</summary>
-        static string Dump(GameObject built)
+        internal static string Dump(GameObject built)
         {
             var descriptor = built.GetComponent<VRCAvatarDescriptor>();
             var fx = (AnimatorController)descriptor.baseAnimationLayers.First(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX).animatorController;

@@ -71,6 +71,66 @@ namespace DocMe.AvatarDoctor.Editor
             return true;
         }
 
+        /// <summary>The members of from's exclusive group of this name, those other components link to it included. Empty when there is none.</summary>
+        static List<ControlNode> GroupMembers(MenuTree tree, AvatarDoc from, string name)
+        {
+            if (tree == null || from == null || string.IsNullOrWhiteSpace(name)) return new List<ControlNode>();
+            var group = new GroupKey(from, name.Trim());
+            return tree.Controls.Where(c => !c.Disabled && c.Component != null && tree.GroupOf(c) == group).ToList();
+        }
+
+        /// <summary>Whether JoinGroup would do it: from has a group of that name, and no component holding one of its members is locked.</summary>
+        public static bool CanJoinGroup(MenuTree tree, AvatarDoc from, string name, AvatarDoc into)
+        {
+            if (into == null || from == into) return false;
+            var members = GroupMembers(tree, from, name);
+            return members.Count > 0 && !members.Any(m => Refuses(m.Component));
+        }
+
+        /// <summary>
+        /// Makes from's exclusive group of this name part of into's group of that name: every member of from's group
+        /// links to into, in one Undo step, and a member that sits on into itself becomes into's own again. Refused,
+        /// changing nothing, when a component holding one of the members is locked.
+        /// </summary>
+        public static bool JoinGroup(MenuTree tree, AvatarDoc from, string name, AvatarDoc into) => JoinGroup(tree, from, name, into, out _);
+
+        /// <summary>The same, handing out the components it changed.</summary>
+        public static bool JoinGroup(MenuTree tree, AvatarDoc from, string name, AvatarDoc into, out AvatarDoc[] changed)
+        {
+            changed = Array.Empty<AvatarDoc>();
+            if (!CanJoinGroup(tree, from, name, into)) return false;
+            var members = GroupMembers(tree, from, name);
+            var components = members.Select(m => m.Component).Distinct().ToArray();
+            changed = components;
+            Undo.RecordObjects(components, "Join exclusive groups");
+            foreach (var member in members)
+            {
+                var entry = member.Component.FindEntry(member.Entry.id);
+                if (entry != null) entry.groupComponent = member.Component == into ? null : into;
+            }
+            foreach (var component in components) MarkChanged(component);
+            return true;
+        }
+
+        /// <summary>
+        /// Gives the component a parameter prefix none of the others has: the one a new component on its object
+        /// starts with (AvatarDoc.PrefixFor), with 2, 3 and so on after it while that is taken too. One Undo step.
+        /// Not refused on a locked component, whose prefix is the buyer's to set. False when it already has that prefix.
+        /// </summary>
+        public static bool GiveOwnPrefix(AvatarDoc component, IEnumerable<AvatarDoc> others)
+        {
+            if (component == null) return false;
+            var taken = new HashSet<string>((others ?? Enumerable.Empty<AvatarDoc>()).Where(o => o != null && o != component).Select(o => (o.parameterPrefix ?? "").Trim()));
+            var wanted = AvatarDoc.PrefixFor(component.gameObject);
+            var chosen = wanted;
+            for (int i = 2; taken.Contains(chosen); i++) chosen = wanted + i;
+            if (chosen == component.parameterPrefix) return false;
+            Undo.RecordObject(component, "Give this component its own prefix");
+            component.parameterPrefix = chosen;
+            MarkChanged(component);
+            return true;
+        }
+
         /// <summary>
         /// Marks the property "Animated (when locked)" on every unlocked Poiyomi material that does not mark it yet, in
         /// one Undo step, so Poiyomi keeps it animated when it locks them at upload: the renderer's own, the ones the

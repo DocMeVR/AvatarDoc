@@ -147,6 +147,7 @@ namespace DocMe.AvatarDoctor.Editor
             packMenu.installPath = "Outfits";
             var swim = packMenu.AddEntry(EntryKind.Toggle, "Swim");
             swim.exclusiveGroup = "Outfits";
+            swim.groupComponent = menu;
             swim.objects.Add(new ObjectTarget { target = avatar.Glasses });
             var extra = new GameObject("Extra"); extra.transform.SetParent(avatar.Root.transform);
             var extraMenu = extra.AddComponent<AvatarDoc>();

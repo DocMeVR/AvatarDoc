@@ -9,7 +9,7 @@ namespace DocMe.AvatarDoctor.Editor
         public static void Apply(MenuTree tree, ParameterPlan plan, BaseState baseState, IReadOnlyList<TriggerPlan> triggers = null, FollowPlan followPlan = null)
         {
             var content = new ClipContent(tree.AvatarRoot);
-            var builtGroups = new HashSet<string>();
+            var builtGroups = new HashSet<PlannedParameter>();
             foreach (var control in tree.Controls)
             {
                 // A preset has no scene state of its own to default to; it only acts when pressed.
@@ -22,7 +22,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (control.Entry.kind == EntryKind.Radial) { content.WriteRadial(control.Entry, binding.DefaultValue); continue; }
                 if (binding.Parameter.GroupName != null)
                 {
-                    if (builtGroups.Add(binding.Parameter.GroupName)) WriteGroupDefault(content, plan, binding.Parameter, baseState);
+                    if (builtGroups.Add(binding.Parameter)) WriteGroupDefault(content, plan, binding.Parameter, baseState);
                     continue;
                 }
                 content.WriteToggle(control.Entry, binding.OnByDefault, baseState, ShapeSet.All, followPlan);

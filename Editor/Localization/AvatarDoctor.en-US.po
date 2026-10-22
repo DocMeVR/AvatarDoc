@@ -2326,7 +2326,7 @@ msgid "ad.ui.in_menu.tip"
 msgstr "Off removes this control's button from the menu but keeps its parameter and effects working."
 
 msgid "ad.ui.group.tip"
-msgstr "Only one toggle sharing this same group name can be on at a time."
+msgstr "Only one toggle of a group can be on at a time: a name you type is a group of this component, and the list also offers the groups of the other AvatarDoc components."
 
 msgid "ad.ui.group.value.tip"
 msgstr "The number the group's parameter takes while this toggle is on. 0 lets AvatarDoc pick one."
@@ -4121,3 +4121,36 @@ msgstr "The hand is your own, so the contacts with Self on react to it."
 
 msgid "ad.ui.touch_test.passed_by"
 msgstr "The test hand passes this trigger by: it has no effect yet, it is not built on this platform, or its component is switched off or on no avatar."
+
+msgid "ad.info.group_same_name"
+msgstr "{0} and {1} each have an exclusive group named \"{2}\", so they are two groups: a toggle of one does not turn off the toggles of the other. Nothing to fix if you want them apart. To make them one group, press \"Join them\": the toggles of {1} join the group of {0}."
+
+msgid "ad.warn.prefix_clash"
+msgstr "{0} would make the same automatic parameter names as {1}: {2}. The build tells them apart with a number, so adding or removing a component can move a saved value to another toggle. Press \"Give this component its own prefix\" in the inspector of {0}."
+
+msgid "ad.warn.prefix_clash.one"
+msgstr "{0} would make the same automatic parameter name as {1}: {2}. The build tells them apart with a number, so adding or removing a component can move a saved value to another toggle. Press \"Give this component its own prefix\" in the inspector of {0}."
+
+msgid "ad.ui.group.join"
+msgstr "Join them"
+
+msgid "ad.ui.group.join.tip"
+msgstr "Puts the toggles of {0} into the group of {1}, in one Undo step."
+
+msgid "ad.ui.group.join.locked.tip"
+msgstr "Both components are locked, so no toggle can move to the other group: unlock one of them first."
+
+msgid "ad.ui.group.linked"
+msgstr "In the group of {0}."
+
+msgid "ad.ui.parameter.also_used_by"
+msgstr "Also used by"
+
+msgid "ad.ui.prefix.own"
+msgstr "Give this component its own prefix"
+
+msgid "ad.ui.prefix.own.tip"
+msgstr "Sets this component's parameter prefix from its object's name, with a number when another component has it, in one Undo step, so its toggles start from their defaults once."
+
+msgid "ad.ui.prefix.select.tip"
+msgstr "Selects the component this warning names first, whose inspector has the button that gives it its own prefix."

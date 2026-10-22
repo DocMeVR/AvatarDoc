@@ -343,10 +343,10 @@ namespace DocMe.AvatarDoctor.Editor
             RefreshSettingsFoldDot();
         }
 
-        /// <summary>Whether one of the values the fold holds (Install into, Install as, Parameter prefix, Platform, the objects to pick by hand) is not at its default.</summary>
+        /// <summary>Whether one of the values the fold holds (Install into, Install as, Parameter prefix, Platform, the objects to pick by hand) is not at its default. The prefix's default is the one a new component takes on its object.</summary>
         bool SettingsNotAtDefault => owner.Menu != null
             && (owner.Menu.installPath.Length > 0 || owner.Menu.installMode != InstallMode.AppendItems
-                || owner.Menu.parameterPrefix != "AD" || owner.Menu.platform != PlatformChoice.Both
+                || !owner.Menu.HasStartingPrefix || owner.Menu.platform != PlatformChoice.Both
                 || (owner.Menu.pickByHand != null && owner.Menu.pickByHand.Count > 0));
 
         /// <summary>"Copy" in the Component settings fold: opens Copy to another avatar for this component. Public so its button and a test call the same thing.</summary>
@@ -630,6 +630,8 @@ namespace DocMe.AvatarDoctor.Editor
                 var box = BuildProblemLine(line);
                 problemsList.Add(box);
                 if (line.Message != null || line.EditIdToRemove != null) lineElementsByMessageKey[line.Key] = box;
+                var action = ProblemAction(line);
+                if (action != null) problemsList.Add(action);
             }
             if (!showAllProblems && lines.Count > ProblemListCap)
             {
@@ -638,6 +640,42 @@ namespace DocMe.AvatarDoctor.Editor
                 more.AddToClassList("ad-link");
                 problemsList.Add(more);
             }
+        }
+
+        /// <summary>
+        /// The way out of a problem line that has one, in a row under it: under the warning about automatic names two
+        /// components share, Give this component its own prefix in the inspector of the component it changes
+        /// (Args[0]), and a button that selects that component in every other inspector. The prefix stays the buyer's
+        /// to set, so a locked component offers it too.
+        /// </summary>
+        VisualElement ProblemAction(ProblemLine line)
+        {
+            var message = line.Message;
+            if (message == null || !message.Says("ad.warn.prefix_clash") || message.Args == null || message.Args.Length == 0 || !(message.Args[0] is AvatarDoc toChange)) return null;
+            var row = new VisualElement();
+            row.AddToClassList("ad-message-actions");
+            if (toChange == owner.Menu)
+                row.Add(new Button(GiveOwnPrefix) { text = L.Text("ad.ui.prefix.own"), name = "ad-prefix-own", tooltip = L.Text("ad.ui.prefix.own.tip") });
+            else
+                row.Add(new Button(() => SelectComponent(toChange)) { text = L.Text("ad.ui.select_component"), name = "ad-prefix-select", tooltip = L.Text("ad.ui.prefix.select.tip") });
+            return row;
+        }
+
+        /// <summary>Selects and pings a component in the Hierarchy, for a button the creator presses. Replaceable by a test, which must leave the selection alone.</summary>
+        public static System.Action<UnityEngine.Object> SelectComponent = component =>
+        {
+            Selection.activeObject = component;
+            EditorGUIUtility.PingObject(component);
+        };
+
+        /// <summary>Gives this component a parameter prefix no other component of the avatar has, in one Undo step, and redraws. Public so the button and a test call the same thing.</summary>
+        public void GiveOwnPrefix()
+        {
+            var tree = owner.Plan?.Tree;
+            if (tree == null || !EntryEditing.GiveOwnPrefix(owner.Menu, tree.Components)) return;
+            AvatarPlanCache.NoteSelfEdit(owner.Menu);
+            AvatarPlanCache.InvalidateMenu(owner.Plan.AvatarRoot);
+            owner.Refresh();
         }
 
         /// <summary>Expands the problem list past its 6 line cap for the rest of this view's own life. The list's own "Show N more" link calls this; public so a test can call the same thing.</summary>

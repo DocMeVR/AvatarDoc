@@ -44,6 +44,8 @@ namespace DocMe.AvatarDoctor.Editor
         Label parameterChip;
         Toggle parameterCustom;
         Label parameterNote;
+        Label parameterShared;
+        Label groupOwnerNote;
         Button previewDefault;
         SegmentedChoice previewChoice;
         Slider previewSlider;
@@ -378,6 +380,8 @@ namespace DocMe.AvatarDoctor.Editor
             parameterChip = null;
             parameterCustom = null;
             parameterNote = null;
+            parameterShared = null;
+            groupOwnerNote = null;
             previewDefault = null;
             previewChoice = null;
             previewSlider = null;
@@ -526,6 +530,10 @@ namespace DocMe.AvatarDoctor.Editor
                     if (!trimmed || keptGroupRow || !string.IsNullOrWhiteSpace(row.Entry.exclusiveGroup))
                     {
                         body.Add(GroupRow(row, property));
+                        groupOwnerNote = new Label { name = "ad-group-owner" };
+                        groupOwnerNote.AddToClassList("ad-note");
+                        groupOwnerNote.AddToClassList("ad-note-indent");
+                        body.Add(groupOwnerNote);
                         groupRowBuilt = true;
                     }
                     body.Add(VisibleFlagsRow(property, includeDefault: true));
@@ -712,6 +720,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
             if (slotNote != null) slotNote.text = string.Format(L.Text("ad.ui.slots"), row.Slots, VRCExpressionsMenu.MAX_CONTROLS);
             RefreshParameter(row);
+            RefreshGroupOwner(row);
             RefreshSyncedCost(row);
             RefreshBuildsLine(row);
             RefreshMessages(row);
@@ -777,6 +786,24 @@ namespace DocMe.AvatarDoctor.Editor
             else parameterName.text = "";
             parameterNote.text = text;
             parameterNote.EnableInClassList("ad-hidden", text.Length == 0);
+            if (parameterShared == null) return;
+            // Sharing a custom name stays allowed: the row only says who else uses it, a toggle or radial of another
+            // component, or another component's own Parameters list. A group member uses its group's parameter, which
+            // a custom name left on it does not name.
+            string shared = "";
+            if (row.Entry != null && !string.IsNullOrWhiteSpace(row.Entry.parameterName) && row.Control != null
+                && owner.Plan.Plan.Bindings.TryGetValue(row.Control, out var own) && own.Parameter.Group.IsNone)
+            {
+                var custom = row.Entry.parameterName.Trim();
+                var mine = row.Control.Component;
+                var others = own.Parameter.Controls.Where(c => c.Component != mine).Select(c => L.Aside(c.Entry.PlainName, c.Component.gameObject.name))
+                    .Concat(owner.Plan.Tree.Components.Where(c => c != null && c != mine && !MenuModel.IsDisabled(c) && c.parameters.Any(d => d != null && (d.name ?? "").Trim() == custom))
+                        .Select(c => L.Aside(L.Text("ad.ui.parameters"), c.gameObject.name)))
+                    .ToList();
+                if (others.Count > 0) shared = L.Labelled(L.Text("ad.ui.parameter.also_used_by"), L.JoinList(others));
+            }
+            parameterShared.text = shared;
+            parameterShared.EnableInClassList("ad-hidden", shared.Length == 0);
         }
 
         /// <summary>Shows what the name field currently reads, while it is being typed in. The entry itself is written only when the field commits.</summary>
@@ -800,12 +827,38 @@ namespace DocMe.AvatarDoctor.Editor
         VisualElement MessageAction(ModelMessage message)
         {
             if (message.Says("ad.warn.poiyomi_not_animated")) return Row != null && Row.Mine ? MarkAnimatedAction(message) : null;
-            if (!message.Says("ad.error.group_value_conflict") || message.Args == null || message.Args.Length == 0) return null;
-            string group = message.Args[0] as string;
+            if (message.Says("ad.info.group_same_name")) return JoinAction(message);
+            if (!message.Says("ad.error.group_value_conflict")) return null;
             var row = new VisualElement();
             row.AddToClassList("ad-message-actions");
-            row.Add(new Button(() => NumberGroupMembers(group)) { text = L.Text("ad.ui.group.number"), name = "ad-group-number", tooltip = L.Text("ad.ui.group.number.tip") });
+            row.Add(new Button(NumberGroupMembers) { text = L.Text("ad.ui.group.number"), name = "ad-group-number", tooltip = L.Text("ad.ui.group.number.tip") });
             return row;
+        }
+
+        /// <summary>
+        /// The Join them button under the note about two groups of one name. The note names the component whose group
+        /// the toggles join (Args[0]), the one whose toggles move (Args[1]), already turned round when only that one
+        /// is locked, and the name (Args[2]); the button is greyed out only while both sides are locked.
+        /// </summary>
+        VisualElement JoinAction(ModelMessage message)
+        {
+            if (message.Args == null || message.Args.Length < 3 || !(message.Args[0] is AvatarDoc into) || !(message.Args[1] is AvatarDoc from) || !(message.Args[2] is string name)) return null;
+            bool refused = !EntryEditing.CanJoinGroup(owner.Plan?.Tree, from, name, into);
+            var row = new VisualElement();
+            row.AddToClassList("ad-message-actions");
+            var tooltip = refused ? L.Text("ad.ui.group.join.locked.tip") : string.Format(L.Text("ad.ui.group.join.tip"), from.gameObject.name, into.gameObject.name);
+            var button = new Button(() => JoinGroup(from, name, into)) { text = L.Text("ad.ui.group.join"), name = "ad-group-join", tooltip = tooltip };
+            button.SetEnabled(!refused);
+            row.Add(button);
+            return row;
+        }
+
+        void JoinGroup(AvatarDoc from, string name, AvatarDoc into)
+        {
+            if (owner.Plan?.Tree == null || !EntryEditing.JoinGroup(owner.Plan.Tree, from, name, into, out var changed)) return;
+            foreach (var component in changed) AvatarPlanCache.NoteSelfEdit(component);
+            AvatarPlanCache.InvalidateMenu(owner.Plan.AvatarRoot);
+            owner.Refresh();
         }
 
         /// <summary>The Mark as animated button under a Poiyomi warning. The message names the property (Args[1]) and the renderer (Args[2]).</summary>
@@ -827,11 +880,13 @@ namespace DocMe.AvatarDoctor.Editor
             owner.Refresh();
         }
 
-        void NumberGroupMembers(string group)
+        /// <summary>Numbers the members of the group the shown toggle is in.</summary>
+        void NumberGroupMembers()
         {
-            if (Refuses || owner.Plan?.Plan == null) return;
-            var parameter = owner.Plan.Plan.Parameters.FirstOrDefault(p => p.GroupName == group);
-            if (parameter == null || !EntryEditing.NumberGroupMembers(parameter.Controls)) return;
+            if (Refuses || owner.Plan?.Plan == null || Row?.Control == null) return;
+            if (!owner.Plan.Plan.Bindings.TryGetValue(Row.Control, out var binding) || binding.Parameter.Group.IsNone) return;
+            var parameter = binding.Parameter;
+            if (!EntryEditing.NumberGroupMembers(parameter.Controls)) return;
             foreach (var component in parameter.Controls.Select(c => c.Component).Distinct()) AvatarPlanCache.NoteSelfEdit(component);
             AvatarPlanCache.InvalidateMenu(owner.Plan.AvatarRoot);
             owner.Refresh();
@@ -1436,24 +1491,40 @@ namespace DocMe.AvatarDoctor.Editor
             var entryId = row.Entry.id;
             var container = new VisualElement();
             container.AddToClassList("ad-row");
-            var field = fields.Text(groupProperty, L.Text("ad.ui.group"));
+            // A typed name is a group of the toggle's own component, so it lets go of a link to another one's.
+            var field = fields.Text(groupProperty, L.Text("ad.ui.group"), alongside: p => Sibling(p, nameof(MenuEntry.groupComponent)).objectReferenceValue = null);
             field.name = "ad-group";
             field.tooltip = L.Text("ad.ui.group.tip");
             container.Add(field);
             Button pick = null;
             pick = new Button(() =>
             {
-                var popup = new List<AdMenu.Item>();
-                var current = owner.Menu.FindEntry(entryId)?.exclusiveGroup ?? "";
-                popup.Add(new AdMenu.Item { Text = L.Text("ad.ui.group.none"), Checked = current.Length == 0, Action = () => SetEntryString(entryId, nameof(MenuEntry.exclusiveGroup), "") });
-                var names = owner.Plan.Tree.Components.SelectMany(c => c.groups.Select(g => g.name))
-                    .Concat(owner.Plan.Tree.Controls.Select(c => c.Entry.exclusiveGroup))
-                    .Where(n => !string.IsNullOrWhiteSpace(n)).Select(n => n.Trim()).Distinct().OrderBy(n => n);
-                foreach (var name in names)
+                var tree = owner.Plan.Tree;
+                var current = tree.GroupOf(owner.Menu, owner.Menu.FindEntry(entryId));
+                var popup = new List<AdMenu.Item>
                 {
-                    var chosen = name;
-                    popup.Add(new AdMenu.Item { Text = chosen, Checked = current == chosen, Action = () => SetEntryString(entryId, nameof(MenuEntry.exclusiveGroup), chosen) });
+                    new AdMenu.Item { Text = L.Text("ad.ui.group.none"), Checked = current.IsNone, Action = () => SetEntryGroup(entryId, "", null) },
+                };
+                // This component's own groups first, a group it keeps only settings for included, then each other
+                // component's, named with it.
+                var keys = tree.GroupKeys();
+                foreach (var settings in owner.Menu.groups)
+                {
+                    var settingsKey = new GroupKey(owner.Menu, (settings?.name ?? "").Trim());
+                    if (!settingsKey.IsNone && !keys.Contains(settingsKey)) keys.Add(settingsKey);
                 }
+                foreach (var component in new[] { owner.Menu }.Concat(tree.Components.Where(c => c != owner.Menu)))
+                    foreach (var key in keys.Where(k => k.Component == component).OrderBy(k => k.Name))
+                    {
+                        var chosen = key;
+                        bool own = component == owner.Menu;
+                        popup.Add(new AdMenu.Item
+                        {
+                            Text = own ? chosen.Name : L.Aside(chosen.Name, component.gameObject.name),
+                            Checked = current == chosen,
+                            Action = () => SetEntryGroup(entryId, chosen.Name, own ? null : chosen.Component),
+                        });
+                    }
                 AdMenu.Open(pick.worldBound, pick, popup);
             });
             pick.name = "ad-group-pick";
@@ -1468,6 +1539,34 @@ namespace DocMe.AvatarDoctor.Editor
             owner.SerializedObject.Update();
             property.stringValue = value;
             owner.ApplyAndRefresh();
+        }
+
+        /// <summary>Another field of the same item as this property.</summary>
+        static SerializedProperty Sibling(SerializedProperty property, string name)
+        {
+            var path = property.propertyPath;
+            return property.serializedObject.FindProperty(path.Substring(0, path.LastIndexOf('.') + 1) + name);
+        }
+
+        /// <summary>Puts the entry a control was built for into a group, in one Undo step: the group's name, and the component the group belongs to, null for the entry's own.</summary>
+        void SetEntryGroup(string entryId, string name, AvatarDoc component)
+        {
+            if (Refuses) return;
+            var property = EntryField(entryId, nameof(MenuEntry.exclusiveGroup));
+            if (property == null) return;
+            property.stringValue = name;
+            Sibling(property, nameof(MenuEntry.groupComponent)).objectReferenceValue = component;
+            owner.ApplyAndRefresh();
+        }
+
+        /// <summary>The note under Exclusive group of a toggle that joins another component's group: whose group it is.</summary>
+        void RefreshGroupOwner(TreeRow row)
+        {
+            if (groupOwnerNote == null) return;
+            var group = row.Control != null ? owner.Plan.Tree.GroupOf(row.Control) : default;
+            bool linked = !group.IsNone && group.Component != null && group.Component != row.Control.Component;
+            groupOwnerNote.text = linked ? string.Format(L.Text("ad.ui.group.linked"), group.Component.gameObject.name) : "";
+            groupOwnerNote.EnableInClassList("ad-hidden", !linked);
         }
 
         /// <summary>One field of the entry with this id, where the component's list holds it now. Null when the entry is gone: a control built for it must not write to whichever entry took its place.</summary>
@@ -1572,6 +1671,10 @@ namespace DocMe.AvatarDoctor.Editor
             parameterNote.AddToClassList("ad-note");
             parameterNote.AddToClassList("ad-note-indent");
             container.Add(parameterNote);
+            parameterShared = new Label { name = "ad-parameter-shared" };
+            parameterShared.AddToClassList("ad-note");
+            parameterShared.AddToClassList("ad-note-indent");
+            container.Add(parameterShared);
 
             if (custom)
             {

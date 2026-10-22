@@ -57,13 +57,18 @@ namespace DocMe.AvatarDoctor.Editor
             for (int i = 0; i < loaders.Count; i++) loaders[i]();
         }
 
-        public TextField Text(SerializedProperty property, string label, Action commit = null, bool delayed = true)
+        /// <param name="alongside">Writes more of the same item in the same step, given the property the text went to.</param>
+        public TextField Text(SerializedProperty property, string label, Action commit = null, bool delayed = true, Action<SerializedProperty> alongside = null)
         {
             var path = property.propertyPath;
             var anchor = AnchorOf(path);
             var field = new TextField(label) { isDelayed = delayed };
             Register(field, () => field.SetValueWithoutNotify(Read(path, anchor, p => p.stringValue) ?? ""));
-            field.RegisterValueChangedCallback(e => Write(path, anchor, p => p.stringValue = e.newValue ?? "", commit));
+            field.RegisterValueChangedCallback(e => Write(path, anchor, p =>
+            {
+                p.stringValue = e.newValue ?? "";
+                alongside?.Invoke(p);
+            }, commit));
             return field;
         }
 

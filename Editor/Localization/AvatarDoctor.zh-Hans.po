@@ -3099,9 +3099,9 @@ msgstr "占用同步参数，让其他玩家也能看到此控件的状态。"
 msgid "ad.ui.in_menu.tip"
 msgstr "关闭后会从菜单中移除此控件的按钮，但其参数和效果仍正常工作。"
 
-#. en: Only one toggle sharing this same group name can be on at a time.
+#. en: Only one toggle of a group can be on at a time: a name you type is a group of this component, and the list also offers the groups of the other AvatarDoc components.
 msgid "ad.ui.group.tip"
-msgstr "使用相同组名的开关中，同一时间只能有一个开启。"
+msgstr "同一个组中同一时间只能有一个开关开启：输入的名称是此组件的组，列表中还会列出其他 AvatarDoc 组件的组。"
 
 #. en: The number the group's parameter takes while this toggle is on. 0 lets AvatarDoc pick one.
 msgid "ad.ui.group.value.tip"
@@ -5494,3 +5494,47 @@ msgstr "视为你自己的手，因此开启“自己”的 Contact 会响应。
 #. en: The test hand passes this trigger by: it has no effect yet, it is not built on this platform, or its component is switched off or on no avatar.
 msgid "ad.ui.touch_test.passed_by"
 msgstr "测试用手会略过此触发器：它还没有效果、不在此平台上构建，或其组件已关闭或不在任何 Avatar 上。"
+
+#. en: {0} and {1} each have an exclusive group named \"{2}\", so they are two groups: a toggle of one does not turn off the toggles of the other. Nothing to fix if you want them apart. To make them one group, press \"Join them\": the toggles of {1} join the group of {0}.
+msgid "ad.info.group_same_name"
+msgstr "“{0}”和“{1}”都有名为“{2}”的互斥组，因此它们是两个独立的组：一个组的开关不会关闭另一个组的开关。如果想让它们保持独立，则无需处理。要合并为一个组，请点击“合并”：“{1}”的开关将加入“{0}”的组。"
+
+#. en: {0} would make the same automatic parameter names as {1}: {2}. The build tells them apart with a number, so adding or removing a component can move a saved value to another toggle. Press \"Give this component its own prefix\" in the inspector of {0}.
+msgid "ad.warn.prefix_clash"
+msgstr "“{0}”会生成与“{1}”相同的自动参数名：{2}。构建时会加上编号加以区分，但添加或移除组件时，保存的值可能会移到另一个开关上。请在“{0}”的 Inspector 中点击“为此组件设置独立的参数前缀”。"
+
+#. en: {0} would make the same automatic parameter name as {1}: {2}. The build tells them apart with a number, so adding or removing a component can move a saved value to another toggle. Press \"Give this component its own prefix\" in the inspector of {0}.
+msgid "ad.warn.prefix_clash.one"
+msgstr "“{0}”会生成与“{1}”相同的自动参数名：{2}。构建时会加上编号加以区分，但添加或移除组件时，保存的值可能会移到另一个开关上。请在“{0}”的 Inspector 中点击“为此组件设置独立的参数前缀”。"
+
+#. en: Join them
+msgid "ad.ui.group.join"
+msgstr "合并"
+
+#. en: Puts the toggles of {0} into the group of {1}, in one Undo step.
+msgid "ad.ui.group.join.tip"
+msgstr "把“{0}”的开关加入“{1}”的组，可一步撤销。"
+
+#. en: Both components are locked, so no toggle can move to the other group: unlock one of them first.
+msgid "ad.ui.group.join.locked.tip"
+msgstr "两个组件都已锁定，开关无法移到另一个组。请先解锁其中一个。"
+
+#. en: In the group of {0}.
+msgid "ad.ui.group.linked"
+msgstr "属于“{0}”的组。"
+
+#. en: Also used by
+msgid "ad.ui.parameter.also_used_by"
+msgstr "也被以下条目使用"
+
+#. en: Give this component its own prefix
+msgid "ad.ui.prefix.own"
+msgstr "为此组件设置独立的参数前缀"
+
+#. en: Sets this component's parameter prefix from its object's name, with a number when another component has it, in one Undo step, so its toggles start from their defaults once.
+msgid "ad.ui.prefix.own.tip"
+msgstr "根据对象名称设置此组件的参数前缀，如已被其他组件使用则加上编号，可一步撤销；此组件的开关会从默认值重新开始一次。"
+
+#. en: Selects the component this warning names first, whose inspector has the button that gives it its own prefix.
+msgid "ad.ui.prefix.select.tip"
+msgstr "选中此警告首先提到的组件，其 Inspector 中有为它设置独立参数前缀的按钮。"

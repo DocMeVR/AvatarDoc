@@ -104,6 +104,31 @@ namespace DocMe.AvatarDoctor.Editor
         public bool Disabled;
     }
 
+    /// <summary>
+    /// One exclusive group: the component it belongs to and its name. Two components can each have a group of the
+    /// same name, and they are two groups; a toggle of another component joins one only through its link
+    /// (MenuEntry.groupComponent). The default value is no group.
+    /// </summary>
+    public readonly struct GroupKey : IEquatable<GroupKey>
+    {
+        public readonly AvatarDoc Component;
+        public readonly string Name;
+
+        public GroupKey(AvatarDoc component, string name)
+        {
+            Component = component;
+            Name = name ?? "";
+        }
+
+        public bool IsNone => string.IsNullOrEmpty(Name);
+
+        public bool Equals(GroupKey other) => ReferenceEquals(Component, other.Component) && (Name ?? "") == (other.Name ?? "");
+        public override bool Equals(object obj) => obj is GroupKey other && Equals(other);
+        public override int GetHashCode() => ((Component != null ? Component.GetInstanceID() : 0) * 397) ^ (Name ?? "").GetHashCode();
+        public static bool operator ==(GroupKey a, GroupKey b) => a.Equals(b);
+        public static bool operator !=(GroupKey a, GroupKey b) => !a.Equals(b);
+    }
+
     public sealed class TriggerNode
     {
         public AvatarDoc Component;
@@ -232,15 +257,56 @@ namespace DocMe.AvatarDoctor.Editor
             return found;
         }
 
-        public ExclusiveGroup FindGroup(string name)
+        /// <summary>
+        /// The component whose exclusive group a toggle of component joins: the one it links to, while that one is
+        /// an AvatarDoc of this avatar the build reads, else its own. A link to a switched off component or to
+        /// one of another avatar falls back to its own component, the same in the inspector as in the build.
+        /// </summary>
+        public AvatarDoc GroupOwner(AvatarDoc component, MenuEntry entry)
         {
-            foreach (var component in Components)
-            {
-                if (MenuModel.IsDisabled(component)) continue;
-                foreach (var group in component.groups)
-                    if (group.name == name) return group;
-            }
+            var linked = entry != null ? entry.groupComponent : null;
+            if (linked == null || linked == component || MenuModel.IsDisabled(linked) || !Components.Contains(linked)) return component;
+            return linked;
+        }
+
+        /// <summary>The exclusive group a toggle of component is a member of, or none. Only a toggle is ever a member: a group name left on an entry of another kind means nothing.</summary>
+        public GroupKey GroupOf(AvatarDoc component, MenuEntry entry)
+        {
+            if (entry == null || entry.kind != EntryKind.Toggle || string.IsNullOrWhiteSpace(entry.exclusiveGroup)) return default;
+            return new GroupKey(GroupOwner(component, entry), entry.exclusiveGroup.Trim());
+        }
+
+        public GroupKey GroupOf(ControlNode control) => control == null ? default : GroupOf(control.Component, control.Entry);
+
+        /// <summary>The group of the control that holds this entry, found by the entry itself, or none when no control of this tree holds it.</summary>
+        public GroupKey GroupOf(MenuEntry entry)
+        {
+            if (entry == null) return default;
+            foreach (var control in Controls)
+                if (control.Entry == entry) return GroupOf(control);
+            return default;
+        }
+
+        /// <summary>The settings a group's own component keeps for it, or null when it keeps none.</summary>
+        public ExclusiveGroup GroupSettings(GroupKey group)
+        {
+            if (group.IsNone || group.Component == null) return null;
+            foreach (var settings in group.Component.groups)
+                if (settings != null && (settings.name ?? "").Trim() == group.Name) return settings;
             return null;
+        }
+
+        /// <summary>Every exclusive group of the components the build reads that has a member, in tree order of its first member.</summary>
+        public List<GroupKey> GroupKeys()
+        {
+            var keys = new List<GroupKey>();
+            foreach (var control in Controls)
+            {
+                if (control.Disabled) continue;
+                var key = GroupOf(control);
+                if (!key.IsNone && !keys.Contains(key)) keys.Add(key);
+            }
+            return keys;
         }
 
         public IEnumerable<MenuNode> AllNodes()
@@ -270,6 +336,20 @@ namespace DocMe.AvatarDoctor.Editor
         /// or the names and the memory bar would describe an avatar that is never built.
         /// </summary>
         public static bool IsDisabled(AvatarDoc component) => component != null && !component.enabled;
+
+        /// <summary>Whether the component sits on the root of the tree's avatar, where the avatar's own menu usually lives.</summary>
+        public static bool IsOnRoot(MenuTree tree, AvatarDoc component) => component != null && tree != null && tree.AvatarRoot != null && component.transform == tree.AvatarRoot;
+
+        /// <summary>
+        /// Of two components that clash, the one a fix changes: the one that is not on the avatar's root, or the
+        /// later one in the tree when both are on it or neither is. The other one is usually the avatar's own menu.
+        /// </summary>
+        public static AvatarDoc TheOneToChange(MenuTree tree, AvatarDoc a, AvatarDoc b)
+        {
+            bool aRoot = IsOnRoot(tree, a), bRoot = IsOnRoot(tree, b);
+            if (aRoot != bRoot) return aRoot ? b : a;
+            return tree.Components.IndexOf(a) > tree.Components.IndexOf(b) ? a : b;
+        }
 
         public static string[] SplitPath(string path)
         {
@@ -308,6 +388,7 @@ namespace DocMe.AvatarDoctor.Editor
             ValidateTargets(tree);
             ValidateMerges(tree);
             ReportSharedTargets(tree);
+            ReportSameNamedGroups(tree);
             ReportOverrideConflicts(tree);
             ReportUnreachableHiddenToggles(tree);
             ValidateFollowCounts(tree);
@@ -1372,6 +1453,40 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        /// <summary>
+        /// Two components that each have an exclusive group of one name have two groups, where a toggle of one used
+        /// to turn off the toggles of the other. That can be what the creator wants, so it is a note, said once for
+        /// each other component, against the group of the component on the avatar's root, else the first one in the
+        /// tree. Join them (EntryEditing.JoinGroup) moves the other component's toggles into that group, or that
+        /// component's toggles into the other group when only the other side is locked. Args: the component whose
+        /// group the toggles join, the one whose toggles move, the name.
+        /// </summary>
+        static void ReportSameNamedGroups(MenuTree tree)
+        {
+            var keys = tree.GroupKeys();
+            foreach (var name in keys.Select(k => k.Name).Distinct().ToList())
+            {
+                var owners = keys.Where(k => k.Name == name).Select(k => k.Component)
+                    .OrderBy(c => IsOnRoot(tree, c) ? 0 : 1).ThenBy(c => tree.Components.IndexOf(c)).ToList();
+                for (int i = 1; i < owners.Count; i++)
+                {
+                    var anchor = owners[0];
+                    var other = owners[i];
+                    var pair = new[] { new GroupKey(anchor, name), new GroupKey(other, name) };
+                    var members = tree.Controls.Where(c => !c.Disabled && pair.Contains(tree.GroupOf(c))).Select(c => c.Entry.id).ToArray();
+                    bool flip = SideLocked(tree, other, name) && !SideLocked(tree, anchor, name);
+                    tree.Messages.Add(ModelMessage.Info("ad.info.group_same_name", flip ? other : anchor, flip ? anchor : other, name).For(members));
+                }
+            }
+        }
+
+        /// <summary>Whether a component holding a member of owner's group of this name is locked, so Join them cannot move that group's toggles.</summary>
+        static bool SideLocked(MenuTree tree, AvatarDoc owner, string name)
+        {
+            var group = new GroupKey(owner, name);
+            return tree.Controls.Any(c => !c.Disabled && c.Component != null && c.Component.locked && tree.GroupOf(c) == group);
+        }
+
         /// <summary>Controls and triggers that write the same target fight each other while more than one is active, so the author gets one note per target. A group made only of overrides is left to ad.warn.override_conflict.</summary>
         static void ReportSharedTargets(MenuTree tree)
         {
@@ -1381,6 +1496,12 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var trigger in tree.Triggers) if (!trigger.Excluded) units.Add((trigger.Entry, trigger.Component));
             foreach (var rule in tree.Overrides) if (!rule.Excluded) units.Add((rule.Entry, rule.Component));
 
+            // The members of one group never fight each other: only one of them is on at a time.
+            object OneUnit((MenuEntry entry, AvatarDoc component) unit)
+            {
+                var group = tree.GroupOf(unit.component, unit.entry);
+                return group.IsNone ? (object)unit.entry.id : group;
+            }
             var byTarget = new Dictionary<string, List<(MenuEntry entry, AvatarDoc component)>>();
             var labels = new Dictionary<string, string>();
             var reportedProperties = new HashSet<string>();
@@ -1396,7 +1517,7 @@ namespace DocMe.AvatarDoctor.Editor
             }
             foreach (var pair in byTarget)
             {
-                var count = pair.Value.Select(u => string.IsNullOrWhiteSpace(u.entry.exclusiveGroup) ? u.entry.id : "group:" + u.entry.exclusiveGroup.Trim()).Distinct().Count();
+                var count = pair.Value.Select(OneUnit).Distinct().Count();
                 if (count < 2) continue;
                 if (pair.Value.All(u => u.entry.kind == EntryKind.Override)) continue;
                 // A property row has one key per curve name it writes, so rows that share several names are named once.
