@@ -184,13 +184,13 @@ namespace DocMe.AvatarDoctor.Editor
             }
             if (tree == null || avatarRoot == null) return new PieceSwitches(avatarRoot, byObject);
 
-            var groups = new HashSet<string>();
+            var groups = new HashSet<GroupKey>();
             foreach (var control in tree.Controls)
             {
                 var entry = control.Entry;
                 if (control.Excluded || control.Disabled || entry.kind != EntryKind.Toggle || entry.IsParameterControl) continue;
-                var group = (entry.exclusiveGroup ?? "").Trim();
-                if (group.Length == 0)
+                var group = tree.GroupOf(control);
+                if (group.IsNone)
                 {
                     if (entry.objects.Count == 0) continue;
                     AddClip(ObjectStates(entry, true), layerIndex);
@@ -200,7 +200,7 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 if (!groups.Add(group)) continue;
                 var members = tree.Controls
-                    .Where(c => !c.Excluded && !c.Disabled && c.Entry.kind == EntryKind.Toggle && (c.Entry.exclusiveGroup ?? "").Trim() == group)
+                    .Where(c => !c.Excluded && !c.Disabled && tree.GroupOf(c) == group)
                     .Select(c => c.Entry).ToList();
                 var off = new Dictionary<GameObject, bool>();
                 foreach (var member in members) WriteObjects(off, member, false);

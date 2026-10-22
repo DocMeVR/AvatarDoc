@@ -114,9 +114,15 @@ namespace DocMe.AvatarDoctor.Editor
             return mesh;
         }
 
+        /// <summary>
+        /// A component on the root or on another object, with the prefix AD wherever it sits, as every component made
+        /// before a new one took its prefix from its object: the tests of everything else keep their parameter names.
+        /// </summary>
         public AvatarDoc AddMenu(GameObject on = null)
         {
-            return (on ?? Root).AddComponent<AvatarDoc>();
+            var menu = (on ?? Root).AddComponent<AvatarDoc>();
+            menu.parameterPrefix = "AD";
+            return menu;
         }
 
         /// <summary>

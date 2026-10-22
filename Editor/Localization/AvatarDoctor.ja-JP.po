@@ -3099,9 +3099,9 @@ msgstr "同期ビットを消費して、ほかのプレイヤーにもこのコ
 msgid "ad.ui.in_menu.tip"
 msgstr "オフにすると、このコントロールのボタンをメニューから外しますが、パラメーターと効果は動作し続けます。"
 
-#. en: Only one toggle sharing this same group name can be on at a time.
+#. en: Only one toggle of a group can be on at a time: a name you type is a group of this component, and the list also offers the groups of the other AvatarDoc components.
 msgid "ad.ui.group.tip"
-msgstr "同じグループ名を持つトグルは、一度に1つだけオンにできます。"
+msgstr "1つのグループでは、一度に1つのトグルだけをオンにできます。入力した名前はこのコンポーネントのグループになり、一覧にはほかのAvatarDocコンポーネントのグループも表示されます。"
 
 #. en: The number the group's parameter takes while this toggle is on. 0 lets AvatarDoc pick one.
 msgid "ad.ui.group.value.tip"
@@ -5494,3 +5494,47 @@ msgstr "自分の手として扱うため、「自分」がオンのコンタク
 #. en: The test hand passes this trigger by: it has no effect yet, it is not built on this platform, or its component is switched off or on no avatar.
 msgid "ad.ui.touch_test.passed_by"
 msgstr "テスト用の手はこのトリガーに反応しません。効果がまだないか、このプラットフォームではビルドされないか、コンポーネントがオフか、アバターに付いていません。"
+
+#. en: {0} and {1} each have an exclusive group named \"{2}\", so they are two groups: a toggle of one does not turn off the toggles of the other. Nothing to fix if you want them apart. To make them one group, press \"Join them\": the toggles of {1} join the group of {0}.
+msgid "ad.info.group_same_name"
+msgstr "「{0}」と「{1}」の両方に排他グループ「{2}」があるため、これらは別々のグループです。一方のトグルをオンにしても、もう一方のトグルはオフになりません。別々にしておきたい場合はそのままで構いません。1つのグループにするには「まとめる」を押してください。「{1}」のトグルが「{0}」のグループに入ります。"
+
+#. en: {0} would make the same automatic parameter names as {1}: {2}. The build tells them apart with a number, so adding or removing a component can move a saved value to another toggle. Press \"Give this component its own prefix\" in the inspector of {0}.
+msgid "ad.warn.prefix_clash"
+msgstr "「{0}」は「{1}」と同じ自動パラメーター名を作ります：{2}。ビルドでは番号を付けて区別しますが、コンポーネントを追加したり削除したりすると、保存された値が別のトグルに移ることがあります。「{0}」のインスペクターで「このコンポーネントに専用の接頭辞を付ける」を押してください。"
+
+#. en: {0} would make the same automatic parameter name as {1}: {2}. The build tells them apart with a number, so adding or removing a component can move a saved value to another toggle. Press \"Give this component its own prefix\" in the inspector of {0}.
+msgid "ad.warn.prefix_clash.one"
+msgstr "「{0}」は「{1}」と同じ自動パラメーター名を作ります：{2}。ビルドでは番号を付けて区別しますが、コンポーネントを追加したり削除したりすると、保存された値が別のトグルに移ることがあります。「{0}」のインスペクターで「このコンポーネントに専用の接頭辞を付ける」を押してください。"
+
+#. en: Join them
+msgid "ad.ui.group.join"
+msgstr "まとめる"
+
+#. en: Puts the toggles of {0} into the group of {1}, in one Undo step.
+msgid "ad.ui.group.join.tip"
+msgstr "「{0}」のトグルを「{1}」のグループに入れます。元に戻す操作1回で取り消せます。"
+
+#. en: Both components are locked, so no toggle can move to the other group: unlock one of them first.
+msgid "ad.ui.group.join.locked.tip"
+msgstr "どちらのコンポーネントもロックされているため、トグルをもう一方のグループに移せません。先にどちらかのロックを解除してください。"
+
+#. en: In the group of {0}.
+msgid "ad.ui.group.linked"
+msgstr "「{0}」のグループに入っています。"
+
+#. en: Also used by
+msgid "ad.ui.parameter.also_used_by"
+msgstr "ほかに使っている項目"
+
+#. en: Give this component its own prefix
+msgid "ad.ui.prefix.own"
+msgstr "このコンポーネントに専用の接頭辞を付ける"
+
+#. en: Sets this component's parameter prefix from its object's name, with a number when another component has it, in one Undo step, so its toggles start from their defaults once.
+msgid "ad.ui.prefix.own.tip"
+msgstr "このコンポーネントの接頭辞を、オブジェクトの名前から付けます。ほかのコンポーネントがすでに使っている場合は番号を付けます。元に戻す操作1回で取り消せます。このコンポーネントのトグルは一度だけ初期値から始まります。"
+
+#. en: Selects the component this warning names first, whose inspector has the button that gives it its own prefix.
+msgid "ad.ui.prefix.select.tip"
+msgstr "この警告が最初に挙げるコンポーネントを選択します。そのインスペクターに、専用の接頭辞を付けるボタンがあります。"

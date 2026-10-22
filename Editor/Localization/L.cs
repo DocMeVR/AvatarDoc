@@ -92,6 +92,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             // Fade on a parameter trigger.
             "ad.warn.follow_value_not_float", "ad.warn.follow_value_one_card",
+
+            // Several components on one avatar: two groups of one name, and automatic names two components share.
+            "ad.info.group_same_name", "ad.warn.prefix_clash", "ad.warn.prefix_clash.one",
         };
 
         public static readonly string[] UiKeys =
@@ -431,6 +434,10 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.touch_test.tag.tip", "ad.ui.touch_test.who", "ad.ui.touch_test.who.tip", "ad.ui.touch_test.who.others",
             "ad.ui.touch_test.who.others.tip", "ad.ui.touch_test.who.self", "ad.ui.touch_test.who.self.tip", "ad.ui.touch_test.note",
             "ad.ui.touch_test.hand", "ad.ui.touch_test.amount", "ad.ui.touch_test.blocked", "ad.ui.touch_test.passed_by",
+
+            // Several components on one avatar: joining another component's group, the custom names they share, the own prefix.
+            "ad.ui.group.join", "ad.ui.group.join.tip", "ad.ui.group.join.locked.tip", "ad.ui.group.linked",
+            "ad.ui.parameter.also_used_by", "ad.ui.prefix.own", "ad.ui.prefix.own.tip", "ad.ui.prefix.select.tip",
         };
 
         static Localizer localizer;

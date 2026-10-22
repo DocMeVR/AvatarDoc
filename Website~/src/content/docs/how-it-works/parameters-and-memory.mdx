@@ -45,6 +45,14 @@ An entry can use a custom name instead. If the avatar already has a parameter of
 
 A control whose value the existing type cannot hold, such as a radial on an Int, is an error.
 
+## Several components on one avatar [#several-components]
+
+An avatar often has more than one AvatarDoc component: its own on the root, and one in each prefab with a menu of its own. Each component names its automatic parameters with its own prefix, and an exclusive group's parameter takes the prefix of the component the group belongs to.
+
+VRChat saves a value under its parameter's name. If two components both made AD/Hat, the build would call the second one AD/Hat 2, in menu order. Adding, removing or moving a component would then change which toggle gets which name, and a saved value would show up on the wrong toggle. That is why a new component takes its prefix from its object's name, such as CatEars, when it is not on the avatar's root, and why the prefix never follows a later rename: the names stay readable and stay the same. Modular Avatar keeps names apart by adding a code made from where the object sits, which never clashes but makes names you cannot read, and those change when the object moves.
+
+When two components would still make the same automatic names, such as two copies of one prefab, or a prefab made with an earlier version on AD beside the avatar's own AD, the inspector warns before upload and offers <Label k="ad.ui.prefix.own" />. [Parameter prefix](../../reference/inspector/#parameter-prefix) explains the rule. Custom names are different: two components may use the same custom name on purpose, to share one parameter, and the toggle's parameter row then says who else uses it.
+
 ## The order of the parameters
 
 At upload, AvatarDoc copies the avatar's Expression Parameters asset and adds the new parameters at the end of the copy, in menu order. Your own asset is not changed.
@@ -68,5 +76,6 @@ If the total is more than 256, the build stops with an error. When VRCFury is in
 - [Fit in VRChat's parameter memory](../../guides/parameter-memory/)
 - [Different setups for PC and Quest](../../guides/pc-and-quest/)
 - [Toggle](../../reference/toggle/#advanced)
+- [Ship a prefab with an AvatarDoc menu](../../guides/ship-a-prefab/)
 - [Menu assets and parameters](../../reference/menu-assets-and-parameters/)
 - [Remove things from the avatar](../../guides/remove-things/)

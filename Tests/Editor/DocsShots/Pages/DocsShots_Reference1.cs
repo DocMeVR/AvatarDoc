@@ -26,6 +26,8 @@ namespace DocMe.AvatarDoctor.Editor
         internal const string SubmenuRowName = "docs-submenu-row";
         internal const string DropAreaName = "docs-objects-drop";
         internal const string GrabFoldName = "docs-grab-fold";
+        internal const string JoinNoteName = "docs-join-note";
+        internal const string PrefixWarningName = "docs-prefix-warning";
 
         [Test] public void InspectorHeader() { using (var avatar = DocsAvatar.Create()) InspectorHeader(avatar).Take(); }
         [Test] public void ToggleOverview() { using (var avatar = DocsAvatar.Create()) ToggleOverview(avatar).Take(); }
@@ -33,6 +35,10 @@ namespace DocMe.AvatarDoctor.Editor
         [Test] public void RadialOverview() { using (var avatar = DocsAvatar.Create()) RadialOverview(avatar).Take(); }
         [Test] public void SubmenuOverview() { using (var avatar = DocsAvatar.Create()) SubmenuOverview(avatar).Take(); }
         [Test] public void ExclusiveGroupsOverview() { using (var avatar = DocsAvatar.Create()) ExclusiveGroupsOverview(avatar).Take(); }
+        [Test] public void ExclusiveGroupsJoin() { using (var avatar = DocsAvatar.Create()) ExclusiveGroupsJoin(avatar).Take(); }
+        [Test] public void ExclusiveGroupsList() { using (var avatar = DocsAvatar.Create()) ExclusiveGroupsList(avatar).Take(); }
+        [Test] public void ExclusiveGroupsLinked() { using (var avatar = DocsAvatar.Create()) ExclusiveGroupsLinked(avatar).Take(); }
+        [Test] public void InspectorPrefixClash() { using (var avatar = DocsAvatar.Create()) InspectorPrefixClash(avatar).Take(); }
         [Test] public void ObjectsOverview() { using (var avatar = DocsAvatar.Create()) ObjectsOverview(avatar).Take(); }
         [Test] public void BlendShapesOverview() { using (var avatar = DocsAvatar.Create()) BlendShapesOverview(avatar).Take(); }
         [Test] public void MaterialPropertiesOverview() { using (var avatar = DocsAvatar.Create()) MaterialPropertiesOverview(avatar).Take(); }
@@ -165,6 +171,115 @@ namespace DocMe.AvatarDoctor.Editor
                 (GroupChipName, 1), ("ad-group", 2), ("ad-group-pick", 3), ("ad-default-on", 4), ("ad-flags-note", 5), ("ad-blend-note", 6));
             spec.Page = "reference-exclusive-groups";
             return spec;
+        }
+
+        /// <summary>
+        /// The avatar's own menu, with Jacket and Hoodie in an Outfits group, and a prefab's component on Mayo menu
+        /// whose Kimono is in an Outfits group of its own. Every toggle of both groups shows the note that they are
+        /// two groups: the Jacket's panel, 1 Exclusive group, 2 the note, 3 Join them.
+        /// </summary>
+        internal static DocsShotSpec ExclusiveGroupsJoin(DocsAvatar avatar)
+        {
+            var (menu, jacket, _, _) = TwoOutfitGroups(avatar);
+            var spec = Panel("reference-exclusive-groups", "join", menu, jacket, ("ad-group", 1), (JoinNoteName, 2), ("ad-group-join", 3));
+            var select = spec.Arrange;
+            spec.Arrange = root =>
+            {
+                select(root);
+                LayoutProbe.SettleLists(root);
+                NameWarning(root.Q<AvatarDoctorView>().Detail, "ad.ui.group.join", JoinNoteName);
+            };
+            return spec;
+        }
+
+        /// <summary>
+        /// The same avatar, with a Bag toggle of the avatar's own menu selected and its group list open: None, the
+        /// component's own Outfits, then the prefab's Outfits named with its component. 1 the arrow button. The list
+        /// sits in the window's root outside the view, so it carries no marker of its own.
+        /// </summary>
+        internal static DocsShotSpec ExclusiveGroupsList(DocsAvatar avatar)
+        {
+            var (menu, _, _, _) = TwoOutfitGroups(avatar);
+            var bag = menu.AddEntry(EntryKind.Toggle, "Bag");
+            bag.objects.Add(new ObjectTarget { target = avatar.Glasses });
+            bag.exclusiveGroup = "Outfits";
+            var spec = Panel("reference-exclusive-groups", "list", menu, bag, ("ad-group-pick", 1));
+            var select = spec.Arrange;
+            spec.Arrange = root =>
+            {
+                DocsShots_Guides1.CloseMenus(root);
+                select(root);
+                LayoutProbe.SettleLists(root);
+                UiTestEvents.SimulateClick(root.Q<AvatarDoctorView>().Detail.Q<Button>("ad-group-pick"));
+            };
+            return spec;
+        }
+
+        /// <summary>The prefab's Kimono after it joined the avatar's own Outfits group, in its own component's inspector: 1 Exclusive group, 2 the note that names whose group it is.</summary>
+        internal static DocsShotSpec ExclusiveGroupsLinked(DocsAvatar avatar)
+        {
+            var (menu, _, prefab, kimono) = TwoOutfitGroups(avatar);
+            kimono.groupComponent = menu;
+            return Panel("reference-exclusive-groups", "linked", prefab, kimono, ("ad-group", 1), ("ad-group-owner", 2));
+        }
+
+        /// <summary>
+        /// The header of a prefab's component made before prefixes were chosen on add: on its own object, Jacket pack,
+        /// still on AD, with a Hat toggle beside the avatar's own Hat. Its problem list is open: 1 the warning that
+        /// both would make AD/Hat, 2 Give this component its own prefix. The tree and the panel are left out.
+        /// </summary>
+        internal static DocsShotSpec InspectorPrefixClash(DocsAvatar avatar)
+        {
+            var menu = avatar.AddMenu();
+            menu.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Hat });
+            var older = avatar.AddMenu(DocsShots_Guides2.Child(avatar, "Jacket pack"));
+            older.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Jacket });
+            return new DocsShotSpec
+            {
+                Page = "reference-inspector",
+                Name = "prefix-clash",
+                View = DocsShot.Inspector(older),
+                Arrange = root =>
+                {
+                    var view = root.Q<AvatarDoctorView>();
+                    view.Content.style.display = DisplayStyle.None;
+                    if (!view.Header.ProblemsOpen) view.Header.ToggleProblemsOpen();
+                    LayoutProbe.SettleLists(root);
+                    var line = view.Header.Q("ad-problem-line-ad.warn.prefix_clash.one") ?? view.Header.Q(PrefixWarningName)
+                        ?? throw new InvalidOperationException("The problem list shows no line about the automatic names.");
+                    line.name = PrefixWarningName;
+                },
+                Markers = new[] { (PrefixWarningName, 1), ("ad-prefix-own", 2) },
+            };
+        }
+
+        /// <summary>The avatar's own menu with Jacket and Hoodie in Outfits, and a prefab's component on Mayo menu, on Mayo, with a Kimono in an Outfits group of its own.</summary>
+        static (AvatarDoc menu, MenuEntry jacket, AvatarDoc prefab, MenuEntry kimono) TwoOutfitGroups(DocsAvatar avatar)
+        {
+            var menu = avatar.AddMenu();
+            var jacket = menu.AddEntry(EntryKind.Toggle, "Jacket");
+            jacket.objects.Add(new ObjectTarget { target = avatar.Jacket });
+            jacket.exclusiveGroup = "Outfits";
+            jacket.defaultOn = true;
+            var hoodie = menu.AddEntry(EntryKind.Toggle, "Hoodie");
+            hoodie.objects.Add(new ObjectTarget { target = avatar.Hoodie });
+            hoodie.exclusiveGroup = "Outfits";
+            var prefab = avatar.AddMenu(DocsShots_Guides2.Child(avatar, "Mayo menu"));
+            prefab.parameterPrefix = "Mayo";
+            var kimono = prefab.AddEntry(EntryKind.Toggle, "Kimono");
+            kimono.objects.Add(new ObjectTarget { target = DocsShots_Guides2.Child(avatar, "Kimono") });
+            kimono.exclusiveGroup = "Outfits";
+            return (menu, jacket, prefab, kimono);
+        }
+
+        /// <summary>Names the message box of the panel whose text carries the text of labelKey, unless it is named already: the arrange step runs again before every read.</summary>
+        static void NameWarning(VisualElement panel, string labelKey, string name)
+        {
+            if (panel.Q(name) != null) return;
+            var text = L.Text(labelKey);
+            var box = panel.Query(className: "ad-warnbox").ToList().FirstOrDefault(b => b.Q<Label>()?.text?.Contains(text) == true)
+                ?? throw new InvalidOperationException("The panel shows no message that mentions \"" + text + "\".");
+            box.name = name;
         }
 
         /// <summary>A Jacket toggle that shows the jacket and hides the hoodie: 1 Objects, 2 the first row's object, 3 its Shown or Hidden choice, 4 its remove button, 5 the drop area.</summary>

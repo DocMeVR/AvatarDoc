@@ -100,9 +100,9 @@ No editor dependencies. Version define `DOCME_VRCSDK_BASE` on `com.vrchat.base` 
 | `installPath` | string | Submenu path in the merged menu, segments separated by `/`. Empty means the avatar's root menu. |
 | `installMode` | enum `AppendItems`, `AsSubmenu` | Append the entries at the install path, or add one submenu there (named `menuName`, icon `menuIcon`) holding them. |
 | `menuName`, `menuIcon` | string, Texture2D | Used by `AsSubmenu`. Default name is the GameObject name. |
-| `parameterPrefix` | string | Default `AD`. Auto parameter names are `<prefix>/<name>`. |
+| `parameterPrefix` | string | Chosen once, in `Reset`, when the component is added in the editor: `AD` on the avatar's root (the object with the Avatar Descriptor), else the object's name with only ASCII letters, digits and `_` kept, at most 16 of them, else `AD_` and four random hex characters. Loaded components, prefab instances and copies keep theirs; it never follows a rename. Auto parameter names are `<prefix>/<name>`. |
 | `entries` | List of `MenuEntry` | Flat list, see below. |
-| `groups` | List of `ExclusiveGroup` | Group settings: `name`, `saved` (default true), `synced` (default true). Membership is by name on the toggles, so a group can span components. |
+| `groups` | List of `ExclusiveGroup` | Group settings: `name`, `saved` (default true), `synced` (default true). A group belongs to its component: its toggles name it, and a toggle of another component joins it only through `groupComponent` (plan 23). |
 
 ### `MenuEntry` (Serializable)
 
@@ -119,6 +119,7 @@ No editor dependencies. Version define `DOCME_VRCSDK_BASE` on `com.vrchat.base` 
 | `parameterName` | string | Toggle, Radial | Empty means auto. A custom name binds to an existing or shared parameter. |
 | `parameterValue` | float, default 1 | Toggle | Value the menu writes when the parameter is a custom int or float. |
 | `exclusiveGroup` | string | Toggle | Group name, empty for none. |
+| `groupComponent` | AvatarDoc | Toggle | The component whose group of that name the toggle joins. Empty means its own. A link to a switched off component or to one of another avatar falls back to its own. |
 | `groupValue` | int, default 0 | Toggle | Explicit int value inside the group. 0 means assigned by order. |
 | `source` | enum `Toggle`, `Parameter`, `BlendShape` | Trigger | What switches the trigger. |
 | `sourceToggleId`, `sourceToggleOn` | string, bool | Trigger (Toggle) | The other toggle's id (any component) and whether the trigger is on when that toggle is on (true) or off (false). |
@@ -194,8 +195,8 @@ Custom names follow the avatar's existing declaration:
 - A value the existing type cannot hold (a Bool asked for 3, an Int asked for 0.5) or a radial on a non-float parameter
   is `ad.error.parameter_type_conflict`.
 
-Group values: explicit `groupValue` first, then remaining members get the lowest free values in tree order starting at
-1. Two members with the same explicit value is an error and the later member is assigned automatically so the plan stays
+Group values: explicit `groupValue` first, then remaining members get the lowest free values starting at 1, the group's
+own component's members first, then the members that joined from other components, each in tree order. Two members with the same explicit value is an error and the later member is assigned automatically so the plan stays
 consistent. Several members with `defaultOn` is a warning; the first wins.
 
 Entry ids are GUIDs assigned on creation. Copying a component duplicates them; the model warns
@@ -2879,3 +2880,28 @@ of mistake it shows at once.
   the window rebuilding its view does not end it. A click that misses the hand selects nothing or the avatar's own
   mesh, which closes the Inspector's view; that keeps the hand. Its Scene view and editor handlers are added at start
   and removed at the end.
+
+## Several components on one avatar (asked 2026-10-22, plan 23)
+
+A buyer drops prefabs with their own AvatarDoc menu onto an avatar that has one. Names stay readable and stable,
+unlike Modular Avatar's `Name$<hash of the object path>`.
+
+- **A group is (component, name).** `GroupKey` in `MenuModel.cs`; `MenuTree.GroupOwner`, `GroupOf`, `GroupSettings`
+  and `GroupKeys` resolve it. Everything that used to match by name (planner, builders, defaults, preview, shapes
+  prediction, shared target notes, the parameter provider) keys on `GroupKey` or on the bound `PlannedParameter`. A
+  group's parameter is `<owner prefix>/<name>`, its Saved and Synced come from the owner's `groups` entry, and the
+  owner provides it to NDMF.
+- **Joining another component's group** is the `groupComponent` link, set by picking "Outfits (Mayo menu)" in the
+  Exclusive group list. Typing a name clears it. It is an ordinary object reference, so a prefab instance stores it as
+  an override and Copy to another avatar remaps it.
+- **Same-named groups** without a link get `ad.info.group_same_name`, a note (keeping them apart is a correct setup,
+  so the avatar stays ready), once per other component against the root's (or the first) component, filed under the
+  members of both. Its Join them button links the other side's members to the first side's group in one Undo step;
+  when only the other side is locked, the note's arguments are turned round and the first side's members move
+  instead. It is greyed out only while both sides are locked. Joining never renumbers the owner's own members.
+- **Automatic names two components would both make** get `ad.warn.prefix_clash` (with `.one`), per pair, naming the
+  component to change (`MenuModel.TheOneToChange`: not on the root, else the later). Its inspector offers Give this
+  component its own prefix (the Reset rule plus 2, 3 while taken; allowed while locked, like the prefix field); every
+  other inspector offers a button that selects it. The build keeps adding " 2" for a clash left alone.
+- **Custom names shared** with another component stay allowed; the parameter row says "Also used by", naming the
+  other components' toggles and Parameters lists.

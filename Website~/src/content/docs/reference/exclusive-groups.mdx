@@ -1,6 +1,6 @@
 ---
 title: Exclusive groups
-description: How toggles that share a group name work together, so only one of them is on at a time.
+description: How toggles that share a group name work together, so only one of them is on at a time, and how a toggle joins the group of another AvatarDoc component.
 ---
 
 import Label from '../../../components/Label.astro';
@@ -10,7 +10,7 @@ import Shot from '../../../components/Shot.astro';
 
 1. The group chip on the Jacket's row: the group's name and the Jacket's number in it. The dot after it marks the toggle that is on by default.
 2. <Label k="ad.ui.group" /> of the selected Hoodie.
-3. The arrow button that lists every group name on the avatar.
+3. The arrow button that lists the groups this toggle can join.
 4. <Label k="ad.ui.default_on" />.
 5. The note <Label k="ad.ui.group.settings" />, in place of <Label k="ad.ui.saved" /> and <Label k="ad.ui.synced" />.
 6. The note in place of <Label k="ad.ui.blend" />.
@@ -19,7 +19,36 @@ import Shot from '../../../components/Shot.astro';
 
 Use an exclusive group when only one of several choices may be on: one outfit, one hairstyle, one pose of the ears. Turning one choice on turns the one that was on off. Pressing the choice that is on turns it off, and then no choice is on.
 
-A group is not an item of its own. It is a name that toggles share. To build a whole outfit menu with its submenu and group in one window, use <Label k="ad.ui.add.outfit" />.
+A group is not an item of its own. It is a name that toggles of one AvatarDoc component share, and it belongs to that component. To build a whole outfit menu with its submenu and group in one window, use <Label k="ad.ui.add.outfit" />.
+
+## Groups of several components [#several-components]
+
+An avatar can have several AvatarDoc components: its own, and one in each prefab you add, such as a prefab maker's outfit with its own menu. Each component's groups are its own. When the avatar's own component and a prefab both have a group called Outfits, they are two groups: turning on the prefab's Kimono does not turn off the avatar's Jacket. Each group has its own parameter, named after its own component's [parameter prefix](../inspector/#parameter-prefix), such as AD/Outfits and Mayo/Outfits.
+
+To put a toggle into another component's group, pick that group in the toggle's <Label k="ad.ui.group" /> list, where it shows with its component in brackets, such as **Outfits (Mayo menu)**. The toggle then joins that group: one of the two turns the other off, and the group's parameter, its saved and synced settings and its numbering come from the component the group belongs to. A note under the field names that component. The link is stored on the toggle, so it works on a prefab you placed in the scene, and [Copy to another avatar](../../guides/copy-to-another-avatar/) points it at the same component on the other version. Typing a name instead makes a group of the toggle's own component again.
+
+<Shot name="reference-exclusive-groups/list" alt="A toggle's Exclusive group list: 1 None, Outfits and Outfits (Mayo menu), a group of another component." />
+
+1. The list of the <Label k="ad.ui.group" /> field.
+
+<Shot name="reference-exclusive-groups/linked" alt="A Kimono toggle linked to the avatar's Outfits group: 1 its Exclusive group and 2 the note naming the group's component." />
+
+1. <Label k="ad.ui.group" />.
+2. The note that names the component the group belongs to.
+
+Up to version 0.6.0, groups of the same name were one group across all the components of an avatar. When two components have a group of the same name and no toggle links them, a note under every toggle of both groups names both components and the group. Keeping them apart is a correct setup, such as a shop's outfits beside your own, so it is a note, and the avatar stays ready to upload. Its button <Label k="ad.ui.group.join" /> makes them one group, in one Undo step: the toggles of the second component the note names join the group of the first, and the button's tooltip says which. Usually the first is the component on the avatar's root, or else the first one in the Hierarchy, so the avatar's own group keeps its name. When the other component is locked, as a shop's prefab often is, the avatar's toggles move into the prefab's group instead. The button is greyed out only while both components are locked.
+
+<Shot name="reference-exclusive-groups/join" alt="A Jacket toggle with 1 its Exclusive group, 2 the note about two groups named Outfits and 3 the Join them button." />
+
+1. <Label k="ad.ui.group" />.
+2. The note that names both components and the group.
+3. <Label k="ad.ui.group.join" />.
+
+Joining the toggles of a component into another component's group, with the button or with the list, gives that group's component the say: the group's parameter takes its prefix and its saved and synced settings, so the choice those toggles had saved starts from its default once. If that component is later removed or switched off, the toggles fall back to a group of their own component.
+
+The automatic numbers go to the group's own component's toggles first, in the order of the menu, then to the toggles that joined from other components. So joining never changes the numbers of the toggles that were in the group, and a saved choice keeps picking the same outfit.
+
+A group of the same name that was one group up to version 0.6.0 now takes the prefix of its own component. When its first toggle in the menu sat on another component with another prefix, the group's parameter name changes once, and the saved choice starts from its default.
 
 ## Settings
 
@@ -27,11 +56,11 @@ A group has no panel. Its settings live on its toggles.
 
 ### Exclusive group [#exclusive-group k=ad.ui.group]
 
-**Shown in:** Advanced, and Simple while the toggle is in a group · **Default:** empty, no group · **Choices:** any name, or <Label k="ad.ui.group.none" /> and the names in the arrow button's list
+**Shown in:** Advanced, and Simple while the toggle is in a group · **Default:** empty, no group · **Choices:** any name, or <Label k="ad.ui.group.none" /> and the groups in the arrow button's list
 
-The toggle joins the group of this name. Toggles on any AvatarDoc component of the same avatar, and in any submenu, join the same group when they use the same name. Spaces at the start and the end do not count, but capital letters do: Outfits and outfits are two groups.
+The toggle joins the group of this name of its own component. Toggles of the same component, in any submenu, join the same group when they use the same name. Spaces at the start and the end do not count, but capital letters do: Outfits and outfits are two groups.
 
-The arrow button at the right end lists <Label k="ad.ui.group.none" />, which takes the toggle out of its group, and every group name already used on the avatar. Picking a name from the list avoids a typing mistake.
+The arrow button at the right end lists <Label k="ad.ui.group.none" />, which takes the toggle out of its group, then this component's groups, then the groups of the other AvatarDoc components on the avatar, each with its component in brackets. Picking a group from the list avoids a typing mistake, and picking another component's group joins it, as [Groups of several components](#several-components) explains.
 
 In Simple mode, the field shows only on a toggle that is already in a group, so join a group in Advanced mode or with <Label k="ad.ui.add.outfit" />.
 
@@ -61,7 +90,7 @@ A group switches its choices at once. In a member's fold, the note <Label k="ad.
 
 ## How a group works
 
-All the toggles of a group share one parameter. It is a whole number, an Int, named after the parameter prefix and the group, such as AD/Outfits. Each toggle gets its own number in the order of the menu: 1 for the first, 2 for the second, and so on. You can set a number yourself in <Label k="ad.ui.group.value" />. Leave it at 0 to let AvatarDoc pick. The group's parameter is 0 when no choice is on. The tree shows the number on each row, such as **Outfits 1**, when the tree is at least 360 pixels wide.
+All the toggles of a group share one parameter. It is a whole number, an Int, named after the parameter prefix of the group's own component and the group, such as AD/Outfits. Each toggle gets its own number in the order of the menu, the toggles of the group's own component first: 1 for the first, 2 for the second, and so on. You can set a number yourself in <Label k="ad.ui.group.value" />. Leave it at 0 to let AvatarDoc pick. The group's parameter is 0 when no choice is on. The tree shows the number on each row, such as **Outfits 1**, when the tree is at least 360 pixels wide.
 
 The group costs 8 synced bits, however many toggles it has. Eight separate toggles cost 8 bits too, so a group saves memory once it holds more than eight toggles.
 
@@ -78,10 +107,12 @@ At upload, each toggle of the group adds its own button to the menu, and the gro
 - [More than one toggle of the group is on by default](../messages/#ad-warn-group-multiple-defaults).
 - [The default choice is not built on this platform](../messages/#ad-info-group-default-excluded).
 - [Two toggles of the group ask for the same number](../messages/#ad-error-group-value-conflict).
+- [Two components have a group of the same name](../messages/#ad-info-group-same-name).
 - [The blend time is not used in a group](../messages/#ad-info-blend-ignored-in-group).
 
 ## Related
 
 - [Make one-of-many choices](../../guides/one-of-many/)
 - [Your first outfit selector](../../start-here/first-outfit-selector/)
+- [Ship a prefab with an AvatarDoc menu](../../guides/ship-a-prefab/)
 - [Toggle](../toggle/) describes every other setting of a group's toggles.

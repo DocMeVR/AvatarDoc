@@ -96,6 +96,55 @@ namespace DocMe.AvatarDoctor
             return entry;
         }
 
+        /// <summary>The longest prefix a component takes from its object's name, so the parameter names stay short.</summary>
+        public const int NamePrefixLength = 16;
+
+        /// <summary>
+        /// The parameter prefix a component added to this object starts with: AD on an avatar's root, else the
+        /// object's name with only its ASCII letters, digits and underscores kept, at most NamePrefixLength of them,
+        /// or AD_ and four random characters when nothing of the name is left (a name in Japanese, say).
+        /// </summary>
+        public static string PrefixFor(GameObject at)
+        {
+            if (at == null) return "AD";
+#if DOCME_VRCSDK_BASE
+            if (at.GetComponent<VRC.SDKBase.VRC_AvatarDescriptor>() != null) return "AD";
+#endif
+            var kept = NamePrefix(at.name);
+            return kept.Length > 0 ? kept : "AD_" + Guid.NewGuid().ToString("N").Substring(0, 4);
+        }
+
+        /// <summary>An object's name with only its ASCII letters, digits and underscores kept, the first NamePrefixLength of them. Empty when none are.</summary>
+        public static string NamePrefix(string objectName)
+        {
+            var kept = new System.Text.StringBuilder();
+            foreach (char c in objectName ?? "")
+            {
+                if (kept.Length == NamePrefixLength) break;
+                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') kept.Append(c);
+            }
+            return kept.ToString();
+        }
+
+        /// <summary>Whether the component still has a prefix PrefixFor gives on its object: AD, its object's name as kept, or AD_ and four characters for a name nothing is kept of.</summary>
+        public bool HasStartingPrefix
+        {
+            get
+            {
+                var prefix = parameterPrefix ?? "";
+                if (prefix == "AD") return true;
+                var kept = NamePrefix(gameObject.name);
+                return kept.Length > 0 ? prefix == kept : System.Text.RegularExpressions.Regex.IsMatch(prefix, "^AD_[0-9a-f]{4}$");
+            }
+        }
+
+        // Unity calls Reset when the component is added in the editor, never for one that is loaded or comes with a
+        // prefab, so every component made before keeps the prefix it has. The prefix never follows a later rename.
+        void Reset()
+        {
+            parameterPrefix = PrefixFor(gameObject);
+        }
+
         // Present so Unity shows the enable checkbox; a disabled component is skipped at build.
         void OnEnable()
         {

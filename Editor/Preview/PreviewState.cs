@@ -62,10 +62,11 @@ namespace DocMe.AvatarDoctor.Editor
         static float EffectiveIn(IReadOnlyDictionary<string, float> overrides, MenuEntry entry, MenuTree tree, ParameterPlan plan)
         {
             if (entry == null) return 0f;
-            if (tree != null && entry.kind == EntryKind.Toggle && !string.IsNullOrWhiteSpace(entry.exclusiveGroup))
+            var group = tree != null ? tree.GroupOf(entry) : default;
+            if (!group.IsNone)
             {
                 var winners = PreviewModel.GroupWinners(tree, overrides);
-                return winners.TryGetValue(entry.exclusiveGroup.Trim(), out var winner) && winner.Entry == entry ? 1f : 0f;
+                return winners.TryGetValue(group, out var winner) && winner.Entry == entry ? 1f : 0f;
             }
             return EffectiveIn(overrides, entry, plan);
         }
@@ -100,12 +101,11 @@ namespace DocMe.AvatarDoctor.Editor
 
         static ImmutableDictionary<string, float> WithSiblingsOff(ImmutableDictionary<string, float> overrides, MenuEntry toggle, MenuTree tree)
         {
-            if (tree == null || toggle.kind != EntryKind.Toggle || string.IsNullOrWhiteSpace(toggle.exclusiveGroup)) return overrides;
-            var group = toggle.exclusiveGroup.Trim();
+            var group = tree != null ? tree.GroupOf(toggle) : default;
+            if (group.IsNone) return overrides;
             foreach (var other in tree.Controls)
             {
-                if (other.Entry == toggle || other.Entry.kind != EntryKind.Toggle) continue;
-                if (string.IsNullOrWhiteSpace(other.Entry.exclusiveGroup) || other.Entry.exclusiveGroup.Trim() != group) continue;
+                if (other.Entry == toggle || tree.GroupOf(other) != group) continue;
                 if (string.IsNullOrEmpty(other.Entry.id)) continue;
                 overrides = overrides.SetItem(other.Entry.id, 0f);
             }
@@ -146,9 +146,8 @@ namespace DocMe.AvatarDoctor.Editor
                     Set(entry.id, Mathf.Clamp01(state.value));
                     continue;
                 }
-                if (!string.IsNullOrWhiteSpace(entry.exclusiveGroup))
+                if (!tree.GroupOf(control).IsNone)
                 {
-                    var group = entry.exclusiveGroup.Trim();
                     Set(entry.id, state.on ? 1f : 0f);
                     if (state.on) ClearSiblings(entry, tree);
                     continue;

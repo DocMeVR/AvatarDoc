@@ -92,11 +92,11 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 if (parameter.ReusesExisting) continue;
                 // A declaration has no control behind it, so the component that wrote it is the only owner there is.
-                bool mine = parameter.Declared
+                // An exclusive group belongs to its own component, whichever components its members sit on.
+                bool mine = parameter.Declared || !parameter.Group.IsNone
                     ? parameter.Component == component
                     : parameter.Controls.Any(c => c.Component == component);
                 if (!mine) continue;
-                if (parameter.GroupName != null && parameter.Controls[0].Component != component) continue;
 
                 var type = parameter.Type == PlannedType.Bool ? AnimatorControllerParameterType.Bool
                     : parameter.Type == PlannedType.Int ? AnimatorControllerParameterType.Int

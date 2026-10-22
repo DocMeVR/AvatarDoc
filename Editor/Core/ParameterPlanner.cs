@@ -34,11 +34,14 @@ namespace DocMe.AvatarDoctor.Editor
         public bool IsAnimatorOnly;
         /// <summary>A component declared this name itself, so no entry of ours reads it and nothing generated writes it.</summary>
         public bool Declared;
-        /// <summary>The component this parameter belongs to when no control carries it: the one whose declaration planned it.</summary>
+        /// <summary>The component this parameter belongs to when its controls do not say: the one whose declaration planned it, or the one an exclusive group belongs to.</summary>
         public AvatarDoc Component;
         /// <summary>A declaration of a name the avatar already has as an animator parameter, in its own FX controller or from another tool, so something of the avatar's own reads it at that type.</summary>
         public bool InAvatarsFx;
+        /// <summary>The exclusive group's name, for the texts that show it. Null on every parameter that is not a group's.</summary>
         public string GroupName;
+        /// <summary>The exclusive group this parameter is: its component and its name. None on every other parameter.</summary>
+        public GroupKey Group;
         public List<ControlNode> Controls = new List<ControlNode>();
 
         public int Bits => IsAnimatorOnly || !Synced ? 0 : Type == PlannedType.Bool ? 1 : 8;
@@ -87,9 +90,17 @@ namespace DocMe.AvatarDoctor.Editor
         {
             var plan = new ParameterPlan();
             var byName = new Dictionary<string, PlannedParameter>();
-            var groups = new Dictionary<string, PlannedParameter>();
+            var groups = new Dictionary<GroupKey, PlannedParameter>();
             var reuseReported = new Dictionary<string, ModelMessage>();
             var animatorOnlyReported = new Dictionary<string, ModelMessage>();
+            // Every automatic name before it is made unique, with the component that makes it.
+            var automatic = new List<(string name, AvatarDoc component)>();
+            string Automatic(AvatarDoc component, string name)
+            {
+                var wanted = component.parameterPrefix + "/" + Sanitize(name);
+                automatic.Add((wanted, component));
+                return UniqueName(wanted, existing, byName);
+            }
 
             foreach (var control in tree.Controls)
             {
@@ -106,7 +117,7 @@ namespace DocMe.AvatarDoctor.Editor
                 {
                     // Its own Bool, never saved or synced: the menu button needs a parameter to write, but a
                     // preset holds no state of its own worth keeping between sessions or across the network.
-                    var presetName = UniqueName(control.Component.parameterPrefix + "/" + Sanitize(entry.PlainName), existing, byName);
+                    var presetName = Automatic(control.Component, entry.PlainName);
                     var presetParameter = new PlannedParameter { Name = presetName, Type = PlannedType.Bool, Saved = false, Synced = false };
                     byName[presetName] = presetParameter;
                     plan.Parameters.Add(presetParameter);
@@ -114,21 +125,25 @@ namespace DocMe.AvatarDoctor.Editor
                     plan.Bindings[control] = new ControlBinding { Control = control, Parameter = presetParameter, Value = 1f, OnByDefault = false, DefaultValue = 0f };
                     continue;
                 }
-                if (entry.kind == EntryKind.Toggle && !string.IsNullOrWhiteSpace(entry.exclusiveGroup))
+                var groupKey = tree.GroupOf(control);
+                if (!groupKey.IsNone)
                 {
-                    var groupName = entry.exclusiveGroup.Trim();
-                    if (!groups.TryGetValue(groupName, out var group))
+                    // The group belongs to one component, which names it and keeps its settings, whichever of
+                    // its members comes first: a member of another component joins it only through its link.
+                    if (!groups.TryGetValue(groupKey, out var group))
                     {
-                        var settings = tree.FindGroup(groupName);
+                        var settings = tree.GroupSettings(groupKey);
                         group = new PlannedParameter
                         {
-                            Name = UniqueName(control.Component.parameterPrefix + "/" + Sanitize(groupName), existing, byName),
+                            Name = Automatic(groupKey.Component, groupKey.Name),
                             Type = PlannedType.Int,
-                            GroupName = groupName,
+                            GroupName = groupKey.Name,
+                            Group = groupKey,
+                            Component = groupKey.Component,
                             Saved = settings?.saved ?? true,
                             Synced = settings?.synced ?? true,
                         };
-                        groups[groupName] = group;
+                        groups[groupKey] = group;
                         byName[group.Name] = group;
                         plan.Parameters.Add(group);
                     }
@@ -138,7 +153,7 @@ namespace DocMe.AvatarDoctor.Editor
                 }
 
                 bool custom = !string.IsNullOrWhiteSpace(entry.parameterName);
-                var name = custom ? entry.parameterName.Trim() : UniqueName(control.Component.parameterPrefix + "/" + Sanitize(entry.PlainName), existing, byName);
+                var name = custom ? entry.parameterName.Trim() : Automatic(control.Component, entry.PlainName);
                 var wantedType = entry.kind == EntryKind.Radial ? PlannedType.Float : (custom ? TypeForValue(entry.parameterValue) : PlannedType.Bool);
                 float value = entry.kind == EntryKind.Radial ? 1f : (custom ? entry.parameterValue : 1f);
 
@@ -239,9 +254,44 @@ namespace DocMe.AvatarDoctor.Editor
                 pair.Value.For(byName[pair.Key].Controls.Select(c => c.Entry.id).ToArray());
 
             foreach (var group in groups.Values) AssignGroupValues(plan, group);
+            ReportClashingNames(tree, plan, automatic);
             PlanDeclarations(tree, plan, byName, existing);
             ReportUndeclaredAssetParameters(tree, plan, byName, existing);
             return plan;
+        }
+
+        /// <summary>
+        /// Automatic names two components would both make: two copies of one prefab, an older prefab on AD beside
+        /// the avatar's own AD, two groups of one name and prefix. The build still tells them apart, with a number
+        /// in build order, but then adding, removing or moving a component can hand a saved value to another
+        /// toggle, so each pair of components hears of it once, before upload. Args: the component a fix changes
+        /// (MenuModel.TheOneToChange), the other one, the names.
+        /// </summary>
+        static void ReportClashingNames(MenuTree tree, ParameterPlan plan, List<(string name, AvatarDoc component)> automatic)
+        {
+            var clashes = new Dictionary<(AvatarDoc change, AvatarDoc keep), List<string>>();
+            var order = new List<(AvatarDoc change, AvatarDoc keep)>();
+            foreach (var same in automatic.GroupBy(a => a.name))
+            {
+                var makers = same.Select(a => a.component).Distinct().ToList();
+                for (int i = 0; i < makers.Count; i++)
+                    for (int j = i + 1; j < makers.Count; j++)
+                    {
+                        var change = MenuModel.TheOneToChange(tree, makers[i], makers[j]);
+                        var pair = (change, change == makers[i] ? makers[j] : makers[i]);
+                        if (!clashes.TryGetValue(pair, out var names))
+                        {
+                            clashes[pair] = names = new List<string>();
+                            order.Add(pair);
+                        }
+                        if (!names.Contains(same.Key)) names.Add(same.Key);
+                    }
+            }
+            foreach (var pair in order)
+            {
+                var names = clashes[pair];
+                plan.Messages.Add(ModelMessage.Warning(names.Count == 1 ? "ad.warn.prefix_clash.one" : "ad.warn.prefix_clash", pair.change, pair.keep, L.JoinList(names)));
+            }
         }
 
         /// <summary>The id a declaration's messages are filed under, so the row of that declaration can show them.</summary>
@@ -377,8 +427,10 @@ namespace DocMe.AvatarDoctor.Editor
                 }
                 plan.Bindings[member].Value = explicitValue;
             }
+            // The group's own component's toggles are numbered first, so a toggle of another component joining the
+            // group never moves the numbers of the toggles that were in it, whatever their order in the menu.
             int next = 1;
-            foreach (var member in group.Controls)
+            foreach (var member in group.Controls.OrderBy(m => m.Component == group.Component ? 0 : 1))
             {
                 if (member.Entry.groupValue > 0 && !fallBackToAutomatic.Contains(member)) continue;
                 while (used.Contains(next)) next++;

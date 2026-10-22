@@ -350,6 +350,45 @@ More about the window: [Add to AvatarDoc window](../../reference/add-window/).
 
 See [Report a bug](../report-a-bug/).
 
+## Two groups that used to be one now work apart [#groups-apart]
+
+### Likely cause
+
+An exclusive group belongs to its AvatarDoc component. Your avatar's own component and a prefab's component each have a group of the same name, such as Outfits, and nothing links them, so they are two groups: turning on the prefab's outfit no longer turns off yours, and the two can be on at once. Up to version 0.6.0 they were one group.
+
+### Fix
+
+1. Select a toggle of either group. The note in its panel names both components and the group. See [the message](../../reference/messages/#ad-info-group-same-name).
+2. To make them one group again, press <Label k="ad.ui.group.join" /> under the note. The toggles of the second component the note names join the group of the first, in one Undo step; the button's tooltip says which toggles move. When one of the two components is locked, the toggles of the other one move.
+3. If the button is greyed out, both components are locked. Unlock one of them with <Label k="ad.ui.unlock" />, then press the button again.
+4. To keep them apart on purpose, leave them: the avatar is still ready to upload. You may also give one of the groups another name.
+
+The toggles that move take the other group's parameter, named after its component's prefix, so the choice they had saved starts from its default once.
+
+See [Groups of several components](../../reference/exclusive-groups/#several-components).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
+## A toggle turns off a prefab's outfit, or a prefab's toggle turns off mine [#toggle-turns-off-prefab]
+
+### Likely cause
+
+The toggle is in the prefab's exclusive group, or a toggle of the prefab is in yours. Its <Label k="ad.ui.group" /> was picked from the list as another component's group, and the note under the field, such as **In the group of Mayo menu.**, names the component whose group it joined. A toggle of a group turns off every other toggle of that group.
+
+### Fix
+
+1. Select the toggle and look at the note under <Label k="ad.ui.group" />.
+2. To take it out of the other component's group, type a name in <Label k="ad.ui.group" />, which makes a group of the toggle's own component, or pick <Label k="ad.ui.group.none" /> from the list.
+3. If the prefab's toggles turn yours off, select the prefab's component and do the same there. A locked component needs <Label k="ad.ui.unlock" /> first.
+
+See [Groups of several components](../../reference/exclusive-groups/#several-components).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
 ## Some objects were not found when copying a menu [#copy-not-found]
 
 ### Likely cause

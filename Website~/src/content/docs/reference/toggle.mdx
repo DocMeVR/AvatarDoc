@@ -71,7 +71,7 @@ Opens a window that draws only this toggle's own pieces and saves the picture as
 
 **Shown in:** Advanced, and Simple while the toggle is in a group · **Default:** empty, no group · **Choices:** any name, or <Label k="ad.ui.group.none" /> and the names in the arrow button's list
 
-Toggles that share a group name form a group, and only one of them can be on at a time. The arrow button at the right end lists <Label k="ad.ui.group.none" /> and every group name already used on the avatar. [Exclusive groups](../exclusive-groups/) describes what a group changes.
+Toggles of one component that share a group name form a group, and only one of them can be on at a time. A name you type makes a group of this component. The arrow button at the right end lists <Label k="ad.ui.group.none" />, this component's groups, and the groups of the other AvatarDoc components on the avatar, each with its component in brackets, such as **Outfits (Mayo menu)**. Picking one of those joins that component's group, and a note under the field names the component, such as **In the group of Mayo menu.** [Exclusive groups](../exclusive-groups/) describes what a group changes.
 
 ### Default on [#default-on k=ad.ui.default_on]
 
@@ -198,6 +198,7 @@ On lets you name the parameter yourself, so the toggle can use or drive a parame
 - A name that only exists in an animator, such as one of VRChat's own: the toggle drives it without adding an expression parameter, so other players do not see it.
 - A toggle with a custom name and no effects of its own only drives the parameter. Something else, such as your own animator, then does the work, and the panel says <Label k="ad.ui.parameter_control_note" />
 - Several toggles with the same custom name share one parameter, each writing its own <Label k="ad.ui.parameter.value" />. A whole number other than 1 makes the parameter an Int, and a number with a fraction makes it a Float.
+- When a toggle of another AvatarDoc component on the avatar uses the same custom name, a line under the parameter says who, such as <Label k="ad.ui.parameter.also_used_by" />: Jacket (CatEars), with the entry and, in brackets, the object its component is on. Sharing stays allowed, so check that both mean the same thing.
 
 ## What AvatarDoc builds
 
