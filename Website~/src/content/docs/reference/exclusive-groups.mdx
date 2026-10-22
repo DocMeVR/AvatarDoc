@@ -27,7 +27,22 @@ An avatar can have several AvatarDoc components: its own, and one in each prefab
 
 To put a toggle into another component's group, pick that group in the toggle's <Label k="ad.ui.group" /> list, where it shows with its component in brackets, such as **Outfits (Mayo menu)**. The toggle then joins that group: one of the two turns the other off, and the group's parameter, its saved and synced settings and its numbering come from the component the group belongs to. A note under the field names that component. The link is stored on the toggle, so it works on a prefab you placed in the scene, and [Copy to another avatar](../../guides/copy-to-another-avatar/) points it at the same component on the other version. Typing a name instead makes a group of the toggle's own component again.
 
+<Shot name="reference-exclusive-groups/list" alt="A toggle's Exclusive group list: 1 None, Outfits and Outfits (Mayo menu), a group of another component." />
+
+1. The list of the <Label k="ad.ui.group" /> field.
+
+<Shot name="reference-exclusive-groups/linked" alt="A Kimono toggle linked to the avatar's Outfits group: 1 its Exclusive group and 2 the note naming the group's component." />
+
+1. <Label k="ad.ui.group" />.
+2. The note that names the component the group belongs to.
+
 Up to version 0.6.0, groups of the same name were one group across all the components of an avatar. When two components have a group of the same name and no toggle links them, a note under every toggle of both groups names both components and the group. Keeping them apart is a correct setup, such as a shop's outfits beside your own, so it is a note, and the avatar stays ready to upload. Its button <Label k="ad.ui.group.join" /> makes them one group, in one Undo step: the toggles of the second component the note names join the group of the first, and the button's tooltip says which. Usually the first is the component on the avatar's root, or else the first one in the Hierarchy, so the avatar's own group keeps its name. When the other component is locked, as a shop's prefab often is, the avatar's toggles move into the prefab's group instead. The button is greyed out only while both components are locked.
+
+<Shot name="reference-exclusive-groups/join" alt="A Jacket toggle with 1 its Exclusive group, 2 the note about two groups named Outfits and 3 the Join them button." />
+
+1. <Label k="ad.ui.group" />.
+2. The note that names both components and the group.
+3. <Label k="ad.ui.group.join" />.
 
 Joining the toggles of a component into another component's group, with the button or with the list, gives that group's component the say: the group's parameter takes its prefix and its saved and synced settings, so the choice those toggles had saved starts from its default once. If that component is later removed or switched off, the toggles fall back to a group of their own component.
 

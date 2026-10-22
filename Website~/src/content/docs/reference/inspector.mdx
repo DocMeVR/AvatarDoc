@@ -155,6 +155,11 @@ A component added to the object that holds the VRChat Avatar Descriptor starts w
 
 When two components on the avatar would make the same automatic names, such as two copies of one prefab, or a prefab on AD beside the avatar's own AD, a warning before upload names both components and the names. The build still tells the parameters apart by adding a number, but then adding or removing a component can move a saved value to another toggle. The inspector of the component that is not on the avatar's root, or of the later one, shows the button <Label k="ad.ui.prefix.own" /> under the warning. It sets the prefix from the object's name, with a number after it when another component already has that prefix, such as CatEars2, in one Undo step, so that component's toggles start from their defaults once. It works on a locked component too, as the field does. Every other inspector of the avatar shows <Label k="ad.ui.select_component" /> under the same warning, which selects the component to change.
 
+<Shot name="reference-inspector/prefix-clash" alt="The header with 1 the warning about the same automatic parameter names and 2 the button Give this component its own prefix." />
+
+1. The warning, which names both components and the names.
+2. <Label k="ad.ui.prefix.own" />.
+
 ### Platform [#platform k=ad.ui.platform]
 
 **Shown in:** Advanced, and Simple once the fold shows · **Default:** <Label k="ad.ui.platform.both" /> · **Choices:** <Label k="ad.ui.platform.both" />, <Label k="ad.ui.platform.pc" />, <Label k="ad.ui.platform.quest" />

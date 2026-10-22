@@ -223,6 +223,8 @@ namespace DocMe.AvatarDoctor.Editor
                     root =>
                     {
                         arrange?.Invoke(root);
+                        // Shown only while NDMF's previews are off on the machine taking the picture, so docs pictures never carry it.
+                        root.Query<VisualElement>("ad-preview-note").ForEach(note => note.style.display = DisplayStyle.None);
                         LayoutProbe.SettleLists(root);
                     },
                     frame =>
