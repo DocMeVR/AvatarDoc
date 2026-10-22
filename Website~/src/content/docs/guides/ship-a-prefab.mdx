@@ -1,0 +1,70 @@
+---
+title: Ship a prefab with an AvatarDoc menu
+description: Make a prefab, such as an outfit or an accessory, that brings its own AvatarDoc menu and works on an avatar that already has one.
+sidebar:
+  order: 23
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Label from '../../../components/Label.astro';
+
+## When to use this
+
+You sell or share a prefab, such as an outfit, ears or a prop, and want it to bring its own toggles. The buyer drops it onto an avatar that often has an AvatarDoc menu of its own, and maybe other prefabs with theirs. This page shows how to set up your component so that it fits in beside them: where its menu goes, how its parameters are named, how its exclusive groups behave, and how to test it.
+
+To use a prefab someone else made, you need none of this: drop it onto your avatar, and read [Groups of several components](../../reference/exclusive-groups/#several-components) if its toggles and yours should switch each other off.
+
+This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
+
+## Before you start
+
+- The prefab's objects sit under one object of their own, such as `Kimono Set`, which you will place under the buyer's avatar.
+- Put the AvatarDoc component on that object, not on an avatar's root. Each avatar's own menu belongs on its root.
+
+## Steps
+
+<Steps>
+
+1. Select your prefab's own object and add the AvatarDoc component to it: **Add Component > DocMe > AvatarDoc**.
+
+2. Make the toggles, groups and triggers of your prefab as usual. Keep their targets inside your prefab, so they still exist on the buyer's avatar.
+
+3. Choose where the menu goes. Open <Label k="ad.ui.settings_fold" /> in the header. Leave <Label k="ad.ui.install" /> empty to put the menu at the top of the buyer's menu, or type a submenu path, such as `Outfits`. In <Label k="ad.ui.install.mode" />, pick <Label k="ad.ui.install.mode.submenu" /> to wrap all your entries in one submenu with your prefab's name, so they never mix with the buyer's own items. Two components that install a submenu of the same name in the same place share it, so two of your prefabs can share one `Outfits` submenu. See [Install into](../../reference/inspector/#install-into).
+
+4. Check the <Label k="ad.ui.prefix" /> in the same fold. A component added to an object that is not an avatar's root takes the object's name, so on `Kimono Set` it starts as KimonoSet, and your toggle Kimono gets the parameter KimonoSet/Kimono. Keep it unless the object's name is a plain word that other prefabs may use too, such as Menu, or a name in another script, which gives AD_ and four random characters: then type a short, unique word of your own, such as the name of your shop and the prefab. Do not change it in a later version of your prefab: buyers would lose the values their avatar saved under the old names. See [Parameter prefix](../../reference/inspector/#parameter-prefix).
+
+   If a version you already released is on AD, it clashes only where one of its toggle or group names is also one of the buyer's, such as a Hat toggle beside the buyer's Hat: the buyer's inspector then warns and offers <Label k="ad.ui.prefix.own" /> on your component, which the buyer can press themselves. To give the next version a prefix of its own, set it and say in your release notes that your toggles start from their defaults once after the update.
+
+5. Decide about your exclusive groups. A group belongs to its component, so your `Outfits` group stays separate from the buyer's `Outfits` group: your Kimono and the buyer's Jacket can both be on. That is the safe default, and the inspector only shows a note about it, so the avatar stays ready to upload. A prefab cannot store a link to the buyer's group, because the prefab does not know the buyer's avatar. If your outfit should replace the buyer's outfits, the buyer presses <Label k="ad.ui.group.join" /> under that note after placing the prefab. While your component is locked, the button moves the buyer's toggles into your group instead of yours into theirs, which works the same in game but names the group after your prefix, so the buyer's outfit choice starts from its default once. Say so in the lock note. See [Groups of several components](../../reference/exclusive-groups/#several-components).
+
+6. Use a <Label k="ad.ui.parameter.use_custom" /> only when your toggle should drive a parameter that something else reads on purpose, such as a parameter of the buyer's base avatar that your prefab's documentation names. Leave the name automatic everywhere else. When a toggle of another component uses the same custom name, the toggle's parameter row says <Label k="ad.ui.parameter.also_used_by" /> and names it.
+
+7. Lock the component, so a buyer does not change your entries by accident. Press <Label k="ad.ui.summary" /> in the header, turn on <Label k="ad.ui.lock" />, and write a line for the buyer in <Label k="ad.ui.lock.note" />, such as how to join your outfits to theirs. The buyer can still change <Label k="ad.ui.install" />, <Label k="ad.ui.install.mode" />, <Label k="ad.ui.prefix" /> and <Label k="ad.ui.platform" />. See [The lock](../../reference/summary-and-lock/#lock).
+
+8. Drag your prefab's object into the Project window to save it as a prefab.
+
+</Steps>
+
+## Check it worked
+
+Test the prefab the way a buyer uses it, on an avatar that already has its own AvatarDoc menu:
+
+1. Open a test scene with an avatar that has an AvatarDoc component on its root. Give that menu a toggle with the same name as one of yours and a group with the same name as one of yours, such as Outfits.
+2. Drag your prefab from the Project window onto the avatar in the Hierarchy.
+3. Select your prefab's object. The ready line should say <Label k="ad.ui.ready" />. Select a toggle of your Outfits group: a note under it says the two Outfits groups are two groups, which is what you want unless your outfits should replace the buyer's, and offers <Label k="ad.ui.group.join" />. A warning that your component would make the same parameter names as another component means your prefix is not unique: go back to step 4.
+4. Drag a second copy of your prefab onto the avatar. Its inspector warns that it would make the same parameter names as the first copy, and offers <Label k="ad.ui.prefix.own" />. That is how a buyer who wants two copies fixes it.
+5. In Play mode with Gesture Manager, open the menu and press your toggles and the avatar's own. See [Your first toggle](../../start-here/first-toggle/#test-it).
+
+## If it does not work
+
+- Your outfit and the buyer's are on at the same time: see [Two groups that used to be one now work apart](../../help/troubleshooting/#groups-apart).
+- A toggle of yours turns off the buyer's outfit: see [A toggle turns off a prefab's outfit](../../help/troubleshooting/#toggle-turns-off-prefab).
+- Your menu is missing in VRChat: see [My menu, or a toggle, is missing in VRChat](../../help/troubleshooting/#menu-missing).
+
+## Related
+
+- [Exclusive groups](../../reference/exclusive-groups/)
+- [Parameter prefix](../../reference/inspector/#parameter-prefix)
+- [Parameters, sync and memory](../../how-it-works/parameters-and-memory/#several-components)
+- [Summary and lock](../../reference/summary-and-lock/)
+- [Organise the menu](../organise-the-menu/)

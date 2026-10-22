@@ -31,7 +31,7 @@ This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
 
 4. In the tree, select the next toggle. Press the arrow button at the right end of <Label k="ad.ui.group" /> and pick Outfits from the list.
 
-   The list shows <Label k="ad.ui.group.none" /> and every group name already used on the avatar. Do the same for each toggle of the set.
+   The list shows <Label k="ad.ui.group.none" />, the groups of this component, and the groups of the other AvatarDoc components on the avatar, each with its component in brackets. Do the same for each toggle of the set.
 
    <Shot name="guides/one-of-many-group" alt="A Hoodie toggle's panel with 1 its Exclusive group field set to Outfits, 2 the arrow button that lists groups, and 3 Default on." />
 
@@ -41,7 +41,7 @@ This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
 
 </Steps>
 
-A group joins toggles by name, so toggles on different AvatarDoc components of the same avatar can share one group.
+A group belongs to the AvatarDoc component its toggles are on, and joins the toggles of that component by name. A toggle of another component on the same avatar, such as a prefab's, joins the group when you pick it from the list, where it shows with its component in brackets. See [Groups of several components](../../reference/exclusive-groups/#several-components).
 
 Pressing the choice that is on turns it off, and then no choice is on.
 

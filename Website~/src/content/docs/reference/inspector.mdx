@@ -147,9 +147,13 @@ The icon on that submenu's button. VRChat's upload check applies, as for a [togg
 
 ### Parameter prefix [#parameter-prefix k=ad.ui.prefix]
 
-**Shown in:** Advanced, and Simple once the fold shows · **Default:** AD · **Choices:** any text
+**Shown in:** Advanced, and Simple once the fold shows · **Default:** AD on the avatar's root; on any other object, that object's name when you added the component · **Choices:** any text
 
-The start of every automatic parameter name of this component: a toggle named Hat gets AD/Hat. Changing the prefix renames every automatic parameter of the component at once.
+The start of every automatic parameter name of this component: a toggle named Hat gets AD/Hat. Changing the prefix renames every automatic parameter of the component at once, and players lose the values those parameters had saved.
+
+A component added to the object that holds the VRChat Avatar Descriptor starts with AD. A component added to any other object, such as a prefab's own object or an outfit, starts with that object's name, keeping only the letters A to Z, the digits and the underscore, at most 16 of them: on an object called Cat Ears it starts with CatEars. When nothing of the name is left, as with a name in Japanese, it starts with AD_ and four random characters, such as AD_3fa9. The prefix is chosen once, when you add the component: renaming or moving the object later does not change it, and a component made with an earlier version keeps its prefix.
+
+When two components on the avatar would make the same automatic names, such as two copies of one prefab, or a prefab on AD beside the avatar's own AD, a warning before upload names both components and the names. The build still tells the parameters apart by adding a number, but then adding or removing a component can move a saved value to another toggle. The inspector of the component that is not on the avatar's root, or of the later one, shows the button <Label k="ad.ui.prefix.own" /> under the warning. It sets the prefix from the object's name, with a number after it when another component already has that prefix, such as CatEars2, in one Undo step, so that component's toggles start from their defaults once. It works on a locked component too, as the field does. Every other inspector of the avatar shows <Label k="ad.ui.select_component" /> under the same warning, which selects the component to change.
 
 ### Platform [#platform k=ad.ui.platform]
 
@@ -189,6 +193,7 @@ The inspector itself builds nothing. At upload, NDMF runs AvatarDoc on a copy of
 - [An entry's submenu no longer exists](../messages/#ad-warn-orphan-entry): it moved to the top of its component.
 - [Two entries share an internal id](../messages/#ad-warn-duplicate-entry-id).
 - [A saved change to a menu item cannot apply](../messages/#ad-warn-edit-source-missing).
+- [Two components would make the same automatic parameter names](../messages/#ad-warn-prefix-clash).
 
 ## Related
 
@@ -196,3 +201,4 @@ The inspector itself builds nothing. At upload, NDMF runs AvatarDoc on a copy of
 - [Organise the menu](../../guides/organise-the-menu/)
 - [Fit in VRChat's parameter memory](../../guides/parameter-memory/)
 - [Different setups for PC and Quest](../../guides/pc-and-quest/)
+- [Ship a prefab with an AvatarDoc menu](../../guides/ship-a-prefab/)
