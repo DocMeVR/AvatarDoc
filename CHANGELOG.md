@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/DocMeVR/AvatarDoc/compare/0.6.0...0.7.0) (2026-10-22)
+
+
+### Features
+
+* **groups:** several AvatarDoc components on one avatar without collisions ([8a4488c](https://github.com/DocMeVR/AvatarDoc/commit/8a4488c32c2380e9390ddca6c3c8bfe64e6d691b))
+
+
+### Behaviour change
+
+* **groups:** an exclusive group belongs to its component now. When two AvatarDoc components on one avatar each have a group with the same name, they build two groups, so a toggle of one no longer turns off the toggles of the other. The inspector names both components in a note, and its Join them button makes them one group again.
+
 ## [0.6.0](https://github.com/DocMeVR/AvatarDoc/compare/0.5.0...0.6.0) (2026-10-21)
 
 
