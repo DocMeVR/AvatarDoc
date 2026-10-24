@@ -34,7 +34,8 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             var existing = ParametersWriter.ExistingParameters(descriptor.expressionParameters, fx);
-            ParametersWriter.AddProvided(existing, ParameterInfo.ForContext(context).GetParametersForObject(context.AvatarRootObject));
+            ParametersWriter.AddProvided(existing, AvatarDoctorParameterProvider.FromOtherTools(ParameterInfo.ForContext(context), context.AvatarRootObject));
+            ParametersWriter.MarkUsedByOtherTools(existing, AvatarDoctorParameterProvider.NamesFromOtherTools(ParameterInfo.ForContext(context), context.AvatarRootObject));
             ParametersWriter.AddReferenced(existing, ParametersWriter.ReferencedParameters(context.AvatarRootTransform));
             var plan = ParameterPlanner.Plan(tree, existing);
             // Planned in the Resolving phase, while the avatar's controllers still held their layers. Planning it

@@ -196,7 +196,8 @@ On lets you name the parameter yourself, so the toggle can use or drive a parame
 
 - A name the avatar's expression parameters already have: the toggle uses that parameter, with its own saved, synced and default settings, and adds no memory.
 - A name that only exists in an animator, such as one of VRChat's own: the toggle drives it without adding an expression parameter, so other players do not see it.
-- A toggle with a custom name and no effects of its own only drives the parameter. Something else, such as your own animator, then does the work, and the panel says <Label k="ad.ui.parameter_control_note" />
+- A name another tool on the avatar syncs, such as DocMe Skin Touch's: AvatarDoc adds the parameter itself, synced even when the toggle's Synced is off, and in that tool's type, so the menu keeps it even when the tool adds its own parameter late in the upload. A value the type cannot hold, such as 2 on a Bool, is an error.
+- A toggle with a custom name and no effects of its own only drives the parameter. Something else, such as your own animator or another tool that tells NDMF about its parameters, then does the work, and the panel says <Label k="ad.ui.parameter_control_note" />
 - Several toggles with the same custom name share one parameter, each writing its own <Label k="ad.ui.parameter.value" />. A whole number other than 1 makes the parameter an Int, and a number with a fraction makes it a Float.
 - When a toggle of another AvatarDoc component on the avatar uses the same custom name, a line under the parameter says who, such as <Label k="ad.ui.parameter.also_used_by" />: Jacket (CatEars), with the entry and, in brackets, the object its component is on. Sharing stays allowed, so check that both mean the same thing.
 

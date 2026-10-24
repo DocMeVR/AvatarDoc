@@ -394,11 +394,11 @@ namespace DocMe.AvatarDoctor.Editor
             var control = menu.AddEntry(EntryKind.Toggle, "LTCGI");
             control.parameterName = "Shading/LTCGI";
 
-            var tree = Model(avatar, menu);
+            var messages = AvatarPlanCache.GetFor(menu).Messages;
 
-            var warning = tree.Messages.Single(m => m.Key == "ad.warn.parameter_control_unused");
+            var warning = messages.Single(m => m.Key == "ad.warn.parameter_control_unused");
             Assert.That(warning.EntryIds, Does.Contain(control.id));
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.warn.no_effects" && m.EntryIds.Contains(control.id)), Is.False,
+            Assert.That(messages.Any(m => m.Key == "ad.warn.no_effects" && m.EntryIds.Contains(control.id)), Is.False,
                 "the parameter control message replaces the empty entry warning");
         }
 
@@ -414,10 +414,10 @@ namespace DocMe.AvatarDoctor.Editor
             var control = menu.AddEntry(EntryKind.Toggle, "LTCGI");
             control.parameterName = "Shading/LTCGI";
 
-            var tree = Model(avatar, menu);
+            var messages = AvatarPlanCache.GetFor(menu).Messages;
 
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.warn.parameter_control_unused"), Is.False);
-            Assert.That(tree.Messages.Any(m => m.Key == "ad.warn.no_effects"), Is.False);
+            Assert.That(messages.Any(m => m.Key == "ad.warn.parameter_control_unused"), Is.False);
+            Assert.That(messages.Any(m => m.Key == "ad.warn.no_effects"), Is.False);
         }
 
         [Test]

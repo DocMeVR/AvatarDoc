@@ -17,8 +17,11 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>True when the avatar declares this in VRCExpressionParameters. False means the name only exists in an animator.</summary>
         public bool IsExpressionParameter;
         public bool Saved;
+        /// <summary>Other players see it: through the avatar's declaration, or, for a name that is not declared, because another tool reports it to NDMF as synced.</summary>
         public bool Synced;
         public float Default;
+        /// <summary>Another tool's component on the avatar reports this name to NDMF, so something besides AvatarDoc uses it. VRChat's own components do not count (ParametersWriter.ReportedByAnotherTool).</summary>
+        public bool UsedByAnotherTool;
     }
 
     public sealed class PlannedParameter
@@ -93,6 +96,8 @@ namespace DocMe.AvatarDoctor.Editor
             var groups = new Dictionary<GroupKey, PlannedParameter>();
             var reuseReported = new Dictionary<string, ModelMessage>();
             var animatorOnlyReported = new Dictionary<string, ModelMessage>();
+            // Names another tool syncs, which AvatarDoc declares in that tool's type: the type may not widen.
+            var sharedWithAnotherTool = new HashSet<string>();
             // Every automatic name before it is made unique, with the component that makes it.
             var automatic = new List<(string name, AvatarDoc component)>();
             string Automatic(AvatarDoc component, string name)
@@ -163,15 +168,27 @@ namespace DocMe.AvatarDoctor.Editor
                     if (custom && existing.TryGetValue(name, out var declared))
                     {
                         parameter.Type = declared.Type;
-                        parameter.Default = declared.Default;
                         if (declared.IsExpressionParameter)
                         {
+                            parameter.Default = declared.Default;
                             parameter.ReusesExisting = true;
                             parameter.Saved = declared.Saved;
                             parameter.Synced = declared.Synced;
                         }
+                        else if (declared.Synced)
+                        {
+                            // Another tool syncs it, but may declare it only after Modular Avatar has cleared every
+                            // menu parameter nothing declares yet (Skin Touch declares in Optimizing). So AvatarDoc
+                            // declares it with the entry's settings, in the tool's type; a tool that declares it
+                            // later finds it declared, and Modular Avatar merges its own declaration into it. It
+                            // stays synced whatever the entry says: the tool needs it synced (Skin Touch leaves its
+                            // toggle out when the declaration it finds is local only).
+                            sharedWithAnotherTool.Add(name);
+                            parameter.Synced = true;
+                        }
                         else
                         {
+                            parameter.Default = declared.Default;
                             parameter.IsAnimatorOnly = true;
                         }
                     }
@@ -193,7 +210,7 @@ namespace DocMe.AvatarDoctor.Editor
                     plan.Messages.Add(ModelMessage.Error("ad.error.parameter_type_conflict", name, parameter.Type.ToString(), wantedType.ToString(), control.Component).For(entry.id).OnField("ad-parameter-name-field"));
                     continue;
                 }
-                else if (declaredElsewhere)
+                else if (declaredElsewhere || sharedWithAnotherTool.Contains(name))
                 {
                     if (!CanHold(parameter.Type, value))
                     {
@@ -257,7 +274,37 @@ namespace DocMe.AvatarDoctor.Editor
             ReportClashingNames(tree, plan, automatic);
             PlanDeclarations(tree, plan, byName, existing);
             ReportUndeclaredAssetParameters(tree, plan, byName, existing);
+            ReportUnreadParameters(tree, plan, existing);
             return plan;
+        }
+
+        /// <summary>
+        /// A toggle or radial that only drives a parameter does nothing unless something else uses it: a merged
+        /// animator, the avatar's own FX controller, or another tool's component that reports the name to NDMF (a
+        /// tool that builds its own layer during the upload, which nothing can read before then). VRChat's own
+        /// components do not count: the descriptor only declares names, contacts and PhysBones write theirs.
+        /// </summary>
+        static void ReportUnreadParameters(MenuTree tree, ParameterPlan plan, IReadOnlyDictionary<string, ExistingParameter> existing)
+        {
+            foreach (var control in tree.Controls)
+            {
+                var entry = control.Entry;
+                if (control.Excluded || !entry.IsParameterControl) continue;
+                var name = entry.parameterName.Trim();
+                if (existing.TryGetValue(name, out var known) && known.UsedByAnotherTool) continue;
+                if (HasAReader(tree, name)) continue;
+                plan.Messages.Add(ModelMessage.Warning("ad.warn.parameter_control_unused", entry.PlainName, name, control.Component).For(entry.id));
+            }
+        }
+
+        /// <summary>Without NDMF there is no build to read the parameter, so nothing does.</summary>
+        static bool HasAReader(MenuTree tree, string name)
+        {
+#if DOCME_NDMF
+            return MergeBuilder.UsesParameter(tree, tree.AvatarRoot, name);
+#else
+            return false;
+#endif
         }
 
         /// <summary>
@@ -395,19 +442,31 @@ namespace DocMe.AvatarDoctor.Editor
         {
             if (avatarRoot == null) return (0, 0);
 
-            int avatarBits = 0;
-            foreach (var provided in AvatarPlanCache.ProvidedFor(avatarRoot))
-                if (!(provided.Source is AvatarDoc)) avatarBits += provided.BitUsage;
-
+            var provided = AvatarPlanCache.ProvidedFor(avatarRoot);
             var components = MenuModel.CollectComponents(avatarRoot);
-            if (components.Count == 0) return (avatarBits, 0);
+            if (components.Count == 0) return (OtherToolsBits(provided, null), 0);
 
             var descriptor = avatarRoot.GetComponent<VRCAvatarDescriptor>();
             var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components);
-            var plan = Plan(tree, ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor)));
+            var existing = ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor));
+            ParametersWriter.AddProvided(existing, provided);
+            var plan = Plan(tree, existing);
             // Bits a removed control frees were counted as the avatar's, so they come off that side of the bar.
             tree.Removal = RemovalPlanner.Plan(tree, descriptor);
-            return (Mathf.Max(0, avatarBits - tree.Removal.FreedBits), plan.NewSyncedBits);
+            return (Mathf.Max(0, OtherToolsBits(provided, plan) - tree.Removal.FreedBits), plan.NewSyncedBits);
+        }
+
+        /// <summary>
+        /// The synced bits everything but AvatarDoc reports to NDMF. A name AvatarDoc declares itself (a toggle
+        /// driving a parameter another tool syncs) is counted on AvatarDoc's side only: the avatar ends up with one
+        /// parameter of that name, not two.
+        /// </summary>
+        public static int OtherToolsBits(IEnumerable<ProvidedParameter> provided, ParameterPlan plan)
+        {
+            var own = plan != null
+                ? new HashSet<string>(plan.Parameters.Where(p => !p.ReusesExisting && !p.IsAnimatorOnly && p.Bits > 0).Select(p => p.Name))
+                : new HashSet<string>();
+            return provided.Where(p => p != null && !(p.Source is AvatarDoc) && !own.Contains(p.EffectiveName)).Sum(p => p.BitUsage);
         }
 #endif
 

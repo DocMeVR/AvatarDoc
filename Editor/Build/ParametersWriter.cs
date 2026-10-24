@@ -87,7 +87,7 @@ namespace DocMe.AvatarDoctor.Editor
             ("_Stretch", PlannedType.Float), ("_Squish", PlannedType.Float),
         };
 
-        /// <summary>Folds in what NDMF reports for the avatar: contacts, other plugins, and a PhysBone prefix expanded into its typed sub-parameters. A declaration already in the map wins.</summary>
+        /// <summary>Folds in what NDMF reports for the avatar: contacts, other plugins, and a PhysBone prefix expanded into its typed sub-parameters. A declaration already in the map wins, but still learns that another tool uses its name, and an animator name learns that a tool declares it synced.</summary>
         public static void AddProvided(Dictionary<string, ExistingParameter> existing, IEnumerable<ProvidedParameter> provided)
         {
             if (existing == null || provided == null) return;
@@ -110,15 +110,46 @@ namespace DocMe.AvatarDoctor.Editor
                 if (parameter.ParameterType == null || parameter.ParameterType.Value == AnimatorControllerParameterType.Trigger) continue;
                 if (parameter.Source is AvatarDoc) continue;
                 var name = parameter.EffectiveName;
-                if (string.IsNullOrEmpty(name) || existing.ContainsKey(name)) continue;
+                if (string.IsNullOrEmpty(name)) continue;
+                bool usedByAnotherTool = ReportedByAnotherTool(parameter);
+                bool synced = parameter.WantSynced && !parameter.IsAnimatorOnly;
+                if (existing.TryGetValue(name, out var known))
+                {
+                    if (usedByAnotherTool) known.UsedByAnotherTool = true;
+                    if (synced && !known.IsExpressionParameter) known.Synced = true;
+                    existing[name] = known;
+                    continue;
+                }
                 existing[name] = new ExistingParameter
                 {
                     Type = ToPlanned(parameter.ParameterType.Value),
                     IsExpressionParameter = false,
                     Saved = false,
-                    Synced = false,
+                    Synced = synced,
                     Default = parameter.DefaultValue ?? 0f,
+                    UsedByAnotherTool = usedByAnotherTool,
                 };
+            }
+        }
+
+        /// <summary>Whether a report comes from another tool's component: not AvatarDoc, and not one of VRChat's own components (the descriptor only declares names; contacts and PhysBones write theirs).</summary>
+        public static bool ReportedByAnotherTool(ProvidedParameter parameter)
+        {
+            var source = parameter?.Source;
+            if (source == null || source is AvatarDoc) return false;
+            var space = source.GetType().Namespace;
+            return space == null || !space.StartsWith("VRC.");
+        }
+
+        /// <summary>Marks the names AvatarDoctorParameterProvider.NamesFromOtherTools found, which the root's merged report can hide.</summary>
+        public static void MarkUsedByOtherTools(Dictionary<string, ExistingParameter> existing, IEnumerable<string> names)
+        {
+            if (existing == null || names == null) return;
+            foreach (var name in names)
+            {
+                if (!existing.TryGetValue(name, out var known) || known.UsedByAnotherTool) continue;
+                known.UsedByAnotherTool = true;
+                existing[name] = known;
             }
         }
 

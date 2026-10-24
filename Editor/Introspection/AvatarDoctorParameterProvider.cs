@@ -25,11 +25,59 @@ namespace DocMe.AvatarDoctor.Editor
         static ParameterPlan memoPlan;
         static TouchBuilder.TouchParameters memoTouch;
 
+        static int quiet;
+
         readonly AvatarDoc component;
 
         public AvatarDoctorParameterProvider(AvatarDoc component)
         {
             this.component = component;
+        }
+
+        /// <summary>
+        /// What every tool but AvatarDoc reports for the avatar. NDMF keeps one report per name, the first it meets,
+        /// so AvatarDoc's own report of a name (an AvatarDoc on the avatar root comes first) would hide another
+        /// tool's report of the same name. While this asks, AvatarDoc reports nothing.
+        /// </summary>
+        internal static List<ProvidedParameter> FromOtherTools(ParameterInfo info, GameObject avatarRoot)
+        {
+            quiet++;
+            try
+            {
+                return info.GetParametersForObject(avatarRoot).ToList();
+            }
+            finally
+            {
+                quiet--;
+            }
+        }
+
+        /// <summary>
+        /// The names other tools' components report, asked object by object below the avatar root. The root's
+        /// merged report keeps the descriptor's entry for every name the expression parameters declare, which hides
+        /// another tool's report of the same name. A tool's component on the root itself stays hidden that way.
+        /// </summary>
+        internal static HashSet<string> NamesFromOtherTools(ParameterInfo info, GameObject avatarRoot)
+        {
+            var names = new HashSet<string>();
+            if (avatarRoot == null) return names;
+            quiet++;
+            try
+            {
+                foreach (Transform child in avatarRoot.transform)
+                {
+                    // The upload removes EditorOnly objects first, as NDMF's own walk skips them.
+                    if (child.CompareTag("EditorOnly")) continue;
+                    foreach (var parameter in info.GetParametersForObject(child.gameObject))
+                        if (parameter.Namespace == ParameterNamespace.Animator && ParametersWriter.ReportedByAnotherTool(parameter))
+                            names.Add(parameter.EffectiveName);
+                }
+            }
+            finally
+            {
+                quiet--;
+            }
+            return names;
         }
 
         [InitializeOnLoadMethod]
@@ -74,6 +122,7 @@ namespace DocMe.AvatarDoctor.Editor
 
         public IEnumerable<ProvidedParameter> GetSuppliedParameters(BuildContext context = null)
         {
+            if (quiet > 0) yield break;
             // Names are deduplicated across the whole avatar, so the plan has to cover every component at once.
             var avatarRoot = nadena.dev.ndmf.runtime.RuntimeUtil.FindAvatarInParents(component.transform);
             MenuTree tree;
