@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/DocMeVR/AvatarDoc/compare/0.7.0...0.7.1) (2026-10-25)
+
+
+### Bug Fixes
+
+* **parameters:** count parameters other tools report to NDMF ([ca42180](https://github.com/DocMeVR/AvatarDoc/commit/ca4218039c421ebba9bf54ed9432c081f8b7954f))
+
 ## [0.7.0](https://github.com/DocMeVR/AvatarDoc/compare/0.6.0...0.7.0) (2026-10-22)
 
 
