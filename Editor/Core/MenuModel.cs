@@ -943,16 +943,6 @@ namespace DocMe.AvatarDoctor.Editor
             return settings.textureCompression == TextureImporterCompression.Uncompressed;
         }
 
-        /// <summary>Whether anything on this avatar reads a parameter control's parameter. Without NDMF there is no build to read it, so nothing does.</summary>
-        static bool ParameterHasAUser(MenuTree tree, string name)
-        {
-#if DOCME_NDMF
-            return MergeBuilder.UsesParameter(tree, tree.AvatarRoot, name);
-#else
-            return false;
-#endif
-        }
-
         /// <summary>
         /// A preset has no targets of its own; it is empty when it sets no state and no named parameter. A state whose
         /// control was since deleted or renamed away warns too, so the inspector flags it as soon as the referenced
@@ -1251,12 +1241,8 @@ namespace DocMe.AvatarDoctor.Editor
                 return;
             }
 
-            if (entry.IsParameterControl)
-            {
-                if (!ParameterHasAUser(tree, entry.parameterName))
-                    tree.Messages.Add(ModelMessage.Warning("ad.warn.parameter_control_unused", entry.PlainName, entry.parameterName.Trim(), component).For(entry.id));
-                return;
-            }
+            // Whether something reads its parameter needs what the avatar's other tools report, so the planner asks.
+            if (entry.IsParameterControl) return;
 
             if (!entry.HasEffects)
             {

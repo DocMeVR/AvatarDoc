@@ -107,6 +107,7 @@ namespace DocMe.AvatarDoctor.Editor
         static readonly Dictionary<Transform, AvatarPlan> plans = new Dictionary<Transform, AvatarPlan>();
         static readonly Dictionary<Transform, List<ProvidedParameter>> provided = new Dictionary<Transform, List<ProvidedParameter>>();
         static readonly Dictionary<Transform, List<VRCExpressionParameters.Parameter>> referenced = new Dictionary<Transform, List<VRCExpressionParameters.Parameter>>();
+        static readonly Dictionary<Transform, HashSet<string>> otherToolNames = new Dictionary<Transform, HashSet<string>>();
         static readonly Dictionary<Transform, PreviewPlan> previewPlans = new Dictionary<Transform, PreviewPlan>();
         /// <summary>
         /// What a control removes and what keeps a parameter alive, per avatar. This answers to which names a menu
@@ -272,6 +273,7 @@ namespace DocMe.AvatarDoctor.Editor
             previewPlans.Remove(gone);
             removalPlans.Remove(gone);
             provided.Remove(gone);
+            otherToolNames.Remove(gone);
             referenced.Remove(gone);
             planVersions.Remove(gone);
             dropReasons.Remove(gone);
@@ -699,6 +701,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (!wide) return;
             snapshots.Remove(avatarRoot);
             provided.Remove(avatarRoot);
+            otherToolNames.Remove(avatarRoot);
             referenced.Remove(avatarRoot);
             ParameterUsage.ClearAvatarCache(avatarRoot);
             VrcFuryReader.ClearCache(avatarRoot);
@@ -775,6 +778,7 @@ namespace DocMe.AvatarDoctor.Editor
             globalEpoch++;
             plans.Clear();
             provided.Clear();
+            otherToolNames.Clear();
             referenced.Clear();
             previewPlans.Clear();
             removalPlans.Clear();
@@ -881,9 +885,20 @@ namespace DocMe.AvatarDoctor.Editor
             if (provided.TryGetValue(avatarRoot, out var cached)) return cached;
             Remember(avatarRoot);
             ProvidedWalks++;
-            var walked = ParameterInfo.ForUI.GetParametersForObject(avatarRoot.gameObject).ToList();
+            var walked = AvatarDoctorParameterProvider.FromOtherTools(ParameterInfo.ForUI, avatarRoot.gameObject);
             provided[avatarRoot] = walked;
             return walked;
+        }
+
+        /// <summary>The names other tools' components report below the avatar root, walked once per avatar and kept as long as the NDMF-provided list is.</summary>
+        public static HashSet<string> OtherToolNamesFor(Transform avatarRoot)
+        {
+            if (avatarRoot == null) return new HashSet<string>();
+            if (otherToolNames.TryGetValue(avatarRoot, out var cached)) return cached;
+            Remember(avatarRoot);
+            var names = AvatarDoctorParameterProvider.NamesFromOtherTools(ParameterInfo.ForUI, avatarRoot.gameObject);
+            otherToolNames[avatarRoot] = names;
+            return names;
         }
 
         /// <summary>The parameters of the expression parameters assets the avatar's other components refer to, read once per avatar and kept as long as the NDMF-provided list is.</summary>
@@ -987,6 +1002,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (avatarRoot != null)
             {
                 ParametersWriter.AddProvided(existing, walked);
+                ParametersWriter.MarkUsedByOtherTools(existing, OtherToolNamesFor(avatarRoot));
                 ParametersWriter.AddReferenced(existing, ReferencedFor(avatarRoot));
             }
             var plan = ParameterPlanner.Plan(tree, existing);
@@ -1007,7 +1023,7 @@ namespace DocMe.AvatarDoctor.Editor
             if (parity != null) result.Messages.Add(parity);
             result.AvatarDoctorBits = plan.NewSyncedBits;
             if (avatarRoot != null)
-                result.AvatarBits = Mathf.Max(0, walked.Where(p => !(p.Source is AvatarDoc)).Sum(p => p.BitUsage) - tree.Removal.FreedBits);
+                result.AvatarBits = Mathf.Max(0, ParameterPlanner.OtherToolsBits(walked, plan) - tree.Removal.FreedBits);
             result.Usage = AnimationUsage.ForDescriptor(descriptor, avatarRoot);
             // An animated animator parameter only reaches its own controller's layers, so a blend shape trigger
             // cannot follow its shape in a Gesture, Action or Additive clip. The usage index is memoised per

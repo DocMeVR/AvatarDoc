@@ -1289,8 +1289,26 @@ are skipped while the controller uses layer control the merge refuses with `ad.e
 Synced parameters are declared by menu entries, as everywhere else. For that, a toggle, radial or button style
 entry may be a **parameter control**: it has a custom parameter name and no targets. It gets a menu control and a
 planned parameter but no layer, and it does not warn about having no effects when a merged animator of the avatar
-(or the avatar's own FX controller) uses that parameter; otherwise `ad.warn.parameter_control_unused` says the
-parameter drives nothing. Parameters a merged controller needs but no menu entry declares stay animator only
+(or the avatar's own FX controller) uses that parameter, or when another tool's component reports the name to NDMF
+(a tool that builds its layer during the upload, like DocMe Skin Touch); otherwise
+`ad.warn.parameter_control_unused` says the parameter drives nothing. VRChat's own components do not count
+(`ParametersWriter.ReportedByAnotherTool`, any type in a `VRC.` namespace): the descriptor only declares names,
+contacts and PhysBones write theirs. Modular Avatar components count, as a stand-in for what they merge. The planner
+asks, because only it knows the reports.
+
+NDMF keeps one report per name, the first it meets, so two things can hide a tool's report. AvatarDoc's own: its
+provider stays silent while AvatarDoc itself asks (`AvatarDoctorParameterProvider.FromOtherTools`), since an
+AvatarDoc on the avatar root would come first. The descriptor's, for a name the expression parameters declare: the
+names are also asked object by object below the root (`NamesFromOtherTools`, skipping EditorOnly objects the upload
+removes; cached as `AvatarPlanCache.OtherToolNamesFor`). Still hidden: a tool's component on the root itself, a
+rename by a Modular Avatar Parameters on the root, and a report hidden by an earlier one inside the same child.
+
+A name another tool reports as synced is declared by AvatarDoc itself, always synced (the tool needs it; Skin Touch
+leaves its toggle out when it finds a local declaration), with the entry's saved and default settings, in the tool's
+type (it may not widen). Modular Avatar's "Fixup Expressions Menu" pass (Transforming) clears every menu parameter
+nothing declares yet, and a tool like Skin Touch declares its parameters only in Optimizing. Skin Touch then finds
+the name declared and skips it; Modular Avatar merges its own declaration into it (its default wins). The bits count
+once, on AvatarDoc's side (`ParameterPlanner.OtherToolsBits`). Parameters a merged controller needs but no menu entry declares stay animator only
 (unsynced), which the merge row's panel lists so the creator can see them.
 
 Inspector: an `Animators` group row in the tree (like `Triggers` and `Overrides`), one row per merge, `+ Animator`
