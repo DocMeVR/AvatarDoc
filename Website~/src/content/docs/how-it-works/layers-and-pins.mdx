@@ -87,7 +87,7 @@ Two details:
 - When several layers hold one shape, each of them resets it once on its own way out, so the shape goes back to rest whichever of them turns off last. While a lower layer still holds the shape, an upper layer that turns off covers it for that moment only. When two layers rest one property at different off values, the value after both are off is the one of the layer that turned off last, and at load the one of the later layer.
 - An exclusive group goes from one member to the next through Reset and its off state, so each member state sets only its own shapes. Switching members takes a frame or two.
 
-A shape that VRChat blinks or speaks with is never handed back to rest, not even for the moment of Reset. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
+A shape that VRChat blinks or speaks with is never handed back to rest, not even for the moment of Reset, except by a <Label k="ad.ui.touch.follow" /> trigger, which rests every shape it moved. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
 
 ### Pin layers go last
 

@@ -764,8 +764,10 @@ namespace DocMe.AvatarDoctor.Editor
             var far = State(layer, "Far");
             var reset = State(layer, "Reset");
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Eye_Big"), Is.Null,
-                "the descriptor's own blink shape is never registered for release; VRChat's own tracking owns it while no hand is near");
-            Assert.That(CurveOf(reset.motion, "Body", "blendShape.Eye_Big"), Is.Null, "not even for the one frame of reset");
+                "VRChat's own blinking keeps the descriptor's blink shape while no hand is near");
+            var blinkRest = CurveOf(reset.motion, "Body", "blendShape.Eye_Big");
+            Assert.That(blinkRest, Is.Not.Null, "it rests once on the way out, so a pat never leaves the eyes closed on other players' copies");
+            Assert.That(blinkRest.Evaluate(0f), Is.EqualTo(avatar.Body.GetBlendShapeWeight(avatar.Body.sharedMesh.GetBlendShapeIndex("Eye_Big"))));
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes a shape");
             var blushCurve = CurveOf(reset.motion, "Body", "blendShape.Blush");
             Assert.That(blushCurve, Is.Not.Null, "an ordinary shape on the same trigger still gets its rest curve");
@@ -794,8 +796,8 @@ namespace DocMe.AvatarDoctor.Editor
             var far = State(layer, "Far");
             var reset = State(layer, "Reset");
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Eye_Big"), Is.Null,
-                "the descriptor's own viseme shape is never registered for release; VRChat's own lip sync owns it while no hand is near");
-            Assert.That(CurveOf(reset.motion, "Body", "blendShape.Eye_Big"), Is.Null, "not even for the one frame of reset");
+                "VRChat's own lip sync keeps the descriptor's viseme shape while no hand is near");
+            Assert.That(CurveOf(reset.motion, "Body", "blendShape.Eye_Big"), Is.Not.Null, "it rests once on the way out");
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes a shape");
             var blushCurve = CurveOf(reset.motion, "Body", "blendShape.Blush");
             Assert.That(blushCurve, Is.Not.Null, "an ordinary shape on the same trigger still gets its rest curve");
@@ -845,8 +847,9 @@ namespace DocMe.AvatarDoctor.Editor
                 var layer = Layer(fx, "AD: Pat (distance)");
                 Assert.That(CurveOf(State(layer, "Far").motion, "Body", "blendShape.Blush"), Is.Null,
                     "face tracking's Direct tree owns Blush, so Far leaves it alone, whatever Write Defaults the avatar decided");
-                Assert.That(layer.stateMachine.states.Select(s => s.state.name), Is.EquivalentTo(new[] { "Far", "Near" }),
-                    "and with nothing else to rest, the layer keeps no Reset state: Near goes straight back to Far");
+                var rest = CurveOf(State(layer, "Reset").motion, "Body", "blendShape.Blush");
+                Assert.That(rest, Is.Not.Null, "Reset rests it once all the same: where face tracking does not write over it, the pat's value would stay");
+                Assert.That(rest.Evaluate(0f), Is.EqualTo(22f));
 
                 var names = fx.layers.Select(l => l.name).ToList();
                 Assert.That(names.IndexOf("AD: Pat (distance)"), Is.GreaterThan(names.IndexOf("Face Tracking")),

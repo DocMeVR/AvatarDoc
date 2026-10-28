@@ -303,7 +303,7 @@ namespace DocMe.AvatarDoctor.Editor
                 if (renderer == null || !MenuModel.ShapeExists(renderer, shape)) continue;
                 var path = asc.ObjectPathRemapper.GetVirtualPathForObject(renderer.gameObject);
                 var binding = EditorCurveBinding.FloatCurve(path, typeof(SkinnedMeshRenderer), "blendShape." + shape);
-                ReleaseFromEveryLayer(asc, layers, byName, pins, underLayerControl, resetClips, binding, group.Select(b => (b.LayerName, b.RestValue)));
+                ReleaseFromEveryLayer(asc, layers, byName, pins, underLayerControl, resetClips, binding, group.Select(b => (b.LayerName, b.RestValue)), isShape: true);
             }
 
             // A material property channel a trigger's inactive state left here goes by the same rule. Its binding
@@ -314,15 +314,16 @@ namespace DocMe.AvatarDoctor.Editor
                 if (renderer == null || string.IsNullOrEmpty(property)) continue;
                 var path = asc.ObjectPathRemapper.GetVirtualPathForObject(renderer.gameObject);
                 var binding = EditorCurveBinding.FloatCurve(path, renderer.GetType(), property);
-                ReleaseFromEveryLayer(asc, layers, byName, pins, underLayerControl, resetClips, binding, group.Select(r => (r.LayerName, r.RestValue)));
+                ReleaseFromEveryLayer(asc, layers, byName, pins, underLayerControl, resetClips, binding, group.Select(r => (r.LayerName, r.RestValue)), isShape: false);
             }
 
             DropEmptyResets(byName, pins);
         }
 
         /// <summary>
-        /// Hands one binding back to rest from every layer that recorded it, unless some other layer owns it: each of
-        /// them writes the rest value into its own Reset. Whichever of them is left last puts the shape back, so it
+        /// Hands one binding back to rest from every layer that recorded it, unless some other layer owns it (a Fade
+        /// layer rests a shape all the same, PinLayerState.RestOnLeave; a property stays the owner's, or one frame of
+        /// rest would hide a toggle): each of them writes the rest value into its own Reset. Whichever is left last puts the shape back, so it
         /// never stays at the value of a pin that was left after another one on the same shape. A layer left while a
         /// lower one still pins the same shape covers that pin for its moment of reset and no longer, so no layer
         /// needs to stand back for a lower one. A recorded ordinary layer (a trigger's own layer) whose idle state is
@@ -330,19 +331,20 @@ namespace DocMe.AvatarDoctor.Editor
         /// that state anyway, the default when it has no curve, so the idle state gets the rest value as well.
         /// </summary>
         static void ReleaseFromEveryLayer(AnimatorServicesContext asc, List<VirtualLayer> layers, Dictionary<string, VirtualLayer> byName,
-            PinLayerState pins, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips, EditorCurveBinding binding, IEnumerable<(string layerName, float restValue)> recorded)
+            PinLayerState pins, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips, EditorCurveBinding binding, IEnumerable<(string layerName, float restValue)> recorded, bool isShape)
         {
             var present = recorded.Where(r => r.layerName != null && byName.ContainsKey(r.layerName)).ToList();
             if (present.Count == 0) return;
             var recordedLayers = new HashSet<VirtualLayer>(present.Select(r => byName[r.layerName]));
-            if (SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips)) return;
+            bool owned = SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips);
             foreach (var (layerName, restValue) in present)
             {
+                if (owned && !(isShape && pins.RestOnLeave.Contains(layerName))) continue;
                 var layer = byName[layerName];
                 var reset = ResetStateOf(layer, layerName, pins);
                 if (reset == null) continue;
                 ReleaseToRest(reset, binding, restValue);
-                if (IsKnownPinLayer(layer, pins.Names)) continue;
+                if (owned || IsKnownPinLayer(layer, pins.Names)) continue;
                 var idle = reset.Transitions.FirstOrDefault()?.DestinationState;
                 if (idle != null && idle.WriteDefaultValues) ReleaseToRest(idle, binding, restValue);
             }
@@ -458,9 +460,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// binding; or some state's motion holds a Direct blend tree with a child, at any depth under it, that
         /// carries the binding. The last clause exists for face tracking: typically one state holding a Direct tree
         /// with dozens of children, each moving one shape, beside a disabled or idle state with Write Defaults off and no
-        /// motion at all, which the first two clauses both fail. Owned there, the shape skips even the frame of reset:
-        /// while that layer actually sits in its disabled state, the shape keeps whatever value it last had, the same
-        /// as any other property nothing currently writes. When every clause fails this says no, and the layer's Reset
+        /// motion at all, which the first two clauses both fail. Owned there, the shape skips even the frame of reset
+        /// (except in a Fade layer, PinLayerState.RestOnLeave): while that layer actually sits in its disabled state,
+        /// the shape keeps whatever value it last had. When every clause fails this says no, and the layer's Reset
         /// writes the rest value once; a wrong no costs that one frame and nothing more.
         /// </summary>
         static bool SomeNonPinLayerOwns(AnimatorServicesContext asc, List<VirtualLayer> layers, ICollection<string> pinLayerNames, HashSet<VirtualLayer> recordedLayers, EditorCurveBinding binding, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips)
