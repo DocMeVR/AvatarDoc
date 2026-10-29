@@ -1881,12 +1881,13 @@ and lip sync shapes settable per rule; the default read at upload.
   gets a pause flag (`<prefix>/Pause/<name>`, named in `TouchBuilder.Describe` after every trigger's, so a trigger
   keeps its name) written 1 in every state where the hold is active and 0 in the rest: a pin layer's member state
   and its Off (an exclusive group's other members write 0 too), a Fade's Near children, a blend shape trigger's
-  driven states. `BuildTrackingPauseLayers` reads it with the others. A held tracked shape is never registered for
-  release: while the rule does not hold it, VRChat's tracking owns it. The parameter provider lists a toggle's flag
+  driven states. `BuildTrackingPauseLayers` reads it with the others. While the rule does not hold a held tracked
+  shape, VRChat's tracking moves it; since 0.7.2 it is registered for release at 0 (`AnimatorBuilder.TrackedRest`),
+  so the frame of Reset opens the eyes instead of leaving the held value on other players' copies. The parameter provider lists a toggle's flag
   as animator only, like a trigger's.
 - **Pin rows on those shapes (fix round 1).** The same holds for a Pin row naming an eyelid or viseme shape (Capture
-  makes one from a sleepy face): `BuildPinLayer` never registers a tracked shape for release, the rule
-  `BuildFollowDistanceLayers` and `LinkLayerBuilder` already followed, and such a row raises the entry's pause flag
+  makes one from a sleepy face): `BuildPinLayer` registers a tracked shape for release at 0 (until 0.7.2 it
+  never did, nor did `BuildFollowDistanceLayers` or `LinkLayerBuilder`, and the shape stayed on other players' copies), and such a row raises the entry's pause flag
   while on (`ShapeSetModel.PinTracking`, counted in `TouchBuilder.Describe` for toggles and Hold triggers).
 - **The pause at load.** Each pause layer starts in `Load` (no behaviour), which goes to `Idle` after an exit time of
   5 (an empty state lasts one second): VRChat ignores tracking control for a moment after load and `Paused` asks
@@ -2487,7 +2488,7 @@ before Modular Avatar and so never reached a merged clip.
 **The layer arrangement: one layer, up to three states.** The rest state (`Far`, `Off` in Switch) writes objects and
 material slots at their off values; shapes and properties carry no curve there and go to the release pass under the
 same rule as Fade's Far (`PinLayerState.Bindings`, `PropertyRests`), and a shape the descriptor blinks or speaks with
-is never registered. A driven state below the switch point (`Near`, or `Following` in Switch when a Follow row moves
+is registered at 0 (since 0.7.2; before, it was never registered and stayed on other players' copies). A driven state below the switch point (`Near`, or `Following` in Switch when a Follow row moves
 there) and one at or above it (`Near on`, or `On`) hold the same Simple1D tree on the copy and differ only in objects
 and material slots, which cannot blend: a tree would pick a slot from its heavier child and blend `m_IsActive` as a
 float, so a swap inside the tree would happen between children, not at the threshold. A state that can never be

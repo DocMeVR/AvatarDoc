@@ -180,7 +180,7 @@ namespace DocMe.AvatarDoctor.Editor
 
                 AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
-                Assert.That(Owned(AnimatorBuilder.LastReleased, "Blush"), Is.True, "sanity: face tracking's Direct tree owns Blush");
+                Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True, "sanity: face tracking's Direct tree owns Blush");
                 var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Headpat (pin)"), "Body", "blendShape.Blush");
                 Assert.That(curve, Is.Not.Null, "the trigger's pin rests Blush once on its way out all the same");
                 Assert.That(curve.Evaluate(0f), Is.EqualTo(22f));
@@ -218,7 +218,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             var curve = RestCurveOf(Layer(FxOf(avatar), "AD: Wink (pin)"), "Body", "blendShape.Eye_Big");
             Assert.That(curve, Is.Not.Null, "the wink rests the eyes once on its way out, so no copy of the avatar keeps them closed");
-            Assert.That(curve.Evaluate(0f), Is.EqualTo(7f));
+            Assert.That(curve.Evaluate(0f), Is.EqualTo(0f), "at 0, where VRChat's blinking starts from, not at the scene's 7");
         }
 
         [Test]
@@ -835,7 +835,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(AllStates(relay[0].stateMachine).SelectMany(s => s.behaviours).OfType<VRCAnimatorLayerControl>()
                     .Any(c => c.playable == VRC_AnimatorLayerControl.BlendableLayer.FX), Is.True, "and the relay fades FX layers");
 
-                Assert.That(Owned(AnimatorBuilder.LastReleased, "Blush"), Is.True, "the relay fades the avatar's first layers, never face tracking, so face tracking still owns Blush");
+                Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True, "the relay fades the avatar's first layers, never face tracking, so face tracking still owns Blush");
                 Assert.That(RestCurveOf(Layer(fx, "AD: Face (pin)"), "Body", "blendShape.Blush"), Is.Not.Null, "and the pin still rests Blush once on its way out, so a copy of the avatar where the owner stands still never keeps the pinned value");
             }
             finally

@@ -540,6 +540,7 @@ namespace DocMe.AvatarDoctor.Editor
             NoErrors(errors);
             var layer = Layer(fx, "AD: Face (pin)");
             var reset = AssertResetsOnce(layer, "Off", "On");
+            Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True, "sanity: face tracking's Direct tree owns Blush");
             Assert.That(Shape(reset.motion, "Blush"), Is.Not.Null, "face tracking's Direct tree owns Blush, and the pin still rests it once: on another player's copy face tracking may not write it again");
             Assert.That(Shape(reset.motion, "Eye_Big"), Is.Not.Null, "Eye_Big has no owner, so it resets once as always");
         }

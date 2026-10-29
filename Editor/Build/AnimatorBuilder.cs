@@ -266,8 +266,12 @@ namespace DocMe.AvatarDoctor.Editor
             return result;
         }
 
-        /// <summary>The state the last final pass worked from, so a test of a whole build can read what it found owned.</summary>
-        public static PinLayerState LastReleased;
+        /// <summary>What the last final pass found owned by another layer, so a test of a whole build can read it; cleared when a build starts.</summary>
+        public static readonly HashSet<EditorCurveBinding> LastOwnedByAnotherLayer = new HashSet<EditorCurveBinding>();
+
+        /// <summary>The rest of a shape VRChat blinks or speaks with is 0, where its own blinking and lip sync start from; any other shape rests at its own value.</summary>
+        internal static float TrackedRest(ShapeSetModel.HeldContext context, SkinnedMeshRenderer renderer, string shape, float rest)
+            => context.IsEyelid(renderer, shape) || context.IsViseme(renderer, shape) ? 0f : rest;
 
         /// <summary>
         /// Gives every layer that pins a shape or moves a property its way back to rest: the rest value goes into the
@@ -282,8 +286,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         public static void ReleasePinsToRest(AnimatorServicesContext asc, PinLayerState pins)
         {
-            LastReleased = pins;
-            if (pins == null ||(pins.Bindings.Count == 0 && pins.PropertyRests.Count == 0 && pins.Resets.Count == 0)) return;
+            if (pins == null || (pins.Bindings.Count == 0 && pins.PropertyRests.Count == 0 && pins.Resets.Count == 0)) return;
             if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return;
 
             var layers = fx.Layers.ToList();
@@ -344,7 +347,11 @@ namespace DocMe.AvatarDoctor.Editor
             if (present.Count == 0) return;
             var recordedLayers = new HashSet<VirtualLayer>(present.Select(r => byName[r.layerName]));
             bool owned = SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips);
-            if (owned) pins.OwnedByAnotherLayer.Add(binding);
+            if (owned)
+            {
+                pins.OwnedByAnotherLayer.Add(binding);
+                LastOwnedByAnotherLayer.Add(binding);
+            }
             foreach (var (layerName, restValue) in present)
             {
                 if (owned && !isShape) continue;
@@ -694,8 +701,9 @@ namespace DocMe.AvatarDoctor.Editor
             off.WriteDefaultValues = false;
             sm.DefaultState = off;
 
-            // Every shape a member pins rests once on the way out, one VRChat blinks or speaks with too: the member
-            // already binds it, so the frame of rest takes nothing from VRChat's own blinking or lip sync.
+            // Every shape a member pins rests once on the way out, one VRChat blinks or speaks with too, at 0, where
+            // VRChat's own blinking and lip sync start from: the member already binds it, so the frame of rest takes
+            // nothing from them, and a captured face's half closed eyes never become the rest.
             var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(avatarRoot);
             var states = new List<VirtualState>();
             foreach (var member in members)
@@ -704,7 +712,7 @@ namespace DocMe.AvatarDoctor.Editor
                 content.WriteToggle(member.Entry, true, baseState, ShapeSet.PinsOnly);
                 if (pinState != null)
                     foreach (var (renderer, shape, _) in content.ShapeWrites())
-                        pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
+                        pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = TrackedRest(heldContext, renderer, shape, baseState.WeightOf(renderer, shape)) });
                 foreach (var flag in flags) content.SetAnimatorParameter(flag.Parameter, flag == member.PauseFlag ? 1f : 0f);
                 var state = sm.AddState(member.StateName, content.ToClip(asc, name + " " + member.StateName), new Vector3(0f, 120f * (states.Count + 1), 0f));
                 state.WriteDefaultValues = false;

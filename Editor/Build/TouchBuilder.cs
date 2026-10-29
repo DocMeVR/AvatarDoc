@@ -303,7 +303,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// Every (mesh, shape) the avatar descriptor itself reads for blinking or for lip sync, the one place both
         /// FollowDistanceTracking (which pause layer a trigger needs) and BuildFollowDistanceLayers (which shapes
-        /// Far must never hold, whatever LayerOwnsBinding says, since VRChat's own tracking owns them) ask.
+        /// Far must never hold, since VRChat's own tracking moves them, and which rest at 0 on the way out) ask.
         /// Eyelids count only while enableEyeLook is on and the eyelid type is Blendshapes; a mouth shape counts
         /// for LipSyncStyle.VisemeBlendShape (against VisemeBlendShapes) or LipSyncStyle.JawFlapBlendShape (against
         /// MouthOpenBlendShapeName), both on VisemeSkinnedMesh.
@@ -608,11 +608,11 @@ namespace DocMe.AvatarDoctor.Editor
             sm.DefaultState = far;
 
             // Every shape the pose moves rests once on the way out, a shape the descriptor itself drives (an
-            // eyelid, a viseme) too: Near already binds it, so one frame of rest takes nothing from VRChat's own
-            // blinking or lip sync, and Far stays free of it.
+            // eyelid, a viseme) too, at 0, where VRChat's own blinking and lip sync start from: Near already binds
+            // it, so one frame of rest takes nothing from them, and Far stays free of it.
             if (pinState != null)
                 foreach (var (renderer, shape, weight) in offContent.ShapeWrites())
-                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = weight });
+                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = eyelidShapes.Contains((renderer, shape)) || mouthShapes.Contains((renderer, shape)) ? 0f : weight });
 
             float fullAt = entry.EffectiveContactFullAt;
             var nearTree = VirtualBlendTree.Create(name + " Near");

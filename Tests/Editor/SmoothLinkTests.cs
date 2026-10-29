@@ -451,7 +451,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             Assert.That(Shape(State(Layer(fx, "AD: Blush link (shape)"), "Far").motion, "Eye_Big"), Is.Null, "VRChat's own blinking writes that shape while the trigger rests");
-            Assert.That(Shape(State(Layer(fx, "AD: Blush link (shape)"), "Reset").motion, "Eye_Big"), Is.Not.Null, "Reset rests it once on the way out, so no copy of the avatar keeps the trigger's value");
+            var rest = Shape(State(Layer(fx, "AD: Blush link (shape)"), "Reset").motion, "Eye_Big");
+            Assert.That(rest, Is.Not.Null, "Reset rests it once on the way out, so no copy of the avatar keeps the trigger's value");
+            Assert.That(rest.Evaluate(0f), Is.EqualTo(0f), "at 0, where VRChat's blinking starts from");
         }
 
         /// <summary>Written after the first failing run, so it never ran red; its body fails without the requirement receivers in TouchBuilder.Describe.</summary>

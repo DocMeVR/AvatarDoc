@@ -14,6 +14,7 @@ namespace DocMe.AvatarDoctor.Editor
     {
         public static void Run(BuildContext context)
         {
+            AnimatorBuilder.LastOwnedByAnotherLayer.Clear();
             var components = MenuModel.CollectComponents(context.AvatarRootTransform);
             if (components.Count == 0) return;
 

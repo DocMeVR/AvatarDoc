@@ -194,7 +194,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             // Rest: objects and material slots at their off values; shapes and properties never carry a curve here.
             // The final pass writes their rest values into Reset, once on the way back: a shape even where another
-            // layer owns it or VRChat blinks or speaks with it, a property only where no other layer owns it.
+            // layer owns it or VRChat blinks or speaks with it (that one at 0), a property only where no other layer owns it.
             var restContent = new ClipContent(avatarRoot);
             if (pauseFlag != null)
             {
@@ -213,7 +213,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var (renderer, property, value) in restContent.TakePropertyWrites())
                     pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
                 foreach (var (renderer, shape) in effects.Fixed.Concat(effects.Follow).Select(row => (row.renderer, row.shape)).Concat(effects.Held.Select(h => (h.renderer, h.shape))))
-                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
+                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = AnimatorBuilder.TrackedRest(heldContext, renderer, shape, baseState.WeightOf(renderer, shape)) });
                 pinState.ShapeMirrors.Add(new PinLayerState.ShapeMirror { Entry = entry, Renderer = plan.SourceRenderer, Shape = plan.SourceShape, Parameter = mirror, Replace = plan.Replace });
             }
 

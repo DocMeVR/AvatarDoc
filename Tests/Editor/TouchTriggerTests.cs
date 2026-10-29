@@ -767,7 +767,7 @@ namespace DocMe.AvatarDoctor.Editor
                 "VRChat's own blinking keeps the descriptor's blink shape while no hand is near");
             var blinkRest = CurveOf(reset.motion, "Body", "blendShape.Eye_Big");
             Assert.That(blinkRest, Is.Not.Null, "it rests once on the way out, so a pat never leaves the eyes closed on other players' copies");
-            Assert.That(blinkRest.Evaluate(0f), Is.EqualTo(avatar.Body.GetBlendShapeWeight(avatar.Body.sharedMesh.GetBlendShapeIndex("Eye_Big"))));
+            Assert.That(blinkRest.Evaluate(0f), Is.EqualTo(0f), "at 0, where VRChat's blinking starts from");
             Assert.That(CurveOf(far.motion, "Body", "blendShape.Blush"), Is.Null, "Far never writes a shape");
             var blushCurve = CurveOf(reset.motion, "Body", "blendShape.Blush");
             Assert.That(blushCurve, Is.Not.Null, "an ordinary shape on the same trigger still gets its rest curve");
@@ -848,6 +848,7 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(CurveOf(State(layer, "Far").motion, "Body", "blendShape.Blush"), Is.Null,
                     "face tracking's Direct tree owns Blush, so Far leaves it alone, whatever Write Defaults the avatar decided");
                 var rest = CurveOf(State(layer, "Reset").motion, "Body", "blendShape.Blush");
+                Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True, "sanity: face tracking owns Blush");
                 Assert.That(rest, Is.Not.Null, "Reset rests it once all the same: where face tracking does not write over it, the pat's value would stay");
                 Assert.That(rest.Evaluate(0f), Is.EqualTo(22f));
 
