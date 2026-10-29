@@ -197,7 +197,7 @@ namespace DocMe.AvatarDoctor.Editor
                 "another toggle (A), a merged animator (B), the Gesture layer (C) and the blink shape Hold blink holds (F); E only for a Zero rule");
             Assert.That(Shapes(State(layer, "Off").motion, "Face"), Is.Empty, "Off writes no shape");
             Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("D"), "a dropped shape gets no rest curve either");
-            Assert.That(ResetShapes(layer, "Face"), Does.Not.Contain("F"), "the blink shape is still never handed back to rest");
+            Assert.That(ResetShapes(layer, "Face"), Does.Contain("F"), "the blink shape rests once on the way out too, then VRChat's blinking has it again");
         }
 
         [TestCase(ShapeSetValue.Default)]

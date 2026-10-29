@@ -68,13 +68,15 @@ So a pin layer resets once, then lets go. On its way from on to off, it passes a
 
 The layer also resets once when the avatar loads: it starts in a state named **Load**, which plays the same moment of rest and passes on to Reset. So the avatar loads with these shapes at rest, even when AvatarDoc wrote a default into the avatar itself, such as the pose of an exclusive group's default member, and the saved choice is another member.
 
-At the very end of the build, when every layer from every tool is in the controller, AvatarDoc decides what each Reset sets. For each shape and each material property that a pin layer writes, it asks whether another layer owns it. Another layer owns it when it is not additive, its weight is higher than 0, no animator layer control can fade it, and one of these is true:
+At the very end of the build, when every layer from every tool is in the controller, AvatarDoc fills in each Reset. Every shape the layer held goes in, even one that another layer moves, such as face tracking or a gesture. A layer with Write Defaults off keeps the last value it wrote until something writes over it, and on other players' copies of your avatar that other layer did not always do so: a pat's closed eyes stayed closed. Where the other layer runs, it writes over the moment of rest straight away.
 
-- every state of the layer has Write Defaults on, and the layer animates the shape somewhere
-- every animation the layer can play has a curve for the shape
-- a direct blend tree of the layer has a child with a curve for the shape, which is how face tracking is built
+For each material property that a pin layer writes, AvatarDoc first asks whether another layer owns it. Another layer owns it when it is not additive, its weight is higher than 0, no animator layer control can fade it, and one of these is true:
 
-If another layer owns the shape, Reset leaves it out too, and that layer decides from the first frame. If no layer owns it, Reset sets it back to its rest. This guess can be wrong on a real avatar: face tracking that another layer can fade, or a blink loop that rests in an empty state, does not count as an owner. A wrong guess costs that moment at most, because Reset and Load are the only states that write the rest value, and only at load and on the way out. A layer whose Reset has nothing to set has neither state, and goes straight from on to off.
+- every state of the layer has Write Defaults on, and the layer animates the property somewhere
+- every animation the layer can play has a curve for the property
+- a direct blend tree of the layer has a child with a curve for the property, which is how face tracking is built
+
+If another layer owns the property, Reset leaves it out, so a moment of rest never hides a toggle that moves the same property. If no layer owns it, Reset sets it back to its rest. This guess can be wrong on a real avatar: a layer that another layer can fade, or one that rests in an empty state, does not count as an owner. A wrong guess costs that moment at most, because Reset and Load are the only states that write the rest value, and only at load and on the way out. A layer whose Reset has nothing to set has neither state, and goes straight from on to off.
 
 The same rule hands back the material properties that a <Label k="ad.ui.touch.hold" /> trigger or a <Label k="ad.ui.touch.follow" /> trigger changes. On an avatar with Write Defaults off, the layer of a <Label k="ad.ui.touch.hold" /> trigger that changes a property passes a Reset state too. On an avatar with Write Defaults on, that layer's off state writes the property on every frame anyway, so it holds the property at rest the whole time the trigger does not fire.
 
@@ -87,7 +89,7 @@ Two details:
 - When several layers hold one shape, each of them resets it once on its own way out, so the shape goes back to rest whichever of them turns off last. While a lower layer still holds the shape, an upper layer that turns off covers it for that moment only. When two layers rest one property at different off values, the value after both are off is the one of the layer that turned off last, and at load the one of the later layer.
 - An exclusive group goes from one member to the next through Reset and its off state, so each member state sets only its own shapes. Switching members takes a frame or two.
 
-A shape that VRChat blinks or speaks with is never handed back to rest, not even for the moment of Reset, except by a <Label k="ad.ui.touch.follow" /> trigger, which rests every shape it moved. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
+A shape that VRChat blinks or speaks with rests for the moment of Reset too, then VRChat's blinking or lip sync has it again. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
 
 ### Pin layers go last
 

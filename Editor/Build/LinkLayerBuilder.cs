@@ -70,11 +70,10 @@ namespace DocMe.AvatarDoctor.Editor
             public bool Ranged => Fixed.Count > 0 || Properties.Count > 0 || Held.Count > 0;
         }
 
-        public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, IReadOnlyList<TriggerPlan> plans, BaseState baseState, VRCAvatarDescriptor descriptor, ICollection<string> pinLayerNames, PinLayerState pinState)
+        public static List<ModelMessage> Build(AnimatorServicesContext asc, MenuTree tree, IReadOnlyList<TriggerPlan> plans, BaseState baseState, ICollection<string> pinLayerNames, PinLayerState pinState)
         {
             var messages = new List<ModelMessage>();
             if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return messages;
-            var (eyelids, mouth) = TouchBuilder.DescriptorDrivenShapes(descriptor);
             foreach (var plan in plans)
             {
                 if (plan.Kind != TriggerKind.Link) continue;
@@ -86,13 +85,13 @@ namespace DocMe.AvatarDoctor.Editor
                         pinState.ShapeMirrors.Add(new PinLayerState.ShapeMirror { Entry = plan.Entry, Renderer = plan.SourceRenderer, Shape = plan.SourceShape, Replace = true });
                     continue;
                 }
-                BuildLayer(asc, fx, tree.AvatarRoot, plan, effects, baseState, eyelids, mouth, pinLayerNames, pinState);
+                BuildLayer(asc, fx, tree.AvatarRoot, plan, effects, baseState, pinLayerNames, pinState);
             }
             return messages;
         }
 
         static void BuildLayer(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, TriggerPlan plan, Effects effects, BaseState baseState,
-            HashSet<(SkinnedMeshRenderer, string)> eyelids, HashSet<(SkinnedMeshRenderer, string)> mouth, ICollection<string> pinLayerNames, PinLayerState pinState)
+            ICollection<string> pinLayerNames, PinLayerState pinState)
         {
             var entry = plan.Entry;
             bool smooth = plan.Style == BlendShapeLinkStyle.Smooth;
@@ -194,8 +193,8 @@ namespace DocMe.AvatarDoctor.Editor
             var sm = layer.StateMachine;
 
             // Rest: objects and material slots at their off values; shapes and properties never carry a curve here.
-            // The final pass writes their rest values into Reset, once on the way back, and only where no other
-            // layer owns them. A shape VRChat blinks or speaks with is never held at all.
+            // The final pass writes their rest values into Reset, once on the way back: a shape even where another
+            // layer owns it or VRChat blinks or speaks with it, a property only where no other layer owns it.
             var restContent = new ClipContent(avatarRoot);
             if (pauseFlag != null)
             {
@@ -214,11 +213,7 @@ namespace DocMe.AvatarDoctor.Editor
                 foreach (var (renderer, property, value) in restContent.TakePropertyWrites())
                     pinState.PropertyRests.Add(new PinLayerState.PropertyRest { LayerName = name, Renderer = renderer, Property = property, RestValue = value });
                 foreach (var (renderer, shape) in effects.Fixed.Concat(effects.Follow).Select(row => (row.renderer, row.shape)).Concat(effects.Held.Select(h => (h.renderer, h.shape))))
-                {
-                    var key = (renderer, shape);
-                    if (eyelids.Contains(key) || mouth.Contains(key)) continue;
                     pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
-                }
                 pinState.ShapeMirrors.Add(new PinLayerState.ShapeMirror { Entry = entry, Renderer = plan.SourceRenderer, Shape = plan.SourceShape, Parameter = mirror, Replace = plan.Replace });
             }
 

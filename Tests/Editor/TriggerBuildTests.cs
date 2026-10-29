@@ -98,7 +98,7 @@ namespace DocMe.AvatarDoctor.Editor
                 L.Report(planMessages);
                 L.Report(AnimatorBuilder.Build(asc, tree, plan, baseState));
                 L.Report(TriggerBuilder.Build(asc, tree, plans, baseState));
-                L.Report(LinkLayerBuilder.Build(asc, tree, plans, baseState, avatar.Descriptor, pins.Names, pins));
+                L.Report(LinkLayerBuilder.Build(asc, tree, plans, baseState, pins.Names, pins));
                 L.Report(ClipRewriter.Rewrite(asc, pins));
             });
             context.DeactivateAllExtensionContexts();

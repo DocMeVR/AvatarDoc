@@ -582,9 +582,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             // Far never carries a curve for the shapes the on pose writes, so blinking and face tracking keep
             // them while no hand is near. Leaving Near goes through Reset, where the final pass writes their
-            // rest values once, even where another layer, such as face tracking's own Direct tree, holds them
-            // (PinLayerState.RestOnLeave). The rest value is the off pose's own value, the same one Near's off
-            // child shows, so nothing jumps at the boundary.
+            // rest values once, even where another layer, such as face tracking's own Direct tree, holds them.
+            // The rest value is the off pose's own value, the same one Near's off child shows, so nothing jumps at
+            // the boundary.
             var farContent = new ClipContent(tree.AvatarRoot);
             farContent.WriteFarPose(entry, baseState);
             // A property follows the same rule as a shape here: Reset rests it once, and only when no other
@@ -611,11 +611,8 @@ namespace DocMe.AvatarDoctor.Editor
             // eyelid, a viseme) too: Near already binds it, so one frame of rest takes nothing from VRChat's own
             // blinking or lip sync, and Far stays free of it.
             if (pinState != null)
-            {
-                pinState.RestOnLeave.Add(name);
                 foreach (var (renderer, shape, weight) in offContent.ShapeWrites())
                     pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = weight });
-            }
 
             float fullAt = entry.EffectiveContactFullAt;
             var nearTree = VirtualBlendTree.Create(name + " Near");

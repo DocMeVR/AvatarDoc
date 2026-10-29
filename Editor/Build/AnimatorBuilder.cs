@@ -266,6 +266,9 @@ namespace DocMe.AvatarDoctor.Editor
             return result;
         }
 
+        /// <summary>The state the last final pass worked from, so a test of a whole build can read what it found owned.</summary>
+        public static PinLayerState LastReleased;
+
         /// <summary>
         /// Gives every layer that pins a shape or moves a property its way back to rest: the rest value goes into the
         /// layer's Reset state, which plays for one frame on the way out, and never into the idle state, which writes
@@ -279,7 +282,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         public static void ReleasePinsToRest(AnimatorServicesContext asc, PinLayerState pins)
         {
-            if (pins == null || (pins.Bindings.Count == 0 && pins.PropertyRests.Count == 0 && pins.Resets.Count == 0)) return;
+            LastReleased = pins;
+            if (pins == null ||(pins.Bindings.Count == 0 && pins.PropertyRests.Count == 0 && pins.Resets.Count == 0)) return;
             if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return;
 
             var layers = fx.Layers.ToList();
@@ -321,9 +325,12 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// Hands one binding back to rest from every layer that recorded it, unless some other layer owns it (a Fade
-        /// layer rests a shape all the same, PinLayerState.RestOnLeave; a property stays the owner's, or one frame of
-        /// rest would hide a toggle): each of them writes the rest value into its own Reset. Whichever is left last puts the shape back, so it
+        /// Hands one binding back to rest from every layer that recorded it: each of them writes the rest value into
+        /// its own Reset. A blend shape rests even where some other layer owns it: a Write Defaults off layer that
+        /// last wrote a shape keeps that value until something writes over it, and on other players' copies of the
+        /// avatar the owner did not always do so (a headpat's closed eyes stayed, and the next pat closed them
+        /// further); where the owner runs, it writes over the frame of rest straight away. A property another layer
+        /// owns stays the owner's, or one frame of rest would hide a toggle. Whichever is left last puts the shape back, so it
         /// never stays at the value of a pin that was left after another one on the same shape. A layer left while a
         /// lower one still pins the same shape covers that pin for its moment of reset and no longer, so no layer
         /// needs to stand back for a lower one. A recorded ordinary layer (a trigger's own layer) whose idle state is
@@ -337,9 +344,10 @@ namespace DocMe.AvatarDoctor.Editor
             if (present.Count == 0) return;
             var recordedLayers = new HashSet<VirtualLayer>(present.Select(r => byName[r.layerName]));
             bool owned = SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips);
+            if (owned) pins.OwnedByAnotherLayer.Add(binding);
             foreach (var (layerName, restValue) in present)
             {
-                if (owned && !(isShape && pins.RestOnLeave.Contains(layerName))) continue;
+                if (owned && !isShape) continue;
                 var layer = byName[layerName];
                 var reset = ResetStateOf(layer, layerName, pins);
                 if (reset == null) continue;
@@ -460,10 +468,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// binding; or some state's motion holds a Direct blend tree with a child, at any depth under it, that
         /// carries the binding. The last clause exists for face tracking: typically one state holding a Direct tree
         /// with dozens of children, each moving one shape, beside a disabled or idle state with Write Defaults off and no
-        /// motion at all, which the first two clauses both fail. Owned there, the shape skips even the frame of reset
-        /// (except in a Fade layer, PinLayerState.RestOnLeave): while that layer actually sits in its disabled state,
-        /// the shape keeps whatever value it last had. When every clause fails this says no, and the layer's Reset
-        /// writes the rest value once; a wrong no costs that one frame and nothing more.
+        /// motion at all, which the first two clauses both fail. An owned shape still gets its frame of rest; an owned
+        /// property skips it, and so does the idle state of an ordinary layer, for either. When every clause fails
+        /// this says no, and the layer's Reset writes the rest value once; a wrong no costs that one frame and nothing more.
         /// </summary>
         static bool SomeNonPinLayerOwns(AnimatorServicesContext asc, List<VirtualLayer> layers, ICollection<string> pinLayerNames, HashSet<VirtualLayer> recordedLayers, EditorCurveBinding binding, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips)
         {
@@ -687,8 +694,8 @@ namespace DocMe.AvatarDoctor.Editor
             off.WriteDefaultValues = false;
             sm.DefaultState = off;
 
-            // A shape VRChat blinks or speaks with, held by a Pin row or a rule, is never handed back to rest: while
-            // the entry is off, VRChat's own blinking or lip sync owns it.
+            // Every shape a member pins rests once on the way out, one VRChat blinks or speaks with too: the member
+            // already binds it, so the frame of rest takes nothing from VRChat's own blinking or lip sync.
             var heldContext = baseState.HeldContext ?? ShapeSetModel.ContextFor(avatarRoot);
             var states = new List<VirtualState>();
             foreach (var member in members)
@@ -697,10 +704,7 @@ namespace DocMe.AvatarDoctor.Editor
                 content.WriteToggle(member.Entry, true, baseState, ShapeSet.PinsOnly);
                 if (pinState != null)
                     foreach (var (renderer, shape, _) in content.ShapeWrites())
-                    {
-                        if (heldContext.IsEyelid(renderer, shape) || heldContext.IsViseme(renderer, shape)) continue;
                         pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = baseState.WeightOf(renderer, shape) });
-                    }
                 foreach (var flag in flags) content.SetAnimatorParameter(flag.Parameter, flag == member.PauseFlag ? 1f : 0f);
                 var state = sm.AddState(member.StateName, content.ToClip(asc, name + " " + member.StateName), new Vector3(0f, 120f * (states.Count + 1), 0f));
                 state.WriteDefaultValues = false;

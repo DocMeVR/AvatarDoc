@@ -31,14 +31,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         public readonly Dictionary<string, int> Resets = new Dictionary<string, int>();
 
-        /// <summary>
-        /// Fade layers, by exact name: their Reset rests every blend shape they moved, even one another layer owns or
-        /// VRChat's own blinking or lip sync drives. A Write Defaults off layer that last wrote a shape keeps that
-        /// value until something writes over it, and on other players' copies of the avatar the owner did not
-        /// always do so: a headpat's closed eyes stayed and the next pat closed them further. Where the owner does
-        /// run, it writes over the one frame of rest straight away.
-        /// </summary>
-        public readonly HashSet<string> RestOnLeave = new HashSet<string>();
+        /// <summary>Every binding the final pass found another layer owning: a shape there still rests once on the way out, a property is left to its owner.</summary>
+        public readonly HashSet<UnityEditor.EditorCurveBinding> OwnedByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
 
         /// <summary>
         /// One blend shape trigger the final pass still has to connect to its shape: every FX clip that moves the

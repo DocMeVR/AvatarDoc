@@ -371,11 +371,10 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(fx.parameters.Single(p => p.name == flag).type, Is.EqualTo(AnimatorControllerParameterType.Float));
 
             var reset = State(layer, "Reset");
-            foreach (var state in new[] { off, reset })
-            {
-                Assert.That(Shape(state.motion, "Blink"), Is.Null, state.name + ": the blink shape is never handed back to rest: VRChat's blinking owns it while off");
-                Assert.That(Shape(state.motion, "vrc.v_aa"), Is.Null, state.name);
-            }
+            Assert.That(Shape(off.motion, "Blink"), Is.Null, "while off VRChat's blinking owns the blink shape");
+            Assert.That(Shape(off.motion, "vrc.v_aa"), Is.Null, "and lip sync the viseme");
+            Assert.That(Weight(reset.motion, "Blink"), Is.EqualTo(10f), "the blink shape rests once on the way out, so no copy of the avatar keeps the held value");
+            Assert.That(Weight(reset.motion, "vrc.v_aa"), Is.EqualTo(0f), "and so does the viseme");
             Assert.That(Shape(off.motion, "Smile"), Is.Null, "Off writes no shape");
             Assert.That(Weight(reset.motion, "Smile"), Is.EqualTo(20f), "an ordinary held shape is still handed back to rest, once, when no ordinary layer owns it");
         }
@@ -444,7 +443,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Weight(on.motion, "Blink"), Is.EqualTo(60f), "the captured eyes stay half closed while on");
             var reset = State(layer, "Reset");
             Assert.That(Shape(off.motion, "Blink"), Is.Null, "while off the blink shape is VRChat's again: no rest curve");
-            Assert.That(Shape(reset.motion, "Blink"), Is.Null, "not even for the one frame of reset");
+            Assert.That(Weight(reset.motion, "Blink"), Is.EqualTo(60f), "the one frame of reset rests it at the scene value, then blinking takes over");
             Assert.That(Shape(off.motion, "Smile"), Is.Null, "Off writes no shape");
             Assert.That(Weight(reset.motion, "Smile"), Is.EqualTo(20f), "an ordinary captured shape is still handed back to rest, once");
             var flag = State(Layer(fx, "AD: Blink pause"), "Idle").transitions.Single().conditions.Single().parameter;

@@ -2731,8 +2731,11 @@ tracking pause layers' state), added after its other states by `AnimatorBuilder.
 that leaves the active side goes to `Reset`; `Reset` falls through to the idle state by exit time 1, duration 0, no
 condition. `ReleasePinsToRest` writes each rest curve, one frame long (1/60 s), into the recorded `Reset` only; the
 idle state keeps only what it legitimately writes that is not a released binding, such as Follow distance's pause flag
-at 0 and its objects and material slots. When `SomeNonPinLayerOwns` finds an owner, the binding is skipped, frame of
-reset included; when its guess is wrong the cost is one frame. Built without a `PinLayerState` (no final pass to fill
+at 0 and its objects and material slots. When `SomeNonPinLayerOwns` finds an owner, a material property is skipped,
+frame of reset included, and a blend shape is not (since 0.7.2: a Write Defaults off layer keeps its last value on
+other players' copies when the owner, face tracking's Direct tree or a gesture layer, does not write it again there;
+the frame of rest costs one frame where the owner runs). The pass records every owned binding in
+`PinLayerState.OwnedByAnotherLayer`, which the ownership tests read. When its guess is wrong the cost is one frame. Built without a `PinLayerState` (no final pass to fill
 it), a layer gets no `Reset` and its members go straight back to the idle state.
 
 **Covered layers.** A toggle's or trigger's pin layer and an exclusive group's pin layer (`BuildPinLayer`), Follow
@@ -2811,7 +2814,7 @@ trigger already has: pin layers that reset once and let go, the blink and lip sy
   prefix. Any name can be typed; one AvatarDoc cannot find gets a note instead of the sync note, and an "is true"
   or "is false" condition on an unknown name now builds as a Bool (`ad.warn.parameter_type_unknown_bool`). A face that is Paused gets one more
   condition, that parameter is false. A face that Wins gets none: its pin layer sits after face tracking, and its
-  Reset skips the shapes face tracking's Direct tree owns, so letting go hands them straight back. The choice,
+  Reset rests the shapes for a frame and face tracking's Direct tree writes them again, so letting go hands them straight back. The choice,
   None included, is kept in `AvatarDoc.gestureFaces`, so a creator's own "something is false" condition is never
   read as the tracking parameter, and None is not detected away. A note says when the parameter is not synced.
 - **Rest.** Make keeps where every shape of the faces rests in `GestureFaceSettings.rest`. Read takes those first

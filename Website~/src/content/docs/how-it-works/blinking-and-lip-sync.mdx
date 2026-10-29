@@ -25,7 +25,7 @@ A shape that the descriptor blinks with or speaks with is left free:
 
 - A Hold the rest rule skips these shapes, unless the rule's <Label k="ad.ui.shape_set.hold_blink" /> or <Label k="ad.ui.shape_set.hold_visemes" /> switch is on. The two switches are separate, so you can hold the eyes and leave the mouth free.
 - A trigger in <Label k="ad.ui.touch.follow" /> mode, or a blend shape trigger, never holds them while it rests.
-- When an entry ends, the shapes are not handed back to a rest value, not even for a moment, because VRChat owns them. See [Layers, Write Defaults and pinned layers](../layers-and-pins/).
+- When an entry ends, the shapes rest for a moment, 1/60 of a second, and then VRChat has them again. Without that moment, other players could keep seeing your eyes closed after the entry ends. See [Layers, Write Defaults and pinned layers](../layers-and-pins/).
 
 Only a shape that is set on purpose is held: a <Label k="ad.ui.seg.pin" /> row, a rule whose switch is on, or an effect of a trigger that moves such a shape.
 
@@ -54,7 +54,7 @@ VRCFury is the exception. It collects every request to change tracking, AvatarDo
 
 ## Face tracking and pin layers
 
-Face tracking is usually one layer with a direct blend tree that moves dozens of shapes. A pin layer sits after it, so a held shape wins while the entry is on. While the entry is off, the pin layer writes nothing for the shapes it holds, so face tracking and blinking move them as usual. When the entry turns off, and when the avatar loads, the pin layer sets a shape back to rest for a moment, 1/60 of a second, and skips even that for a shape that a layer like this owns. A <Label k="ad.ui.touch.follow" /> trigger rests every shape it moved all the same: on other players' copies of the avatar, face tracking did not always write over a pat's closed eyes. [Layers, Write Defaults and pinned layers](../layers-and-pins/#explicit-rests) describes the rule.
+Face tracking is usually one layer with a direct blend tree that moves dozens of shapes. A pin layer sits after it, so a held shape wins while the entry is on. While the entry is off, the pin layer writes nothing for the shapes it holds, so face tracking and blinking move them as usual. When the entry turns off, and when the avatar loads, the pin layer sets each shape back to rest for a moment, 1/60 of a second, a shape that face tracking moves too. On other players' copies of the avatar, face tracking did not always write over a pat's closed eyes. [Layers, Write Defaults and pinned layers](../layers-and-pins/#explicit-rests) describes the rule.
 
 ## Related
 
