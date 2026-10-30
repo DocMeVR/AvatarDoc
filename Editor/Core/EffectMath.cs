@@ -15,7 +15,7 @@ namespace DocMe.AvatarDoctor.Editor
             return target.explicitOff && target.mode != ShapeEffectMode.Pin ? target.minWeight : baseWeight;
         }
 
-        /// <summary>A Pin target's main clip carries a value only while its control is on. Its curves live in a pin layer with Write Defaults off, which writes nothing for it while the control is off: AvatarDoctor writes its rest once, at load and on the way out, unless another layer owns it, and then leaves it to whatever else moves it.</summary>
+        /// <summary>A Pin target's main clip carries a value only while its control is on. Its curves live in a pin layer with Write Defaults off, which writes nothing for it while the control is off: AvatarDoctor writes its rest once, at load and on the way out, even where another layer owns it, and then leaves it to whatever else moves it.</summary>
         public static bool WritesWhenOff(BlendShapeTarget target) => target.mode != ShapeEffectMode.Pin;
 
         public static float RadialShapeWeight(BlendShapeTarget target, float t) => Mathf.Lerp(target.minWeight, target.maxWeight, Mathf.Clamp01(t));

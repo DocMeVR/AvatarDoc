@@ -303,7 +303,7 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>
         /// Every (mesh, shape) the avatar descriptor itself reads for blinking or for lip sync, the one place both
         /// FollowDistanceTracking (which pause layer a trigger needs) and BuildFollowDistanceLayers (which shapes
-        /// Far must never hold, whatever LayerOwnsBinding says, since VRChat's own tracking owns them) ask.
+        /// Far must never hold, since VRChat's own tracking moves them, and which rest at 0 on the way out) ask.
         /// Eyelids count only while enableEyeLook is on and the eyelid type is Blendshapes; a mouth shape counts
         /// for LipSyncStyle.VisemeBlendShape (against VisemeBlendShapes) or LipSyncStyle.JawFlapBlendShape (against
         /// MouthOpenBlendShapeName), both on VisemeSkinnedMesh.
@@ -582,9 +582,9 @@ namespace DocMe.AvatarDoctor.Editor
 
             // Far never carries a curve for the shapes the on pose writes, so blinking and face tracking keep
             // them while no hand is near. Leaving Near goes through Reset, where the final pass writes their
-            // rest values once, unless another layer, such as face tracking's own Direct tree, already holds
-            // them. The rest value is the off pose's own value, the same one Near's off child shows, so nothing
-            // jumps at the boundary.
+            // rest values once, even where another layer, such as face tracking's own Direct tree, holds them.
+            // The rest value is the off pose's own value, the same one Near's off child shows, so nothing jumps at
+            // the boundary.
             var farContent = new ClipContent(tree.AvatarRoot);
             farContent.WriteFarPose(entry, baseState);
             // A property follows the same rule as a shape here: Reset rests it once, and only when no other
@@ -607,17 +607,12 @@ namespace DocMe.AvatarDoctor.Editor
             far.WriteDefaultValues = false;
             sm.DefaultState = far;
 
-            // A shape the descriptor itself drives (an eyelid or a viseme/jaw flap shape) is never registered
-            // for release: VRChat's own blinking or lip sync owns it while no hand is near, whatever
-            // LayerOwnsBinding would say, and Far must stay free of it even when nothing else currently holds
-            // it (no pause layer built because another system already arbitrates, say).
+            // Every shape the pose moves rests once on the way out, a shape the descriptor itself drives (an
+            // eyelid, a viseme) too, at 0, where VRChat's own blinking and lip sync start from: Near already binds
+            // it, so one frame of rest takes nothing from them, and Far stays free of it.
             if (pinState != null)
                 foreach (var (renderer, shape, weight) in offContent.ShapeWrites())
-                {
-                    var key = (renderer, shape);
-                    if (eyelidShapes.Contains(key) || mouthShapes.Contains(key)) continue;
-                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = weight });
-                }
+                    pinState.Bindings.Add(new PinLayerState.PinBinding { LayerName = name, Renderer = renderer, Shape = shape, RestValue = eyelidShapes.Contains((renderer, shape)) || mouthShapes.Contains((renderer, shape)) ? 0f : weight });
 
             float fullAt = entry.EffectiveContactFullAt;
             var nearTree = VirtualBlendTree.Create(name + " Near");

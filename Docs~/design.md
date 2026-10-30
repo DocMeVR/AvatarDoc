@@ -1881,12 +1881,13 @@ and lip sync shapes settable per rule; the default read at upload.
   gets a pause flag (`<prefix>/Pause/<name>`, named in `TouchBuilder.Describe` after every trigger's, so a trigger
   keeps its name) written 1 in every state where the hold is active and 0 in the rest: a pin layer's member state
   and its Off (an exclusive group's other members write 0 too), a Fade's Near children, a blend shape trigger's
-  driven states. `BuildTrackingPauseLayers` reads it with the others. A held tracked shape is never registered for
-  release: while the rule does not hold it, VRChat's tracking owns it. The parameter provider lists a toggle's flag
+  driven states. `BuildTrackingPauseLayers` reads it with the others. While the rule does not hold a held tracked
+  shape, VRChat's tracking moves it; since 0.7.2 it is registered for release at 0 (`AnimatorBuilder.TrackedRest`),
+  so the frame of Reset opens the eyes instead of leaving the held value on other players' copies. The parameter provider lists a toggle's flag
   as animator only, like a trigger's.
 - **Pin rows on those shapes (fix round 1).** The same holds for a Pin row naming an eyelid or viseme shape (Capture
-  makes one from a sleepy face): `BuildPinLayer` never registers a tracked shape for release, the rule
-  `BuildFollowDistanceLayers` and `LinkLayerBuilder` already followed, and such a row raises the entry's pause flag
+  makes one from a sleepy face): `BuildPinLayer` registers a tracked shape for release at 0 (until 0.7.2 it
+  never did, nor did `BuildFollowDistanceLayers` or `LinkLayerBuilder`, and the shape stayed on other players' copies), and such a row raises the entry's pause flag
   while on (`ShapeSetModel.PinTracking`, counted in `TouchBuilder.Describe` for toggles and Hold triggers).
 - **The pause at load.** Each pause layer starts in `Load` (no behaviour), which goes to `Idle` after an exit time of
   5 (an empty state lasts one second): VRChat ignores tracking control for a moment after load and `Paused` asks
@@ -2487,7 +2488,7 @@ before Modular Avatar and so never reached a merged clip.
 **The layer arrangement: one layer, up to three states.** The rest state (`Far`, `Off` in Switch) writes objects and
 material slots at their off values; shapes and properties carry no curve there and go to the release pass under the
 same rule as Fade's Far (`PinLayerState.Bindings`, `PropertyRests`), and a shape the descriptor blinks or speaks with
-is never registered. A driven state below the switch point (`Near`, or `Following` in Switch when a Follow row moves
+is registered at 0 (since 0.7.2; before, it was never registered and stayed on other players' copies). A driven state below the switch point (`Near`, or `Following` in Switch when a Follow row moves
 there) and one at or above it (`Near on`, or `On`) hold the same Simple1D tree on the copy and differ only in objects
 and material slots, which cannot blend: a tree would pick a slot from its heavier child and blend `m_IsActive` as a
 float, so a swap inside the tree would happen between children, not at the threshold. A state that can never be
@@ -2731,8 +2732,11 @@ tracking pause layers' state), added after its other states by `AnimatorBuilder.
 that leaves the active side goes to `Reset`; `Reset` falls through to the idle state by exit time 1, duration 0, no
 condition. `ReleasePinsToRest` writes each rest curve, one frame long (1/60 s), into the recorded `Reset` only; the
 idle state keeps only what it legitimately writes that is not a released binding, such as Follow distance's pause flag
-at 0 and its objects and material slots. When `SomeNonPinLayerOwns` finds an owner, the binding is skipped, frame of
-reset included; when its guess is wrong the cost is one frame. Built without a `PinLayerState` (no final pass to fill
+at 0 and its objects and material slots. When `SomeNonPinLayerOwns` finds an owner, a material property is skipped,
+frame of reset included, and a blend shape is not (since 0.7.2: a Write Defaults off layer keeps its last value on
+other players' copies when the owner, face tracking's Direct tree or a gesture layer, does not write it again there;
+the frame of rest costs one frame where the owner runs). The pass records every owned binding in
+`PinLayerState.OwnedByAnotherLayer`, which the ownership tests read. When its guess is wrong the cost is one frame. Built without a `PinLayerState` (no final pass to fill
 it), a layer gets no `Reset` and its members go straight back to the idle state.
 
 **Covered layers.** A toggle's or trigger's pin layer and an exclusive group's pin layer (`BuildPinLayer`), Follow
@@ -2811,7 +2815,7 @@ trigger already has: pin layers that reset once and let go, the blink and lip sy
   prefix. Any name can be typed; one AvatarDoc cannot find gets a note instead of the sync note, and an "is true"
   or "is false" condition on an unknown name now builds as a Bool (`ad.warn.parameter_type_unknown_bool`). A face that is Paused gets one more
   condition, that parameter is false. A face that Wins gets none: its pin layer sits after face tracking, and its
-  Reset skips the shapes face tracking's Direct tree owns, so letting go hands them straight back. The choice,
+  Reset rests the shapes for a frame and face tracking's Direct tree writes them again, so letting go hands them straight back. The choice,
   None included, is kept in `AvatarDoc.gestureFaces`, so a creator's own "something is false" condition is never
   read as the tracking parameter, and None is not detected away. A note says when the parameter is not synced.
 - **Rest.** Make keeps where every shape of the faces rests in `GestureFaceSettings.rest`. Read takes those first

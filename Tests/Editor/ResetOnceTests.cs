@@ -405,7 +405,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Shapes(State(layer, "On").motion, "Face"), Is.EqualTo(new[] { "A" }), "D moves nowhere else, so the rule drops it; Other moves A, so the rule holds it");
             var reset = AssertResetsOnce(layer, "Off", "On");
             Assert.That(Shapes(reset.motion, "Face"), Does.Not.Contain("D"), "the dropped shape gets no reset either");
-            Assert.That(Shapes(reset.motion, "Face"), Does.Not.Contain("A"), "Other's own layer writes A in both its states, so it owns A and nothing resets it");
+            Assert.That(Shapes(reset.motion, "Face"), Does.Contain("A"), "Other's own layer owns A, and the pin still rests it once on the way out");
             Assert.That(Shape(reset.motion, "Blush").Evaluate(0f), Is.EqualTo(22f), "the Pin row still resets once");
             Assert.That(Shapes(State(layer, "Off").motion, "Face"), Is.Empty);
         }
@@ -468,9 +468,9 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Shape(State(main, "On").motion, "Blush").Evaluate(0f), Is.EqualTo(100f));
             var pin = Layer(fx, "AD: Face (pin)");
             var reset = AssertResetsOnce(pin, "Off", "On");
-            Assert.That(Shape(reset.motion, "Blush"), Is.Null,
-                "Glow's layer writes Blush in every state that is not its own Reset or Load, so it owns Blush, and the pin writes no rest for it, not even at load");
-            Assert.That(Shape(State(pin, "Load").motion, "Blush"), Is.Null);
+            Assert.That(Shape(reset.motion, "Blush").Evaluate(0f), Is.EqualTo(5f),
+                "Glow's layer owns Blush, and the pin still rests it once, so no copy of the avatar keeps the pinned 60");
+            Assert.That(Shape(State(pin, "Load").motion, "Blush").Evaluate(0f), Is.EqualTo(5f), "and at load");
             Assert.That(Shape(reset.motion, "Eye_Big").Evaluate(0f), Is.EqualTo(7f), "sanity: the pin still resets what nobody owns");
         }
 
@@ -528,7 +528,7 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
-        public void AShapeFaceTrackingOwnsGetsNoResetCurve()
+        public void AShapeFaceTrackingOwnsStillRestsOnce()
         {
             DirectFaceTracking("Blush", 40f);
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
@@ -540,16 +540,22 @@ namespace DocMe.AvatarDoctor.Editor
             NoErrors(errors);
             var layer = Layer(fx, "AD: Face (pin)");
             var reset = AssertResetsOnce(layer, "Off", "On");
-            Assert.That(Shape(reset.motion, "Blush"), Is.Null, "face tracking's Direct tree owns Blush, so not even the one frame reset writes it");
-            Assert.That(Shape(reset.motion, "Eye_Big"), Is.Not.Null, "Eye_Big has no owner, so it still resets once");
+            Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True, "sanity: face tracking's Direct tree owns Blush");
+            Assert.That(Shape(reset.motion, "Blush"), Is.Not.Null, "face tracking's Direct tree owns Blush, and the pin still rests it once: on another player's copy face tracking may not write it again");
+            Assert.That(Shape(reset.motion, "Eye_Big"), Is.Not.Null, "Eye_Big has no owner, so it resets once as always");
         }
 
         [Test]
         public void ALayerWithNothingToResetGoesStraightBack()
         {
-            DirectFaceTracking("Blush", 40f);
+            // A rule whose only shape moves nowhere else: the rule drops it, so the pin layer has nothing to rest.
+            var go = new GameObject("Face");
+            go.transform.SetParent(avatar.Root.transform);
+            var faceMesh = go.AddComponent<SkinnedMeshRenderer>();
+            faceMesh.sharedMesh = TestAvatar.QuadWithShapes("D");
+            made.Add(faceMesh.sharedMesh);
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
-            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            face.shapeSets.Add(new ShapeSetRule { mesh = faceMesh, zeroOthers = true, value = ShapeSetValue.Default });
 
             var fx = BuildAll(out var errors);
 
@@ -558,7 +564,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(StateNames(layer), Is.EquivalentTo(new[] { "Off", "On" }),
                 "an empty clip lasts a whole second in Unity, so a Reset with nothing to write is left out rather than kept waiting");
             Assert.That(State(layer, "On").transitions.Single().destinationState.name, Is.EqualTo("Off"));
-            Assert.That(Shape(State(layer, "Off").motion, "Blush"), Is.Null);
+            Assert.That(Shapes(State(layer, "Off").motion, "Face"), Is.Empty);
         }
 
         // ---- played back ----------------------------------------------------------------------------------------

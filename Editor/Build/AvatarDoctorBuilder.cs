@@ -14,6 +14,7 @@ namespace DocMe.AvatarDoctor.Editor
     {
         public static void Run(BuildContext context)
         {
+            AnimatorBuilder.LastOwnedByAnotherLayer.Clear();
             var components = MenuModel.CollectComponents(context.AvatarRootTransform);
             if (components.Count == 0) return;
 
@@ -104,7 +105,7 @@ namespace DocMe.AvatarDoctor.Editor
                     L.Report(TouchBuilder.BuildFollowDistanceLayers(asc, tree, touch, baseState, descriptor, pins.Names, pins, triggerPlans));
                     // Each blend shape trigger's own layer. Its hidden copy of the shape is written into the clips in
                     // the final pass, once Modular Avatar and VRCFury have merged theirs (ClipRewriter.Rewrite).
-                    L.Report(LinkLayerBuilder.Build(asc, tree, triggerPlans, baseState, descriptor, pins.Names, pins));
+                    L.Report(LinkLayerBuilder.Build(asc, tree, triggerPlans, baseState, pins.Names, pins));
                     // After every driven layer: the pause reads the flags those layers wrote.
                     L.Report(TouchBuilder.BuildTrackingPauseLayers(asc, tree.AvatarRoot, pins.Names, pins));
                     L.Report(PresetBuilder.Build(asc, tree, plan, pins.Names, existing.Keys));

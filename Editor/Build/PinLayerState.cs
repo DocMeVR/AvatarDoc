@@ -31,6 +31,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         public readonly Dictionary<string, int> Resets = new Dictionary<string, int>();
 
+        /// <summary>Every binding the final pass found another layer owning: a shape there still rests once on the way out, a property is left to its owner.</summary>
+        public readonly HashSet<UnityEditor.EditorCurveBinding> OwnedByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
+
         /// <summary>
         /// One blend shape trigger the final pass still has to connect to its shape: every FX clip that moves the
         /// shape by then gets a curve on Parameter that copies the shape's own curve, and with Replace the shape's
