@@ -78,6 +78,7 @@
     "ad-info-shapes-never-on",
     "ad-info-target-shared",
     "ad-info-target-shared-override",
+    "ad-info-trigger-left-out-unused",
     "ad-warn-animation-binding-missing",
     "ad-warn-animation-proxy",
     "ad-warn-bits-exceeded-vrcfury",

@@ -87,6 +87,8 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var node in tree.Triggers)
             {
                 var entry = node.Entry;
+                if (node.LeftOutBy != null)
+                    messages.Add(ModelMessage.Info("ad.info.trigger_left_out_unused", entry.PlainName, node.LeftOutBy.Entry.PlainName, node.Component).For(entry.id));
                 if (node.Excluded) continue;
                 if (!entry.HasEffects) continue;
                 // A flip trigger has no effect layer of its own; TouchBuilder.BuildFlipLayers builds the flip layer
@@ -167,15 +169,23 @@ namespace DocMe.AvatarDoctor.Editor
             foreach (var (groupIndex, group) in entry.EffectiveGroups())
             {
                 var inGroup = new List<TriggerCondition>();
+                bool never = false;
                 for (int i = 0; i < group.all.Count; i++)
                 {
                     var condition = group.all[i];
                     if (condition == null) continue;
+                    // A left out toggle is always off: waiting for it on rules the group out, waiting for it off is
+                    // always met. A trigger these leave with nothing to build is left out by the model.
+                    if (condition.kind == WhenConditionKind.Toggle && MenuModel.LeftOutControl(tree, condition.sourceToggleId) != null)
+                    {
+                        if (condition.sourceToggleOn) { never = true; break; }
+                        continue;
+                    }
                     var resolved = ResolveOne(tree, plan, node, condition, existing, touch, groupIndex, i, messages);
                     if (resolved == null) { conditions = new List<TriggerCondition>(); met = new List<List<AnimatorCondition>>(); return false; }
                     inGroup.Add(resolved);
                 }
-                if (inGroup.Count == 0) continue;
+                if (never || inGroup.Count == 0) continue;
                 conditions.AddRange(inGroup);
                 met.AddRange(AndGate(Enumerable.Empty<AnimatorCondition>(), inGroup));
                 any = true;

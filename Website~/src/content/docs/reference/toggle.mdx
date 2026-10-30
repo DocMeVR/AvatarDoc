@@ -205,9 +205,11 @@ On lets you name the parameter yourself, so the toggle can use or drive a parame
 
 **Shown in:** Advanced, once <Label k="ad.ui.parameter.use_custom" /> is on · **Default:** Off · **Choices:** On, Off
 
-On leaves the toggle out of the upload when nothing on the avatar besides AvatarDoc uses its parameter. It then gets no button, no layer and no parameter, so it costs no memory. These count as a use: the avatar's expression parameters, its FX animator, a parameter another tool tells NDMF about, and a VRCFury global parameter. Another AvatarDoc toggle with the same name does not count.
+On leaves the toggle out of the upload when nothing on the avatar besides AvatarDoc uses its parameter. It then gets no button, no layer and no parameter, so it costs no memory. These count as a use: the avatar's expression parameters, its FX animator, an animator an AvatarDoc component merges, a parameter another tool tells NDMF about, and a VRCFury global parameter. Another AvatarDoc toggle with the same name does not count.
 
 Turn it on for a toggle that switches a part another tool makes only when it is turned on, such as one of DocMe Skin Touch's touch kinds. A toggle that is left out shows dimmed in the tree with the chip <Label k="ad.ui.chip.unused" />, and the panel says why.
+
+A left out toggle counts as off for every [trigger](../triggers/) that reads it. A trigger that needs it on, in its conditions or its gate, is left out too and shows the same chip. A condition that needs it off is always met, so the trigger works from its other conditions.
 
 ## What AvatarDoc builds
 

@@ -555,6 +555,10 @@ msgstr "「{0}」はパラメーター「{1}」を操作しますが、このア
 msgid "ad.info.left_out_unused"
 msgstr "「{1}」を使うものがこのアバターにないので、「{0}」は入れていません。（{2}）"
 
+#. en: \"{0}\" is left out because it waits for \"{1}\", which is left out. ({2})
+msgid "ad.info.trigger_left_out_unused"
+msgstr "「{0}」が待つ「{1}」が入っていないので、「{0}」も入れていません。（{2}）"
+
 #. en: \"{0}\": its toggle is not built on this platform, so the touch does nothing here.
 msgid "ad.info.flip_target_excluded"
 msgstr "「{0}」：トグルがこのプラットフォームではビルドされないため、ここではタッチしても何も起きません。"
@@ -1006,6 +1010,14 @@ msgstr "ビルド内容なし：このアバターには、このシェイプを
 #. en: Builds nothing: this component is disabled.
 msgid "ad.ui.builds.nothing.disabled"
 msgstr "ビルド内容なし：このコンポーネントは無効です。"
+
+#. en: Builds nothing: nothing else on this avatar uses its parameter.
+msgid "ad.ui.builds.nothing.unused"
+msgstr "ビルド内容なし：このパラメーターを使うものがアバターにほかにありません。"
+
+#. en: Builds nothing: it waits for \"{0}\", which is left out.
+msgid "ad.ui.builds.nothing.unused_toggle"
+msgstr "ビルド内容なし：待っている「{0}」が入っていません。"
 
 #. en: What this entry adds to the avatar when it builds.
 msgid "ad.ui.builds.tip"

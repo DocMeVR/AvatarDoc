@@ -7,6 +7,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 #if DOCME_MA
 using nadena.dev.modular_avatar.core;
@@ -139,6 +140,25 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void AnAnimatorTheComponentMergesCountsAsAUse()
+        {
+            var controller = new UnityEditor.Animations.AnimatorController();
+            controller.AddParameter(Parameter, AnimatorControllerParameterType.Bool);
+            try
+            {
+                var menu = avatar.AddMenu();
+                menu.animators.Add(AnimatorMerge.Create(controller));
+                var heads = OnlyIfUsed(menu);
+
+                Assert.That(Control(AvatarPlanCache.GetFor(menu), heads).Unused, Is.False, "the creator's own animator reads it");
+            }
+            finally
+            {
+                Object.DestroyImmediate(controller);
+            }
+        }
+
+        [Test]
         public void AnotherAvatarDocEntryOfTheSameNameIsNotAUse()
         {
             var menu = avatar.AddMenu();
@@ -219,7 +239,180 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(view.Detail.Q<Toggle>("ad-parameter-only-if-used"), Is.Null, "an automatic name is AvatarDoc's own, so nothing else could use it");
         }
 
+        MenuEntry Trigger(AvatarDoc menu, params WhenCondition[][] groups)
+        {
+            var trigger = menu.AddEntry(EntryKind.Trigger, "Ears");
+            trigger.objects.Add(new ObjectTarget { target = avatar.Glasses });
+            trigger.when = groups.Select(g => new ConditionGroup { all = g.ToList() }).ToList();
+            return trigger;
+        }
+
+        static WhenCondition OnToggle(MenuEntry toggle, bool on) => new WhenCondition { kind = WhenConditionKind.Toggle, sourceToggleId = toggle.id, sourceToggleOn = on };
+
+        static WhenCondition Afk() => new WhenCondition { kind = WhenConditionKind.Parameter, sourceParameter = "AFK", condition = ParameterCondition.IsTrue };
+
+        static TriggerPlan Planned(AvatarPlan plan, MenuEntry trigger) => plan.Triggers.SingleOrDefault(t => t.Node.Entry == trigger);
+
+        [Test]
+        public void AGateThatNeedsALeftOutToggleOnLeavesTheTriggerOut()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var trigger = Trigger(menu, new[] { Afk() });
+            trigger.gateToggleId = heads.id;
+            trigger.gateToggleOn = true;
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            var node = plan.Tree.Triggers.Single(t => t.Entry == trigger);
+            Assert.That(node.LeftOutBy, Is.SameAs(Control(plan, heads)));
+            Assert.That(node.Excluded, Is.True);
+            Assert.That(Planned(plan, trigger), Is.Null, "a gate that never opens would never let it on");
+            Assert.That(Says(plan, "ad.info.trigger_left_out_unused", trigger), Is.True);
+            var view = new AvatarDoctorView(new SerializedObject(menu), menu, false, new MemoryViewPrefs());
+            var row = view.Tree.RowFor(trigger.id);
+            Assert.That(row.PlatformChip, Is.EqualTo(L.Text("ad.ui.chip.unused")));
+            Assert.That(WhatThisBuildsModel.Describe(view.Plan, row), Is.EqualTo(string.Format(L.Text("ad.ui.builds.nothing.unused_toggle"), "Heads press")));
+        }
+
+        [Test]
+        public void AGateThatNeedsItOffIsAlwaysOpen()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var trigger = Trigger(menu, new[] { Afk() });
+            trigger.gateToggleId = heads.id;
+            trigger.gateToggleOn = false;
+
+            var planned = Planned(AvatarPlanCache.GetFor(menu), trigger);
+
+            Assert.That(planned, Is.Not.Null);
+            Assert.That(planned.Gate, Is.Empty);
+            Assert.That(planned.Conditions.Select(c => c.Parameter), Is.EqualTo(new[] { "AFK" }));
+        }
+
+        [Test]
+        public void AGroupThatNeedsALeftOutToggleOnIsRuledOut()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var trigger = Trigger(menu, new[] { OnToggle(heads, true) }, new[] { Afk() });
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            Assert.That(Planned(plan, trigger).Conditions.Select(c => c.Parameter), Is.EqualTo(new[] { "AFK" }), "the other group still works");
+            Assert.That(Says(plan, "ad.warn.trigger_source_missing", trigger), Is.False);
+        }
+
+        [Test]
+        public void AConditionThatNeedsALeftOutToggleOffIsAlwaysMet()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var trigger = Trigger(menu, new[] { OnToggle(heads, false), Afk() });
+
+            var planned = Planned(AvatarPlanCache.GetFor(menu), trigger);
+
+            Assert.That(planned.Conditions.Select(c => c.Parameter), Is.EqualTo(new[] { "AFK" }));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ATriggerThatOnlyWaitsForALeftOutToggleIsLeftOut(bool on)
+        {
+            // On: it never fires. Off: it would always be on, which no layer can build.
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var trigger = Trigger(menu, new[] { OnToggle(heads, on) });
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            Assert.That(plan.Tree.Triggers.Single(t => t.Entry == trigger).LeftOutBy, Is.Not.Null);
+            Assert.That(Planned(plan, trigger), Is.Null);
+        }
+
+        [Test]
+        public void ALeftOutEntryTakesNoMenuSlot()
+        {
+            var menu = avatar.AddMenu();
+            menu.installMode = InstallMode.AsSubmenu;
+            for (int i = 0; i < 8; i++)
+            {
+                var entry = OnlyIfUsed(menu, "Kind " + i);
+                entry.parameterName = Parameter + i;
+            }
+            menu.AddEntry(EntryKind.Toggle, "Hat").objects.Add(new ObjectTarget { target = avatar.Hat });
+
+            var plan = AvatarPlanCache.GetFor(menu);
+            Assert.That(plan.Tree.AllNodes().Any(n => n.Name == "More"), Is.False, "eight left out and one built fit one page");
+
+            var menuName = menu.EffectiveMenuName;
+            RunAvatarDocBuild(avatar);
+            var submenu = avatar.Descriptor.expressionsMenu.controls.Single(c => c.subMenu != null && c.name == menuName).subMenu;
+            Assert.That(submenu.controls.Select(c => c.name), Is.EqualTo(new[] { "Hat" }));
+        }
+
+        [Test]
+        public void ChecksSkipALeftOutEntry()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            heads.objects.Add(new ObjectTarget { target = avatar.Hat });
+            var hat = menu.AddEntry(EntryKind.Toggle, "Hat");
+            hat.objects.Add(new ObjectTarget { target = avatar.Hat });
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            Assert.That(plan.Messages.Any(m => m.Key == "ad.info.target_shared"), Is.False, "a left out entry shares nothing");
+        }
+
+        [Test]
+        public void TheBuildsLineSaysWhy()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var view = new AvatarDoctorView(new SerializedObject(menu), menu, false, new MemoryViewPrefs());
+
+            Assert.That(WhatThisBuildsModel.Describe(view.Plan, view.Tree.RowFor(heads.id)), Is.EqualTo(L.Text("ad.ui.builds.nothing.unused")));
+        }
+
+        [Test]
+        public void ThePreviewLeavesNothingOut()
+        {
+            // The preview cannot ask other tools, so it shows the toggle as if it were built.
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+
+            var preview = AvatarPlanCache.PreviewPlanFor(avatar.Root.transform, new[] { menu });
+
+            Assert.That(preview.Tree.Controls.Single(c => c.Entry == heads).Unused, Is.False);
+        }
+
 #if DOCME_MA
+        [Test]
+        public void TheWholePipelineKeepsAParameterAnotherToolReports()
+        {
+            AddOtherTool(Child("Skin Touch"));
+            var menu = avatar.AddMenu();
+            OnlyIfUsed(menu);
+            OnlyIfUsed(menu, "Feet press").parameterName = "DocMe/SkinTouch/Feet";
+            GameObject processed = null;
+            try
+            {
+                processed = AvatarProcessor.ManualProcessAvatar(avatar.Root);
+                var descriptor = processed.GetComponent<VRCAvatarDescriptor>();
+                var names = descriptor.expressionsMenu.controls.Select(c => c.name).ToList();
+                Assert.That(names, Does.Contain("Heads press"));
+                Assert.That(names, Does.Not.Contain("Feet press"), "nothing reports the feet parameter");
+                Assert.That(descriptor.expressionParameters.parameters.Any(p => p.name == Parameter && p.networkSynced), Is.True, "Modular Avatar kept it");
+                Assert.That(descriptor.expressionParameters.parameters.Any(p => p.name == "DocMe/SkinTouch/Feet"), Is.False);
+            }
+            finally
+            {
+                if (processed != null && processed != avatar.Root) Object.DestroyImmediate(processed);
+            }
+        }
+
         static void AddOtherTool(GameObject on)
         {
             var parameters = on.AddComponent<ModularAvatarParameters>();

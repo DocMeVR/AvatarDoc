@@ -92,7 +92,6 @@ namespace DocMe.AvatarDoctor.Editor
         public static ParameterPlan Plan(MenuTree tree, IReadOnlyDictionary<string, ExistingParameter> existing)
         {
             var plan = new ParameterPlan();
-            MenuModel.LeaveOutUnused(tree, existing);
             var byName = new Dictionary<string, PlannedParameter>();
             var groups = new Dictionary<GroupKey, PlannedParameter>();
             var reuseReported = new Dictionary<string, ModelMessage>();
@@ -453,9 +452,9 @@ namespace DocMe.AvatarDoctor.Editor
             if (components.Count == 0) return (OtherToolsBits(provided, null), 0);
 
             var descriptor = avatarRoot.GetComponent<VRCAvatarDescriptor>();
-            var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components);
             var existing = ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor));
             ParametersWriter.AddProvided(existing, provided);
+            var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components, existing: existing);
             var plan = Plan(tree, existing);
             // Bits a removed control frees were counted as the avatar's, so they come off that side of the bar.
             tree.Removal = RemovalPlanner.Plan(tree, descriptor);

@@ -995,7 +995,6 @@ namespace DocMe.AvatarDoctor.Editor
             var descriptor = avatarRoot != null ? avatarRoot.GetComponent<VRCAvatarDescriptor>() : null;
             var existingMenu = descriptor != null ? descriptor.expressionsMenu : null;
             var foreign = avatarRoot != null ? ForeignMenu.Read(avatarRoot, MenuModel.ReadExistingRoot(existingMenu)) : new List<ForeignItem>();
-            var tree = MenuModel.Build(avatarRoot, existingMenu, components, foreign, MenuEditMode.Inspector);
             var walked = ProvidedFor(avatarRoot);
             var existing = ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor));
             if (avatarRoot != null)
@@ -1004,8 +1003,7 @@ namespace DocMe.AvatarDoctor.Editor
                 ParametersWriter.MarkUsedByOtherTools(existing, OtherToolNamesFor(avatarRoot));
                 ParametersWriter.AddReferenced(existing, ReferencedFor(avatarRoot));
             }
-            // Before the slots are counted: a left out entry takes none.
-            MenuModel.LeaveOutUnused(tree, existing);
+            var tree = MenuModel.Build(avatarRoot, existingMenu, components, foreign, MenuEditMode.Inspector, existing);
             MenuModel.SplitOverflow(tree, null);
             var plan = ParameterPlanner.Plan(tree, existing);
             tree.Removal = RemovalPlanFor(avatarRoot, tree, descriptor);

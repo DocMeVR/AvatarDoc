@@ -88,6 +88,8 @@ namespace DocMe.AvatarDoctor.Editor
                 return string.Format(L.Text("ad.ui.builds.line"), L.JoinList(parts));
             }
             if (row.OwnerDisabled) return L.Text("ad.ui.builds.nothing.disabled");
+            if (row.Control != null && row.Control.Unused) return L.Text("ad.ui.builds.nothing.unused");
+            if (row.Trigger?.LeftOutBy != null) return string.Format(L.Text("ad.ui.builds.nothing.unused_toggle"), row.Trigger.LeftOutBy.Entry.PlainName);
             if (row.Excluded) return string.Format(L.Text("ad.ui.builds.nothing.platform"), HeaderView.CurrentPlatformName);
             if (entry.kind == EntryKind.Override && entry.blendShapes.Any(t => t != null && t.renderer != null && !string.IsNullOrEmpty(t.shape))) return L.Text("ad.ui.builds.nothing.no_clips");
             return L.Text("ad.ui.builds.nothing.empty");

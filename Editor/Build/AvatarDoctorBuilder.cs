@@ -22,7 +22,12 @@ namespace DocMe.AvatarDoctor.Editor
             var asc = context.Extension<AnimatorServicesContext>();
             asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx);
 
-            var tree = MenuModel.Build(context.AvatarRootTransform, descriptor.expressionsMenu, components);
+            var existing = ParametersWriter.ExistingParameters(descriptor.expressionParameters, fx);
+            ParametersWriter.AddProvided(existing, AvatarDoctorParameterProvider.FromOtherTools(ParameterInfo.ForContext(context), context.AvatarRootObject));
+            ParametersWriter.MarkUsedByOtherTools(existing, AvatarDoctorParameterProvider.NamesFromOtherTools(ParameterInfo.ForContext(context), context.AvatarRootObject));
+            ParametersWriter.AddReferenced(existing, ParametersWriter.ReferencedParameters(context.AvatarRootTransform));
+
+            var tree = MenuModel.Build(context.AvatarRootTransform, descriptor.expressionsMenu, components, existing: existing);
             context.GetState<LateEditState>().Pending.AddRange(tree.PendingEdits);
 
             var overrides = context.GetState<OverrideState>();
@@ -34,10 +39,6 @@ namespace DocMe.AvatarDoctor.Editor
                         overrides.Rules.Add(new OverrideRule { Renderer = target.renderer, Shape = target.shape, Value = target.weight, EntryName = rule.Entry.PlainName, EntryId = rule.Entry.id });
             }
 
-            var existing = ParametersWriter.ExistingParameters(descriptor.expressionParameters, fx);
-            ParametersWriter.AddProvided(existing, AvatarDoctorParameterProvider.FromOtherTools(ParameterInfo.ForContext(context), context.AvatarRootObject));
-            ParametersWriter.MarkUsedByOtherTools(existing, AvatarDoctorParameterProvider.NamesFromOtherTools(ParameterInfo.ForContext(context), context.AvatarRootObject));
-            ParametersWriter.AddReferenced(existing, ParametersWriter.ReferencedParameters(context.AvatarRootTransform));
             var plan = ParameterPlanner.Plan(tree, existing);
             // Planned in the Resolving phase, while the avatar's controllers still held their layers. Planning it
             // here instead would read controllers the animator services have already emptied, which frees whatever

@@ -54,7 +54,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.warn.merge_no_controller", "ad.warn.merge_override_no_controller", "ad.warn.merge_skip_missing", "ad.error.merge_outside_avatar",
             "ad.error.explicit_off_pin",
             "ad.error.merge_parameter_type", "ad.error.merge_layer_control", "ad.error.merge_synced_layer",
-            "ad.warn.parameter_control_unused", "ad.info.left_out_unused",
+            "ad.warn.parameter_control_unused", "ad.info.left_out_unused", "ad.info.trigger_left_out_unused",
             "ad.info.removed_parameter", "ad.info.removed_parameter.one", "ad.info.removed_kept",
             "ad.removal.kept.control", "ad.removal.kept.entry", "ad.removal.kept.layer",
             "ad.removal.kept.other_controller", "ad.removal.kept.driver", "ad.removal.kept.contact",
@@ -310,7 +310,7 @@ namespace DocMe.AvatarDoctor.Editor
             "ad.ui.builds.follow_distance", "ad.ui.builds.pauses_blink", "ad.ui.builds.pauses_lipsync",
             "ad.ui.builds.blink_left_to", "ad.ui.builds.lipsync_left_to",
             "ad.ui.part.blinking", "ad.ui.part.lipsync",
-            "ad.ui.builds.nothing.platform", "ad.ui.builds.nothing.empty", "ad.ui.builds.nothing.no_clips", "ad.ui.builds.clips", "ad.ui.builds.clips.one", "ad.ui.builds.nothing.disabled", "ad.ui.builds.tip",
+            "ad.ui.builds.nothing.platform", "ad.ui.builds.nothing.empty", "ad.ui.builds.nothing.no_clips", "ad.ui.builds.clips", "ad.ui.builds.clips.one", "ad.ui.builds.nothing.disabled", "ad.ui.builds.nothing.unused", "ad.ui.builds.nothing.unused_toggle", "ad.ui.builds.tip",
 
             // A first screen that invites, a slim toolbar, visible row actions, and a tag filter.
             "ad.ui.detail.select_hint",

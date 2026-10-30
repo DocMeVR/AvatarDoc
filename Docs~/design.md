@@ -1311,13 +1311,20 @@ the name declared and skips it; Modular Avatar merges its own declaration into i
 once, on AvatarDoc's side (`ParameterPlanner.OtherToolsBits`). Parameters a merged controller needs but no menu entry declares stay animator only
 (unsynced), which the merge row's panel lists so the creator can see them.
 
-A toggle or radial with a custom name and `onlyIfUsed` (0.8.0, label "Only if used") is left out when the existing
-map does not hold its name: no control, layer, parameter or slot (`MenuModel.LeaveOutUnused`, asked first by
-`ParameterPlanner.Plan`, and by the plan cache before it counts slots; `ControlNode.Unused`, always Excluded too).
-The map holds nothing AvatarDoc plans, so another entry of the same name is not a use. Made for a prefab whose
-toggles switch parts another tool makes only when they are on: Skin Touch reports a kind's parameter only then. The
-provider's own plan reads no other tool's reports, so it leaves such an entry out there too and never reports its
-name; the tool that uses the name reports it. A group member ignores the flag (it uses the group's parameter).
+A toggle or radial with a custom name and `onlyIfUsed` (0.8.0, label "Only if used") is left out when neither the
+existing map nor an animator a component merges holds its name: no control, layer, parameter or slot
+(`ControlNode.Unused`, always Excluded too). `MenuModel.Build` decides it when its caller passes the existing map,
+before the checks and the platform marks, so every check skips a left out entry the way it skips one of another
+platform. The map holds nothing AvatarDoc plans, so another entry of the same name is not a use. Made for a prefab
+whose toggles switch parts another tool makes only when they are on: Skin Touch reports a kind's parameter only then.
+A group member ignores the flag (it uses the group's parameter).
+
+A left out toggle is always off. A trigger whose gate needs it on, or whose every condition group needs it on, is
+left out too (`TriggerNode.LeftOutBy`); so is one with a group that only needs left out toggles off, which would
+always be met and no layer can build. Otherwise `TriggerPlanner.Resolve` drops the groups that need it on and the
+conditions that need it off. The provider's own plan reads no other tool's reports, so it leaves such an entry out
+there too and never reports its name; the tool that uses the name reports it. The scene preview passes no map and
+leaves nothing out, since it cannot ask other tools either.
 
 Inspector: an `Animators` group row in the tree (like `Triggers` and `Overrides`), one row per merge, `+ Animator`
 in the toolbar. Panel: controller field, `Path root` with the same tooltip as custom animations, `Match write

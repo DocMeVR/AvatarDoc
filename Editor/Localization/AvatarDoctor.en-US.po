@@ -417,6 +417,9 @@ msgstr "\"{0}\" drives the parameter \"{1}\", but nothing on this avatar reads i
 msgid "ad.info.left_out_unused"
 msgstr "\"{0}\" is left out because nothing on this avatar uses \"{1}\". ({2})"
 
+msgid "ad.info.trigger_left_out_unused"
+msgstr "\"{0}\" is left out because it waits for \"{1}\", which is left out. ({2})"
+
 msgid "ad.info.flip_target_excluded"
 msgstr "\"{0}\": its toggle is not built on this platform, so the touch does nothing here."
 
@@ -755,6 +758,12 @@ msgstr "Builds nothing yet: no animation on this avatar uses this shape."
 
 msgid "ad.ui.builds.nothing.disabled"
 msgstr "Builds nothing: this component is disabled."
+
+msgid "ad.ui.builds.nothing.unused"
+msgstr "Builds nothing: nothing else on this avatar uses its parameter."
+
+msgid "ad.ui.builds.nothing.unused_toggle"
+msgstr "Builds nothing: it waits for \"{0}\", which is left out."
 
 msgid "ad.ui.builds.tip"
 msgstr "What this entry adds to the avatar when it builds."

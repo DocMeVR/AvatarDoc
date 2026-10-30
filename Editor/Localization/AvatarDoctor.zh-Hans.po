@@ -555,6 +555,10 @@ msgstr "“{0}”驱动参数“{1}”，但此 Avatar 上没有任何地方读�
 msgid "ad.info.left_out_unused"
 msgstr "此 Avatar 上没有任何地方使用“{1}”，因此未加入“{0}”。（{2}）"
 
+#. en: \"{0}\" is left out because it waits for \"{1}\", which is left out. ({2})
+msgid "ad.info.trigger_left_out_unused"
+msgstr "“{0}”等待的“{1}”未加入，因此“{0}”也未加入。（{2}）"
+
 #. en: \"{0}\": its toggle is not built on this platform, so the touch does nothing here.
 msgid "ad.info.flip_target_excluded"
 msgstr "“{0}”：其开关不在此平台构建，因此在此平台上触碰不会有任何效果。"
@@ -1006,6 +1010,14 @@ msgstr "暂不构建任何内容：此 Avatar 上还没有动画使用这个形�
 #. en: Builds nothing: this component is disabled.
 msgid "ad.ui.builds.nothing.disabled"
 msgstr "不构建任何内容：此组件已禁用。"
+
+#. en: Builds nothing: nothing else on this avatar uses its parameter.
+msgid "ad.ui.builds.nothing.unused"
+msgstr "不构建任何内容：此 Avatar 上没有其他地方使用它的参数。"
+
+#. en: Builds nothing: it waits for \"{0}\", which is left out.
+msgid "ad.ui.builds.nothing.unused_toggle"
+msgstr "不构建任何内容：它等待的“{0}”未加入。"
 
 #. en: What this entry adds to the avatar when it builds.
 msgid "ad.ui.builds.tip"

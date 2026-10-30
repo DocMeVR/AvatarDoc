@@ -184,7 +184,7 @@ namespace DocMe.AvatarDoctor.Editor
                         TriggerChip = TriggerChipFor(plan.Tree, trigger.Entry),
                         Key = trigger.Entry.id,
                         Excluded = trigger.Excluded,
-                        PlatformChip = PlatformChipFor(trigger.Component, trigger.Entry),
+                        PlatformChip = trigger.LeftOutBy != null ? L.Text("ad.ui.chip.unused") : PlatformChipFor(trigger.Component, trigger.Entry),
                     };
                     row.Messages.AddRange(plan.MessagesFor(trigger.Component, trigger.Entry));
                     byId[row.Id] = row;

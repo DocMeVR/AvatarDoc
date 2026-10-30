@@ -137,6 +137,8 @@ namespace DocMe.AvatarDoctor.Editor
         public MenuEntry Entry;
         /// <summary>Not built on the platform the editor targets. A trigger holds no parameter of its own, so it is skipped entirely.</summary>
         public bool Excluded;
+        /// <summary>The left out toggle (ControlNode.Unused) that leaves this trigger out too. Excluded as well.</summary>
+        public ControlNode LeftOutBy;
     }
 
     /// <summary>One animator controller merged into the avatar's FX controller.</summary>
@@ -365,7 +367,8 @@ namespace DocMe.AvatarDoctor.Editor
             return avatarRoot != null && target != null && !target.IsChildOf(avatarRoot);
         }
 
-        public static MenuTree Build(Transform avatarRoot, VRCExpressionsMenu existingRoot, IReadOnlyList<AvatarDoc> components, IReadOnlyList<ForeignItem> foreign = null, MenuEditMode editMode = MenuEditMode.Build)
+        /// <param name="existing">The parameters the avatar and other tools have, which decide whether an entry with Only if used is built. Null builds every such entry, for a caller that cannot see other tools.</param>
+        public static MenuTree Build(Transform avatarRoot, VRCExpressionsMenu existingRoot, IReadOnlyList<AvatarDoc> components, IReadOnlyList<ForeignItem> foreign = null, MenuEditMode editMode = MenuEditMode.Build, IReadOnlyDictionary<string, ExistingParameter> existing = null)
         {
             var tree = new MenuTree { Components = components.ToList(), AvatarRoot = avatarRoot };
             tree.Root = existingRoot != null ? ReadExisting(existingRoot, new HashSet<VRCExpressionsMenu>(), "") : new MenuNode { Name = "Expressions" };
@@ -386,6 +389,7 @@ namespace DocMe.AvatarDoctor.Editor
             AssignNodePaths(tree);
             CollectControls(tree, tree.Root, "");
             AssignLayerNames(tree);
+            if (existing != null) LeaveOutUnused(tree, existing);
             MarkExcluded(tree.Root);
             ValidateTargets(tree);
             ValidateMerges(tree);
@@ -857,23 +861,74 @@ namespace DocMe.AvatarDoctor.Editor
 
         /// <summary>
         /// Leaves out every control whose entry asks to be built only when its parameter is used, and whose name
-        /// the existing map does not hold: the avatar's expression parameters and FX controller, what other tools
-        /// report to NDMF, and VRCFury's global names. The map holds nothing AvatarDoc plans itself. Asked by the
-        /// parameter planner, so every plan agrees; a caller that counts menu slots before planning asks first.
+        /// neither the existing map (the avatar's expression parameters and FX controller, what other tools report
+        /// to NDMF, VRCFury's global names) nor a merged animator holds. The map holds nothing AvatarDoc plans. Runs before the
+        /// checks and the platform marks, so everything after it sees a left out control as not built. A left out
+        /// toggle is always off, which can leave a trigger that waits for it out too (TriggerLeftOutBy).
         /// </summary>
-        public static void LeaveOutUnused(MenuTree tree, IReadOnlyDictionary<string, ExistingParameter> existing)
+        static void LeaveOutUnused(MenuTree tree, IReadOnlyDictionary<string, ExistingParameter> existing)
         {
-            if (tree == null) return;
-            bool any = false;
             foreach (var control in tree.Controls)
             {
-                if (control.Unused || control.Disabled || !AsksOnlyIfUsed(control.Entry)) continue;
-                if (existing != null && existing.ContainsKey(control.Entry.parameterName.Trim())) continue;
+                if (control.Disabled || !AsksOnlyIfUsed(control.Entry)) continue;
+                var name = control.Entry.parameterName.Trim();
+                if (existing.ContainsKey(name)) continue;
+#if DOCME_NDMF
+                // An animator a component merges is the creator's own, so its reading the name is a use.
+                if (MergeBuilder.UsesParameter(tree, tree.AvatarRoot, name)) continue;
+#endif
                 control.Unused = true;
                 control.Excluded = true;
-                any = true;
             }
-            if (any) MarkExcluded(tree.Root);
+            foreach (var trigger in tree.Triggers)
+            {
+                if (trigger.Excluded) continue;
+                trigger.LeftOutBy = TriggerLeftOutBy(tree, trigger.Entry);
+                if (trigger.LeftOutBy != null) trigger.Excluded = true;
+            }
+        }
+
+        /// <summary>The control of this id when it is left out, else null.</summary>
+        internal static ControlNode LeftOutControl(MenuTree tree, string id)
+        {
+            if (string.IsNullOrEmpty(id)) return null;
+            var control = tree.FindControl(id);
+            return control != null && control.Unused ? control : null;
+        }
+
+        /// <summary>
+        /// The left out toggle that keeps this trigger from ever being built: a gate that needs it on, or a "when"
+        /// whose every group needs one on. A group that only waits for left out toggles to be off would always be
+        /// met, which no layer can build either, so that leaves the trigger out too. Null when the trigger builds;
+        /// the planner then drops what the left out toggles make certain (TriggerPlanner.Resolve).
+        /// </summary>
+        static ControlNode TriggerLeftOutBy(MenuTree tree, MenuEntry entry)
+        {
+            var gate = LeftOutControl(tree, entry.gateToggleId);
+            if (gate != null && entry.gateToggleOn) return gate;
+            ControlNode by = null;
+            bool anyGroup = false, anyBuilt = false;
+            foreach (var (_, group) in entry.EffectiveGroups())
+            {
+                var conditions = group.all.Where(c => c != null).ToList();
+                if (conditions.Count == 0) continue;
+                anyGroup = true;
+                bool never = false;
+                int alwaysMet = 0;
+                foreach (var condition in conditions)
+                {
+                    if (condition.kind != WhenConditionKind.Toggle) continue;
+                    var gone = LeftOutControl(tree, condition.sourceToggleId);
+                    if (gone == null) continue;
+                    by = by ?? gone;
+                    if (condition.sourceToggleOn) never = true;
+                    else alwaysMet++;
+                }
+                if (never) continue;
+                if (alwaysMet == conditions.Count) return by;
+                anyBuilt = true;
+            }
+            return anyGroup && !anyBuilt ? by : null;
         }
 
         static void AssignLayerNames(MenuTree tree)
