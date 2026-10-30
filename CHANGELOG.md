@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/DocMeVR/AvatarDoc/compare/0.7.1...0.7.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* face shapes return to rest every time a toggle, trigger or touch lets go ([#19](https://github.com/DocMeVR/AvatarDoc/issues/19)) ([5f37235](https://github.com/DocMeVR/AvatarDoc/commit/5f372351b4d7ee69d436bf8787b905710ac3447f))
+
 ## [0.7.1](https://github.com/DocMeVR/AvatarDoc/compare/0.7.0...0.7.1) (2026-10-25)
 
 
