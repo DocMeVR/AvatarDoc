@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/DocMeVR/AvatarDoc/compare/0.7.2...0.8.0) (2026-10-30)
+
+
+### Features
+
+* Only if used leaves out a toggle whose parameter nothing else uses ([#20](https://github.com/DocMeVR/AvatarDoc/issues/20)) ([ef43ce7](https://github.com/DocMeVR/AvatarDoc/commit/ef43ce73e2ea00f43c1128a834886a2bcd585b86))
+
 ## [0.7.2](https://github.com/DocMeVR/AvatarDoc/compare/0.7.1...0.7.2) (2026-10-30)
 
 
