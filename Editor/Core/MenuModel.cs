@@ -102,6 +102,8 @@ namespace DocMe.AvatarDoctor.Editor
         public bool Excluded;
         /// <summary>The component this control belongs to is switched off, so the build never sees it and nothing is planned for it: no name, no bits, no slot. The row stays in the tree, always Excluded as well.</summary>
         public bool Disabled;
+        /// <summary>Left out because its entry builds only when something else uses its parameter, and nothing does (MenuEntry.onlyIfUsed). Always Excluded as well, and planned like a disabled component's control: no name, no bits.</summary>
+        public bool Unused;
     }
 
     /// <summary>
@@ -843,6 +845,35 @@ namespace DocMe.AvatarDoctor.Editor
                 if (!item.Excluded && !item.Hidden) anyKept = true;
             }
             return !anyKept;
+        }
+
+        /// <summary>Whether this entry asks to be built only when something else uses its parameter: a toggle or radial with a custom name, outside an exclusive group (a member's custom name means nothing).</summary>
+        public static bool AsksOnlyIfUsed(MenuEntry entry)
+        {
+            if (entry == null || !entry.onlyIfUsed || string.IsNullOrWhiteSpace(entry.parameterName)) return false;
+            if (entry.kind == EntryKind.Radial) return true;
+            return entry.kind == EntryKind.Toggle && string.IsNullOrWhiteSpace(entry.exclusiveGroup);
+        }
+
+        /// <summary>
+        /// Leaves out every control whose entry asks to be built only when its parameter is used, and whose name
+        /// the existing map does not hold: the avatar's expression parameters and FX controller, what other tools
+        /// report to NDMF, and VRCFury's global names. The map holds nothing AvatarDoc plans itself. Asked by the
+        /// parameter planner, so every plan agrees; a caller that counts menu slots before planning asks first.
+        /// </summary>
+        public static void LeaveOutUnused(MenuTree tree, IReadOnlyDictionary<string, ExistingParameter> existing)
+        {
+            if (tree == null) return;
+            bool any = false;
+            foreach (var control in tree.Controls)
+            {
+                if (control.Unused || control.Disabled || !AsksOnlyIfUsed(control.Entry)) continue;
+                if (existing != null && existing.ContainsKey(control.Entry.parameterName.Trim())) continue;
+                control.Unused = true;
+                control.Excluded = true;
+                any = true;
+            }
+            if (any) MarkExcluded(tree.Root);
         }
 
         static void AssignLayerNames(MenuTree tree)

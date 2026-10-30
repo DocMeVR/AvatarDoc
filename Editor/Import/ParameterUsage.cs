@@ -170,7 +170,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 foreach (var control in tree.Controls)
                 {
-                    if (control.Disabled) continue;
+                    if (control.Disabled || control.Unused) continue;
                     var name = control.Entry.parameterName;
                     if (!string.IsNullOrWhiteSpace(name)) usage.Add(name.Trim(), control, UsageKind.Entry);
                 }

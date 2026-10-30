@@ -92,6 +92,7 @@ namespace DocMe.AvatarDoctor.Editor
         public static ParameterPlan Plan(MenuTree tree, IReadOnlyDictionary<string, ExistingParameter> existing)
         {
             var plan = new ParameterPlan();
+            MenuModel.LeaveOutUnused(tree, existing);
             var byName = new Dictionary<string, PlannedParameter>();
             var groups = new Dictionary<GroupKey, PlannedParameter>();
             var reuseReported = new Dictionary<string, ModelMessage>();
@@ -113,6 +114,11 @@ namespace DocMe.AvatarDoctor.Editor
                 // component's Hat is the first Hat, as it will be on the built avatar.
                 if (control.Disabled) continue;
                 var entry = control.Entry;
+                if (control.Unused)
+                {
+                    plan.Messages.Add(ModelMessage.Info("ad.info.left_out_unused", entry.PlainName, entry.parameterName.Trim(), control.Component).For(entry.id));
+                    continue;
+                }
                 // A grabbable with its own menu toggle off is not a menu control at all: nothing reads a
                 // parameter for it, so it plans none and costs nothing, the same as any entry with no control.
                 // With the toggle on it falls through to the generic branch below, which plans it a Bool exactly

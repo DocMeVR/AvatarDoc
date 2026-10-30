@@ -414,6 +414,9 @@ msgstr "The merged animator \"{0}\" changes layer weights itself, so leaving lay
 msgid "ad.warn.parameter_control_unused"
 msgstr "\"{0}\" drives the parameter \"{1}\", but nothing on this avatar reads it, so it has no effect yet. Remove it, or point it at a parameter a merged animator, VRCFury or Modular Avatar actually uses. ({2})"
 
+msgid "ad.info.left_out_unused"
+msgstr "\"{0}\" is left out because nothing on this avatar uses \"{1}\". ({2})"
+
 msgid "ad.info.flip_target_excluded"
 msgstr "\"{0}\": its toggle is not built on this platform, so the touch does nothing here."
 
@@ -581,6 +584,9 @@ msgstr "custom"
 
 msgid "ad.ui.parameter.use_custom"
 msgstr "Custom name"
+
+msgid "ad.ui.parameter.only_if_used"
+msgstr "Only if used"
 
 msgid "ad.ui.parameter.bits"
 msgstr "{0}, {1} bits"
@@ -1494,6 +1500,9 @@ msgstr "Quest"
 msgid "ad.ui.chip.pc_only"
 msgstr "PC only"
 
+msgid "ad.ui.chip.unused"
+msgstr "Unused"
+
 msgid "ad.ui.chip.quest_only"
 msgstr "Quest only"
 
@@ -2342,6 +2351,9 @@ msgstr "The synced value VRChat uses for this control, named automatically unles
 
 msgid "ad.ui.parameter.use_custom.tip"
 msgstr "Names the parameter yourself so it can reuse or drive one that already exists on the avatar."
+
+msgid "ad.ui.parameter.only_if_used.tip"
+msgstr "Leaves this entry out of the upload when nothing else on the avatar uses its parameter."
 
 msgid "ad.ui.parameter.value.tip"
 msgstr "The value this toggle writes to its parameter while it is on."

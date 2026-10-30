@@ -201,6 +201,14 @@ On lets you name the parameter yourself, so the toggle can use or drive a parame
 - Several toggles with the same custom name share one parameter, each writing its own <Label k="ad.ui.parameter.value" />. A whole number other than 1 makes the parameter an Int, and a number with a fraction makes it a Float.
 - When a toggle of another AvatarDoc component on the avatar uses the same custom name, a line under the parameter says who, such as <Label k="ad.ui.parameter.also_used_by" />: Jacket (CatEars), with the entry and, in brackets, the object its component is on. Sharing stays allowed, so check that both mean the same thing.
 
+#### Only if used [#only-if-used k=ad.ui.parameter.only_if_used]
+
+**Shown in:** Advanced, once <Label k="ad.ui.parameter.use_custom" /> is on · **Default:** Off · **Choices:** On, Off
+
+On leaves the toggle out of the upload when nothing on the avatar besides AvatarDoc uses its parameter. It then gets no button, no layer and no parameter, so it costs no memory. These count as a use: the avatar's expression parameters, its FX animator, a parameter another tool tells NDMF about, and a VRCFury global parameter. Another AvatarDoc toggle with the same name does not count.
+
+Turn it on for a toggle that switches a part another tool makes only when it is turned on, such as one of DocMe Skin Touch's touch kinds. A toggle that is left out shows dimmed in the tree with the chip <Label k="ad.ui.chip.unused" />, and the panel says why.
+
 ## What AvatarDoc builds
 
 At upload, a toggle adds one button to the menu, one parameter (a Bool, 1 synced bit while <Label k="ad.ui.synced" /> is on) and one layer to the avatar's FX animator, named AD: and the toggle's name. The layer has an off state and an on state. While the toggle is off, each object takes the opposite of its on state, and each blend shape, material and property goes back to its value in the scene, or to the off value its row sets. A toggle with <Label k="ad.ui.seg.pin" /> rows or a rule that holds the rest puts those in a layer of their own, placed after the layers other tools add. The Builds line in the panel counts all of this. [Layers, Write Defaults and pinned layers](../../how-it-works/layers-and-pins/) explains the layers in detail.
@@ -212,6 +220,7 @@ At upload, a toggle adds one button to the menu, one parameter (a Bool, 1 synced
 - [A target is not part of the avatar](../messages/#ad-warn-target-outside-avatar).
 - [More than one control changes the same thing](../messages/#ad-info-target-shared).
 - [The toggle has no menu button and nothing can turn it on](../messages/#ad-info-hidden-toggle-unreachable).
+- [The toggle is left out because nothing uses its parameter](../messages/#ad-info-left-out-unused).
 - [The icon fails VRChat's upload check](../messages/#ad-error-menu-icon-too-large).
 - [The custom parameter has another type](../messages/#ad-error-parameter-type-conflict).
 - [The custom parameter already exists on the avatar](../messages/#ad-info-parameter-reused).

@@ -61,6 +61,8 @@ namespace DocMe.AvatarDoctor
         public bool synced = true;
         public string parameterName = "";
         public float parameterValue = 1f;
+        /// <summary>With a custom parameter name: the entry is left out of the build (no menu control, layer or parameter) when nothing on the avatar but AvatarDoc uses that name. For a prefab whose toggles switch parts another tool makes only when the creator turns them on.</summary>
+        public bool onlyIfUsed;
         public string exclusiveGroup = "";
         /// <summary>The AvatarDoc whose exclusive group of that name this toggle joins. Empty means its own component.</summary>
         public AvatarDoc groupComponent;
