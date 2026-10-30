@@ -184,7 +184,7 @@ namespace DocMe.AvatarDoctor.Editor
                         TriggerChip = TriggerChipFor(plan.Tree, trigger.Entry),
                         Key = trigger.Entry.id,
                         Excluded = trigger.Excluded,
-                        PlatformChip = PlatformChipFor(trigger.Component, trigger.Entry),
+                        PlatformChip = trigger.LeftOutBy != null ? L.Text("ad.ui.chip.unused") : PlatformChipFor(trigger.Component, trigger.Entry),
                     };
                     row.Messages.AddRange(plan.MessagesFor(trigger.Component, trigger.Entry));
                     byId[row.Id] = row;
@@ -381,7 +381,8 @@ namespace DocMe.AvatarDoctor.Editor
                         Item = item,
                         Key = KeyFor(item, node),
                         Excluded = control.Excluded,
-                        PlatformChip = PlatformChipFor(control.Component, control.Entry),
+                        // A left out entry's chip says why, in the place a platform chip says it.
+                        PlatformChip = control.Unused ? L.Text("ad.ui.chip.unused") : PlatformChipFor(control.Component, control.Entry),
                     };
                     if (!row.Mine) row.SourceChip = control.Component.gameObject.name;
                     if (plan.Plan.Bindings.TryGetValue(control, out var binding))

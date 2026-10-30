@@ -113,6 +113,11 @@ namespace DocMe.AvatarDoctor.Editor
                 // component's Hat is the first Hat, as it will be on the built avatar.
                 if (control.Disabled) continue;
                 var entry = control.Entry;
+                if (control.Unused)
+                {
+                    plan.Messages.Add(ModelMessage.Info("ad.info.left_out_unused", entry.PlainName, entry.parameterName.Trim(), control.Component).For(entry.id));
+                    continue;
+                }
                 // A grabbable with its own menu toggle off is not a menu control at all: nothing reads a
                 // parameter for it, so it plans none and costs nothing, the same as any entry with no control.
                 // With the toggle on it falls through to the generic branch below, which plans it a Bool exactly
@@ -447,9 +452,9 @@ namespace DocMe.AvatarDoctor.Editor
             if (components.Count == 0) return (OtherToolsBits(provided, null), 0);
 
             var descriptor = avatarRoot.GetComponent<VRCAvatarDescriptor>();
-            var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components);
             var existing = ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor));
             ParametersWriter.AddProvided(existing, provided);
+            var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components, existing: existing);
             var plan = Plan(tree, existing);
             // Bits a removed control frees were counted as the avatar's, so they come off that side of the bar.
             tree.Removal = RemovalPlanner.Plan(tree, descriptor);

@@ -1692,6 +1692,10 @@ namespace DocMe.AvatarDoctor.Editor
                     valueField.tooltip = L.Text("ad.ui.parameter.value.tip");
                     container.Add(Bound(valueField));
                 }
+                var onlyIfUsed = BoundToggle(L.Text("ad.ui.parameter.only_if_used"), property.FindPropertyRelative(nameof(MenuEntry.onlyIfUsed)));
+                onlyIfUsed.name = "ad-parameter-only-if-used";
+                onlyIfUsed.tooltip = L.Text("ad.ui.parameter.only_if_used.tip");
+                container.Add(onlyIfUsed);
             }
             return container;
         }

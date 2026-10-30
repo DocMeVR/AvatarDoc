@@ -551,6 +551,14 @@ msgstr "合并 Animator“{0}”会自行修改层权重，排除其中的层会
 msgid "ad.warn.parameter_control_unused"
 msgstr "“{0}”驱动参数“{1}”，但此 Avatar 上没有任何地方读取它，因此暂时没有效果。请删除它，或将它指向合并 Animator、VRCFury 或 Modular Avatar 实际使用的参数。（{2}）"
 
+#. en: \"{0}\" is left out because nothing on this avatar uses \"{1}\". ({2})
+msgid "ad.info.left_out_unused"
+msgstr "此 Avatar 上没有任何地方使用“{1}”，因此未加入“{0}”。（{2}）"
+
+#. en: \"{0}\" is left out because it waits for \"{1}\", which is left out. ({2})
+msgid "ad.info.trigger_left_out_unused"
+msgstr "“{0}”等待的“{1}”未加入，因此“{0}”也未加入。（{2}）"
+
 #. en: \"{0}\": its toggle is not built on this platform, so the touch does nothing here.
 msgid "ad.info.flip_target_excluded"
 msgstr "“{0}”：其开关不在此平台构建，因此在此平台上触碰不会有任何效果。"
@@ -775,6 +783,10 @@ msgstr "自定义"
 msgid "ad.ui.parameter.use_custom"
 msgstr "自定义名称"
 
+#. en: Only if used
+msgid "ad.ui.parameter.only_if_used"
+msgstr "仅在使用时"
+
 #. en: {0}, {1} bits
 msgid "ad.ui.parameter.bits"
 msgstr "{0}，{1} bits"
@@ -998,6 +1010,14 @@ msgstr "暂不构建任何内容：此 Avatar 上还没有动画使用这个形�
 #. en: Builds nothing: this component is disabled.
 msgid "ad.ui.builds.nothing.disabled"
 msgstr "不构建任何内容：此组件已禁用。"
+
+#. en: Builds nothing: nothing else on this avatar uses its parameter.
+msgid "ad.ui.builds.nothing.unused"
+msgstr "不构建任何内容：此 Avatar 上没有其他地方使用它的参数。"
+
+#. en: Builds nothing: it waits for \"{0}\", which is left out.
+msgid "ad.ui.builds.nothing.unused_toggle"
+msgstr "不构建任何内容：它等待的“{0}”未加入。"
 
 #. en: What this entry adds to the avatar when it builds.
 msgid "ad.ui.builds.tip"
@@ -1990,6 +2010,10 @@ msgstr "Quest"
 #. en: PC only
 msgid "ad.ui.chip.pc_only"
 msgstr "仅 PC"
+
+#. en: Unused
+msgid "ad.ui.chip.unused"
+msgstr "未使用"
 
 #. en: Quest only
 msgid "ad.ui.chip.quest_only"
@@ -3122,6 +3146,10 @@ msgstr "VRChat 为此控件使用的同步值，除非你自定义名称，否�
 #. en: Names the parameter yourself so it can reuse or drive one that already exists on the avatar.
 msgid "ad.ui.parameter.use_custom.tip"
 msgstr "自行命名参数，以便复用或驱动 Avatar 上已有的参数。"
+
+#. en: Leaves this entry out of the upload when nothing else on the avatar uses its parameter.
+msgid "ad.ui.parameter.only_if_used.tip"
+msgstr "如果 Avatar 上没有其他地方使用它的参数，此条目不会加入上传。"
 
 #. en: The value this toggle writes to its parameter while it is on.
 msgid "ad.ui.parameter.value.tip"

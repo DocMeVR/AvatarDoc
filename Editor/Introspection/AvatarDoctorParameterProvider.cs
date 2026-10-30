@@ -109,8 +109,10 @@ namespace DocMe.AvatarDoctor.Editor
             DropDestroyedRoot();
             if (memoPlan != null && memoTree != null && memoRoot == avatarRoot && memoVersion == AvatarPlanCache.Version) return (memoTree, memoPlan, memoTouch);
             var descriptor = avatarRoot != null ? avatarRoot.GetComponent<VRCAvatarDescriptor>() : null;
-            memoTree = MenuModel.Build(avatarRoot, null, MenuModel.CollectComponents(avatarRoot));
             var existing = ParametersWriter.ExistingParameters(descriptor != null ? descriptor.expressionParameters : null, ParametersWriter.FxOf(descriptor));
+            // Without other tools' reports an entry with Only if used is left out unless the avatar has its name;
+            // the tool that uses the name reports it itself.
+            memoTree = MenuModel.Build(avatarRoot, null, MenuModel.CollectComponents(avatarRoot), existing: existing);
             memoPlan = ParameterPlanner.Plan(memoTree, existing);
             // The names every blend shape trigger's hidden copy and every pause flag will take, made unique the
             // same way the build makes them.

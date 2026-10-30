@@ -551,6 +551,14 @@ msgstr "統合アニメーター「{0}」は自身でレイヤーのウェイト
 msgid "ad.warn.parameter_control_unused"
 msgstr "「{0}」はパラメーター「{1}」を操作しますが、このアバターでそれを読み取るものがないため、まだ何の効果もありません。削除するか、統合アニメーター、VRCFury、Modular Avatarが実際に使うパラメーターを指定してください。（{2}）"
 
+#. en: \"{0}\" is left out because nothing on this avatar uses \"{1}\". ({2})
+msgid "ad.info.left_out_unused"
+msgstr "「{1}」を使うものがこのアバターにないので、「{0}」は入れていません。（{2}）"
+
+#. en: \"{0}\" is left out because it waits for \"{1}\", which is left out. ({2})
+msgid "ad.info.trigger_left_out_unused"
+msgstr "「{0}」が待つ「{1}」が入っていないので、「{0}」も入れていません。（{2}）"
+
 #. en: \"{0}\": its toggle is not built on this platform, so the touch does nothing here.
 msgid "ad.info.flip_target_excluded"
 msgstr "「{0}」：トグルがこのプラットフォームではビルドされないため、ここではタッチしても何も起きません。"
@@ -775,6 +783,10 @@ msgstr "カスタム"
 msgid "ad.ui.parameter.use_custom"
 msgstr "名前を指定"
 
+#. en: Only if used
+msgid "ad.ui.parameter.only_if_used"
+msgstr "使うときだけ"
+
 #. en: {0}, {1} bits
 msgid "ad.ui.parameter.bits"
 msgstr "{0}、{1}ビット"
@@ -998,6 +1010,14 @@ msgstr "ビルド内容なし：このアバターには、このシェイプを
 #. en: Builds nothing: this component is disabled.
 msgid "ad.ui.builds.nothing.disabled"
 msgstr "ビルド内容なし：このコンポーネントは無効です。"
+
+#. en: Builds nothing: nothing else on this avatar uses its parameter.
+msgid "ad.ui.builds.nothing.unused"
+msgstr "ビルド内容なし：このパラメーターを使うものがアバターにほかにありません。"
+
+#. en: Builds nothing: it waits for \"{0}\", which is left out.
+msgid "ad.ui.builds.nothing.unused_toggle"
+msgstr "ビルド内容なし：待っている「{0}」が入っていません。"
 
 #. en: What this entry adds to the avatar when it builds.
 msgid "ad.ui.builds.tip"
@@ -1990,6 +2010,10 @@ msgstr "Quest"
 #. en: PC only
 msgid "ad.ui.chip.pc_only"
 msgstr "PCのみ"
+
+#. en: Unused
+msgid "ad.ui.chip.unused"
+msgstr "未使用"
 
 #. en: Quest only
 msgid "ad.ui.chip.quest_only"
@@ -3122,6 +3146,10 @@ msgstr "VRChatがこのコントロールに使う同期値です。自分で名
 #. en: Names the parameter yourself so it can reuse or drive one that already exists on the avatar.
 msgid "ad.ui.parameter.use_custom.tip"
 msgstr "パラメーター名を自分で付けます。アバターにすでにあるパラメーターを再利用したり、操作したりできます。"
+
+#. en: Leaves this entry out of the upload when nothing else on the avatar uses its parameter.
+msgid "ad.ui.parameter.only_if_used.tip"
+msgstr "アバターのほかの何もこのパラメーターを使っていなければ、この項目はアップロードに入りません。"
 
 #. en: The value this toggle writes to its parameter while it is on.
 msgid "ad.ui.parameter.value.tip"

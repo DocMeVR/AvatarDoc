@@ -39,6 +39,8 @@ This needs <Label k="ad.ui.mode.advanced" /> mode, the default.
 
 6. Use a <Label k="ad.ui.parameter.use_custom" /> only when your toggle should drive a parameter that something else reads on purpose, such as a parameter of the buyer's base avatar that your prefab's documentation names. Leave the name automatic everywhere else. When a toggle of another component uses the same custom name, the toggle's parameter row says <Label k="ad.ui.parameter.also_used_by" /> and names it.
 
+   Your prefab may come with toggles for parts another tool makes only when the buyer turns them on, such as the touch kinds of DocMe Skin Touch. Turn on <Label k="ad.ui.parameter.only_if_used" /> on each of them. A buyer who leaves a part off then gets no button that does nothing, and no parameter memory spent on it. See [Only if used](../../reference/toggle/#only-if-used).
+
 7. Lock the component, so a buyer does not change your entries by accident. Press <Label k="ad.ui.summary" /> in the header, turn on <Label k="ad.ui.lock" />, and write a line for the buyer in <Label k="ad.ui.lock.note" />, such as how to join your outfits to theirs. The buyer can still change <Label k="ad.ui.install" />, <Label k="ad.ui.install.mode" />, <Label k="ad.ui.prefix" /> and <Label k="ad.ui.platform" />. See [The lock](../../reference/summary-and-lock/#lock).
 
 8. Drag your prefab's object into the Project window to save it as a prefab.
