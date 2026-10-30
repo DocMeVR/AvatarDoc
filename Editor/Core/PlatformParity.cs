@@ -118,8 +118,14 @@ namespace DocMe.AvatarDoctor.Editor
             }
 
             var components = MenuModel.CollectComponents(avatarRoot);
-            var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components);
-            var plan = ParameterPlanner.Plan(tree, ParametersWriter.ExistingParameters(parameters, ParametersWriter.FxOf(descriptor)));
+            // The map the inspector's plan reads, so an entry with Only if used is in this list exactly when this
+            // copy builds it: one copy may have the other tool's part on and the other copy not.
+            var existing = ParametersWriter.ExistingParameters(parameters, ParametersWriter.FxOf(descriptor));
+            ParametersWriter.AddProvided(existing, AvatarPlanCache.ProvidedFor(avatarRoot));
+            ParametersWriter.MarkUsedByOtherTools(existing, AvatarPlanCache.OtherToolNamesFor(avatarRoot));
+            ParametersWriter.AddReferenced(existing, AvatarPlanCache.ReferencedFor(avatarRoot));
+            var tree = MenuModel.Build(avatarRoot, descriptor != null ? descriptor.expressionsMenu : null, components, existing: existing);
+            var plan = ParameterPlanner.Plan(tree, existing);
             tree.Removal = RemovalPlanner.Plan(tree, descriptor);
             var freed = new HashSet<string>(tree.Removal.Parameters.Where(p => p.Freed).Select(p => p.Name));
             if (parameters != null && parameters.parameters != null)

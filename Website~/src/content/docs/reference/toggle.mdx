@@ -209,7 +209,7 @@ On leaves the toggle out of the upload when nothing on the avatar besides Avatar
 
 Turn it on for a toggle that switches a part another tool makes only when it is turned on, such as one of DocMe Skin Touch's touch kinds. A toggle that is left out shows dimmed in the tree with the chip <Label k="ad.ui.chip.unused" />, and the panel says why.
 
-A left out toggle counts as off for every [trigger](../triggers/) that reads it. A trigger that needs it on, in its conditions or its gate, is left out too and shows the same chip. A condition that needs it off is always met, so the trigger works from its other conditions.
+A left out toggle counts as off for every [trigger](../triggers/) that reads it. A trigger that needs it on, in its conditions or its gate, is left out too and shows the same chip. A condition that needs it off is always met, so the trigger works from the rest of its conditions. When a whole group is then always met, the trigger would always be on, so it is left out as well. A trigger that flips a left out toggle is left out too.
 
 ## What AvatarDoc builds
 

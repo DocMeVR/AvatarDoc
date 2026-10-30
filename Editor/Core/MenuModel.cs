@@ -874,8 +874,8 @@ namespace DocMe.AvatarDoctor.Editor
                 var name = control.Entry.parameterName.Trim();
                 if (existing.ContainsKey(name)) continue;
 #if DOCME_NDMF
-                // An animator a component merges is the creator's own, so its reading the name is a use.
-                if (MergeBuilder.UsesParameter(tree, tree.AvatarRoot, name)) continue;
+                // An animator a component merges is the creator's own, so its reading the name is a use, where it is built.
+                if (tree.Merges.Any(m => !m.Excluded && m.Merge != null && MergeBuilder.ParametersOf(m.Merge.controller).Any(p => p.name == name))) continue;
 #endif
                 control.Unused = true;
                 control.Excluded = true;
@@ -897,13 +897,15 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         /// <summary>
-        /// The left out toggle that keeps this trigger from ever being built: a gate that needs it on, or a "when"
-        /// whose every group needs one on. A group that only waits for left out toggles to be off would always be
+        /// The left out toggle that keeps this trigger from ever being built: the toggle a flip trigger flips, a gate
+        /// that needs it on, or a "when" whose every group needs one on. A group that only waits for left out toggles to be off would always be
         /// met, which no layer can build either, so that leaves the trigger out too. Null when the trigger builds;
         /// the planner then drops what the left out toggles make certain (TriggerPlanner.Resolve).
         /// </summary>
         static ControlNode TriggerLeftOutBy(MenuTree tree, MenuEntry entry)
         {
+            // A flip trigger with nothing left to flip.
+            if (entry.IsFlipTrigger && LeftOutControl(tree, entry.flipToggleId) is ControlNode flipped) return flipped;
             var gate = LeftOutControl(tree, entry.gateToggleId);
             if (gate != null && entry.gateToggleOn) return gate;
             ControlNode by = null;

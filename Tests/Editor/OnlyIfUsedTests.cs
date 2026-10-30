@@ -332,6 +332,59 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
         [Test]
+        public void AnAlwaysMetGroupLeavesTheTriggerOutWhateverTheOtherGroups()
+        {
+            // "Heads press off" or "AFK": with Heads press left out, the first group is always met.
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var trigger = Trigger(menu, new[] { OnToggle(heads, false) }, new[] { Afk() });
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            Assert.That(plan.Tree.Triggers.Single(t => t.Entry == trigger).LeftOutBy, Is.SameAs(Control(plan, heads)));
+            Assert.That(Planned(plan, trigger), Is.Null);
+        }
+
+        [Test]
+        public void AFlipTriggerWithALeftOutTargetIsLeftOut()
+        {
+            var menu = avatar.AddMenu();
+            var heads = OnlyIfUsed(menu);
+            var boop = menu.AddEntry(EntryKind.Trigger, "Boop");
+            boop.source = TriggerSource.Contact;
+            boop.contactAnchor = avatar.Body.transform;
+            boop.touchMode = TouchMode.FlipToggle;
+            boop.flipToggleId = heads.id;
+
+            var plan = AvatarPlanCache.GetFor(menu);
+
+            Assert.That(plan.Tree.Triggers.Single(t => t.Entry == boop).LeftOutBy, Is.SameAs(Control(plan, heads)));
+            Assert.That(plan.Messages.Any(m => m.Key == "ad.info.flip_target_excluded"), Is.False, "the platform is not the reason");
+            Assert.That(Says(plan, "ad.info.trigger_left_out_unused", boop), Is.True);
+        }
+
+        [Test]
+        public void AMergeThatIsNotBuiltIsNotAUse()
+        {
+            var controller = new UnityEditor.Animations.AnimatorController();
+            controller.AddParameter(Parameter, AnimatorControllerParameterType.Bool);
+            try
+            {
+                var menu = avatar.AddMenu();
+                var merge = AnimatorMerge.Create(controller);
+                merge.platform = EntryPlatform.MobileOnly;
+                menu.animators.Add(merge);
+                var heads = OnlyIfUsed(menu);
+
+                Assert.That(Control(AvatarPlanCache.GetFor(menu), heads).Unused, Is.True, "a Quest only merge reads nothing on PC");
+            }
+            finally
+            {
+                Object.DestroyImmediate(controller);
+            }
+        }
+
+        [Test]
         public void ALeftOutEntryTakesNoMenuSlot()
         {
             var menu = avatar.AddMenu();
@@ -389,6 +442,19 @@ namespace DocMe.AvatarDoctor.Editor
         }
 
 #if DOCME_MA
+        [Test]
+        public void ThePlatformParityListHasTheParameterOnlyWhenTheEntryBuilds()
+        {
+            // A PC copy with the tool's part on and a Quest copy with it off declare different lists.
+            var menu = avatar.AddMenu();
+            OnlyIfUsed(menu);
+            Assert.That(PlatformParity.ListOf(avatar.Root.transform).Any(p => p.StartsWith(Parameter)), Is.False);
+
+            AddOtherTool(Child("Skin Touch"));
+            AvatarPlanCache.Invalidate();
+            Assert.That(PlatformParity.ListOf(avatar.Root.transform).Any(p => p.StartsWith(Parameter)), Is.True);
+        }
+
         [Test]
         public void TheWholePipelineKeepsAParameterAnotherToolReports()
         {
