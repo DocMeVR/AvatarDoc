@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/DocMeVR/AvatarDoc/compare/0.8.1...0.8.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* a resting face layer sets its weight to 0 again every 3 seconds ([#25](https://github.com/DocMeVR/AvatarDoc/issues/25)) ([9ad103d](https://github.com/DocMeVR/AvatarDoc/commit/9ad103df4eb43025784cfcacbe750cc776a70b22))
+
 ## [0.8.1](https://github.com/DocMeVR/AvatarDoc/compare/0.8.0...0.8.1) (2026-11-06)
 
 
