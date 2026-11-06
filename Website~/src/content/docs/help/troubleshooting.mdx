@@ -274,15 +274,17 @@ Press <Label k="ad.ui.summary" /> in the header and keep the text for [Report a 
 
 ### Likely cause
 
-- A toggle or a trigger that holds a face shape is on. While it is on, its pin layer keeps the face, and the dance can't move it. A toggle that is on by default counts too.
+- A toggle or a trigger that holds a face shape is on. While it is on, its pin layer keeps the face, and the dance can't move it.
+- An entry that holds a face shape rests at a value your uploaded avatar does not have. Its pin layer then keeps its weight even while the entry is off. This happens with a toggle that is <Label k="ad.ui.default_on" />, a group's default member, a blend shape trigger that starts on, a row with <Label k="ad.ui.target.explicit_off" />, or an object that is off at rest but on in your scene.
 - Another layer of your avatar has Write Defaults off and a weight above 0. One such layer stops every face shape of the dance. It can come from your own FX controller, a merged animator or another tool.
-- You use AvatarDoc 0.8.0 or older. There, a pin layer kept the face even while its entry was off.
+- You use AvatarDoc 0.8.0 or older. There, every pin layer kept the face even while its entry was off.
 
 ### Fix
 
 1. Update AvatarDoc and upload again.
 2. Turn off the toggles that hold face shapes before the dance starts.
-3. For the other layers, use Write Defaults on for your avatar, or VRCFury's MMD Compatibility, which turns Write Defaults on for every layer. AvatarDoc turns it off again for its own pin layers, and they weigh nothing while they rest. See [A resting pin layer weighs nothing](../../how-it-works/layers-and-pins/#a-resting-pin-layer-weighs-nothing).
+3. For an entry that rests elsewhere, untick <Label k="ad.ui.default_on" />, remove the row's own off value, or switch the object off in your scene, if the look allows it.
+4. For the other layers, use Write Defaults on for your avatar, or VRCFury's MMD Compatibility, which turns Write Defaults on for every layer. AvatarDoc turns it off again for its own pin layers. See [A resting pin layer weighs nothing](../../how-it-works/layers-and-pins/#a-resting-pin-layer-weighs-nothing).
 
 ### Still stuck
 

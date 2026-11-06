@@ -62,9 +62,15 @@ A pin layer sits last in the list (see [The order of the layers](#the-order-of-t
 
 ### A resting pin layer weighs nothing
 
-One layer with Write Defaults off and a weight above 0 is enough to make the whole FX controller keep every face shape that something outside it animates. The dance of an MMD world is such an animation, so it could not move the face. That is why a pin layer only counts while its entry is on. Its off state sets the layer's weight to 0 and each on state sets it back to 1, through an animator layer control aimed at the layer itself. Load and Reset play at full weight, so the moment of rest still counts. The pause layers animate nothing, so they weigh 0 all the time. Their tracking changes work at any weight.
+One layer with Write Defaults off and a weight above 0 is enough to make the whole FX controller keep every face shape that something outside it animates. The dance of an MMD world is such an animation, so it could not move the face. So a pin layer weighs nothing while it rests. Its off state sets the layer's weight to 0, again every 3 seconds, and each on state sets it back to 1, through an animator layer control aimed at the layer itself. Load and Reset play at full weight, so the moment of rest still counts. The pause layers animate nothing, so they weigh 0 all the time. Their tracking changes work at any weight.
 
-While an entry with a pin layer is on, a world's dance can't move the face. A toggle that is on by default counts as on. See [My face does not move in an MMD world](../../help/troubleshooting/#mmd-face).
+A layer at weight 0 shows each shape and object the way your avatar was uploaded. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one. It keeps its weight while it rests, and still stops the dance, when it rests anywhere else:
+
+- a toggle that is <Label k="ad.ui.default_on" />, the default member of an exclusive group, or a blend shape trigger that starts on: AvatarDoc writes their on values into the avatar
+- a row with <Label k="ad.ui.target.explicit_off" />
+- an object that is off while the entry rests but on in your scene
+
+While an entry with a pin layer is on, a world's dance can't move the face either. See [My face does not move in an MMD world](../../help/troubleshooting/#mmd-face).
 
 ### Explicit rests
 

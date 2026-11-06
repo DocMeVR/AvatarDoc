@@ -125,7 +125,8 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(((AnimationClip)reset.motion).length, Is.EqualTo(Frame).Within(0.00001f), "one frame long");
             foreach (var child in layer.stateMachine.states)
             {
-                if (child.state == reset) continue;
+                // Idle entering itself again is how a faded layer sets its weight to 0 again; it leads nowhere new.
+                if (child.state == reset || child.state == idle) continue;
                 Assert.That(child.state.transitions.Where(t => t.destinationState == idle), Is.Empty, child.state.name + ": only Reset leads back to " + idleName);
             }
             return reset;
@@ -255,7 +256,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Shape(State(layer, "On").motion, "Blush").Evaluate(0f), Is.EqualTo(100f));
             var reset = AssertResetsOnce(layer, "Off", "On");
             Assert.That(Shape(reset.motion, "Blush").Evaluate(0f), Is.EqualTo(22f));
-            Assert.That(State(layer, "Off").transitions.Single().destinationState.name, Is.EqualTo("On"), "Off still goes straight to On");
+            Assert.That(State(layer, "Off").transitions.Single(t => t.destinationState.name != "Off").destinationState.name, Is.EqualTo("On"), "Off still goes straight to On");
         }
 
         [Test]
@@ -370,7 +371,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Shapes(State(layer, "B").motion, "Body"), Is.EqualTo(new[] { "Eye_Big" }));
             Assert.That(Shape(reset.motion, "Blush").Evaluate(0f), Is.EqualTo(5f));
             Assert.That(Shape(reset.motion, "Eye_Big").Evaluate(0f), Is.EqualTo(7f));
-            Assert.That(off.transitions.Select(t => t.destinationState.name), Is.EquivalentTo(new[] { "A", "B" }), "Off goes to the member chosen");
+            Assert.That(off.transitions.Where(t => t.destinationState != off).Select(t => t.destinationState.name), Is.EquivalentTo(new[] { "A", "B" }), "Off goes to the member chosen");
             foreach (var name in new[] { "A", "B" })
             {
                 var member = State(layer, name);

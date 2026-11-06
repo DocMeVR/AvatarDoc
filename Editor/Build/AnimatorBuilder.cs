@@ -533,7 +533,39 @@ namespace DocMe.AvatarDoctor.Editor
                     control.blendDuration = 0f;
                     state.Behaviours = state.Behaviours.Add(control);
                 }
+                // VRChat ignores some behaviours for a moment after the avatar loads, and an MMD helper's own layer
+                // control can set the layer back to 1, so idle enters itself again every few seconds and sets 0 again.
+                var refresh = VirtualStateTransition.Create();
+                refresh.SetDestination(idle);
+                refresh.Conditions = ImmutableList<AnimatorCondition>.Empty;
+                refresh.ExitTime = IdleRefreshSeconds / StateSeconds(idle);
+                refresh.Duration = 0f;
+                refresh.HasFixedDuration = true;
+                idle.Transitions = idle.Transitions.Add(refresh);
             }
+        }
+
+        /// <summary>How often a faded layer's idle state sets its weight to 0 again, in seconds.</summary>
+        public const float IdleRefreshSeconds = 3f;
+
+        /// <summary>How long one pass of a state's clip lasts: its last key, or a second for an empty clip, as Unity plays it.</summary>
+        static float StateSeconds(VirtualState state)
+        {
+            float length = 0f;
+            if (state.Motion is VirtualClip clip)
+            {
+                foreach (var binding in clip.GetFloatCurveBindings())
+                {
+                    var curve = clip.GetFloatCurve(binding);
+                    if (curve != null && curve.length > 0) length = Mathf.Max(length, curve.keys[curve.length - 1].time);
+                }
+                foreach (var binding in clip.GetObjectCurveBindings())
+                {
+                    var keys = clip.GetObjectCurve(binding);
+                    if (keys != null && keys.Length > 0) length = Mathf.Max(length, keys[keys.Length - 1].time);
+                }
+            }
+            return length > 0f ? length : 1f;
         }
 
         /// <summary>Whether every value this Reset clip writes is the one the avatar has now, at the end of the build: an animator parameter its default, anything else its value on the avatar. A binding that cannot be read counts as different.</summary>

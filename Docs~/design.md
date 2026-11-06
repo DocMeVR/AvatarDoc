@@ -2774,9 +2774,21 @@ active state one with goal 1, blend 0. The layer loads at 1, and `Load` and `Res
 the 1 the way in left, whether VRChat applies a control at once or a frame late. Because idle now weighs nothing,
 `AddResetState` copies what the idle state writes (objects and material slots at their off values, pause flags at 0)
 into `Reset` for these layers, as one-frame curves. The tracking pause layers animate nothing and weigh 0 for good:
-their tracking controls run at any weight. Cost: while an entry with a pin layer is on (a toggle on by default
-included), a world's dance still cannot move the face. Detecting MMD worlds was dropped: on avatars with VRCFury's
-Defaults layer and MMD dummies, Modular Avatar's detector lands past the three slots worlds switch off.
+their tracking controls run at any weight. Idle also gets a transition to itself, no condition, exit time worth
+`IdleRefreshSeconds` (3 s) of its clip, last in its list, so its 0 is set again: VRChat ignores tracking controls for
+a moment after load (VRCFury re-triggers them for that reason; for layer controls it is unverified), and Modular
+Avatar's MMD relay or VRCFury's disable list can set a layer it aims at back to 1.
+
+Playback showed that a binding no layer with weight writes shows the value the avatar was uploaded with, not the last
+one written. So a layer fades only when every value its `Reset` writes equals the avatar's own value at the end of the
+build (`RestsMatchTheAvatar`: animator parameters against their default, the rest through `ObjectPathRemapper` and
+`AnimationUtility.GetFloatValue` / `GetObjectReferenceValue`; unreadable counts as different). Layers that rest
+elsewhere keep weight 1 while idle and still stop a dance: anything `DefaultsApplier` writes into the avatar at its on
+value (a toggle on by default, a group's default member, a blend shape trigger that starts on, and a pin on a shape
+such an entry also writes), a row's explicit off value, an object off at rest but on in the scene. No build message
+names them yet. Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
+MMD worlds was dropped: on avatars with VRCFury's Defaults layer and MMD dummies, Modular Avatar's detector lands past
+the three slots worlds switch off.
 
 **Exclusive groups.** The pin layer no longer switches members through `AnyState` (see "Phase 5 amendments", now
 superseded): `Off` goes to a member on its own condition, a member goes to `Reset` as soon as its value is not selected,
