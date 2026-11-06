@@ -135,6 +135,33 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        [TestCase(60f, 0)]
+        [TestCase(144f, 1)]
+        public void AHeadpatAtRestLetsTheDanceMoveTheShapeItPins(float framesPerSecond, int controlDelay)
+        {
+            var pat = Headpat("Blush");
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var contact = TouchBuilder.ParameterFor(pat, "AD");
+            var dance = TestAvatar.ShapeClip("Dance Blush", "Body", "Blush", 60f, 60f);
+            made.Add(dance);
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / framesPerSecond, controlDelay, dance))
+            {
+                var resting = player.Settled("Blush");
+                Assert.That(resting.Last(), Is.EqualTo(60f).Within(0.01f), "no hand near: the dance moves the shape " + Shown(resting));
+
+                player.Set(contact, 1f);
+                var patted = player.Settled("Blush");
+                Assert.That(patted.Last(), Is.EqualTo(100f).Within(0.01f), "a hand near: the pin wins over the dance " + Shown(patted));
+
+                player.Set(contact, 0f);
+                var after = player.Settled("Blush");
+                Assert.That(after.Last(), Is.EqualTo(60f).Within(0.01f), "and after the pat the dance has it again " + Shown(after));
+            }
+        }
+
         [TestCase(20f, 0)]
         [TestCase(60f, 0)]
         [TestCase(144f, 1)]
@@ -338,7 +365,14 @@ namespace DocMe.AvatarDoctor.Editor
                 Assert.That(control.goalWeight, Is.EqualTo(goal), layerName + " " + state.name);
                 Assert.That(control.blendDuration, Is.EqualTo(0f));
             }
-            AssertControl(State(layer, idleName), 0f);
+            var idle = State(layer, idleName);
+            AssertControl(idle, 0f);
+            var refresh = idle.transitions.SingleOrDefault(t => t.destinationState == idle);
+            Assert.That(refresh, Is.Not.Null, layerName + ": idle enters itself again, so its 0 is set again after VRChat ignored it at load");
+            Assert.That(refresh.conditions, Is.Empty);
+            Assert.That(refresh.hasExitTime, Is.True);
+            Assert.That(refresh.exitTime * ((AnimationClip)idle.motion).length, Is.EqualTo(AnimatorBuilder.IdleRefreshSeconds).Within(0.01f), layerName + ": every few seconds");
+            Assert.That(idle.transitions.Last(), Is.SameAs(refresh), "after every way into the active side");
             foreach (var active in activeNames) AssertControl(State(layer, active), 1f);
             foreach (var child in layer.stateMachine.states)
                 if (child.state.name == "Reset" || child.state.name == "Load")

@@ -53,6 +53,9 @@ namespace DocMe.AvatarDoctor.Editor
         static AnimatorController FxOf(TestAvatar a) => (AnimatorController)a.Descriptor.baseAnimationLayers.First(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX).animatorController;
         static AnimatorControllerLayer Layer(AnimatorController fx, string name) => fx.layers.Single(l => l.name == name);
         static AnimatorState State(AnimatorControllerLayer layer, string name) => layer.stateMachine.states.Single(s => s.state.name == name).state;
+
+        /// <summary>The one transition that leaves the state, past the one a resting layer uses to enter itself again.</summary>
+        static AnimatorStateTransition WayOut(AnimatorState state) => state.transitions.Single(t => t.destinationState != state);
         static string[] StateNames(AnimatorControllerLayer layer) => layer.stateMachine.states.Select(s => s.state.name).ToArray();
 
         static EditorCurveBinding MirrorBinding(string parameter) => EditorCurveBinding.FloatCurve("", typeof(Animator), parameter);
@@ -203,7 +206,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(Shape(far.motion, "Eye_Big"), Is.Null, "Far writes no shape");
             Assert.That(Shape(reset.motion, "Eye_Big").Evaluate(0f), Is.EqualTo(0f), "nothing else moves Eye_Big, so the final pass rests it once, in Reset");
 
-            var enter = far.transitions.Single();
+            var enter = WayOut(far);
             Assert.That(enter.destinationState, Is.SameAs(near));
             Assert.That(On(enter, Mirror).mode, Is.EqualTo(AnimatorConditionMode.Greater));
             Assert.That(On(enter, Mirror).threshold, Is.EqualTo(20f).Within(0.05f));
@@ -277,7 +280,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(on.motion, Is.InstanceOf<AnimationClip>(), "a switch needs no blend");
             Assert.That(Shape(on.motion, "Eye_Big").Evaluate(0f), Is.EqualTo(80f));
             Assert.That(Active(on.motion, "Hat").Evaluate(0f), Is.EqualTo(1f));
-            var enter = off.transitions.Single();
+            var enter = WayOut(off);
             Assert.That(On(enter, Mirror).mode, Is.EqualTo(AnimatorConditionMode.Greater));
             Assert.That(On(enter, Mirror).threshold, Is.EqualTo(30f).Within(0.05f));
             Assert.That(On(enter, Mirror).threshold, Is.LessThan(30f), "at the threshold itself counts as on, like before");
@@ -301,7 +304,7 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = Layer(fx, "AD: Blush link (shape)");
             var far = State(layer, "Far");
             var near = State(layer, "Near");
-            var enter = far.transitions.Single();
+            var enter = WayOut(far);
             Assert.That(enter.conditions.Select(c => c.parameter), Is.EquivalentTo(new[] { "AD/Hat", Mirror }), "all requirements and the shape together");
             Assert.That(enter.conditions.Single(c => c.parameter == "AD/Hat").mode, Is.EqualTo(AnimatorConditionMode.If));
             var leave = near.transitions.Where(t => t.destinationState == State(layer, "Reset")).ToList();
@@ -326,7 +329,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Blush link (shape)");
-            var enter = State(layer, "Far").transitions.Single();
+            var enter = WayOut(State(layer, "Far"));
             Assert.That(enter.conditions.Select(c => c.parameter), Is.EquivalentTo(new[] { "AD/Hat", Mirror }));
             Assert.That(State(layer, "Near").transitions.Count(t => t.conditions.Any(c => c.parameter == "AD/Hat" && c.mode == AnimatorConditionMode.IfNot)), Is.EqualTo(1));
         }
@@ -470,7 +473,7 @@ namespace DocMe.AvatarDoctor.Editor
             NoErrors(errors);
             var receiver = avatar.Root.GetComponentsInChildren<VRCContactReceiver>(true).Single();
             Assert.That(receiver.transform.parent, Is.SameAs(avatar.Glasses.transform));
-            var enter = State(Layer(fx, "AD: Blush link (shape)"), "Far").transitions.Single();
+            var enter = WayOut(State(Layer(fx, "AD: Blush link (shape)"), "Far"));
             Assert.That(enter.conditions.Select(c => c.parameter), Is.EquivalentTo(new[] { receiver.parameter, Mirror }));
         }
 
@@ -510,7 +513,7 @@ namespace DocMe.AvatarDoctor.Editor
             var layer = Layer(fx, "AD: Pat (distance)");
             var far = State(layer, "Far");
             var near = State(layer, "Near");
-            var enter = far.transitions.Single();
+            var enter = WayOut(far);
             Assert.That(enter.conditions.Select(c => c.parameter + " " + c.mode), Is.EquivalentTo(new[] { "AD/Contact/Pat Greater", "AD/Hat If" }));
             var leave = near.transitions.Select(t => string.Join(" & ", t.conditions.Select(c => c.parameter + " " + c.mode))).ToArray();
             Assert.That(leave, Is.EquivalentTo(new[] { "AD/Contact/Pat Less", "AD/Hat IfNot" }), "the hand leaving, or the requirement failing, each leaves on its own");
@@ -526,7 +529,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Pat (distance)");
-            var enter = State(layer, "Far").transitions.Single();
+            var enter = WayOut(State(layer, "Far"));
             Assert.That(enter.conditions.Select(Words), Is.EqualTo(new[] { "AD/Contact/Pat Greater 0.001" }));
             var leave = State(layer, "Near").transitions.Single();
             Assert.That(leave.conditions.Select(Words), Is.EqualTo(new[] { "AD/Contact/Pat Less 0.001" }));
@@ -545,7 +548,7 @@ namespace DocMe.AvatarDoctor.Editor
             Assert.That(receivers.Length, Is.EqualTo(2), "the driving contact and the required one");
             var required = receivers.Single(r => r.transform.parent == avatar.Glasses.transform);
             Assert.That(required.receiverType, Is.EqualTo(VRC.Dynamics.ContactReceiver.ReceiverType.Constant), "a requirement keeps its own touch setting");
-            var enter = State(Layer(fx, "AD: Pat (distance)"), "Far").transitions.Single();
+            var enter = WayOut(State(Layer(fx, "AD: Pat (distance)"), "Far"));
             Assert.That(enter.conditions.Any(c => c.parameter == required.parameter && c.mode == AnimatorConditionMode.If), Is.True);
         }
 
@@ -559,7 +562,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            var enter = State(Layer(fx, "AD: Pat (distance)"), "Far").transitions.Single();
+            var enter = WayOut(State(Layer(fx, "AD: Pat (distance)"), "Far"));
             Assert.That(enter.conditions.Select(c => c.parameter), Is.EquivalentTo(new[] { "AD/Contact/Pat", "AD/Hat" }));
         }
 
@@ -721,7 +724,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             NoErrors(errors);
             var layer = Layer(fx, "AD: Blush link (shape)");
-            var grabbed = State(layer, "Far").transitions.Single().conditions.Single(c => c.parameter != Mirror);
+            var grabbed = WayOut(State(layer, "Far")).conditions.Single(c => c.parameter != Mirror);
             Assert.That(grabbed.mode, Is.EqualTo(AnimatorConditionMode.If));
             Assert.That(grabbed.parameter, Is.EqualTo(bone.parameter + "_IsGrabbed"), "the PhysBone was given the parameter the layer reads");
             Assert.That(State(layer, "Near").transitions.Any(t => t.conditions.Length == 1 && t.conditions[0].parameter == grabbed.parameter && t.conditions[0].mode == AnimatorConditionMode.IfNot), Is.True, "letting go leaves on its own");
