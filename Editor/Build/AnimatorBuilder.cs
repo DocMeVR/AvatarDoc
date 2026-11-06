@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
+using VRC.SDKBase;
 
 namespace DocMe.AvatarDoctor.Editor
 {
@@ -426,13 +427,16 @@ namespace DocMe.AvatarDoctor.Editor
         /// idle starts in Load instead, which passes straight to Reset, so the rests are written once at load too: the
         /// build writes some defaults into the avatar itself (an exclusive group's default member, a blend shape
         /// trigger that starts on), which a different saved value would otherwise leave in place, and a row's own off
-        /// value would otherwise show only after the effect had come and gone once.
+        /// value would otherwise show only after the effect had come and gone once. For a pin layer (fadesWhileIdle),
+        /// Reset also writes once what the idle state writes (an object or material slot at its off value, a pause flag
+        /// at 0): idle plays at weight 0 (FadePinLayersWhileIdle), where its own curves no longer count.
         /// </summary>
-        internal static VirtualState AddResetState(VirtualStateMachine sm, string layerName, VirtualState idle, Vector3 position, bool writeDefaults, PinLayerState pinState)
+        internal static VirtualState AddResetState(VirtualStateMachine sm, string layerName, VirtualState idle, Vector3 position, bool writeDefaults, PinLayerState pinState, bool fadesWhileIdle = false)
         {
             int occurrence = sm.AllStates().Count(s => s.Name == PinLayerState.ResetStateName);
             var reset = sm.AddState(PinLayerState.ResetStateName, VirtualClip.Create(layerName + " Reset"), position);
             reset.WriteDefaultValues = writeDefaults;
+            if (fadesWhileIdle && idle.Motion is VirtualClip idleClip) WriteOnceInto(idleClip, (VirtualClip)reset.Motion);
             var back = VirtualStateTransition.Create();
             back.SetDestination(idle);
             back.Conditions = ImmutableList<AnimatorCondition>.Empty;
@@ -461,7 +465,113 @@ namespace DocMe.AvatarDoctor.Editor
                 sm.DefaultState = load;
             }
             pinState.Resets[layerName] = occurrence;
+            if (fadesWhileIdle) pinState.Idles[layerName] = idle.Name;
             return reset;
+        }
+
+        /// <summary>Every curve of one clip, at its value at time 0, into another, ResetSeconds long.</summary>
+        static void WriteOnceInto(VirtualClip from, VirtualClip into)
+        {
+            foreach (var binding in from.GetFloatCurveBindings())
+            {
+                var curve = from.GetFloatCurve(binding);
+                if (curve != null && curve.length > 0) into.SetFloatCurve(binding, AnimationCurve.Constant(0f, ResetSeconds, curve.Evaluate(0f)));
+            }
+            foreach (var binding in from.GetObjectCurveBindings())
+            {
+                var keys = from.GetObjectCurve(binding);
+                if (keys == null || keys.Length == 0) continue;
+                into.SetObjectCurve(binding, new[]
+                {
+                    new ObjectReferenceKeyframe { time = 0f, value = keys[0].value },
+                    new ObjectReferenceKeyframe { time = ResetSeconds, value = keys[0].value },
+                });
+            }
+        }
+
+        /// <summary>
+        /// A Write Defaults off layer that weighs more than 0 makes FX hold every blend shape a playable below it
+        /// animates, shapes no FX layer touches included, so a world's dance (an MMD world, a station) moves nothing
+        /// on the face while one plays. Every pin, distance and trigger layer therefore weighs 0 in its idle state and
+        /// 1 in each active state, through a VRCAnimatorLayerControl on that state aimed at the layer itself (by its
+        /// virtual index, which NDMF turns into the final position on commit). The layer still loads at 1 and Load and
+        /// Reset set nothing, so both play at the 1 the way in left, whether VRChat applies a control at once or a
+        /// frame late; what idle writes, Reset writes too (AddResetState). A pause layer animates nothing and only
+        /// runs tracking controls, which run at any weight, so it weighs 0 for good. Runs last in the final pass, after
+        /// every pause layer that steps aside is gone. A layer that no layer with weight writes shows the value the
+        /// avatar was uploaded with, not the last one written (measured by playback), so a layer only fades when every
+        /// value its Reset writes is the avatar's own (RestsMatchTheAvatar); one that rests elsewhere (a row's own off
+        /// value, an object switched off at rest but on in the scene, the pins of a toggle that starts on, which the
+        /// build writes into the avatar) keeps its weight while idle, as before.
+        /// </summary>
+        public static void FadePinLayersWhileIdle(AnimatorServicesContext asc, PinLayerState pins, Transform avatarRoot)
+        {
+            if (pins == null || pins.Names.Count == 0) return;
+            if (!asc.ControllerContext.Controllers.TryGetValue(VRCAvatarDescriptor.AnimLayerType.FX, out var fx) || fx == null) return;
+            foreach (var layer in fx.Layers)
+            {
+                if (layer.StateMachine == null || !IsKnownPinLayer(layer, pins.Names)) continue;
+                if (layer.Name == pins.BlinkPauseLayerName || layer.Name == pins.LipSyncPauseLayerName)
+                {
+                    layer.DefaultWeight = 0f;
+                    continue;
+                }
+                if (!pins.Idles.TryGetValue(layer.Name, out var idleName)) continue;
+                var states = layer.StateMachine.AllStates().ToList();
+                var idle = states.FirstOrDefault(s => s.Name == idleName);
+                if (idle == null) continue;
+                var reset = ResetStateOf(layer, layer.Name, pins);
+                if (reset != null && !RestsMatchTheAvatar(asc, fx, avatarRoot, reset.Motion as VirtualClip)) continue;
+                layer.DefaultWeight = 1f;
+                foreach (var state in states)
+                {
+                    if (reset != null && (state == reset || (state.Name == PinLayerState.LoadStateName && state.Motion == reset.Motion))) continue;
+                    var control = ScriptableObject.CreateInstance<VRCAnimatorLayerControl>();
+                    control.playable = VRC_AnimatorLayerControl.BlendableLayer.FX;
+                    control.layer = layer.VirtualLayerIndex;
+                    control.goalWeight = state == idle ? 0f : 1f;
+                    control.blendDuration = 0f;
+                    state.Behaviours = state.Behaviours.Add(control);
+                }
+            }
+        }
+
+        /// <summary>Whether every value this Reset clip writes is the one the avatar has now, at the end of the build: an animator parameter its default, anything else its value on the avatar. A binding that cannot be read counts as different.</summary>
+        static bool RestsMatchTheAvatar(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, VirtualClip reset)
+        {
+            if (reset == null) return true;
+            const float tolerance = 0.001f;
+            foreach (var binding in reset.GetFloatCurveBindings())
+            {
+                var curve = reset.GetFloatCurve(binding);
+                if (curve == null || curve.length == 0) continue;
+                float rest = curve.Evaluate(0f);
+                if (binding.type == typeof(Animator) && string.IsNullOrEmpty(binding.path))
+                {
+                    if (!fx.Parameters.TryGetValue(binding.propertyName, out var parameter) || Mathf.Abs(parameter.defaultFloat - rest) > tolerance) return false;
+                    continue;
+                }
+                if (!TryRealBinding(asc, avatarRoot, binding, out var real) || !AnimationUtility.GetFloatValue(avatarRoot.gameObject, real, out float own)) return false;
+                if (Mathf.Abs(own - rest) > tolerance) return false;
+            }
+            foreach (var binding in reset.GetObjectCurveBindings())
+            {
+                var keys = reset.GetObjectCurve(binding);
+                if (keys == null || keys.Length == 0) continue;
+                if (!TryRealBinding(asc, avatarRoot, binding, out var real) || !AnimationUtility.GetObjectReferenceValue(avatarRoot.gameObject, real, out var own)) return false;
+                if (own != keys[0].value) return false;
+            }
+            return true;
+        }
+
+        /// <summary>The binding with its virtual path turned into the object's path under the avatar now.</summary>
+        static bool TryRealBinding(AnimatorServicesContext asc, Transform avatarRoot, EditorCurveBinding binding, out EditorCurveBinding real)
+        {
+            real = binding;
+            var target = asc.ObjectPathRemapper.GetObjectForPath(binding.path);
+            if (target == null || !target.transform.IsChildOf(avatarRoot)) return false;
+            real.path = AnimationUtility.CalculateTransformPath(target.transform, avatarRoot);
+            return true;
         }
 
         /// <summary>
@@ -723,7 +833,7 @@ namespace DocMe.AvatarDoctor.Editor
             // The pin layer follows its main layer: a toggle that is on by default starts with its pins written.
             if (defaultOn && states.Count == 1) sm.DefaultState = states[0];
 
-            var back = pinState != null ? AddResetState(sm, name, off, new Vector3(300f, 0f, 0f), false, pinState) : off;
+            var back = pinState != null ? AddResetState(sm, name, off, new Vector3(300f, 0f, 0f), false, pinState, fadesWhileIdle: true) : off;
             var offTransitions = ImmutableList.CreateBuilder<VirtualStateTransition>();
             for (int i = 0; i < members.Count; i++)
             {

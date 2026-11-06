@@ -31,6 +31,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// </summary>
         public readonly Dictionary<string, int> Resets = new Dictionary<string, int>();
 
+        /// <summary>The name of the idle state of every layer built with a Reset, by the layer's exact name. It is always the first state of that name in its layer.</summary>
+        public readonly Dictionary<string, string> Idles = new Dictionary<string, string>();
+
         /// <summary>Every binding the final pass found another layer owning: a shape there still rests once on the way out, a property is left to its owner.</summary>
         public readonly HashSet<UnityEditor.EditorCurveBinding> OwnedByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
 

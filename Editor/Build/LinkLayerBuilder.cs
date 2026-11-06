@@ -239,7 +239,7 @@ namespace DocMe.AvatarDoctor.Editor
             // Requirements join every way in (all must hold) and add one way out each (any failing leaves). The
             // shape's own way out comes first, so a shape that drops below everything goes straight back. Every
             // way back goes through Reset, which writes the rest values once, to the rest state.
-            var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, rest, new Vector3(150f, 300f, 0f), false, pinState) : rest;
+            var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, rest, new Vector3(150f, 300f, 0f), false, pinState, fadesWhileIdle: true) : rest;
             AnimatorCondition Mirror(AnimatorConditionMode mode, float value) => new AnimatorCondition { parameter = mirror, mode = mode, threshold = value };
             ImmutableList<AnimatorCondition> With(IEnumerable<AnimatorCondition> requirement, params AnimatorCondition[] own) => ImmutableList.CreateRange(own.Concat(requirement));
 

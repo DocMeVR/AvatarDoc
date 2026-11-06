@@ -98,6 +98,7 @@ namespace DocMe.AvatarDoctor.Editor
                     if (needsPinMove) L.Report(ClipRewriter.Rewrite(asc, pins));
                     if (needsPinMove)
                     {
+                        AnimatorBuilder.FadePinLayersWhileIdle(asc, pins, context.AvatarRootTransform);
                         AnimatorBuilder.MovePinLayersLast(asc, pins.Names);
                         AnimatorBuilder.ReaimFxLayerControls(asc, aimedFromElsewhere);
                     }

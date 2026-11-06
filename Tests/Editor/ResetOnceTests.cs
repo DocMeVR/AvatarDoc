@@ -569,7 +569,12 @@ namespace DocMe.AvatarDoctor.Editor
 
         // ---- played back ----------------------------------------------------------------------------------------
 
-        /// <summary>The built FX controller, played on the avatar by a manual playable graph, one step of time per frame.</summary>
+        /// <summary>
+        /// The built FX controller, played on the avatar by a manual playable graph, one step of time per frame. Every
+        /// VRCAnimatorLayerControl on a state the layers enter sets its FX layer's weight the way VRChat does, from the
+        /// next frame on, or controlDelay frames later still. Below is a clip played under FX, as a world's dance plays
+        /// under the avatar's FX.
+        /// </summary>
         internal sealed class Player : System.IDisposable
         {
             PlayableGraph graph;
@@ -577,24 +582,65 @@ namespace DocMe.AvatarDoctor.Editor
             readonly AnimatorController fx;
             readonly SkinnedMeshRenderer body;
             readonly float step;
+            readonly int controlDelay;
+            readonly int[] current;
+            readonly List<(int frame, int layer, float weight)> pending = new List<(int, int, float)>();
+            int frame;
 
-            public Player(GameObject root, AnimatorController fx, SkinnedMeshRenderer body, float step = Frame)
+            public Player(GameObject root, AnimatorController fx, SkinnedMeshRenderer body, float step = Frame, int controlDelay = 0, AnimationClip below = null)
             {
                 this.fx = fx;
                 this.body = body;
                 this.step = step;
+                this.controlDelay = controlDelay;
+                current = new int[fx.layers.Length];
                 var animator = root.GetComponent<Animator>();
                 if (animator == null) animator = root.AddComponent<Animator>();
                 graph = PlayableGraph.Create("ResetOnceTests");
                 graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
                 playable = AnimatorControllerPlayable.Create(graph, fx);
                 var output = AnimationPlayableOutput.Create(graph, "FX", animator);
-                output.SetSourcePlayable(playable);
+                if (below != null)
+                {
+                    var mixer = AnimationLayerMixerPlayable.Create(graph, 2);
+                    graph.Connect(AnimationClipPlayable.Create(graph, below), 0, mixer, 0);
+                    graph.Connect(playable, 0, mixer, 1);
+                    mixer.SetInputWeight(0, 1f);
+                    mixer.SetInputWeight(1, 1f);
+                    output.SetSourcePlayable(mixer);
+                }
+                else output.SetSourcePlayable(playable);
                 graph.Play();
             }
 
-            /// <summary>How many frames Reset can last at this step, plus room for the transitions around it.</summary>
-            public int Settle => Mathf.CeilToInt(Frame / step) + 4;
+            void Step()
+            {
+                frame++;
+                foreach (var due in pending.Where(p => p.frame <= frame).ToList())
+                {
+                    playable.SetLayerWeight(due.layer, due.weight);
+                    pending.Remove(due);
+                }
+                graph.Evaluate(step);
+                var layers = fx.layers;
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    int hash = playable.GetCurrentAnimatorStateInfo(i).fullPathHash;
+                    if (hash == current[i]) continue;
+                    current[i] = hash;
+                    var entered = layers[i].stateMachine.states.Select(s => s.state).FirstOrDefault(s => Animator.StringToHash(layers[i].name + "." + s.name) == hash);
+                    if (entered == null) continue;
+                    foreach (var control in entered.behaviours.OfType<VRCAnimatorLayerControl>())
+                        if (control.playable == VRC_AnimatorLayerControl.BlendableLayer.FX)
+                            pending.Add((frame + 1 + controlDelay, control.layer, control.goalWeight));
+                }
+            }
+
+            /// <summary>The weight the layer of this name plays at now.</summary>
+            public float LayerWeight(string layerName) => playable.GetLayerWeight(System.Array.FindIndex(fx.layers, l => l.name == layerName));
+
+            /// <summary>How many frames Reset can last at this step, plus room for the transitions around it and a late layer control.</summary>
+            public int Settle => Mathf.CeilToInt(Frame / step) + 4 + controlDelay;
 
             public void Set(string parameter, float value)
             {
@@ -613,7 +659,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var weights = new List<float>();
                 for (int i = 0; i < frames; i++)
                 {
-                    graph.Evaluate(step);
+                    Step();
                     weights.Add(Weight(shape));
                 }
                 return weights;
