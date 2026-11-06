@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/DocMeVR/AvatarDoc/compare/0.8.0...0.8.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* resting face layers no longer stop MMD world dances ([#23](https://github.com/DocMeVR/AvatarDoc/issues/23)) ([e3c04d4](https://github.com/DocMeVR/AvatarDoc/commit/e3c04d4993010d4da78bba33cdfb178fccb23db1))
+
 ## [0.8.0](https://github.com/DocMeVR/AvatarDoc/compare/0.7.2...0.8.0) (2026-10-30)
 
 
