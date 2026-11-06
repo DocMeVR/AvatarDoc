@@ -270,6 +270,24 @@ More about the choices: [Gesture faces window](../../reference/gesture-faces-win
 
 Press <Label k="ad.ui.summary" /> in the header and keep the text for [Report a bug](../report-a-bug/).
 
+## My face does not move in an MMD world [#mmd-face]
+
+### Likely cause
+
+- A toggle or a trigger that holds a face shape is on. While it is on, its pin layer keeps the face, and the dance can't move it. A toggle that is on by default counts too.
+- Another layer of your avatar has Write Defaults off and a weight above 0. One such layer stops every face shape of the dance. It can come from your own FX controller, a merged animator or another tool.
+- You use AvatarDoc 0.8.0 or older. There, a pin layer kept the face even while its entry was off.
+
+### Fix
+
+1. Update AvatarDoc and upload again.
+2. Turn off the toggles that hold face shapes before the dance starts.
+3. For the other layers, use Write Defaults on for your avatar, or VRCFury's MMD Compatibility, which turns Write Defaults on for every layer. AvatarDoc turns it off again for its own pin layers, and they weigh nothing while they rest. See [A resting pin layer weighs nothing](../../how-it-works/layers-and-pins/#a-resting-pin-layer-weighs-nothing).
+
+### Still stuck
+
+See [Report a bug](../report-a-bug/).
+
 ## A blend shape trigger does nothing [#blend-shape-trigger-does-nothing]
 
 ### Likely cause

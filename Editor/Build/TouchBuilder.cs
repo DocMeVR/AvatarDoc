@@ -631,7 +631,7 @@ namespace DocMe.AvatarDoctor.Editor
             // Requirements join the way in (every one must hold) and add a way out each (any one failing
             // leaves). With none, this is the one transition each way the layer always had. Every way out goes
             // through Reset back to Far.
-            var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, far, new Vector3(150f, 150f, 0f), false, pinState) : far;
+            var back = pinState != null ? AnimatorBuilder.AddResetState(sm, name, far, new Vector3(150f, 150f, 0f), false, pinState, fadesWhileIdle: true) : far;
             var enter = requirements != null ? requirements.Enter : new List<List<AnimatorCondition>> { new List<AnimatorCondition>() };
             var leave = requirements != null ? requirements.Leave : new List<List<AnimatorCondition>>();
             far.Transitions = ImmutableList.CreateRange(enter.Select(e =>

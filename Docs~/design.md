@@ -2762,6 +2762,22 @@ material properties to the final pass (`TriggerBuilder`, only on a Write Default
 amendment below). The flip layer and the
 tracking pause layers record no rest and are unchanged.
 
+**Resting pin layers weigh 0 (world dances).** One FX layer that is Write Defaults off and weighs more than 0 makes
+the FX playable hold every blend shape a playable below it animates, shapes FX never binds included; with every FX
+layer Write Defaults on, or the Write Defaults off ones at weight 0, those shapes pass. An MMD world's or station's
+dance plays below FX, so every pin, distance and blend shape trigger layer stopped it moving the face, even with
+VRCFury's MMD Compatibility (it turns every layer Write Defaults on, and the final pass turns the pin layers off again).
+Measured in Unity's own playable mixer with the dev tools' `docme_mmd_check`. `FadePinLayersWhileIdle`, last in the
+final pass, gives each such layer's idle state a `VRCAnimatorLayerControl` to its own FX layer (by virtual index,
+which NDMF commits as the final position; d4rk remaps it and never merges a controlled layer) with goal 0, and every
+active state one with goal 1, blend 0. The layer loads at 1, and `Load` and `Reset` carry no control, so they play at
+the 1 the way in left, whether VRChat applies a control at once or a frame late. Because idle now weighs nothing,
+`AddResetState` copies what the idle state writes (objects and material slots at their off values, pause flags at 0)
+into `Reset` for these layers, as one-frame curves. The tracking pause layers animate nothing and weigh 0 for good:
+their tracking controls run at any weight. Cost: while an entry with a pin layer is on (a toggle on by default
+included), a world's dance still cannot move the face. Detecting MMD worlds was dropped: on avatars with VRCFury's
+Defaults layer and MMD dummies, Modular Avatar's detector lands past the three slots worlds switch off.
+
 **Exclusive groups.** The pin layer no longer switches members through `AnyState` (see "Phase 5 amendments", now
 superseded): `Off` goes to a member on its own condition, a member goes to `Reset` as soon as its value is not selected,
 and `Reset` goes to `Off`. A member state writes only its own pins. A switch costs a frame or two.

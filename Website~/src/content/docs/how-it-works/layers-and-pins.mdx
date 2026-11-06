@@ -60,6 +60,12 @@ The second layer of a toggle or a trigger is named like its main layer, with (pi
 
 A pin layer sits last in the list (see [The order of the layers](#the-order-of-the-layers)), so it wins over face tracking and gestures while its entry is on. When the entry is off, the layer must let go. With Write Defaults on, its off state would write the starting value of the shape on every frame, from the last layer, and freeze face tracking and blinking on that value. With Write Defaults off, a state writes only what it has a curve for. The off state of a pin layer has no curve for any shape the layer holds, so while the entry is off those shapes are free for face tracking, blinking, gestures and your other toggles.
 
+### A resting pin layer weighs nothing
+
+One layer with Write Defaults off and a weight above 0 is enough to make the whole FX controller keep every face shape that something outside it animates. The dance of an MMD world is such an animation, so it could not move the face. That is why a pin layer only counts while its entry is on. Its off state sets the layer's weight to 0 and each on state sets it back to 1, through an animator layer control aimed at the layer itself. Load and Reset play at full weight, so the moment of rest still counts. The pause layers animate nothing, so they weigh 0 all the time. Their tracking changes work at any weight.
+
+While an entry with a pin layer is on, a world's dance can't move the face. A toggle that is on by default counts as on. See [My face does not move in an MMD world](../../help/troubleshooting/#mmd-face).
+
 ### Explicit rests
 
 A layer that stops writing a shape leaves it at the last value it was given. A pinned smile would stay when the toggle goes off, if nothing else moved the shape.
