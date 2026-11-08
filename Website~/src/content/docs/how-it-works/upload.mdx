@@ -37,7 +37,7 @@ Built in this order:
 1. It collects the AvatarDoc components that are switched on. A component that is switched off adds nothing.
 2. It builds the merged menu and plans the parameters. It reports every warning and error it finds.
 3. It checks the synced bits against VRChat's limit of 256.
-4. If there is no error, it removes the layers you asked to remove, then writes each entry's start state into the copy of the scene, so the avatar starts the way your entries say.
+4. If there is no error, it removes the layers you asked to remove, then writes each entry's start state into the copy of the scene, so the avatar starts the way your entries say. Shapes that a pin layer holds stay at their scene weight here, and their pin layer sets them when the avatar loads. See [A resting pin layer weighs nothing](../layers-and-pins/#a-resting-pin-layer-weighs-nothing).
 5. It builds the layers: toggles, radials and exclusive groups first, then condition triggers, touch triggers, blend shape triggers, presets, and last the merged animators. This is the order the layers are built in, not the order they end up in: the last pass moves some of them. [The order of the layers](../layers-and-pins/#the-order-of-the-layers) gives the finished order.
 6. It writes the parameters and the menu, and removes the components.
 

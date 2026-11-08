@@ -64,14 +64,15 @@ A pin layer sits last in the list (see [The order of the layers](#the-order-of-t
 
 One layer with Write Defaults off and a weight above 0 is enough to make the whole FX controller keep every face shape that something outside it animates. The dance of an MMD world is such an animation, so it could not move the face. So a pin layer weighs nothing while it rests. Its off state sets the layer's weight to 0, again every 3 seconds, and each on state sets it back to 1, through an animator layer control aimed at the layer itself. Load and Reset play at full weight, so the moment of rest still counts. The pause layers animate nothing, so they weigh 0 all the time. Their tracking changes work at any weight.
 
-A layer at weight 0 shows each shape and object the way your avatar was uploaded. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one.
+A layer at weight 0 shows each shape and object the way your avatar was uploaded. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one. A shape that another layer writes on every frame, such as the shape of an ordinary toggle, does not count, because that layer decides it anyway.
 
-That is why the shapes a pin layer holds stay out of the uploaded avatar, even for a toggle that is <Label k="ad.ui.default_on" />, the default member of an exclusive group, or a blend shape trigger that starts on. Their pin layer sets the shapes as soon as the avatar loads. Up to AvatarDoc 0.8.2 these shapes went into the uploaded avatar, so the pin layer kept its weight at rest, and a gesture face on the same shape stayed after the gesture ended. Objects and materials still go into the uploaded avatar the way they start. People who block your animations in their Safety settings see the held shapes at the weight they have in your scene.
+That is why the shapes a pin layer holds stay out of the uploaded avatar, even for a toggle that is <Label k="ad.ui.default_on" />, the default member of an exclusive group, or a blend shape trigger that starts on. Their pin layer sets the shapes when the avatar loads. Up to AvatarDoc 0.8.2 these shapes went into the uploaded avatar, so the pin layer kept its weight at rest, and a gesture face on the same shape stayed after the gesture ended. Objects and materials still go into the uploaded avatar the way they start. People who don't see your animations, because their Safety settings turn them off for you, see the held shapes at the weight they have in your scene.
 
 A pin layer keeps its weight while it rests, and still stops the dance, when it rests anywhere else:
 
 - a row with <Label k="ad.ui.target.explicit_off" />
 - an object that is off while the entry rests but on in your scene
+- a blend shape trigger that starts on and switches objects or materials, which go into the uploaded avatar the way they start
 
 While an entry with a pin layer is on, a world's dance can't move the face either. See [My face does not move in an MMD world](../../help/troubleshooting/#mmd-face).
 
@@ -103,7 +104,7 @@ Three details:
 
 - When several layers hold one shape, each of them resets it once on its own way out, so the shape goes back to rest whichever of them turns off last. While a lower layer still holds the shape, an upper layer that turns off covers it for that moment only. When two layers rest one property at different off values, the value after both are off is the one of the layer that turned off last, and at load the one of the later layer.
 - An exclusive group goes from one member to the next through Reset and its off state, so each member state sets only its own shapes. Switching members takes a frame or two.
-- An exclusive group has one pin layer for all its members, and it keeps its weight while any member is on. A gesture face on another member's shape stays in that time after the gesture ends, until the group is off.
+- An exclusive group has one pin layer for all its members, and it keeps its weight while a member that holds shapes is on. A gesture face on another member's shape stays in that time after the gesture ends.
 
 A shape that VRChat blinks or speaks with rests at 0 for the moment of Reset, whatever its weight in your scene, then VRChat's blinking or lip sync has it again. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
 

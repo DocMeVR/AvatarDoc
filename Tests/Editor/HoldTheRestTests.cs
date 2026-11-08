@@ -286,18 +286,21 @@ namespace DocMe.AvatarDoctor.Editor
         public void ADefaultIsTheWeightOtherTogglesRestAt()
         {
             SetWeight("Eye_Big", 40f);
-            // On by default with a 0 rule and no row: the rule's shapes stay out of the clone's defaults, and the
-            // rest comes from the base state's own read of the rule's mesh.
+            // On by default with a 0 rule and no row. Plain, on by default too, writes 10 onto the clone before any
+            // layer is made, so only the base state's own read of the rule's mesh still knows the 40.
             var clear = menu.AddEntry(EntryKind.Toggle, "Clear");
             clear.defaultOn = true;
             clear.shapeSets.Add(Rule(ShapeSetValue.Zero));
             var face = menu.AddEntry(EntryKind.Toggle, "Face");
             face.shapeSets.Add(Rule(ShapeSetValue.Default));
+            var plain = menu.AddEntry(EntryKind.Toggle, "Plain");
+            plain.defaultOn = true;
+            plain.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", weight = 10f });
 
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(avatar.Body.GetBlendShapeWeight(Index("Eye_Big")), Is.EqualTo(40f), "the clone keeps the scene's 40: a rule's shapes stay out of the uploaded avatar");
+            Assert.That(avatar.Body.GetBlendShapeWeight(Index("Eye_Big")), Is.EqualTo(10f), "sanity: the clone starts at Plain's 10, and the rule's 0 stays out of it");
             float clearRest = Weight(State(Layer(fx, "AD: Clear (pin)"), "Reset").motion, "Eye_Big");
             Assert.That(clearRest, Is.EqualTo(40f), "the other toggle hands the shape back to 40 when it turns off");
             Assert.That(Weight(State(Layer(fx, "AD: Face (pin)"), "On").motion, "Eye_Big"), Is.EqualTo(clearRest), "a held shape and the rest a toggle hands back never disagree");

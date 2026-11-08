@@ -521,7 +521,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var idle = states.FirstOrDefault(s => s.Name == idleName);
                 if (idle == null) continue;
                 var reset = ResetStateOf(layer, layer.Name, pins);
-                if (reset != null && !RestsMatchTheAvatar(asc, fx, avatarRoot, reset.Motion as VirtualClip)) continue;
+                if (reset != null && !RestsMatchTheAvatar(asc, fx, avatarRoot, reset.Motion as VirtualClip, pins.OwnedByAnotherLayer)) continue;
                 layer.DefaultWeight = 1f;
                 foreach (var state in states)
                 {
@@ -568,8 +568,8 @@ namespace DocMe.AvatarDoctor.Editor
             return length > 0f ? length : 1f;
         }
 
-        /// <summary>Whether every value this Reset clip writes is the one the avatar has now, at the end of the build: an animator parameter its default, anything else its value on the avatar. A binding that cannot be read counts as different.</summary>
-        static bool RestsMatchTheAvatar(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, VirtualClip reset)
+        /// <summary>Whether every value this Reset clip writes is the one the avatar has now, at the end of the build: an animator parameter its default, anything else its value on the avatar. A binding that cannot be read counts as different. A blend shape another layer owns does not count: that layer writes it on every frame, so the idle layer's weight never shows on it.</summary>
+        static bool RestsMatchTheAvatar(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, VirtualClip reset, ICollection<EditorCurveBinding> owned)
         {
             if (reset == null) return true;
             const float tolerance = 0.001f;
@@ -577,6 +577,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var curve = reset.GetFloatCurve(binding);
                 if (curve == null || curve.length == 0) continue;
+                if (binding.propertyName.StartsWith("blendShape.") && owned.Contains(binding)) continue;
                 float rest = curve.Evaluate(0f);
                 if (binding.type == typeof(Animator) && string.IsNullOrEmpty(binding.path))
                 {

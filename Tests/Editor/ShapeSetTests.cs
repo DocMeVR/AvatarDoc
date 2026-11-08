@@ -236,10 +236,14 @@ namespace DocMe.AvatarDoctor.Editor
         public void ARuleZeroedShapeIsReleasedToItsSceneWeight()
         {
             // An outfit that is on by default and zeroes every other shape of the body: Eye_Big, which the entry
-            // does not name, sits at 40 in the scene.
+            // does not name, sits at 40 in the scene. Plain, on by default too, writes 10 onto the clone before any
+            // layer is made, so a rest read from the clone instead of the base state would come back 10.
             var outfit = menu.AddEntry(EntryKind.Toggle, "Outfit");
             outfit.defaultOn = true;
             outfit.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true });
+            var plain = menu.AddEntry(EntryKind.Toggle, "Plain");
+            plain.defaultOn = true;
+            plain.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", weight = 10f });
             avatar.Body.SetBlendShapeWeight(1, 40f);
 
             var context = new BuildContext(avatar.Root, null);
@@ -247,15 +251,15 @@ namespace DocMe.AvatarDoctor.Editor
             var errors = ErrorReport.CaptureErrors(() => AvatarDoctorBuilder.Run(context));
             context.DeactivateAllExtensionContexts();
             Assert.That(errors.Where(e => e.TheError.Severity >= ErrorSeverity.Error), Is.Empty);
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(40f), "on by default, and still the rule's shapes stay out of the uploaded avatar: its pin layer holds them");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(10f), "sanity: Plain's 10 is in the clone, and the rule's 0 stays out of it");
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 
             var layer = Layer(FxOf(avatar), "AD: Outfit (pin)");
             Assert.That(CurveOf(State(layer, "Off").motion, "Body", "blendShape.Eye_Big"), Is.Null, "Off writes no shape");
             var curve = CurveOf(State(layer, "Reset").motion, "Body", "blendShape.Eye_Big");
-            Assert.That(curve, Is.Not.Null, "nothing else animates Eye_Big, so turning the outfit off has to hand it back, once, on the way out");
-            Assert.That(curve.Evaluate(0f), Is.EqualTo(40f), "back to the scene weight from before the build, not to the 0 the rule wrote into the scene");
+            Assert.That(curve, Is.Not.Null, "turning the outfit off hands Eye_Big back, once, on the way out");
+            Assert.That(curve.Evaluate(0f), Is.EqualTo(40f), "back to the scene weight from before the build, not to the 10 Plain wrote into the clone");
         }
 
         [Test]

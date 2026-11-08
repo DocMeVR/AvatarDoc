@@ -218,8 +218,8 @@ preview filter attached. The pass, `Build toggles and menus`, runs these steps i
 3. **Capture base state**: for every target the scene's current value before AvatarDoctor changes anything:
    `activeSelf`, blendshape weight, material in slot. These are the Off values.
 4. **Apply defaults to the scene**: for each toggle in tree order, write the default state (on targets if `defaultOn`,
-   else off targets); radials write `lerp(min, max, defaultValue)`; blendshape triggers write their effect for the
-   source's current weight. Later writers win.
+   else off targets); radials write `lerp(min, max, defaultValue)`; blendshape triggers write their objects and
+   materials for the source's current weight. Shapes a pin layer holds are left out (2026-11-08). Later writers win.
 5. **Animator**: get the FX controller, decide Write Defaults, add parameters, generate layers (below).
 6. **Clip rewriting** for blendshape triggers (below; replaced in plan 14 task S by a layer per trigger and a hidden
    copy of the shape added in the final pass, see "Smooth blend shape triggers and requirements").
@@ -1884,8 +1884,8 @@ and lip sync shapes settable per rule; the default read at upload.
   when nothing else owns them. A Fade contact: in the Near tree, at their default in the child at 0 and at the
   rule's value at Fully on (`ClipContent.WriteShapeSets`); Far writes nothing and the release pass decides. A blend
   shape trigger: like a Fixed row (`LinkLayerBuilder.Effects.Held`), from the default at Start to the value at Full
-  in Smooth, held in On in Switch, nothing in the rest state. `DefaultsApplier` writes a default on toggle's held
-  shapes and a blend shape trigger's at its source's weight into the clone, the same way it writes rows.
+  in Smooth, held in On in Switch, nothing in the rest state. `DefaultsApplier` leaves held shapes out of the clone
+  (since 2026-11-08, "Held shapes stay out of the avatar"): their pin layer sets them.
 - **Preview order.** A toggle's or a Hold trigger's Pin rows and rule shapes are queued in `PreviewModel.WriteSwitch`
   and written in tree order after the controls and the other triggers, before Fade and blend shape triggers: the
   order `MovePinLayersLast` gives their layers, above every ordinary layer. So a held shape shows the rule's value
@@ -2784,8 +2784,10 @@ one written. So a layer fades only when every value its `Reset` writes equals th
 build (`RestsMatchTheAvatar`: animator parameters against their default, the rest through `ObjectPathRemapper` and
 `AnimationUtility.GetFloatValue` / `GetObjectReferenceValue`; unreadable counts as different). Layers that rest
 elsewhere keep weight 1 while idle and still stop a dance: a row's explicit off value, an object off at rest but on in
-the scene. No build message names them yet. (Until 0.8.2 also anything `DefaultsApplier` wrote into the avatar at its
-on value: see "Held shapes stay out of the avatar".) Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
+the scene, a blend shape trigger that starts on and switches objects or materials (`DefaultsApplier` still writes those
+at their on value). No build message names them yet. Until 0.8.2 the held shapes of entries that start on did too, and
+so did any held shape another control's start value put into the avatar: see "Held shapes stay out of the avatar".
+Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
 MMD worlds was dropped: on avatars with VRCFury's Defaults layer and MMD dummies, Modular Avatar's detector lands past
 the three slots worlds switch off.
 
@@ -2797,10 +2799,17 @@ gesture layer that moves the same shape: the gesture's face stayed after the ges
 after the toggle went off (`WorldDanceTests.ADefaultOnPinToggleTurnedOffLetsTheDanceMoveTheFace`). Now toggles and
 group members write `ShapeSet.MainOnly`, and a blend shape trigger writes only its objects and materials
 (`WriteLinkDefault(withShapes: false)`). Whether such a trigger starts on is still read with the pins counted, from a
-second content written with `ShapeSet.All` that never reaches the scene. Objects, materials, properties and plain
-shape rows keep going into the avatar, so players who block animations still see the default outfit; the held shapes
-show at their scene weight for them. Left as is: an exclusive group's pin layer keeps weight 1 while any member is on,
-so a gesture face on another member's shape stays until the group is off (measured, documented in layers-and-pins).
+second content written with `ShapeSet.All` that never reaches the scene. Objects, material slots and plain shape rows
+keep going into the avatar (material properties never did: `ApplyToScene` skips them), so players who do not see the
+avatar's animations still see the default outfit; the held shapes show at their scene weight for them. The review of
+this change found the same weight loss one step further: a held shape that another control's start value puts into the
+avatar (a default on plain row beside a trigger that starts off with a rule on the mesh). The old Link default write
+had hidden it by writing the trigger's rests over it. So `RestsMatchTheAvatar` now skips a blend shape binding in
+`PinLayerState.OwnedByAnotherLayer`: its owner writes it on every frame, so the idle layer's weight never shows on it
+(`WorldDanceTests.ATriggerBesideAToggleThatStartsOnStillLetsTheDanceThrough`,
+`APinToggleOnAShapeAToggleStartsOnStillFades`). Left as is: an exclusive group's pin layer keeps weight 1 while a
+member that holds shapes is on, so a gesture face on another member's shape stays in that time (measured, documented in
+layers-and-pins).
 
 **Exclusive groups.** The pin layer no longer switches members through `AnyState` (see "Phase 5 amendments", now
 superseded): `Off` goes to a member on its own condition, a member goes to `Reset` as soon as its value is not selected,

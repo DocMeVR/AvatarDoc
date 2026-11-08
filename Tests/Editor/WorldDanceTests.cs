@@ -326,6 +326,53 @@ namespace DocMe.AvatarDoctor.Editor
             AssertFadesWhileIdle(fx, "AD: Face (pin)", "Off", "On");
         }
 
+        /// <summary>Fangs, on by default, writes Eye_Big at 100 into the avatar from its own layer, which writes the shape on every frame.</summary>
+        void FangsOnByDefault()
+        {
+            var fangs = menu.AddEntry(EntryKind.Toggle, "Fangs");
+            fangs.defaultOn = true;
+            fangs.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", weight = 100f });
+        }
+
+        [TestCase(false, TestName = "ATriggerRowOnAShapeAToggleStartsOnStillLetsTheDanceThrough")]
+        [TestCase(true, TestName = "ATriggerRuleOnAMeshAToggleStartsOnStillLetsTheDanceThrough")]
+        public void ATriggerBesideAToggleThatStartsOnStillLetsTheDanceThrough(bool rule)
+        {
+            FangsOnByDefault();
+            var smile = menu.AddEntry(EntryKind.Toggle, "Smile");
+            smile.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f });
+            var link = menu.AddEntry(EntryKind.Trigger, "Blush link");
+            link.source = TriggerSource.BlendShape;
+            link.sourceRenderer = avatar.Body;
+            link.sourceShape = "Blush";
+            if (rule) link.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true });
+            else link.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", mode = ShapeEffectMode.Fixed, weight = 30f });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            AssertFadesWhileIdle(fx, "AD: Blush link (shape)", "Far", "Near");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / 60f, 0, Dance()))
+            {
+                var resting = player.Settled("Dance");
+                Assert.That(resting.Last(), Is.EqualTo(80f).Within(0.01f), "the trigger at rest: the dance reaches the face " + Shown(resting));
+                Assert.That(player.Weight("Eye_Big"), Is.EqualTo(100f).Within(0.01f), "and Fangs, on, keeps its shape");
+            }
+        }
+
+        [Test]
+        public void APinToggleOnAShapeAToggleStartsOnStillFades()
+        {
+            FangsOnByDefault();
+            var clear = menu.AddEntry(EntryKind.Toggle, "Clear");
+            clear.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            AssertFadesWhileIdle(fx, "AD: Clear (pin)", "Off", "On");
+        }
+
         void TrackBlink()
         {
             avatar.Descriptor.enableEyeLook = true;
