@@ -425,8 +425,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// values into it in the final pass, each 1/60 of a second long, so the layer writes them once on the way out
         /// and nothing at all while it is idle. Added after every other state of the layer. A layer that would start
         /// idle starts in Load instead, which passes straight to Reset, so the rests are written once at load too: the
-        /// build writes some defaults into the avatar itself (an exclusive group's default member, a blend shape
-        /// trigger that starts on), which a different saved value would otherwise leave in place, and a row's own off
+        /// build writes the objects and materials of a blend shape trigger that starts on into the avatar, which a
+        /// different source value would otherwise leave in place, and a row's own off
         /// value would otherwise show only after the effect had come and gone once. For a pin layer (fadesWhileIdle),
         /// Reset also writes once what the idle state writes (an object or material slot at its off value, a pause flag
         /// at 0): idle plays at weight 0 (FadePinLayersWhileIdle), where its own curves no longer count.
@@ -501,8 +501,8 @@ namespace DocMe.AvatarDoctor.Editor
         /// every pause layer that steps aside is gone. A layer that no layer with weight writes shows the value the
         /// avatar was uploaded with, not the last one written (measured by playback), so a layer only fades when every
         /// value its Reset writes is the avatar's own (RestsMatchTheAvatar); one that rests elsewhere (a row's own off
-        /// value, an object switched off at rest but on in the scene, the pins of a toggle that starts on, which the
-        /// build writes into the avatar) keeps its weight while idle, as before.
+        /// value, an object switched off at rest but on in the scene) keeps its weight while idle, as before. The
+        /// shapes a pin layer holds never go into the avatar (DefaultsApplier), so a toggle that starts on fades too.
         /// </summary>
         public static void FadePinLayersWhileIdle(AnimatorServicesContext asc, PinLayerState pins, Transform avatarRoot)
         {

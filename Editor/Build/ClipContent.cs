@@ -386,12 +386,16 @@ namespace DocMe.AvatarDoctor.Editor
 
         bool Outside(Transform target) => MenuModel.IsOutsideAvatar(avatarRoot, target);
 
-        /// <summary>Writes a blend shape trigger's effects for one value of its source shape, in its own style: what the scene should show at that weight.</summary>
-        public void WriteLinkDefault(MenuEntry entry, float sourceWeight, BaseState baseState)
+        /// <summary>Writes a blend shape trigger's effects for one value of its source shape, in its own style: what the scene should show at that weight. withShapes false leaves out its shapes and rules, which its Write Defaults off layer holds.</summary>
+        public void WriteLinkDefault(MenuEntry entry, float sourceWeight, BaseState baseState, bool withShapes = true)
         {
             bool above = EffectMath.LinkAbove(sourceWeight, entry.sourceThreshold);
             foreach (var target in entry.objects)
                 if (target.target != null && !Outside(target.target.transform)) SetActive(target.target, EffectMath.ObjectActive(target, above));
+            foreach (var target in entry.materials)
+                if (MenuModel.SlotExists(target) && !Outside(target.renderer.transform))
+                    SetMaterial(target.renderer, target.slot, EffectMath.ToggleMaterial(target, above, baseState.MaterialOf(target.renderer, target.slot)));
+            if (!withShapes) return;
             foreach (var target in entry.blendShapes)
             {
                 if (target.renderer == entry.sourceRenderer && target.shape == entry.sourceShape) continue;
@@ -399,9 +403,6 @@ namespace DocMe.AvatarDoctor.Editor
                 float value = EffectMath.LinkShapeWeight(entry, target, sourceWeight, baseState.WeightOf(target.renderer, target.shape));
                 SetShape(target.renderer, target.shape, value);
             }
-            foreach (var target in entry.materials)
-                if (MenuModel.SlotExists(target) && !Outside(target.renderer.transform))
-                    SetMaterial(target.renderer, target.slot, EffectMath.ToggleMaterial(target, above, baseState.MaterialOf(target.renderer, target.slot)));
             // A rule's shapes go from their default to the rule's value the way a Fixed row goes to its weight.
             if (entry.shapeSets.Count == 0) return;
             var context = HeldContextOf(baseState);

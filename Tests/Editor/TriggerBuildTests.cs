@@ -465,20 +465,22 @@ namespace DocMe.AvatarDoctor.Editor
 
             DefaultsApplier.Apply(tree, plan, baseState, plans);
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(30f));
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(0f), "its shapes stay out of the uploaded avatar: its Write Defaults off layer holds them");
             Assert.That(avatar.Hat.activeSelf, Is.True);
             Assert.That(avatar.Body.sharedMaterials[1], Is.SameAs(avatar.MaterialB));
         }
 
-        [Test]
-        public void LinkDefaultUsesThePendingToggleValue()
+        [TestCase(ShapeEffectMode.Fixed, TestName = "LinkDefaultUsesThePendingToggleValue")]
+        [TestCase(ShapeEffectMode.Pin, TestName = "LinkDefaultUsesThePendingPinValue")]
+        public void LinkDefaultUsesThePendingValue(ShapeEffectMode mode)
         {
             var toggle = menu.AddEntry(EntryKind.Toggle, "Blush");
             toggle.defaultOn = true;
-            toggle.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 80f });
+            toggle.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 80f, mode = mode });
             var link = Link("Blush link", "Blush");
             link.sourceThreshold = 50f;
-            link.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", mode = ShapeEffectMode.Fixed, weight = 40f });
+            link.objects.Add(new ObjectTarget { target = avatar.Hat, activeWhenOn = true });
+            avatar.Hat.SetActive(false);
             avatar.Body.SetBlendShapeWeight(0, 0f);
             var tree = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
             var plan = ParameterPlanner.Plan(tree, new Dictionary<string, ExistingParameter>());
@@ -487,7 +489,8 @@ namespace DocMe.AvatarDoctor.Editor
 
             DefaultsApplier.Apply(tree, plan, baseState, plans);
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(32f).Within(0.001f), "the pending toggle value (80) is 80% of the way from Start (0) to Full (100), not the stale scene weight (0)");
+            Assert.That(avatar.Hat.activeSelf, Is.True, "the toggle's 80 starts the trigger, not the stale scene weight (0), pinned or not");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(mode == ShapeEffectMode.Pin ? 0f : 80f), "a pinned 80 itself stays out of the uploaded avatar");
         }
 
         [Test]
@@ -748,7 +751,7 @@ namespace DocMe.AvatarDoctor.Editor
 
             DefaultsApplier.Apply(tree, plan, BaseState.Capture(tree));
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(0f), "a pin writes its weight while the control starts on");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(60f), "a pin's shape stays out of the uploaded avatar, even while its control starts on: its pin layer holds it");
 
             mute.defaultOn = false;
             avatar.Body.SetBlendShapeWeight(0, 60f);

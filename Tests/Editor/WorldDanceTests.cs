@@ -283,6 +283,30 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        [TestCase(60f, 0)]
+        [TestCase(144f, 1)]
+        public void ADefaultOnPinToggleTurnedOffLetsTheDanceMoveTheFace(float framesPerSecond, int controlDelay)
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var on = Leaving(Layer(fx, "AD: Face (pin)"), "On");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / framesPerSecond, controlDelay, Dance()))
+            {
+                player.Set(on, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin holds Blush");
+
+                player.Set(on, 0f);
+                var off = player.Settled("Dance");
+                Assert.That(off.Last(), Is.EqualTo(80f).Within(0.01f), "turned off: the dance reaches the face " + Shown(off));
+                Assert.That(player.Weight("Blush"), Is.EqualTo(0f).Within(0.01f), "and Blush is at rest");
+            }
+        }
+
         [Test]
         public void ALayerThatRestsAwayFromTheAvatarKeepsItsWeight()
         {
@@ -297,9 +321,9 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(ControlOn(State(Layer(fx, "AD: Face (pin)"), "Off")), Is.Null, "the build wrote the on pin into the avatar, so off rests elsewhere");
             Assert.That(ControlOn(State(Layer(fx, "AD: Headpat (distance)"), "Far")), Is.Null, "a row's own off value is not the avatar's");
             AssertFadesWhileIdle(fx, "AD: Plain (pin)", "Off", "On");
+            AssertFadesWhileIdle(fx, "AD: Face (pin)", "Off", "On");
         }
 
         void TrackBlink()

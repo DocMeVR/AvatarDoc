@@ -64,9 +64,12 @@ A pin layer sits last in the list (see [The order of the layers](#the-order-of-t
 
 One layer with Write Defaults off and a weight above 0 is enough to make the whole FX controller keep every face shape that something outside it animates. The dance of an MMD world is such an animation, so it could not move the face. So a pin layer weighs nothing while it rests. Its off state sets the layer's weight to 0, again every 3 seconds, and each on state sets it back to 1, through an animator layer control aimed at the layer itself. Load and Reset play at full weight, so the moment of rest still counts. The pause layers animate nothing, so they weigh 0 all the time. Their tracking changes work at any weight.
 
-A layer at weight 0 shows each shape and object the way your avatar was uploaded. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one. It keeps its weight while it rests, and still stops the dance, when it rests anywhere else:
+A layer at weight 0 shows each shape and object the way your avatar was uploaded. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one.
 
-- a toggle that is <Label k="ad.ui.default_on" />, the default member of an exclusive group, or a blend shape trigger that starts on: AvatarDoc writes their on values into the avatar
+That is why the shapes a pin layer holds stay out of the uploaded avatar, even for a toggle that is <Label k="ad.ui.default_on" />, the default member of an exclusive group, or a blend shape trigger that starts on. Their pin layer sets the shapes as soon as the avatar loads. Up to AvatarDoc 0.8.2 these shapes went into the uploaded avatar, so the pin layer kept its weight at rest, and a gesture face on the same shape stayed after the gesture ended. Objects and materials still go into the uploaded avatar the way they start. People who block your animations in their Safety settings see the held shapes at the weight they have in your scene.
+
+A pin layer keeps its weight while it rests, and still stops the dance, when it rests anywhere else:
+
 - a row with <Label k="ad.ui.target.explicit_off" />
 - an object that is off while the entry rests but on in your scene
 
@@ -78,7 +81,7 @@ A layer that stops writing a shape leaves it at the last value it was given. A p
 
 So a pin layer resets once, then lets go. On its way from on to off, it passes a short state named **Reset**. Reset plays for a moment, 1/60 of a second (one frame at 60 frames a second, a few at higher frame rates), and sets each shape the layer held back to its rest: the value it has in your scene, or the row's off value when it has one. Then the layer moves on to its off state, which writes nothing for those shapes. From then on, whatever else moves a shape decides it: face tracking, blinking, a gesture or another toggle. A shape that nothing else moves stays at its rest.
 
-The layer also resets once when the avatar loads: it starts in a state named **Load**, which plays the same moment of rest and passes on to Reset. So the avatar loads with these shapes at rest, even when AvatarDoc wrote a default into the avatar itself, such as the pose of an exclusive group's default member, and the saved choice is another member.
+The layer also resets once when the avatar loads: it starts in a state named **Load**, which plays the same moment of rest and passes on to Reset. So the avatar loads with these shapes at rest whenever the saved choice is off.
 
 At the very end of the build, when every layer from every tool is in the controller, AvatarDoc fills in each Reset. Every shape the layer held goes in, even one that another layer moves, such as face tracking or a gesture. A layer with Write Defaults off keeps the last value it wrote until something writes over it, and on other players' copies of your avatar that other layer did not always do so: a pat's closed eyes stayed closed. Where the other layer runs, it writes over the moment of rest straight away.
 
@@ -96,10 +99,11 @@ The same rule hands back the material properties that a <Label k="ad.ui.touch.ho
 
 A row's own off value, set with <Label k="ad.ui.target.explicit_off" />, is its rest. A toggle's layer holds it the whole time the toggle is off, and so does a <Label k="ad.ui.touch.hold" /> trigger's layer for a blend shape row. A trigger in <Label k="ad.ui.touch.follow" /> mode, a blend shape trigger, and a <Label k="ad.ui.touch.hold" /> trigger's property row on an avatar with Write Defaults off set it when the avatar loads and every time the effect ends; while the trigger rests, the value stays unless something else moves it. On an avatar with Write Defaults on, a <Label k="ad.ui.touch.hold" /> trigger's layer holds a property's off value the whole time it rests.
 
-Two details:
+Three details:
 
 - When several layers hold one shape, each of them resets it once on its own way out, so the shape goes back to rest whichever of them turns off last. While a lower layer still holds the shape, an upper layer that turns off covers it for that moment only. When two layers rest one property at different off values, the value after both are off is the one of the layer that turned off last, and at load the one of the later layer.
 - An exclusive group goes from one member to the next through Reset and its off state, so each member state sets only its own shapes. Switching members takes a frame or two.
+- An exclusive group has one pin layer for all its members, and it keeps its weight while any member is on. A gesture face on another member's shape stays in that time after the gesture ends, until the group is off.
 
 A shape that VRChat blinks or speaks with rests at 0 for the moment of Reset, whatever its weight in your scene, then VRChat's blinking or lip sync has it again. See [Blinking, lip sync and face tracking](../blinking-and-lip-sync/).
 

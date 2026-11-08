@@ -2783,12 +2783,24 @@ Playback showed that a binding no layer with weight writes shows the value the a
 one written. So a layer fades only when every value its `Reset` writes equals the avatar's own value at the end of the
 build (`RestsMatchTheAvatar`: animator parameters against their default, the rest through `ObjectPathRemapper` and
 `AnimationUtility.GetFloatValue` / `GetObjectReferenceValue`; unreadable counts as different). Layers that rest
-elsewhere keep weight 1 while idle and still stop a dance: anything `DefaultsApplier` writes into the avatar at its on
-value (a toggle on by default, a group's default member, a blend shape trigger that starts on, and a pin on a shape
-such an entry also writes), a row's explicit off value, an object off at rest but on in the scene. No build message
-names them yet. Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
+elsewhere keep weight 1 while idle and still stop a dance: a row's explicit off value, an object off at rest but on in
+the scene. No build message names them yet. (Until 0.8.2 also anything `DefaultsApplier` wrote into the avatar at its
+on value: see "Held shapes stay out of the avatar".) Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
 MMD worlds was dropped: on avatars with VRCFury's Defaults layer and MMD dummies, Modular Avatar's detector lands past
 the three slots worlds switch off.
+
+**Held shapes stay out of the avatar (2026-11-08).** `DefaultsApplier` used to write every default on control into
+the avatar with `ShapeSet.All`: Pin rows, shape set rules and a blend shape trigger's shapes too. Their pin layer then
+rested away from the uploaded value and kept weight 1, and playback showed what that costs next to a Write Defaults on
+gesture layer that moves the same shape: the gesture's face stayed after the gesture ended
+(`ResetOnceTests.PlayedBackADefaultOnPinLetsAGestureHaveItsShapeOnceItIsOff`), and a dance could not reach the face
+after the toggle went off (`WorldDanceTests.ADefaultOnPinToggleTurnedOffLetsTheDanceMoveTheFace`). Now toggles and
+group members write `ShapeSet.MainOnly`, and a blend shape trigger writes only its objects and materials
+(`WriteLinkDefault(withShapes: false)`). Whether such a trigger starts on is still read with the pins counted, from a
+second content written with `ShapeSet.All` that never reaches the scene. Objects, materials, properties and plain
+shape rows keep going into the avatar, so players who block animations still see the default outfit; the held shapes
+show at their scene weight for them. Left as is: an exclusive group's pin layer keeps weight 1 while any member is on,
+so a gesture face on another member's shape stays until the group is off (measured, documented in layers-and-pins).
 
 **Exclusive groups.** The pin layer no longer switches members through `AnyState` (see "Phase 5 amendments", now
 superseded): `Off` goes to a member on its own condition, a member goes to `Reset` as soon as its value is not selected,

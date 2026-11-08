@@ -247,7 +247,7 @@ namespace DocMe.AvatarDoctor.Editor
             var errors = ErrorReport.CaptureErrors(() => AvatarDoctorBuilder.Run(context));
             context.DeactivateAllExtensionContexts();
             Assert.That(errors.Where(e => e.TheError.Severity >= ErrorSeverity.Error), Is.Empty);
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(0f), "on by default, so the rule's 0 is what the avatar starts with");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(40f), "on by default, and still the rule's shapes stay out of the uploaded avatar: its pin layer holds them");
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 

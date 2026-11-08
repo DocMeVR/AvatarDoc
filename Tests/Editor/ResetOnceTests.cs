@@ -798,7 +798,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f), "sanity: the build wrote the default member's pin into the avatar");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(5f), "the default member's pin stays out of the uploaded avatar");
             var b = Picks(fx, "B");
             using (var player = new Player(avatar.Root, fx, avatar.Body, 1f / framesPerSecond))
             {
@@ -831,6 +831,74 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        /// <summary>A gesture face the way a Write Defaults on avatar builds one: Idle plays nothing, Face holds the shape at value while GestureLeft is 1, both Write Defaults on. Returns the parameter.</summary>
+        string GestureFace(string shape, float value)
+        {
+            const string parameter = "GestureLeft";
+            avatar.Fx.AddParameter(new AnimatorControllerParameter { name = parameter, type = AnimatorControllerParameterType.Int });
+            var clip = TestAvatar.ShapeClip("Gesture " + shape, "Body", shape, value, value);
+            made.Add(clip);
+            var machine = AddFxLayer("Gesture " + shape);
+            var idle = AddState(machine, "Idle", null, true);
+            var face = AddState(machine, "Face", clip, true);
+            machine.defaultState = idle;
+            var toFace = idle.AddTransition(face);
+            toFace.hasExitTime = false;
+            toFace.duration = 0f;
+            toFace.AddCondition(AnimatorConditionMode.Equals, 1f, parameter);
+            var toIdle = face.AddTransition(idle);
+            toIdle.hasExitTime = false;
+            toIdle.duration = 0f;
+            toIdle.AddCondition(AnimatorConditionMode.NotEqual, 1f, parameter);
+            FullWeights();
+            return parameter;
+        }
+
+        [TestCase(false, TestName = "PlayedBackADefaultOnToggleLetsAGestureHaveItsShapeOnceItIsOff")]
+        [TestCase(true, TestName = "PlayedBackADefaultOnGroupMemberLetsAGestureHaveItsShapeOnceItIsOff")]
+        public void PlayedBackADefaultOnPinLetsAGestureHaveItsShapeOnceItIsOff(bool inAGroup)
+        {
+            var gesture = GestureFace("Blush", 60f);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            if (inAGroup)
+            {
+                GroupMember("A", "Blush", defaultOn: true);
+                GroupMember("B", "Eye_Big");
+            }
+            else
+            {
+                var face = menu.AddEntry(EntryKind.Toggle, "Face");
+                face.defaultOn = true;
+                face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            }
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var on = inAGroup ? Picks(fx, "A") : State(Layer(fx, "AD: Face (pin)"), "On").transitions.Single().conditions.Single();
+            // Off for both: no member picked. Another member picked keeps the group's layer at work, holding A's shape too.
+            var off = 0f;
+            using (var player = new Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Set(on.parameter, inAGroup ? on.threshold : 1f);
+                var loaded = player.Settled("Blush");
+                Assert.That(loaded.Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin holds the shape " + Shown(loaded));
+
+                player.Set(on.parameter, off);
+                var left = player.Play(30, "Blush");
+                Assert.That(left.Last(), Is.EqualTo(5f).Within(0.01f),
+                    "turned off: the shape goes back to rest and stays there, though the gesture layer writes its default whenever it rests " + Shown(left));
+
+                player.Set(gesture, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(60f).Within(0.01f), "the gesture has the shape");
+                player.Set(gesture, 0f);
+                var after = player.Settled("Blush");
+                Assert.That(after.Last(), Is.EqualTo(5f).Within(0.01f), "and lets it go back to rest " + Shown(after));
+            }
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(5f).Within(0.01f),
+                "the uploaded avatar keeps the scene's weight for a shape a pin holds: a Write Defaults on layer that moves it goes back to the uploaded value");
+        }
+
         [Test]
         public void PlayedBackABlendShapeTriggerThatStartsOnRestsWhenItsSourceLoadsOff()
         {
@@ -847,7 +915,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(80f), "sanity: the build wrote the trigger's on value into the avatar, since Smile starts on");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(7f), "Smile starts on, and still the trigger's shapes stay out of the uploaded avatar: its layer holds them");
             var smileOn = State(Layer(fx, "AD: Smile"), "On").transitions.Single().conditions.Single();
             using (var player = new Player(avatar.Root, fx, avatar.Body))
             {
