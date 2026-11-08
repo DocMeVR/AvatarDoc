@@ -347,12 +347,13 @@ namespace DocMe.AvatarDoctor.Editor
             var present = recorded.Where(r => r.layerName != null && byName.ContainsKey(r.layerName)).ToList();
             if (present.Count == 0) return;
             var recordedLayers = new HashSet<VirtualLayer>(present.Select(r => byName[r.layerName]));
-            bool owned = SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips);
+            bool owned = SomeNonPinLayerOwns(asc, layers, pins.Names, recordedLayers, binding, underLayerControl, resetClips, out bool everyFrame);
             if (owned)
             {
                 pins.OwnedByAnotherLayer.Add(binding);
                 LastOwnedByAnotherLayer.Add(binding);
             }
+            if (everyFrame) pins.WrittenEveryFrameByAnotherLayer.Add(binding);
             foreach (var (layerName, restValue) in present)
             {
                 if (owned && !isShape) continue;
@@ -521,7 +522,7 @@ namespace DocMe.AvatarDoctor.Editor
                 var idle = states.FirstOrDefault(s => s.Name == idleName);
                 if (idle == null) continue;
                 var reset = ResetStateOf(layer, layer.Name, pins);
-                if (reset != null && !RestsMatchTheAvatar(asc, fx, avatarRoot, reset.Motion as VirtualClip, pins.OwnedByAnotherLayer)) continue;
+                if (reset != null && !RestsMatchTheAvatar(asc, fx, avatarRoot, reset.Motion as VirtualClip, pins.WrittenEveryFrameByAnotherLayer)) continue;
                 layer.DefaultWeight = 1f;
                 foreach (var state in states)
                 {
@@ -568,8 +569,8 @@ namespace DocMe.AvatarDoctor.Editor
             return length > 0f ? length : 1f;
         }
 
-        /// <summary>Whether every value this Reset clip writes is the one the avatar has now, at the end of the build: an animator parameter its default, anything else its value on the avatar. A binding that cannot be read counts as different. A blend shape another layer owns does not count: that layer writes it on every frame, so the idle layer's weight never shows on it.</summary>
-        static bool RestsMatchTheAvatar(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, VirtualClip reset, ICollection<EditorCurveBinding> owned)
+        /// <summary>Whether every value this Reset clip writes is the one the avatar has now, at the end of the build: an animator parameter its default, anything else its value on the avatar. A binding that cannot be read counts as different. A blend shape another layer writes on every frame does not count (writtenEveryFrame): the idle layer's weight never shows on it.</summary>
+        static bool RestsMatchTheAvatar(AnimatorServicesContext asc, VirtualAnimatorController fx, Transform avatarRoot, VirtualClip reset, ICollection<EditorCurveBinding> writtenEveryFrame)
         {
             if (reset == null) return true;
             const float tolerance = 0.001f;
@@ -577,7 +578,7 @@ namespace DocMe.AvatarDoctor.Editor
             {
                 var curve = reset.GetFloatCurve(binding);
                 if (curve == null || curve.length == 0) continue;
-                if (binding.propertyName.StartsWith("blendShape.") && owned.Contains(binding)) continue;
+                if (binding.propertyName.StartsWith("blendShape.") && writtenEveryFrame.Contains(binding)) continue;
                 float rest = curve.Evaluate(0f);
                 if (binding.type == typeof(Animator) && string.IsNullOrEmpty(binding.path))
                 {
@@ -621,11 +622,16 @@ namespace DocMe.AvatarDoctor.Editor
         /// motion at all, which the first two clauses both fail. An owned shape still gets its frame of rest; an owned
         /// property skips it, and so does the idle state of an ordinary layer, for either. When every clause fails
         /// this says no, and the layer's Reset writes the rest value once; a wrong no costs that one frame and nothing more.
+        /// everyFrame says an owner holds it by one of the first two clauses, which write the binding on every frame:
+        /// only such an owner lets a resting pin layer fade over a rest the avatar does not have (RestsMatchTheAvatar).
+        /// The Direct tree clause can name a layer that writes nothing for a while, face tracking switched off.
         /// </summary>
-        static bool SomeNonPinLayerOwns(AnimatorServicesContext asc, List<VirtualLayer> layers, ICollection<string> pinLayerNames, HashSet<VirtualLayer> recordedLayers, EditorCurveBinding binding, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips)
+        static bool SomeNonPinLayerOwns(AnimatorServicesContext asc, List<VirtualLayer> layers, ICollection<string> pinLayerNames, HashSet<VirtualLayer> recordedLayers, EditorCurveBinding binding, HashSet<VirtualLayer> underLayerControl, HashSet<VirtualClip> resetClips, out bool everyFrame)
         {
+            everyFrame = false;
             var clips = new HashSet<VirtualClip>(asc.AnimationIndex.GetClipsForBinding(binding));
             if (clips.Count == 0) return false;
+            bool owned = false;
             foreach (var layer in layers)
             {
                 if (layer.StateMachine == null) continue;
@@ -634,21 +640,27 @@ namespace DocMe.AvatarDoctor.Editor
                 if (layer.BlendingMode == AnimatorLayerBlendingMode.Additive) continue;
                 if (layer.DefaultWeight <= 0f) continue;
                 if (underLayerControl.Contains(layer)) continue;
-                if (LayerOwnsBinding(layer, clips, resetClips)) return true;
+                if (!LayerOwnsBinding(layer, clips, resetClips, out bool writesEveryFrame)) continue;
+                owned = true;
+                if (!writesEveryFrame) continue;
+                everyFrame = true;
+                return true;
             }
-            return false;
+            return owned;
         }
 
-        /// <summary>Whether this layer holds the binding by one of the three clauses SomeNonPinLayerOwns names. A recorded Reset or Load state (its clip in resetClips) does not count as one of its states.</summary>
-        static bool LayerOwnsBinding(VirtualLayer layer, HashSet<VirtualClip> clipsForBinding, HashSet<VirtualClip> resetClips)
+        /// <summary>Whether this layer holds the binding by one of the three clauses SomeNonPinLayerOwns names, and whether by one of the first two, which write it on every frame. A recorded Reset or Load state (its clip in resetClips) does not count as one of its states.</summary>
+        static bool LayerOwnsBinding(VirtualLayer layer, HashSet<VirtualClip> clipsForBinding, HashSet<VirtualClip> resetClips, out bool everyFrame)
         {
+            everyFrame = false;
             var states = layer.StateMachine.AllStates().Where(s => !(s.Motion is VirtualClip clip && resetClips.Contains(clip))).ToList();
             if (states.Count == 0) return false;
             // Unity only writes a Write Defaults value for a property the layer itself animates somewhere; a layer
             // whose states are all Write Defaults on but that never touches this binding at all (an unrelated
             // toggle's own layer, say, on a Write Defaults on avatar) does not hold it just by being on.
-            if (states.All(s => s.WriteDefaultValues) && states.Any(s => s.Motion != null && LeafClips(s.Motion).Any(clipsForBinding.Contains))) return true;
-            if (states.All(s => s.Motion != null && LeafClips(s.Motion).All(clipsForBinding.Contains))) return true;
+            everyFrame = states.All(s => s.WriteDefaultValues) && states.Any(s => s.Motion != null && LeafClips(s.Motion).Any(clipsForBinding.Contains))
+                || states.All(s => s.Motion != null && LeafClips(s.Motion).All(clipsForBinding.Contains));
+            if (everyFrame) return true;
             return states.Any(s => s.Motion != null && AnyDirectTreeDrivesBinding(s.Motion, clipsForBinding));
         }
 

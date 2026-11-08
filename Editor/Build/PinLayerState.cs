@@ -37,6 +37,9 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Every binding the final pass found another layer owning: a shape there still rests once on the way out, a property is left to its owner.</summary>
         public readonly HashSet<UnityEditor.EditorCurveBinding> OwnedByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
 
+        /// <summary>The bindings of OwnedByAnotherLayer whose owner writes them on every frame (Write Defaults on and animating them, or a curve in every clip it plays): a resting pin layer may fade over its rest for these, since the owner decides them anyway.</summary>
+        public readonly HashSet<UnityEditor.EditorCurveBinding> WrittenEveryFrameByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
+
         /// <summary>
         /// One blend shape trigger the final pass still has to connect to its shape: every FX clip that moves the
         /// shape by then gets a curve on Parameter that copies the shape's own curve, and with Replace the shape's

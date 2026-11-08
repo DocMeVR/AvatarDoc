@@ -373,6 +373,46 @@ namespace DocMe.AvatarDoctor.Editor
             AssertFadesWhileIdle(fx, "AD: Clear (pin)", "Off", "On");
         }
 
+        [Test]
+        public void AHeadpatsOwnOffValueStaysBesideFaceTrackingThatIsOff()
+        {
+            // Face tracking the way a template builds it: Disabled writes nothing, Tracking holds a Direct tree. It
+            // counts as moving Blush, but while tracking is off it writes nothing, so the off value has to hold.
+            const string parameter = "FT/Blush";
+            avatar.Fx.AddParameter(new AnimatorControllerParameter { name = parameter, type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
+            var clip = TestAvatar.ShapeClip("FT Blush", "Body", "Blush", 70f, 70f);
+            made.Add(clip);
+            var tree = new BlendTree { name = "FT Blush", blendType = BlendTreeType.Direct };
+            made.Add(tree);
+            tree.children = new[] { new ChildMotion { motion = clip, directBlendParameter = parameter, timeScale = 1f } };
+            avatar.Fx.AddLayer("FT Blush");
+            var machine = avatar.Fx.layers[avatar.Fx.layers.Length - 1].stateMachine;
+            var disabled = machine.AddState("Disabled");
+            disabled.writeDefaultValues = false;
+            var tracking = machine.AddState("Tracking");
+            tracking.motion = tree;
+            tracking.writeDefaultValues = true;
+            machine.defaultState = disabled;
+            made.Add(machine);
+            var layers = avatar.Fx.layers;
+            foreach (var layer in layers) layer.defaultWeight = 1f;
+            avatar.Fx.layers = layers;
+            var pat = Headpat("Blush");
+            pat.blendShapes[0] = new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, explicitOff = true, minWeight = 30f };
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True,
+                "sanity: the face tracking layer counts as moving Blush");
+            Assert.That(ControlOn(State(Layer(fx, "AD: Headpat (distance)"), "Far")), Is.Null, "it may write nothing at all, so the headpat's own off value keeps the layer's weight");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body))
+            {
+                var resting = player.Settled("Blush");
+                Assert.That(player.Play(30, "Blush").Last(), Is.EqualTo(30f).Within(0.01f), "tracking off, no hand near: the off value stays " + Shown(resting));
+            }
+        }
+
         void TrackBlink()
         {
             avatar.Descriptor.enableEyeLook = true;

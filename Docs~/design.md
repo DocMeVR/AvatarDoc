@@ -2805,9 +2805,11 @@ avatar's animations still see the default outfit; the held shapes show at their 
 this change found the same weight loss one step further: a held shape that another control's start value puts into the
 avatar (a default on plain row beside a trigger that starts off with a rule on the mesh). The old Link default write
 had hidden it by writing the trigger's rests over it. So `RestsMatchTheAvatar` now skips a blend shape binding in
-`PinLayerState.OwnedByAnotherLayer`: its owner writes it on every frame, so the idle layer's weight never shows on it
-(`WorldDanceTests.ATriggerBesideAToggleThatStartsOnStillLetsTheDanceThrough`,
-`APinToggleOnAShapeAToggleStartsOnStillFades`). Left as is: an exclusive group's pin layer keeps weight 1 while a
+`PinLayerState.WrittenEveryFrameByAnotherLayer`: its owner writes it on every frame, so the idle layer's weight never
+shows on it (`WorldDanceTests.ATriggerBesideAToggleThatStartsOnStillLetsTheDanceThrough`,
+`APinToggleOnAShapeAToggleStartsOnStillFades`). Only owners by the Write Defaults on clause or the every clip clause
+of `SomeNonPinLayerOwns` count. The Direct tree clause names face tracking, which writes nothing while it is switched
+off, and a headpat's own off value has to stay then (`AHeadpatsOwnOffValueStaysBesideFaceTrackingThatIsOff`). Left as is: an exclusive group's pin layer keeps weight 1 while a
 member that holds shapes is on, so a gesture face on another member's shape stays in that time (measured, documented in
 layers-and-pins).
 
