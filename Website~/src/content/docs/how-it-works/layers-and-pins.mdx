@@ -27,6 +27,8 @@ When the build is finished, the layers of the FX controller stand in this order,
 
 Layers that VRCFury adds land before the last step too. AvatarDoc moves the pin layers to the end only in its last pass, after every other tool has run. See [Pin layers go last](#pin-layers-go-last).
 
+When an entry that starts on holds a shape, the last pass also adds the rest layer, right after the first three layers. See [The rest layer](#the-rest-layer).
+
 An ordinary layer is simple:
 
 - A toggle's layer has an off state and an on state. The animation of each state sets every target of the toggle. The on state sets the on values. The off state sets the values the targets have in your scene, or the off value you chose.
@@ -35,7 +37,7 @@ An ordinary layer is simple:
 
 ## Write Defaults
 
-Write Defaults is a setting of each animator state. When it is on, the state sets everything that its layer ever animates back to its starting value, unless the state sets it itself. When it is off, the state sets only what its own animation sets.
+Write Defaults is a setting of each animator state. When it is on, the state hands everything that its layer ever animates back to what an earlier layer sets, or else to its starting value, unless the state sets it itself. When it is off, the state sets only what its own animation sets.
 
 AvatarDoc chooses one setting for all its ordinary layers, so that they match the rest of your avatar:
 
@@ -64,9 +66,7 @@ A pin layer sits last in the list (see [The order of the layers](#the-order-of-t
 
 One layer with Write Defaults off and a weight above 0 is enough to make the whole FX controller keep every face shape that something outside it animates. The dance of an MMD world is such an animation, so it could not move the face. So a pin layer weighs nothing while it rests. Its off state sets the layer's weight to 0, again every 3 seconds, and each on state sets it back to 1, through an animator layer control aimed at the layer itself. Load and Reset play at full weight, so the moment of rest still counts. The pause layers animate nothing, so they weigh 0 all the time. Their tracking changes work at any weight.
 
-A layer at weight 0 shows each shape and object the way your avatar was uploaded. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one. A shape that another layer writes on every frame, such as the shape of an ordinary toggle, does not count, because that layer decides it anyway.
-
-That is why the shapes a pin layer holds stay out of the uploaded avatar, even for a toggle that is <Label k="ad.ui.default_on" />, the default member of an exclusive group, or a blend shape trigger that starts on. Their pin layer sets the shapes when the avatar loads. Up to AvatarDoc 0.8.2 these shapes went into the uploaded avatar, so the pin layer kept its weight at rest, and a gesture face on the same shape stayed after the gesture ended. Objects and materials still go into the uploaded avatar the way they start. People who don't see your animations, because their Safety settings turn them off for you, see the held shapes at the weight they have in your scene.
+A layer at weight 0 shows each shape and object the way your avatar was uploaded, unless an earlier layer sets it. So a pin layer only rests at weight 0 when every value it rests at is the uploaded one, or one that another layer writes on every frame anyway, such as the shape of an ordinary toggle or of [the rest layer](#the-rest-layer).
 
 A pin layer keeps its weight while it rests, and still stops the dance, when it rests anywhere else:
 
@@ -75,6 +75,28 @@ A pin layer keeps its weight while it rests, and still stops the dance, when it 
 - a blend shape trigger that starts on and switches objects or materials, which go into the uploaded avatar the way they start
 
 While an entry with a pin layer is on, a world's dance can't move the face either. See [My face does not move in an MMD world](../../help/troubleshooting/#mmd-face).
+
+### The rest layer
+
+The uploaded avatar shows how your entries start, the shapes that pin layers hold included. So people who don't see your animations, because their Safety settings turn them off for you, see the same look as everyone else when the avatar loads.
+
+Those shapes rest away from the uploaded value, though. So AvatarDoc adds one layer for them, named **AD: Rest**. Its only state has Write Defaults on and writes the rest of each such shape on every frame: its weight in your scene, or the start value of another toggle that sets it without holding it. Gestures, face tracking and the pin layers come later in the list. They decide the shape while they play, and let it go back to the rest when they stop. That is how the pin layer of a toggle that is <Label k="ad.ui.default_on" />, of a group's default member or of a blend shape trigger that starts on rests at weight 0 too. Modular Avatar rests what its own components change in the same way.
+
+A pin layer whose entry is on wins over every other layer, so the uploaded avatar shows the held value even when a later toggle in the menu sets the same shape. A shape that Modular Avatar's Blendshape Sync, VRCFury's Blendshape Link or an AvatarDoc Shapes Follow row copies from a held shape gets the look and the rest of its source too, so the outfit and the body still match.
+
+AvatarDoc writes those shapes into the uploaded avatar only in its last pass, after Modular Avatar and VRCFury. Until then the scene keeps their rest, which is the value those tools read when they work out the rest of what they change themselves.
+
+The rest layer goes right after the first three layers of FX. MMD worlds switch those three off, and Modular Avatar and VRCFury keep their MMD layers there, so AvatarDoc moves none of them. When FX has fewer than three layers before AvatarDoc's own, the rest layer comes right after those, where an MMD world can switch it off during a dance. d4rk Avatar Optimizer and Avatar Optimizer (AAO) don't merge the rest layer into their own layers, because the pin layers animate the same shapes.
+
+Some shapes keep their rest in the uploaded avatar instead:
+
+- a shape VRChat blinks or speaks with, because VRChat stops moving a shape that any layer writes, so the rest layer leaves it out
+- a shape that one of the first three layers moves, such as a gesture there, because the rest layer would come after that layer and hide it, so the rest layer leaves it out too
+- the source shape of a blend shape trigger in <Label k="ad.ui.trigger.mode.replace" /> mode, because the trigger takes every animation of that shape away, so the shape shows the uploaded value for good
+
+While its entry is off, a world's dance can't move a shape that the rest layer writes, and neither can your avatar's own Action or Gesture layer, such as an emote, because FX comes after them. A dance still moves every other shape, because the rest layer has Write Defaults on.
+
+Up to AvatarDoc 0.8.2 the held shapes went into the uploaded avatar without a rest layer. The pin layer then kept its weight while it rested, and a gesture face on the same shape stayed after the gesture ended.
 
 ### Explicit rests
 

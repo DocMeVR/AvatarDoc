@@ -463,9 +463,12 @@ namespace DocMe.AvatarDoctor.Editor
             var (plans, _) = TriggerPlanner.Plan(tree, plan, new Dictionary<string, ExistingParameter>());
             var baseState = BaseState.Capture(tree);
 
-            DefaultsApplier.Apply(tree, plan, baseState, plans);
+            var rests = DefaultsApplier.Apply(tree, plan, baseState, plans);
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(0f), "its shapes stay out of the uploaded avatar: its Write Defaults off layer holds them");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(0f), "its shapes keep their rest in the scene, where other tools read it");
+            var eyeBig = rests.Single(r => r.Shape == "Eye_Big");
+            Assert.That(eyeBig.Look, Is.EqualTo(30f), "the last pass writes the look into the avatar: half the source's 60");
+            Assert.That(eyeBig.Rest, Is.EqualTo(0f));
             Assert.That(avatar.Hat.activeSelf, Is.True);
             Assert.That(avatar.Body.sharedMaterials[1], Is.SameAs(avatar.MaterialB));
         }
@@ -487,10 +490,15 @@ namespace DocMe.AvatarDoctor.Editor
             var (plans, _) = TriggerPlanner.Plan(tree, plan, new Dictionary<string, ExistingParameter>());
             var baseState = BaseState.Capture(tree);
 
-            DefaultsApplier.Apply(tree, plan, baseState, plans);
+            var rests = DefaultsApplier.Apply(tree, plan, baseState, plans);
 
             Assert.That(avatar.Hat.activeSelf, Is.True, "the toggle's 80 starts the trigger, not the stale scene weight (0), pinned or not");
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(mode == ShapeEffectMode.Pin ? 0f : 80f), "a pinned 80 itself stays out of the uploaded avatar");
+            if (mode == ShapeEffectMode.Pin)
+            {
+                Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(0f), "a pinned 80 keeps its rest in the scene until the last pass");
+                Assert.That(rests.Single(r => r.Shape == "Blush").Look, Is.EqualTo(80f), "which writes the 80 into the avatar");
+            }
+            else Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(80f), "a plain 80 goes into the scene straight away");
         }
 
         [Test]
@@ -749,9 +757,10 @@ namespace DocMe.AvatarDoctor.Editor
             var tree = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
             var plan = ParameterPlanner.Plan(tree, new Dictionary<string, ExistingParameter>());
 
-            DefaultsApplier.Apply(tree, plan, BaseState.Capture(tree));
+            var rests = DefaultsApplier.Apply(tree, plan, BaseState.Capture(tree));
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(60f), "a pin's shape stays out of the uploaded avatar, even while its control starts on: its pin layer holds it");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(60f), "a pin's shape keeps its rest in the scene, where other tools read it");
+            Assert.That(rests.Single().Look, Is.EqualTo(0f), "and the last pass writes the pin's weight into the avatar while the control starts on");
 
             mute.defaultOn = false;
             avatar.Body.SetBlendShapeWeight(0, 60f);

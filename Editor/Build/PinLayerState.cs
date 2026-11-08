@@ -16,7 +16,7 @@ namespace DocMe.AvatarDoctor.Editor
         public bool Ready;
         public readonly HashSet<string> Names = new HashSet<string>();
         /// <summary>True when there is a named pin layer to move, a binding to release, a shape to copy or a rule curve to check. Follow distance's own layer, its shared tracking pause layers and every blend shape trigger's layer are named in here too, since they are all built as pin layers.</summary>
-        public bool HasAny => Names.Count > 0 || Bindings.Count > 0 || PropertyRests.Count > 0 || ShapeMirrors.Count > 0 || HeldCurves.Count > 0 || Resets.Count > 0;
+        public bool HasAny => Names.Count > 0 || Bindings.Count > 0 || PropertyRests.Count > 0 || ShapeMirrors.Count > 0 || HeldCurves.Count > 0 || Resets.Count > 0 || UploadRests.Count > 0;
 
         /// <summary>The name of the state a layer passes through on its way back to rest.</summary>
         public const string ResetStateName = "Reset";
@@ -37,8 +37,17 @@ namespace DocMe.AvatarDoctor.Editor
         /// <summary>Every binding the final pass found another layer owning: a shape there still rests once on the way out, a property is left to its owner.</summary>
         public readonly HashSet<UnityEditor.EditorCurveBinding> OwnedByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
 
-        /// <summary>The bindings of OwnedByAnotherLayer whose owner writes them on every frame (Write Defaults on and animating them, or a curve in every clip it plays): a resting pin layer may fade over its rest for these, since the owner decides them anyway.</summary>
+        /// <summary>The blend shapes of OwnedByAnotherLayer whose owner writes them on every frame, a curve for them in every clip it plays: a resting pin layer may fade over its rest for these, since the owner decides them anyway. A Write Defaults on layer that only animates the shape in some states does not count: while it rests it writes nothing, and the avatar's own value shows through (measured by playback).</summary>
         public readonly HashSet<UnityEditor.EditorCurveBinding> WrittenEveryFrameByAnotherLayer = new HashSet<UnityEditor.EditorCurveBinding>();
+
+        /// <summary>The shapes whose default look DefaultsApplier found away from their rest (DefaultsApplier.UploadRest), for RestLayerBuilder.</summary>
+        public readonly List<DefaultsApplier.UploadRest> UploadRests = new List<DefaultsApplier.UploadRest>();
+
+        /// <summary>Each blend shape the rest layer writes, with the value it writes on every frame: a resting pin layer shows that value, not the avatar's own, so it fades only where its Reset agrees with it.</summary>
+        public readonly Dictionary<UnityEditor.EditorCurveBinding, float> RestLayerValues = new Dictionary<UnityEditor.EditorCurveBinding, float>();
+
+        /// <summary>The name the rest layer is built with, unless a layer of that name already exists.</summary>
+        public const string RestLayerName = "AD: Rest";
 
         /// <summary>
         /// One blend shape trigger the final pass still has to connect to its shape: every FX clip that moves the

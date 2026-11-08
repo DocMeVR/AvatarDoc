@@ -251,7 +251,7 @@ namespace DocMe.AvatarDoctor.Editor
             var errors = ErrorReport.CaptureErrors(() => AvatarDoctorBuilder.Run(context));
             context.DeactivateAllExtensionContexts();
             Assert.That(errors.Where(e => e.TheError.Severity >= ErrorSeverity.Error), Is.Empty);
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(10f), "sanity: Plain's 10 is in the clone, and the rule's 0 stays out of it");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(10f), "sanity: between the passes the clone holds Plain's 10, and the rule's 0 is not in it");
 
             AvatarDoctorPlugin.FinishAfterOtherTools(context);
 

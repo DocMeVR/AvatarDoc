@@ -91,6 +91,9 @@ namespace DocMe.AvatarDoctor.Editor
                     // owns Eyes or Mouth tracking; when one does, Follow distance's own pause layer for that part
                     // steps aside instead of fighting it. Before the move, so a dropped layer never needs moving.
                     if (needsPinMove) L.Report(TouchBuilder.RemoveForeignOwnedPauseLayers(asc, pins));
+                    // After the release, so no ownership guess counts the rest layer as an owner; before the copy
+                    // of each blend shape trigger's shape, so a trigger reads the rests from it too.
+                    if (needsPinMove) RestLayerBuilder.Build(asc, pins);
                     if (needsOverrides) OverrideBuilder.RunFinal(context);
                     // Every clip any tool will add is in FX now, the rest curves above included, and every
                     // override has flattened what it pins: the hidden copy of each blend shape trigger's shape is

@@ -300,7 +300,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(avatar.Body.GetBlendShapeWeight(Index("Eye_Big")), Is.EqualTo(10f), "sanity: the clone starts at Plain's 10, and the rule's 0 stays out of it");
+            Assert.That(avatar.Body.GetBlendShapeWeight(Index("Eye_Big")), Is.EqualTo(10f), "sanity: Plain's layer sits in the first three FX layers and moves Eye_Big, so the clone keeps Plain's 10");
             float clearRest = Weight(State(Layer(fx, "AD: Clear (pin)"), "Reset").motion, "Eye_Big");
             Assert.That(clearRest, Is.EqualTo(40f), "the other toggle hands the shape back to 40 when it turns off");
             Assert.That(Weight(State(Layer(fx, "AD: Face (pin)"), "On").motion, "Eye_Big"), Is.EqualTo(clearRest), "a held shape and the rest a toggle hands back never disagree");

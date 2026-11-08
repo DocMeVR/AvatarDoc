@@ -294,6 +294,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
+            Assert.That(fx.layers.Any(l => l.name == PinLayerState.RestLayerName), Is.True, "sanity: the rest layer rests Blush, which the uploaded avatar shows at 100");
             var on = Leaving(Layer(fx, "AD: Face (pin)"), "On");
             using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / framesPerSecond, controlDelay, Dance()))
             {
@@ -302,9 +303,49 @@ namespace DocMe.AvatarDoctor.Editor
 
                 player.Set(on, 0f);
                 var off = player.Settled("Dance");
-                Assert.That(off.Last(), Is.EqualTo(80f).Within(0.01f), "turned off: the dance reaches the face " + Shown(off));
+                Assert.That(off.Last(), Is.EqualTo(80f).Within(0.01f), "turned off: the dance reaches the face past the rest layer, which is Write Defaults on " + Shown(off));
                 Assert.That(player.Weight("Blush"), Is.EqualTo(0f).Within(0.01f), "and Blush is at rest");
             }
+        }
+
+        [Test]
+        public void ADanceCannotMoveAShapeTheRestLayerRests()
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            var dance = TestAvatar.ShapeClip("Dance Blush", "Body", "Blush", 80f, 80f);
+            made.Add(dance);
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var on = Leaving(Layer(fx, "AD: Face (pin)"), "On");
+            Assert.That(fx.layers.Any(l => l.name == PinLayerState.RestLayerName), Is.True, "sanity: the rest layer rests Blush");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / 60f, 0, dance))
+            {
+                player.Set(on, 0f);
+                var off = player.Settled("Blush");
+                Assert.That(player.LayerWeight("AD: Face (pin)"), Is.EqualTo(0f), "sanity: the pin layer rests at weight 0, so only the rest layer holds Blush");
+                Assert.That(off.Last(), Is.EqualTo(0f).Within(0.01f), "the known cost: while the toggle is off, its held shape stays at rest under a dance " + Shown(off));
+            }
+        }
+
+        [Test]
+        public void AHeadpatsOwnOffValueKeepsItsWeightBesideAToggleThatStartsOnWithTheSameShape()
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            var pat = Headpat("Blush");
+            pat.blendShapes[0] = new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, explicitOff = true, minWeight = 30f };
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(fx.layers.Any(l => l.name == PinLayerState.RestLayerName), Is.True, "sanity: the rest layer rests Blush");
+            Assert.That(ControlOn(State(Layer(fx, "AD: Headpat (distance)"), "Far")), Is.Null, "the headpat rests at its own 30, not at the rest layer's value, so its layer keeps its weight");
+            AssertFadesWhileIdle(fx, "AD: Face (pin)", "Off", "On");
         }
 
         [Test]
