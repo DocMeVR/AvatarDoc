@@ -10,6 +10,11 @@
 * a resting face layer lets dances through beside a toggle that starts on with the same shape ([3b4dbdc](https://github.com/DocMeVR/AvatarDoc/commit/3b4dbdc199d4ec6a27ae673846d32653deaed066))
 * players with animations off see how toggles start, held face shapes included ([3b4dbdc](https://github.com/DocMeVR/AvatarDoc/commit/3b4dbdc199d4ec6a27ae673846d32653deaed066))
 
+
+### Behaviour change
+
+* a toggle that starts on and holds face shapes now adds an `AD: Rest` layer to FX. While the toggle is off, MMD dances and the avatar's own Action and Gesture animations can't move those shapes.
+
 ## [0.8.2](https://github.com/DocMeVR/AvatarDoc/compare/0.8.1...0.8.2) (2026-11-06)
 
 
