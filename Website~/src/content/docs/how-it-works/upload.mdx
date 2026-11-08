@@ -26,7 +26,7 @@ NDMF runs its tools in phases. AvatarDoc takes part in four places.
 1. **Before anything is built.** AvatarDoc works out what the menu items you removed from the avatar would free: their parameters and their animator layers. It does this first, while the avatar's animator controllers are still whole. See [Remove things from the avatar](../../guides/remove-things/).
 2. **AvatarDoc's main pass, before Modular Avatar.** It builds the menu, the parameters and the layers of your entries. The next section lists what it does inside this pass.
 3. **After Modular Avatar.** AvatarDoc writes the rules of [AvatarDoc Shapes](../../reference/avatardoc-shapes/), holds the shapes of your overrides in the animations Modular Avatar added, and applies your changes to the items Modular Avatar added.
-4. **After VRCFury, and before the Avatar Optimizer.** AvatarDoc runs a last time. It holds the override shapes in the animations VRCFury added, drops the parts of a Hold the rest rule that nothing needs, hands pinned shapes back to rest, moves its own pin layers to the end, and applies the menu changes still waiting. [Layers, Write Defaults and pinned layers](../layers-and-pins/) explains these steps.
+4. **After VRCFury, and before the Avatar Optimizer.** AvatarDoc runs a last time. It holds the override shapes in the animations VRCFury added, drops the parts of a Hold the rest rule that nothing needs, hands pinned shapes back to rest, adds the rest layer and writes the held shapes of entries that start on into the copy, moves its own pin layers to the end, and applies the menu changes still waiting. [Layers, Write Defaults and pinned layers](../layers-and-pins/) explains these steps.
 
 VRCFury is not an NDMF tool. It runs after Modular Avatar and before NDMF's last phase, which is why AvatarDoc needs a pass on each side of it. [Working with VRCFury and Modular Avatar](../vrcfury-and-modular-avatar/) says more.
 
@@ -37,7 +37,7 @@ Built in this order:
 1. It collects the AvatarDoc components that are switched on. A component that is switched off adds nothing.
 2. It builds the merged menu and plans the parameters. It reports every warning and error it finds.
 3. It checks the synced bits against VRChat's limit of 256.
-4. If there is no error, it removes the layers you asked to remove, then writes each entry's start state into the copy of the scene, so the avatar starts the way your entries say.
+4. If there is no error, it removes the layers you asked to remove, then writes each entry's start state into the copy of the scene, so the avatar starts the way your entries say. The shapes a pin layer holds follow in the last pass, together with the layer that rests them, so Modular Avatar and VRCFury still read their rest from the scene. See [The rest layer](../layers-and-pins/#the-rest-layer).
 5. It builds the layers: toggles, radials and exclusive groups first, then condition triggers, touch triggers, blend shape triggers, presets, and last the merged animators. This is the order the layers are built in, not the order they end up in: the last pass moves some of them. [The order of the layers](../layers-and-pins/#the-order-of-the-layers) gives the finished order.
 6. It writes the parameters and the menu, and removes the components.
 

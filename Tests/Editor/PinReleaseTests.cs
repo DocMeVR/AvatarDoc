@@ -83,14 +83,17 @@ namespace DocMe.AvatarDoctor.Editor
         public void TheRestValueIsTheSceneValueBeforeAnyEffect()
         {
             var face = PinnedFace(37f);
-            // On by default, so DefaultsApplier writes the pinned weight into the scene before the animator is
-            // even built: a rest value read from the scene afterward, instead of from the capture taken before it,
-            // would come back 100, not 37, and this test would not be able to tell the two apart.
             face.defaultOn = true;
+            // Another toggle, on by default, sets the same shape without a pin, so DefaultsApplier writes 100 into the
+            // scene before the animator is even built: a rest value read from the scene afterward, instead of from
+            // the capture taken before it, would come back 100, not 37, and this test would not be able to tell.
+            var plain = menu.AddEntry(EntryKind.Toggle, "Plain");
+            plain.defaultOn = true;
+            plain.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f });
             var (tree, plan) = Model(menu);
             var baseState = BaseState.Capture(tree);
             DefaultsApplier.Apply(tree, plan, baseState);
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f), "defaults really did write the pinned value into the scene");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f), "defaults really did write 100 into the scene");
             var pins = new PinLayerState();
             var context = new BuildContext(avatar.Root, null);
             var asc = context.ActivateExtensionContextRecursive<AnimatorServicesContext>();

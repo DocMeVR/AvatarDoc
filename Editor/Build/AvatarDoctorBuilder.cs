@@ -89,8 +89,8 @@ namespace DocMe.AvatarDoctor.Editor
                 L.Report(tree.Messages.Skip(reported));
                 reported = tree.Messages.Count;
                 var baseState = BaseState.Capture(tree);
-                DefaultsApplier.Apply(tree, plan, baseState, triggerPlans, followPlan);
                 var pins = context.GetState<PinLayerState>();
+                pins.UploadRests.AddRange(DefaultsApplier.Apply(tree, plan, baseState, triggerPlans, followPlan));
                 // Taken before any layer of ours is added, so the merged layers follow what the avatar already did.
                 bool writeDefaults = fx == null || AnimatorBuilder.DecideWriteDefaults(fx, pins.Names);
                 var animatorMessages = AnimatorBuilder.Build(asc, tree, plan, baseState, pins.Names, followPlan, pins, touch);

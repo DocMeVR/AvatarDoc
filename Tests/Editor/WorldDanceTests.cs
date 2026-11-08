@@ -283,6 +283,71 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        [TestCase(60f, 0)]
+        [TestCase(144f, 1)]
+        public void ADefaultOnPinToggleTurnedOffLetsTheDanceMoveTheFace(float framesPerSecond, int controlDelay)
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(fx.layers.Any(l => l.name == PinLayerState.RestLayerName), Is.True, "sanity: the rest layer rests Blush, which the uploaded avatar shows at 100");
+            var on = Leaving(Layer(fx, "AD: Face (pin)"), "On");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / framesPerSecond, controlDelay, Dance()))
+            {
+                player.Set(on, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin holds Blush");
+
+                player.Set(on, 0f);
+                var off = player.Settled("Dance");
+                Assert.That(off.Last(), Is.EqualTo(80f).Within(0.01f), "turned off: the dance reaches the face past the rest layer, which is Write Defaults on " + Shown(off));
+                Assert.That(player.Weight("Blush"), Is.EqualTo(0f).Within(0.01f), "and Blush is at rest");
+            }
+        }
+
+        [Test]
+        public void ADanceCannotMoveAShapeTheRestLayerRests()
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            var dance = TestAvatar.ShapeClip("Dance Blush", "Body", "Blush", 80f, 80f);
+            made.Add(dance);
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var on = Leaving(Layer(fx, "AD: Face (pin)"), "On");
+            Assert.That(fx.layers.Any(l => l.name == PinLayerState.RestLayerName), Is.True, "sanity: the rest layer rests Blush");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / 60f, 0, dance))
+            {
+                player.Set(on, 0f);
+                var off = player.Settled("Blush");
+                Assert.That(player.LayerWeight("AD: Face (pin)"), Is.EqualTo(0f), "sanity: the pin layer rests at weight 0, so only the rest layer holds Blush");
+                Assert.That(off.Last(), Is.EqualTo(0f).Within(0.01f), "the known cost: while the toggle is off, its held shape stays at rest under a dance " + Shown(off));
+            }
+        }
+
+        [Test]
+        public void AHeadpatsOwnOffValueKeepsItsWeightBesideAToggleThatStartsOnWithTheSameShape()
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            var pat = Headpat("Blush");
+            pat.blendShapes[0] = new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, explicitOff = true, minWeight = 30f };
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(fx.layers.Any(l => l.name == PinLayerState.RestLayerName), Is.True, "sanity: the rest layer rests Blush");
+            Assert.That(ControlOn(State(Layer(fx, "AD: Headpat (distance)"), "Far")), Is.Null, "the headpat rests at its own 30, not at the rest layer's value, so its layer keeps its weight");
+            AssertFadesWhileIdle(fx, "AD: Face (pin)", "Off", "On");
+        }
+
         [Test]
         public void ALayerThatRestsAwayFromTheAvatarKeepsItsWeight()
         {
@@ -297,9 +362,96 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(ControlOn(State(Layer(fx, "AD: Face (pin)"), "Off")), Is.Null, "the build wrote the on pin into the avatar, so off rests elsewhere");
             Assert.That(ControlOn(State(Layer(fx, "AD: Headpat (distance)"), "Far")), Is.Null, "a row's own off value is not the avatar's");
             AssertFadesWhileIdle(fx, "AD: Plain (pin)", "Off", "On");
+            AssertFadesWhileIdle(fx, "AD: Face (pin)", "Off", "On");
+        }
+
+        /// <summary>Fangs, on by default, writes Eye_Big at 100 into the avatar from its own layer, which writes the shape on every frame.</summary>
+        void FangsOnByDefault()
+        {
+            var fangs = menu.AddEntry(EntryKind.Toggle, "Fangs");
+            fangs.defaultOn = true;
+            fangs.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", weight = 100f });
+        }
+
+        [TestCase(false, TestName = "ATriggerRowOnAShapeAToggleStartsOnStillLetsTheDanceThrough")]
+        [TestCase(true, TestName = "ATriggerRuleOnAMeshAToggleStartsOnStillLetsTheDanceThrough")]
+        public void ATriggerBesideAToggleThatStartsOnStillLetsTheDanceThrough(bool rule)
+        {
+            FangsOnByDefault();
+            var smile = menu.AddEntry(EntryKind.Toggle, "Smile");
+            smile.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f });
+            var link = menu.AddEntry(EntryKind.Trigger, "Blush link");
+            link.source = TriggerSource.BlendShape;
+            link.sourceRenderer = avatar.Body;
+            link.sourceShape = "Blush";
+            if (rule) link.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true });
+            else link.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", mode = ShapeEffectMode.Fixed, weight = 30f });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            AssertFadesWhileIdle(fx, "AD: Blush link (shape)", "Far", "Near");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body, 1f / 60f, 0, Dance()))
+            {
+                var resting = player.Settled("Dance");
+                Assert.That(resting.Last(), Is.EqualTo(80f).Within(0.01f), "the trigger at rest: the dance reaches the face " + Shown(resting));
+                Assert.That(player.Weight("Eye_Big"), Is.EqualTo(100f).Within(0.01f), "and Fangs, on, keeps its shape");
+            }
+        }
+
+        [Test]
+        public void APinToggleOnAShapeAToggleStartsOnStillFades()
+        {
+            FangsOnByDefault();
+            var clear = menu.AddEntry(EntryKind.Toggle, "Clear");
+            clear.shapeSets.Add(new ShapeSetRule { mesh = avatar.Body, zeroOthers = true });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            AssertFadesWhileIdle(fx, "AD: Clear (pin)", "Off", "On");
+        }
+
+        [Test]
+        public void AHeadpatsOwnOffValueStaysBesideFaceTrackingThatIsOff()
+        {
+            // Face tracking the way a template builds it: Disabled writes nothing, Tracking holds a Direct tree. It
+            // counts as moving Blush, but while tracking is off it writes nothing, so the off value has to hold.
+            const string parameter = "FT/Blush";
+            avatar.Fx.AddParameter(new AnimatorControllerParameter { name = parameter, type = AnimatorControllerParameterType.Float, defaultFloat = 1f });
+            var clip = TestAvatar.ShapeClip("FT Blush", "Body", "Blush", 70f, 70f);
+            made.Add(clip);
+            var tree = new BlendTree { name = "FT Blush", blendType = BlendTreeType.Direct };
+            made.Add(tree);
+            tree.children = new[] { new ChildMotion { motion = clip, directBlendParameter = parameter, timeScale = 1f } };
+            avatar.Fx.AddLayer("FT Blush");
+            var machine = avatar.Fx.layers[avatar.Fx.layers.Length - 1].stateMachine;
+            var disabled = machine.AddState("Disabled");
+            disabled.writeDefaultValues = false;
+            var tracking = machine.AddState("Tracking");
+            tracking.motion = tree;
+            tracking.writeDefaultValues = true;
+            machine.defaultState = disabled;
+            made.Add(machine);
+            var layers = avatar.Fx.layers;
+            foreach (var layer in layers) layer.defaultWeight = 1f;
+            avatar.Fx.layers = layers;
+            var pat = Headpat("Blush");
+            pat.blendShapes[0] = new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, explicitOff = true, minWeight = 30f };
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(AnimatorBuilder.LastOwnedByAnotherLayer.Contains(EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush")), Is.True,
+                "sanity: the face tracking layer counts as moving Blush");
+            Assert.That(ControlOn(State(Layer(fx, "AD: Headpat (distance)"), "Far")), Is.Null, "it may write nothing at all, so the headpat's own off value keeps the layer's weight");
+            using (var player = new ResetOnceTests.Player(avatar.Root, fx, avatar.Body))
+            {
+                var resting = player.Settled("Blush");
+                Assert.That(player.Play(30, "Blush").Last(), Is.EqualTo(30f).Within(0.01f), "tracking off, no hand near: the off value stays " + Shown(resting));
+            }
         }
 
         void TrackBlink()

@@ -219,7 +219,8 @@ preview filter attached. The pass, `Build toggles and menus`, runs these steps i
    `activeSelf`, blendshape weight, material in slot. These are the Off values.
 4. **Apply defaults to the scene**: for each toggle in tree order, write the default state (on targets if `defaultOn`,
    else off targets); radials write `lerp(min, max, defaultValue)`; blendshape triggers write their effect for the
-   source's current weight. Later writers win.
+   source's current weight. Later writers win. Shapes a pin layer holds get their rest here; the final pass writes their
+   look with the rest layer ("The default look in the avatar", 2026-11-08).
 5. **Animator**: get the FX controller, decide Write Defaults, add parameters, generate layers (below).
 6. **Clip rewriting** for blendshape triggers (below; replaced in plan 14 task S by a layer per trigger and a hidden
    copy of the shape added in the final pass, see "Smooth blend shape triggers and requirements").
@@ -1884,8 +1885,9 @@ and lip sync shapes settable per rule; the default read at upload.
   when nothing else owns them. A Fade contact: in the Near tree, at their default in the child at 0 and at the
   rule's value at Fully on (`ClipContent.WriteShapeSets`); Far writes nothing and the release pass decides. A blend
   shape trigger: like a Fixed row (`LinkLayerBuilder.Effects.Held`), from the default at Start to the value at Full
-  in Smooth, held in On in Switch, nothing in the rest state. `DefaultsApplier` writes a default on toggle's held
-  shapes and a blend shape trigger's at its source's weight into the clone, the same way it writes rows.
+  in Smooth, held in On in Switch, nothing in the rest state. The look of a default on toggle's held shapes and of a
+  blend shape trigger's at its source's weight goes into the clone in the final pass, with the rest layer that gives
+  the animator their rest ("The default look in the avatar").
 - **Preview order.** A toggle's or a Hold trigger's Pin rows and rule shapes are queued in `PreviewModel.WriteSwitch`
   and written in tree order after the controls and the other triggers, before Fade and blend shape triggers: the
   order `MovePinLayersLast` gives their layers, above every ordinary layer. So a held shape shows the rule's value
@@ -2783,12 +2785,71 @@ Playback showed that a binding no layer with weight writes shows the value the a
 one written. So a layer fades only when every value its `Reset` writes equals the avatar's own value at the end of the
 build (`RestsMatchTheAvatar`: animator parameters against their default, the rest through `ObjectPathRemapper` and
 `AnimationUtility.GetFloatValue` / `GetObjectReferenceValue`; unreadable counts as different). Layers that rest
-elsewhere keep weight 1 while idle and still stop a dance: anything `DefaultsApplier` writes into the avatar at its on
-value (a toggle on by default, a group's default member, a blend shape trigger that starts on, and a pin on a shape
-such an entry also writes), a row's explicit off value, an object off at rest but on in the scene. No build message
-names them yet. Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
+elsewhere keep weight 1 while idle and still stop a dance: a row's explicit off value, an object off at rest but on in
+the scene, a blend shape trigger that starts on and switches objects or materials (`DefaultsApplier` still writes those
+at their on value). No build message names them yet. Until 0.8.2 the held shapes of entries that start on did too: see
+"The default look in the avatar".
+Cost too: while an entry with a pin layer is on, a world's dance still cannot move the face. Detecting
 MMD worlds was dropped: on avatars with VRCFury's Defaults layer and MMD dummies, Modular Avatar's detector lands past
 the three slots worlds switch off.
+
+**The default look in the avatar (2026-11-08).** The creator's rule: the default state is what people see when the
+avatar loads, including players who see it with animations off (they get the uploaded avatar as it is). So the
+upload gets every default on control with `ShapeSet.All`, Pin rows, shape set rules and a blend shape trigger's shapes
+included. Up to 0.8.2 `DefaultsApplier` wrote that alone, which left their pin layer resting away from the uploaded value
+at weight 1, and playback showed the cost next to a Write Defaults on gesture layer on the same shape: the gesture's
+face stayed after the gesture ended, and a dance could not reach the face after the toggle went off.
+
+The fix is Modular Avatar's (1.18.7 `ReactiveObjectPass.ProcessInitialStates` writes the initial state into the avatar
+and puts the scene value into its Merge Blend Tree layer, first in FX, Write Defaults on, weight 1). `DefaultsApplier`
+writes the scene with `ShapeSet.MainOnly` and Link defaults without shapes, the values the animator rests at, and
+returns every shape whose `ShapeSet.All` look differs from that rest as a `PinLayerState.UploadRest`. The scene keeps the
+rest until the final pass on purpose: Modular Avatar's `ReactiveObjectPass` reads a shape's "animation base state" from
+the scene, and VRCFury's Defaults layer its defaults, so both see the rest (0.8.2 showed them the
+look). `RestLayerBuilder` runs in the final pass, after the release (so no ownership guess counts it) and before
+`ClipRewriter` and the override flatten: one layer `AD: Rest`, one Write Defaults on state, a constant clip, weight 1,
+each binding added to `WrittenEveryFrameByAnotherLayer` so `RestsMatchTheAvatar` lets the pin layer fade over it, and
+the look written into the clone (`ResetOnceTests.PlayedBackTheRestLayerLetsAGestureHaveTheShape` checks both scenes). Measured by playback before
+building it: a Write Defaults on gesture layer at rest writes nothing, the layer before it shows (rest layer 5, upload
+100, gesture 60: after the gesture 5; without the rest layer 100). Write Defaults on, because a Write Defaults off layer
+above 0 holds every shape a world's dance moves; the dance still cannot move the shapes the rest layer writes, the
+known cost (`WorldDanceTests.ADanceCannotMoveAShapeTheRestLayerRests`), same as Modular Avatar's.
+
+Place: right after the first three FX layers that are not pin layers (pin layers move last anyway), so the slots MMD
+worlds switch off, where Modular Avatar's MMD relay (`MMDRelayPass`: two dummies and its control layer) and VRCFury's
+MMD Compatibility (dummies at 1 and 2) live, keep their layers. A shape some layer in those slots moves stays out of the
+rest layer and keeps its rest in the avatar, since the rest layer would sit after that layer and hide it; so does
+a shape the descriptor blinks or speaks with (`ShapeSetModel.TrackedShapes`), since VRChat stops moving a shape any
+layer writes. Optimizers: d4rk merges no layer whose bindings another layer uses, AAO's `MergeBlendTreeLayer` none
+whose bindings a later layer animates; the pin layers animate the same shapes, so both leave the rest layer alone.
+
+After the review (2026-11-08): the look writes the held shapes after every ordinary row (a `ShapeSet.MainOnly` pass,
+then `ShapeSet.PinsOnly`, then the Link defaults with shapes), the order the layers win in game, so a Pin row before a
+later plain row on the same shape shows the pin's value in the upload
+(`ResetOnceTests.TheUploadShowsAPinOverALaterPlainRowOnTheSameShape`). A Replace trigger's source keeps its rest in the
+clone: `ClipRewriter` takes every curve of it out of FX, the rest clip's included, so the uploaded value shows for good;
+its rest curve still goes in, so the hidden copy reads the rest
+(`AReplaceTriggersSourceThatAToggleStartsOnHoldsKeepsItsRestInTheUpload`). Copies: Modular Avatar's Blendshape Sync,
+VRCFury's Blendshape Link and AvatarDoc Shapes' Follow rows set a copy from the source's weight in the scene (the rest)
+and copy the source's curves, Modular Avatar's through a remap, into every clip that moves it, the pin's included.
+`RestLayerBuilder.Copies` finds them in the pin state clips (not Reset or Load, which the final pass fills later; not
+AvatarDoc's own bindings) as a curve in every such clip whose value follows the source's, takes its look where the
+source is at its look and its rest from the scene, and treats it like its source
+(`AShapeAnotherToolCopiesFromAHeldOneGetsTheLookAndTheRestToo`, which does what Modular Avatar does between the passes).
+The fade check compares a Reset with the rest layer's own value (`PinLayerState.RestLayerValues`) instead of skipping
+it, so a headpat's own off value keeps its layer's weight
+(`WorldDanceTests.AHeadpatsOwnOffValueKeepsItsWeightBesideAToggleThatStartsOnWithTheSameShape`). `UploadRest` lives in
+`DefaultsApplier`, which compiles without NDMF. Known limits: with fewer than three FX layers before AvatarDoc's own,
+the rest layer sits in a slot MMD worlds switch off; a copy with no pin clip at the source's look (a Follow trigger at a
+mid value) keeps its rest; while the entry is off the rest layer also hides the avatar's own Action and Gesture face
+animations on those shapes.
+
+The same playback also showed that the Write Defaults on clause of `SomeNonPinLayerOwns` does not write on every frame,
+so only the every clip clause sets `everyFrame` now (`ResetOnceTests.APinBesideAWriteDefaultsOnLayerKeepsItsRestWhenTheAvatarShowsAnother`).
+The Direct tree clause names face tracking, which writes nothing while it is switched off, and a headpat's own off value
+has to stay then (`AHeadpatsOwnOffValueStaysBesideFaceTrackingThatIsOff`). Left as is: an exclusive group's pin layer
+keeps weight 1 while a member that holds shapes is on, so a gesture face on another member's shape stays in that time
+(measured, documented in layers-and-pins).
 
 **Exclusive groups.** The pin layer no longer switches members through `AnyState` (see "Phase 5 amendments", now
 superseded): `Off` goes to a member on its own condition, a member goes to `Reset` as soon as its value is not selected,

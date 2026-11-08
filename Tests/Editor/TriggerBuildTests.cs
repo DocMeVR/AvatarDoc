@@ -463,31 +463,42 @@ namespace DocMe.AvatarDoctor.Editor
             var (plans, _) = TriggerPlanner.Plan(tree, plan, new Dictionary<string, ExistingParameter>());
             var baseState = BaseState.Capture(tree);
 
-            DefaultsApplier.Apply(tree, plan, baseState, plans);
+            var rests = DefaultsApplier.Apply(tree, plan, baseState, plans);
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(30f));
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(0f), "its shapes keep their rest in the scene, where other tools read it");
+            var eyeBig = rests.Single(r => r.Shape == "Eye_Big");
+            Assert.That(eyeBig.Look, Is.EqualTo(30f), "the last pass writes the look into the avatar: half the source's 60");
+            Assert.That(eyeBig.Rest, Is.EqualTo(0f));
             Assert.That(avatar.Hat.activeSelf, Is.True);
             Assert.That(avatar.Body.sharedMaterials[1], Is.SameAs(avatar.MaterialB));
         }
 
-        [Test]
-        public void LinkDefaultUsesThePendingToggleValue()
+        [TestCase(ShapeEffectMode.Fixed, TestName = "LinkDefaultUsesThePendingToggleValue")]
+        [TestCase(ShapeEffectMode.Pin, TestName = "LinkDefaultUsesThePendingPinValue")]
+        public void LinkDefaultUsesThePendingValue(ShapeEffectMode mode)
         {
             var toggle = menu.AddEntry(EntryKind.Toggle, "Blush");
             toggle.defaultOn = true;
-            toggle.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 80f });
+            toggle.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 80f, mode = mode });
             var link = Link("Blush link", "Blush");
             link.sourceThreshold = 50f;
-            link.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", mode = ShapeEffectMode.Fixed, weight = 40f });
+            link.objects.Add(new ObjectTarget { target = avatar.Hat, activeWhenOn = true });
+            avatar.Hat.SetActive(false);
             avatar.Body.SetBlendShapeWeight(0, 0f);
             var tree = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
             var plan = ParameterPlanner.Plan(tree, new Dictionary<string, ExistingParameter>());
             var (plans, _) = TriggerPlanner.Plan(tree, plan, new Dictionary<string, ExistingParameter>());
             var baseState = BaseState.Capture(tree);
 
-            DefaultsApplier.Apply(tree, plan, baseState, plans);
+            var rests = DefaultsApplier.Apply(tree, plan, baseState, plans);
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(32f).Within(0.001f), "the pending toggle value (80) is 80% of the way from Start (0) to Full (100), not the stale scene weight (0)");
+            Assert.That(avatar.Hat.activeSelf, Is.True, "the toggle's 80 starts the trigger, not the stale scene weight (0), pinned or not");
+            if (mode == ShapeEffectMode.Pin)
+            {
+                Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(0f), "a pinned 80 keeps its rest in the scene until the last pass");
+                Assert.That(rests.Single(r => r.Shape == "Blush").Look, Is.EqualTo(80f), "which writes the 80 into the avatar");
+            }
+            else Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(80f), "a plain 80 goes into the scene straight away");
         }
 
         [Test]
@@ -746,9 +757,10 @@ namespace DocMe.AvatarDoctor.Editor
             var tree = MenuModel.Build(avatar.Root.transform, null, new[] { menu });
             var plan = ParameterPlanner.Plan(tree, new Dictionary<string, ExistingParameter>());
 
-            DefaultsApplier.Apply(tree, plan, BaseState.Capture(tree));
+            var rests = DefaultsApplier.Apply(tree, plan, BaseState.Capture(tree));
 
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(0f), "a pin writes its weight while the control starts on");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(60f), "a pin's shape keeps its rest in the scene, where other tools read it");
+            Assert.That(rests.Single().Look, Is.EqualTo(0f), "and the last pass writes the pin's weight into the avatar while the control starts on");
 
             mute.defaultOn = false;
             avatar.Body.SetBlendShapeWeight(0, 60f);

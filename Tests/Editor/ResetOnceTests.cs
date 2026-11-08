@@ -12,6 +12,10 @@ using UnityEngine.Playables;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDKBase;
 using Object = UnityEngine.Object;
+#if DOCME_MA
+using nadena.dev.modular_avatar.core;
+using VRC.SDK3.Avatars.ScriptableObjects;
+#endif
 
 namespace DocMe.AvatarDoctor.Editor
 {
@@ -798,7 +802,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f), "sanity: the build wrote the default member's pin into the avatar");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f), "sanity: the uploaded avatar shows the default member's pin");
             var b = Picks(fx, "B");
             using (var player = new Player(avatar.Root, fx, avatar.Body, 1f / framesPerSecond))
             {
@@ -831,6 +835,391 @@ namespace DocMe.AvatarDoctor.Editor
             }
         }
 
+        /// <summary>A gesture face the way a Write Defaults on avatar builds one: Idle plays nothing, Face holds the shape at value while GestureLeft is 1, both Write Defaults on. Returns the parameter.</summary>
+        string GestureFace(string shape, float value, bool writeDefaults = true)
+        {
+            const string parameter = "GestureLeft";
+            avatar.Fx.AddParameter(new AnimatorControllerParameter { name = parameter, type = AnimatorControllerParameterType.Int });
+            var clip = TestAvatar.ShapeClip("Gesture " + shape, "Body", shape, value, value);
+            made.Add(clip);
+            var machine = AddFxLayer("Gesture " + shape);
+            var idle = AddState(machine, "Idle", null, writeDefaults);
+            var face = AddState(machine, "Face", clip, writeDefaults);
+            machine.defaultState = idle;
+            var toFace = idle.AddTransition(face);
+            toFace.hasExitTime = false;
+            toFace.duration = 0f;
+            toFace.AddCondition(AnimatorConditionMode.Equals, 1f, parameter);
+            var toIdle = face.AddTransition(idle);
+            toIdle.hasExitTime = false;
+            toIdle.duration = 0f;
+            toIdle.AddCondition(AnimatorConditionMode.NotEqual, 1f, parameter);
+            FullWeights();
+            return parameter;
+        }
+
+        [TestCase(false, TestName = "PlayedBackADefaultOnToggleLetsAGestureHaveItsShapeOnceItIsOff")]
+        [TestCase(true, TestName = "PlayedBackADefaultOnGroupMemberLetsAGestureHaveItsShapeOnceItIsOff")]
+        public void PlayedBackADefaultOnPinLetsAGestureHaveItsShapeOnceItIsOff(bool inAGroup)
+        {
+            var gesture = GestureFace("Blush", 60f);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            if (inAGroup)
+            {
+                GroupMember("A", "Blush", defaultOn: true);
+                GroupMember("B", "Eye_Big");
+            }
+            else
+            {
+                var face = menu.AddEntry(EntryKind.Toggle, "Face");
+                face.defaultOn = true;
+                face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            }
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            var on = inAGroup ? Picks(fx, "A") : State(Layer(fx, "AD: Face (pin)"), "On").transitions.Single().conditions.Single();
+            // Off for both: no member picked. Another member picked keeps the group's layer at work, holding A's shape too.
+            var off = 0f;
+            using (var player = new Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Set(on.parameter, inAGroup ? on.threshold : 1f);
+                var loaded = player.Settled("Blush");
+                Assert.That(loaded.Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin holds the shape " + Shown(loaded));
+
+                player.Set(on.parameter, off);
+                var left = player.Play(30, "Blush");
+                Assert.That(left.Last(), Is.EqualTo(5f).Within(0.01f),
+                    "turned off: the shape goes back to rest and stays there, though the gesture layer writes its default whenever it rests " + Shown(left));
+
+                player.Set(gesture, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(60f).Within(0.01f), "the gesture has the shape");
+                player.Set(gesture, 0f);
+                var after = player.Settled("Blush");
+                Assert.That(after.Last(), Is.EqualTo(5f).Within(0.01f), "and lets it go back to rest " + Shown(after));
+            }
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(5f).Within(0.01f),
+                "the gesture sits in the first three layers, where a rest layer after them would hide it: the uploaded avatar keeps the shape's rest, which the gesture goes back to");
+            Assert.That(LayerIndex(fx, PinLayerState.RestLayerName), Is.EqualTo(-1), "and no rest layer is built for it");
+        }
+
+        // ---- the default look in the uploaded avatar --------------------------------------------------------
+
+        MenuEntry FaceOnByDefault()
+        {
+            var face = menu.AddEntry(EntryKind.Toggle, "Face");
+            face.defaultOn = true;
+            face.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 100f, mode = ShapeEffectMode.Pin });
+            return face;
+        }
+
+        static int LayerIndex(AnimatorController fx, string name) => System.Array.FindIndex(fx.layers, l => l.name == name);
+
+        /// <summary>Empty Write Defaults on layers added to the avatar's FX, after its own or in front of them, the way Modular Avatar's MMD relay and VRCFury's MMD Compatibility fill the first slots.</summary>
+        void EmptyLayers(int count, bool first)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var machine = AddFxLayer("Empty " + i);
+                machine.defaultState = AddState(machine, "Empty", null, true);
+            }
+            if (first)
+            {
+                var layers = avatar.Fx.layers.ToList();
+                avatar.Fx.layers = layers.Skip(layers.Count - count).Concat(layers.Take(layers.Count - count)).ToArray();
+            }
+            FullWeights();
+        }
+
+        [TestCase(false, TestName = "PlayedBackTheRestLayerLetsAGestureHaveTheShapeOfAToggleThatStartsOn")]
+        [TestCase(true, TestName = "PlayedBackTheRestLayerLetsAGestureHaveTheShapeOfAGroupMemberThatStartsOn")]
+        public void PlayedBackTheRestLayerLetsAGestureHaveTheShape(bool inAGroup)
+        {
+            EmptyLayers(2, first: false);
+            var gesture = GestureFace("Blush", 60f);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            if (inAGroup)
+            {
+                GroupMember("A", "Blush", defaultOn: true);
+                GroupMember("B", "Eye_Big");
+            }
+            else FaceOnByDefault();
+
+            float betweenPasses = -1f;
+            var fx = BuildAll(out var errors, _ => betweenPasses = avatar.Body.GetBlendShapeWeight(0));
+
+            NoErrors(errors);
+            Assert.That(betweenPasses, Is.EqualTo(5f).Within(0.01f), "between AvatarDoc's passes the scene keeps the rest: Modular Avatar and VRCFury read it there as the rest of what they change");
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f).Within(0.01f), "the uploaded avatar shows the default look, for anyone who sees it with animations off");
+            Assert.That(LayerIndex(fx, PinLayerState.RestLayerName), Is.EqualTo(3), "the rest layer sits right after the first three layers, under the gesture");
+            var pinLayer = inAGroup ? "AD: G (pin)" : "AD: Face (pin)";
+            var on = inAGroup ? Picks(fx, "A") : State(Layer(fx, pinLayer), "On").transitions.Single().conditions.Single();
+            using (var player = new Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Set(on.parameter, inAGroup ? on.threshold : 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin holds the shape");
+
+                player.Set(on.parameter, 0f);
+                var left = player.Play(30, "Blush");
+                Assert.That(left.Last(), Is.EqualTo(5f).Within(0.01f), "turned off: the rest layer's 5, not the uploaded 100 " + Shown(left));
+                Assert.That(player.LayerWeight(pinLayer), Is.EqualTo(0f), "and the pin layer rests at weight 0, so a world's dance gets through");
+
+                player.Set(gesture, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(60f).Within(0.01f), "the gesture has the shape");
+                player.Set(gesture, 0f);
+                var after = player.Settled("Blush");
+                Assert.That(after.Last(), Is.EqualTo(5f).Within(0.01f), "and lets it go back to rest " + Shown(after));
+            }
+        }
+
+        [Test]
+        public void TheRestLayerLeavesTheFirstThreeLayersWhereTheyAre()
+        {
+            EmptyLayers(3, first: true);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            FaceOnByDefault();
+            var before = avatar.Fx.layers.Take(3).Select(l => l.name).ToList();
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(fx.layers.Take(3).Select(l => l.name), Is.EqualTo(before), "MMD worlds switch off the first three layers, where Modular Avatar and VRCFury keep their own MMD layers");
+            Assert.That(LayerIndex(fx, PinLayerState.RestLayerName), Is.EqualTo(3));
+            var rest = Layer(fx, PinLayerState.RestLayerName);
+            Assert.That(rest.defaultWeight, Is.EqualTo(1f));
+            Assert.That(rest.blendingMode, Is.EqualTo(AnimatorLayerBlendingMode.Override));
+            Assert.That(rest.stateMachine.states.Length, Is.EqualTo(1), "one state, always on");
+            var state = rest.stateMachine.defaultState;
+            Assert.That(state.writeDefaultValues, Is.True, "Write Defaults on: a Write Defaults off layer above 0 would hold every shape a world's dance moves");
+            Assert.That(state.transitions, Is.Empty);
+            Assert.That(Shapes(state.motion, "Body"), Is.EqualTo(new[] { "Blush" }), "only the shape the uploaded avatar shows at another value");
+            Assert.That(Shape(state.motion, "Blush").Evaluate(0f), Is.EqualTo(5f), "at the scene's weight from before the build");
+        }
+
+        [Test]
+        public void TheRestLayerComesRightAfterTheAvatarsOwnLayersWhenThereAreFewerThanThree()
+        {
+            FaceOnByDefault();
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(fx.layers[0].name, Is.EqualTo("Base"));
+            Assert.That(LayerIndex(fx, PinLayerState.RestLayerName), Is.EqualTo(1), "under every other layer but the avatar's own first one");
+        }
+
+        [Test]
+        public void TheUploadShowsAPinOverALaterPlainRowOnTheSameShape()
+        {
+            EmptyLayers(2, first: false);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            FaceOnByDefault();
+            var plain = menu.AddEntry(EntryKind.Toggle, "Plain");
+            plain.defaultOn = true;
+            plain.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Blush", weight = 30f });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f).Within(0.01f), "the pin layer comes last and wins at load whatever the menu order, so the uploaded avatar shows its 100");
+            var rest = Layer(fx, PinLayerState.RestLayerName).stateMachine.defaultState.motion;
+            Assert.That(Shape(rest, "Blush").Evaluate(0f), Is.EqualTo(30f), "and rests at Plain's 30");
+            var on = State(Layer(fx, "AD: Face (pin)"), "On").transitions.Single().conditions.Single();
+            using (var player = new Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Set(on.parameter, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin wins over Plain");
+                player.Set(on.parameter, 0f);
+                var left = player.Play(30, "Blush");
+                Assert.That(left.Last(), Is.EqualTo(30f).Within(0.01f), "turned off: Plain's 30 " + Shown(left));
+            }
+        }
+
+        [Test]
+        public void AReplaceTriggersSourceThatAToggleStartsOnHoldsKeepsItsRestInTheUpload()
+        {
+            EmptyLayers(2, first: false);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            FaceOnByDefault();
+            var link = menu.AddEntry(EntryKind.Trigger, "Blush link");
+            link.source = TriggerSource.BlendShape;
+            link.sourceRenderer = avatar.Body;
+            link.sourceShape = "Blush";
+            link.linkMode = BlendShapeLinkMode.Replace;
+            link.blendShapes.Add(new BlendShapeTarget { renderer = avatar.Body, shape = "Eye_Big", mode = ShapeEffectMode.Follow, multiplier = 1f });
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(5f).Within(0.01f),
+                "the trigger takes every curve of Blush out of FX, so Blush shows the uploaded value for good: it has to be the rest");
+            var rest = (AnimationClip)Layer(fx, PinLayerState.RestLayerName).stateMachine.defaultState.motion;
+            Assert.That(Shape(rest, "Blush"), Is.Null, "replaced, like every other curve of Blush");
+            var hidden = AnimationUtility.GetCurveBindings(rest).Where(b => b.type == typeof(Animator)).ToList();
+            Assert.That(hidden.Count, Is.EqualTo(1), "the trigger's hidden copy of Blush");
+            Assert.That(AnimationUtility.GetEditorCurve(rest, hidden[0]).Evaluate(0f), Is.EqualTo(5f), "reads the rest while Face rests");
+        }
+
+        static IEnumerable<VirtualClip> ClipsOf(VirtualMotion motion)
+        {
+            if (motion is VirtualClip clip) yield return clip;
+            else if (motion is VirtualBlendTree tree)
+                foreach (var child in tree.Children)
+                    if (child.Motion != null)
+                        foreach (var leaf in ClipsOf(child.Motion)) yield return leaf;
+        }
+
+        [Test]
+        public void AShapeAnotherToolCopiesFromAHeldOneGetsTheLookAndTheRestToo()
+        {
+            EmptyLayers(2, first: false);
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            avatar.Body.SetBlendShapeWeight(1, 20f);
+            FaceOnByDefault();
+            var source = EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Blush");
+            var copy = EditorCurveBinding.FloatCurve("Body", typeof(SkinnedMeshRenderer), "blendShape.Eye_Big");
+
+            // What Modular Avatar's Blendshape Sync does between AvatarDoc's passes, with a remap to half: the copy gets
+            // the source's weight from the scene, and the source's curve in every clip that moves the source.
+            var fx = BuildAll(out var errors, controller =>
+            {
+                avatar.Body.SetBlendShapeWeight(1, avatar.Body.GetBlendShapeWeight(0) * 0.5f);
+                foreach (var layer in controller.Layers)
+                {
+                    if (layer.StateMachine == null) continue;
+                    foreach (var state in layer.StateMachine.AllStates())
+                        foreach (var clip in ClipsOf(state.Motion))
+                        {
+                            var curve = clip.GetFloatCurve(source);
+                            if (curve != null && curve.length > 0)
+                                clip.SetFloatCurve(copy, AnimationCurve.Constant(0f, curve.keys[curve.length - 1].time, curve.Evaluate(0f) * 0.5f));
+                        }
+                }
+            });
+
+            NoErrors(errors);
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(100f).Within(0.01f), "sanity: the source shows the look");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(50f).Within(0.01f),
+                "the copy shows the look too, the source's 100 mapped to 50, so the two still match for anyone with animations off");
+            var rest = Layer(fx, PinLayerState.RestLayerName).stateMachine.defaultState.motion;
+            Assert.That(Shape(rest, "Eye_Big").Evaluate(0f), Is.EqualTo(2.5f).Within(0.01f), "and rests at the weight the tool gave it from the source's rest");
+            var on = State(Layer(fx, "AD: Face (pin)"), "On").transitions.Single().conditions.Single();
+            using (var player = new Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Set(on.parameter, 1f);
+                player.Settled("Blush");
+                Assert.That(player.Weight("Eye_Big"), Is.EqualTo(50f).Within(0.01f), "loaded on: the copy follows the pin");
+                player.Set(on.parameter, 0f);
+                player.Play(30, "Blush");
+                Assert.That(player.Weight("Eye_Big"), Is.EqualTo(2.5f).Within(0.01f), "turned off: the copy goes back to its rest with the source");
+                Assert.That(player.Weight("Blush"), Is.EqualTo(5f).Within(0.01f));
+            }
+        }
+
+#if DOCME_MA
+        [Test]
+        public void PlayedBackAWholeBuildWithModularAvatarKeepsItsMmdLayersFirst()
+        {
+            // A Modular Avatar toggle: its reactive components bring MA's own rest layer and its MMD relay.
+            var itemGo = new GameObject("MA Hat");
+            itemGo.transform.SetParent(avatar.Root.transform);
+            itemGo.AddComponent<ModularAvatarMenuInstaller>();
+            var item = itemGo.AddComponent<ModularAvatarMenuItem>();
+            if (item.Control == null) item.Control = new VRCExpressionsMenu.Control();
+            item.Control.type = VRCExpressionsMenu.Control.ControlType.Toggle;
+            item.label = "MA Hat";
+            var toggle = itemGo.AddComponent<ModularAvatarObjectToggle>();
+            var reference = new AvatarObjectReference();
+            reference.Set(avatar.Hat);
+            toggle.Objects = new List<ToggledObject> { new ToggledObject { Object = reference, Active = true } };
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            FaceOnByDefault();
+
+            GameObject processed = null;
+            try
+            {
+                processed = AvatarProcessor.ManualProcessAvatar(avatar.Root);
+                var descriptor = processed.GetComponent<VRCAvatarDescriptor>();
+                var fx = (AnimatorController)descriptor.baseAnimationLayers.First(l => l.type == VRCAvatarDescriptor.AnimLayerType.FX).animatorController;
+                var names = fx.layers.Select(l => l.name).ToList();
+                var shown = string.Join(" | ", names);
+                Assert.That(names.Take(3), Is.EqualTo(new[] { "Modular Avatar: MMD Dummy", "Modular Avatar: MMD Dummy", "Modular Avatar: MMD Control" }),
+                    "Modular Avatar's MMD layers keep the three slots MMD worlds switch off: " + shown);
+                Assert.That(names.IndexOf(PinLayerState.RestLayerName), Is.EqualTo(3), "the rest layer comes right after them, before Modular Avatar's own rest layer: " + shown);
+                var body = processed.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(r => r.name == avatar.Body.name);
+                Assert.That(body.GetBlendShapeWeight(0), Is.EqualTo(100f).Within(0.01f), "the uploaded avatar shows the default look");
+                var on = State(Layer(fx, "AD: Face (pin)"), "On").transitions.Single().conditions.Single();
+                using (var player = new Player(processed, fx, body))
+                {
+                    player.Set(on.parameter, 1f);
+                    Assert.That(player.Settled("Blush").Last(), Is.EqualTo(100f).Within(0.01f), "loaded on: the pin holds the shape");
+                    player.Set(on.parameter, 0f);
+                    var left = player.Play(30, "Blush");
+                    Assert.That(left.Last(), Is.EqualTo(5f).Within(0.01f), "turned off: the rest layer's 5 " + Shown(left));
+                }
+            }
+            finally
+            {
+                if (processed != null && processed != avatar.Root) Object.DestroyImmediate(processed);
+                GeneratedAssets.CleanUp();
+            }
+        }
+#endif
+
+        [Test]
+        public void ABlinkShapeAToggleStartsOnHoldsKeepsItsRestInTheUpload()
+        {
+            avatar.Descriptor.enableEyeLook = true;
+            avatar.Descriptor.customEyeLookSettings.eyelidType = VRCAvatarDescriptor.EyelidType.Blendshapes;
+            avatar.Descriptor.customEyeLookSettings.eyelidsSkinnedMesh = avatar.Body;
+            avatar.Descriptor.customEyeLookSettings.eyelidsBlendshapes = new[] { avatar.Body.sharedMesh.GetBlendShapeIndex("Blush"), -1, -1 };
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+            FaceOnByDefault();
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(5f).Within(0.01f), "VRChat stops blinking a shape any layer writes, so no rest layer may hold it, and the avatar keeps its rest");
+            Assert.That(LayerIndex(fx, PinLayerState.RestLayerName), Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void NoRestLayerWhenNothingThatStartsOnHoldsAShape()
+        {
+            FaceOnByDefault().defaultOn = false;
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+
+            var fx = BuildAll(out var errors);
+
+            NoErrors(errors);
+            Assert.That(LayerIndex(fx, PinLayerState.RestLayerName), Is.EqualTo(-1));
+            Assert.That(avatar.Body.GetBlendShapeWeight(0), Is.EqualTo(5f).Within(0.01f));
+        }
+
+        [Test]
+        public void APinBesideAWriteDefaultsOnLayerKeepsItsRestWhenTheAvatarShowsAnother()
+        {
+            GestureFace("Blush", 60f);
+            FaceOnByDefault().defaultOn = false;
+            avatar.Body.SetBlendShapeWeight(0, 5f);
+
+            // Another tool writes its own default look into the avatar after AvatarDoc's first pass.
+            var fx = BuildAll(out var errors, _ => avatar.Body.SetBlendShapeWeight(0, 70f));
+
+            NoErrors(errors);
+            var on = State(Layer(fx, "AD: Face (pin)"), "On").transitions.Single().conditions.Single();
+            using (var player = new Player(avatar.Root, fx, avatar.Body))
+            {
+                player.Set(on.parameter, 1f);
+                Assert.That(player.Settled("Blush").Last(), Is.EqualTo(100f).Within(0.01f));
+                player.Set(on.parameter, 0f);
+                var left = player.Play(30, "Blush");
+                Assert.That(left.Last(), Is.EqualTo(5f).Within(0.01f),
+                    "the gesture layer writes nothing while it rests, so a pin layer at weight 0 would show the avatar's 70 " + Shown(left));
+            }
+        }
+
         [Test]
         public void PlayedBackABlendShapeTriggerThatStartsOnRestsWhenItsSourceLoadsOff()
         {
@@ -847,7 +1236,7 @@ namespace DocMe.AvatarDoctor.Editor
             var fx = BuildAll(out var errors);
 
             NoErrors(errors);
-            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(80f), "sanity: the build wrote the trigger's on value into the avatar, since Smile starts on");
+            Assert.That(avatar.Body.GetBlendShapeWeight(1), Is.EqualTo(80f), "sanity: Smile starts on, so the uploaded avatar shows the trigger's on value");
             var smileOn = State(Layer(fx, "AD: Smile"), "On").transitions.Single().conditions.Single();
             using (var player = new Player(avatar.Root, fx, avatar.Body))
             {
