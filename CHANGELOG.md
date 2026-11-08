@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.3](https://github.com/DocMeVR/AvatarDoc/compare/0.8.2...0.8.3) (2026-11-08)
+
+
+### Bug Fixes
+
+* a face toggle that starts on no longer blocks dances on the rest of the face once it is off ([3b4dbdc](https://github.com/DocMeVR/AvatarDoc/commit/3b4dbdc199d4ec6a27ae673846d32653deaed066))
+* a gesture face no longer stays after a face toggle that starts on is switched off ([3b4dbdc](https://github.com/DocMeVR/AvatarDoc/commit/3b4dbdc199d4ec6a27ae673846d32653deaed066))
+* a resting face layer lets dances through beside a toggle that starts on with the same shape ([3b4dbdc](https://github.com/DocMeVR/AvatarDoc/commit/3b4dbdc199d4ec6a27ae673846d32653deaed066))
+* players with animations off see how toggles start, held face shapes included ([3b4dbdc](https://github.com/DocMeVR/AvatarDoc/commit/3b4dbdc199d4ec6a27ae673846d32653deaed066))
+
+
+### Behaviour change
+
+* a toggle that starts on and holds face shapes now adds an `AD: Rest` layer to FX. While the toggle is off, MMD dances and the avatar's own Action and Gesture animations can't move those shapes.
+
 ## [0.8.2](https://github.com/DocMeVR/AvatarDoc/compare/0.8.1...0.8.2) (2026-11-06)
 
 
